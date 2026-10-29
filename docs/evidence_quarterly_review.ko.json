@@ -1,0 +1,214 @@
+{
+ "scenario_id": "quarterly_review",
+ "title": "분기 포트폴리오 통합 리뷰",
+ "hypotheses": [
+  "H1",
+  "H3"
+ ],
+ "scope": "PORTFOLIO#2026-Q1",
+ "phases": [
+  {
+   "phase": "plan",
+   "agent": "A1",
+   "title": "계획 — 오케스트레이터 위임",
+   "detail": "목표 'Q1 포트폴리오 통합 리뷰(일정·리스크·경영보고)' → 작업자 ['A2', 'A4', 'A5'] 위임",
+   "delegations": [
+    {
+     "agent": "A2",
+     "function": "계획"
+    },
+    {
+     "agent": "A4",
+     "function": "리스크"
+    },
+    {
+     "agent": "A5",
+     "function": "보고"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A2",
+   "function": "계획",
+   "title": "수행 — A2 계획",
+   "elapsed_ms": 7.9,
+   "results": [
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']"
+    },
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']"
+    },
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A4",
+   "function": "리스크",
+   "title": "수행 — A4 리스크",
+   "elapsed_ms": 511.3,
+   "results": [
+    {
+     "schema": "risk_alert.v1",
+     "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']"
+    },
+    {
+     "schema": "risk_alert.v1",
+     "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A5",
+   "function": "보고",
+   "title": "수행 — A5 보고",
+   "elapsed_ms": 225.3,
+   "results": [
+    {
+     "schema": "report.v1",
+     "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+    }
+   ]
+  },
+  {
+   "phase": "complete",
+   "agent": "A1",
+   "title": "완료 — 종합",
+   "summary": "목표 'Q1 포트폴리오 통합 리뷰(일정·리스크·경영보고)' 에 대해 6개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+  },
+  {
+   "phase": "insight",
+   "title": "인사이트 — 5축 KPI · 가설 검증",
+   "kpi_delta": {
+    "report_cycle_time_sec": {
+     "new_events": 1,
+     "sum": 0.224,
+     "avg": 0.224
+    },
+    "risk_lead_time_days": {
+     "new_events": 2,
+     "sum": -3.0,
+     "avg": -1.5
+    },
+    "risk_detected": {
+     "new_events": 2,
+     "sum": 2.0,
+     "avg": 1.0
+    },
+    "spi": {
+     "new_events": 3,
+     "sum": 1.586,
+     "avg": 0.529
+    },
+    "projected_slippage_days": {
+     "new_events": 3,
+     "sum": 120.0,
+     "avg": 40.0
+    }
+   },
+   "findings": [
+    {
+     "axis": "delivery",
+     "hypothesis": "H1",
+     "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측"
+    },
+    {
+     "axis": "risk",
+     "hypothesis": "H3",
+     "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보"
+    },
+    {
+     "axis": "time",
+     "hypothesis": "H1",
+     "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+    },
+    {
+     "axis": "time",
+     "hypothesis": "H1",
+     "finding": "보고 주기 시간(RCT) 계측: 평균 0.224s"
+    }
+   ],
+   "hypotheses": [
+    "H1",
+    "H3"
+   ]
+  }
+ ],
+ "communications": [
+  {
+   "message_id": "0a8204f4-e0e8-4d16-a4c4-61dd88b1679e",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.200594"
+  },
+  {
+   "message_id": "077d2240-44a5-47e5-b890-f66f54823c99",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-22",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.203256"
+  },
+  {
+   "message_id": "844e623d-e670-4e28-b3f3-505845033c74",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.205418"
+  },
+  {
+   "message_id": "38d15474-09b0-400d-9594-b906deaa140e",
+   "sender": "A4",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "risk_alert.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.85,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.447732"
+  },
+  {
+   "message_id": "c12de54f-98a4-4f91-99c9-3a89f4b18e25",
+   "sender": "A4",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "risk_alert.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.85,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:26.716274"
+  },
+  {
+   "message_id": "140d7fb4-03f8-4875-adb6-2b7fd612ae82",
+   "sender": "A5",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "report.v1",
+   "task_ref": "PORTFOLIO#2026-Q1",
+   "confidence": 0.9,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.942043"
+  }
+ ],
+ "paper_markdown": "## 시나리오 검증: 분기 포트폴리오 통합 리뷰\n\n- **대상 범위**: `PORTFOLIO#2026-Q1`\n- **검증 가설**: H1(보고시간 단축), H3(리스크/일정 정확도)\n\n### 1) 에이전트 협업 (계획 → 수행 → 완료)\n\n| 단계 | 에이전트 | 소요(ms) | 산출물 |\n|---|---|---|---|\n| 계획 | A1 | – | 위임: A2, A4, A5 |\n| 수행 | A2 계획 | 7.9 | schedule.v1, schedule.v1, schedule.v1 |\n| 수행 | A4 리스크 | 511.3 | risk_alert.v1, risk_alert.v1 |\n| 수행 | A5 보고 | 225.3 | report.v1 |\n\n### 2) 5축 KPI 실측 (이번 실행 기여분)\n\n| 지표 | 신규 이벤트 | 평균 |\n|---|---|---|\n| `report_cycle_time_sec` | 1 | 0.224 |\n| `risk_lead_time_days` | 2 | -1.5 |\n| `risk_detected` | 2 | 1.0 |\n| `spi` | 3 | 0.529 |\n| `projected_slippage_days` | 3 | 40.0 |\n\n### 3) 가설 검증 결과\n\n- **H1** [delivery] — 3개 프로젝트 일정·임계경로 산출, 예상완료 계측\n- **H3** [risk] — 리스크 2건 탐지(고위험 1건) — 선행경보 확보\n- **H1** [time] — 경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)\n- **H1** [time] — 보고 주기 시간(RCT) 계측: 평균 0.224s\n\n### 4) 에이전트 간 구조화 메시지 (감사 추적, 논문 §4)\n\n| 발신→수신 | intent | schema | confidence | HITL |\n|---|---|---|---|---|\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A4→A1 | inform | `risk_alert.v1` | 0.85 | — |\n| A4→A1 | propose | `risk_alert.v1` | 0.85 | 승인필요 |\n| A5→A1 | inform | `report.v1` | 0.9 | — |\n\n> 모든 메시지는 append-only 감사 로그로 저장되어 재현성·추적성을 보장한다."
+}

@@ -1,0 +1,109 @@
+[
+  {
+    "id": "LL-2024-01",
+    "project_ref": "LEGACY-ERP-2024",
+    "title": "ERP data migration delay lessons",
+    "text": "The data migration project did not validate source data quality early, delaying the critical path by 3 weeks. Lesson: lock down data profiling and cleansing scope at kickoff, and plan at least two migration rehearsals.",
+    "tags": [
+      "data",
+      "migration",
+      "schedule",
+      "risk"
+    ],
+    "translations": {
+      "ko": {
+        "title": "ERP 데이터 마이그레이션 지연 교훈",
+        "text": "데이터 마이그레이션 프로젝트는 원천 데이터 품질 검증을 초기에 수행하지 않아 임계경로가 3주 지연됐다. 교훈: 착수 단계에서 데이터 프로파일링과 정제 범위를 확정하고, 마이그레이션 리허설을 2회 이상 계획하라."
+      }
+    }
+  },
+  {
+    "id": "LL-2024-02",
+    "project_ref": "PAYMENT-API-2024",
+    "title": "Payment backend API estimate evidence",
+    "text": "Building a new payment backend API including authentication, settlement and refund domains took about 320 person-hours. External PG (payment gateway) integration testing took 40% longer than expected. When estimating, add a 20–40% buffer for PG integration and payment exception handling.",
+    "tags": [
+      "backend",
+      "payment",
+      "estimation",
+      "cost"
+    ],
+    "translations": {
+      "ko": {
+        "title": "결제 백엔드 API 견적 근거",
+        "text": "결제 백엔드 API 신규 구축은 인증·정산·환불 도메인 포함 시 약 320 인시가 소요됐다. 외부 PG 연동 테스트에 예상보다 40% 더 걸렸다. 견적 시 PG 연동·결제 예외 처리 버퍼를 20~40% 반영하라."
+      }
+    }
+  },
+  {
+    "id": "LL-2023-07",
+    "project_ref": "MOBILE-RENEW-2023",
+    "title": "Frontend renewal resource overload",
+    "text": "In a frontend renewal, work piled up on a single senior engineer and the burndown stalled. Lesson: allocate at least two people with frontend skills and keep weekly load under 60% to prevent overload.",
+    "tags": [
+      "frontend",
+      "resource",
+      "overload",
+      "burndown"
+    ],
+    "translations": {
+      "ko": {
+        "title": "프론트엔드 리뉴얼 자원 과부하",
+        "text": "프론트엔드 리뉴얼에서 단일 시니어에 작업이 몰려 번다운이 정체됐다. 교훈: 프론트 스킬 자원을 최소 2인 이상 배분하고 주간 부하 60% 이하로 유지해 과부하를 예방하라."
+      }
+    }
+  },
+  {
+    "id": "LL-2023-11",
+    "project_ref": "DW-ANALYTICS-2023",
+    "title": "Data warehouse dependency risk",
+    "text": "In a data analytics project, downstream tasks were blocked while upstream pipeline tasks were unfinished, causing delays. Lesson: identify blocking tasks early in the dependency graph and secure alternative data sources when upstream work slips.",
+    "tags": [
+      "data",
+      "dependency",
+      "risk",
+      "schedule"
+    ],
+    "translations": {
+      "ko": {
+        "title": "데이터 웨어하우스 의존성 리스크",
+        "text": "데이터 분석 프로젝트에서 상류 파이프라인 태스크가 미완료 상태로 하류 태스크가 차단되어 지연됐다. 교훈: 의존성 그래프에서 차단 태스크를 조기 식별하고, 상류 지연 시 대체 데이터 소스를 확보하라."
+      }
+    }
+  },
+  {
+    "id": "LL-2022-03",
+    "project_ref": "CLOUD-MIG-2022",
+    "title": "Cloud migration gate review success story",
+    "text": "The cloud migration strictly verified the WBS, dependencies and rollback plan at the planning gate, greatly reducing execution-phase risk. Lesson: include rollback/recovery criteria as a mandatory checklist item at the G2 gate.",
+    "tags": [
+      "cloud",
+      "governance",
+      "gate",
+      "migration"
+    ],
+    "translations": {
+      "ko": {
+        "title": "클라우드 이전 게이트 리뷰 성공 사례",
+        "text": "클라우드 이전은 계획완료 게이트에서 WBS·의존성·롤백 계획을 엄격히 검증해 실행 단계 리스크를 크게 줄였다. 교훈: G2 게이트에서 롤백/복구 기준을 필수 체크리스트로 포함하라."
+      }
+    }
+  },
+  {
+    "id": "LL-2022-09",
+    "project_ref": "CRM-INTEG-2022",
+    "title": "CRM integration reporting cycle improvement",
+    "text": "In a CRM integration project, each manual executive report took 6 hours. After automating status collection, the report cycle time dropped sharply. Lesson: build an automation pipeline for recurring reports from the start.",
+    "tags": [
+      "reporting",
+      "time",
+      "automation"
+    ],
+    "translations": {
+      "ko": {
+        "title": "CRM 통합 보고 주기 개선",
+        "text": "CRM 통합 프로젝트에서 수작업 경영 보고에 회당 6시간이 소요됐다. 상태 자동 취합 도입 후 보고 주기 시간이 크게 단축됐다. 교훈: 반복 보고는 초기부터 자동화 파이프라인을 구축하라."
+      }
+    }
+  }
+]

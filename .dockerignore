@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# local state (recreated inside the container)
+*.db
+*.sqlite
+data/
+
+# Node / Next.js (the web image is built separately)
+apps/web/node_modules/
+apps/web/.next/
+node_modules/
+
+# env / docs / evidence
+.env
+docs/evidence_*.json
+.git/
+.claude/

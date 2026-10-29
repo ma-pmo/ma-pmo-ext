@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use MA-PMO in your research, please cite it as below."
+title: "MA-PMO: Multi-Agent Project Management Office"
+abstract: >-
+  An LLM-backed supervisor-worker multi-agent system (A1–A7) for portfolio and
+  project management, with an evaluation harness for hypotheses H1–H5 across
+  five efficiency axes (time, resource, delivery, risk, cost).
+type: software
+authors:
+  - name: "myeongjin.ji"
+    email: mjinttt@gmail.com
+version: 0.1.0
+date-released: 2026-10-29
+license: AGPL-3.0-or-later
+repository-code: "https://github.com/ma-pmo/ma-pmo-ext"
+keywords:
+  - multi-agent
+  - large language models
+  - project management office
+  - langgraph

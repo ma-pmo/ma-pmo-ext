@@ -1,0 +1,25 @@
+MA-PMO — Multi-Agent Project Management Office
+Copyright (C) 2026 myeongjin.ji <mjinttt@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program (see the LICENSE file). If not, see
+<https://www.gnu.org/licenses/>.
+
+Commercial licenses that do not carry the AGPL obligations are available
+from the copyright holder. See COMMERCIAL_LICENSE.md or contact
+mjinttt@gmail.com.
+
+"MA-PMO" and the MA-PMO logo are trademarks of myeongjin.ji.
+See TRADEMARKS.md for the trademark policy.
+
+Source: https://github.com/ma-pmo/ma-pmo-ext

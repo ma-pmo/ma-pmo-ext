@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# local state (lightweight-first SQLite)
+*.db
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+ma_pmo*.db
+ma_pmo*_checkpoints.sqlite
+
+# environment
+.env
+
+# harness experiment outputs
+harness/results/
+ma_pmo/harness/results/
+
+# Python build outputs
+dist/
+build/
+
+# Node / Next.js
+node_modules/
+.next/
+apps/web/next-env.d.ts
+
+# OS
+.DS_Store
+
+# Claude Code local settings (personal, not shared)
+.claude/settings.local.json

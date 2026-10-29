@@ -1,0 +1,29 @@
+# host-based Ingress (needs a controller such as nginx-ingress).
+# map in /etc/hosts: <ingress-ip>  mapmo.local api.mapmo.local
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ma-pmo
+  namespace: ma-pmo
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: mapmo.local        # dashboard
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port: { number: 3000 }
+    - host: api.mapmo.local    # API (called directly by the browser -> build web with this URL)
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port: { number: 8000 }

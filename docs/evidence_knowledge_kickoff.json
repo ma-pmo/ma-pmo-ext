@@ -1,0 +1,215 @@
+{
+ "scenario_id": "knowledge_kickoff",
+ "title": "Knowledge-driven kickoff plan",
+ "hypotheses": [
+  "H4",
+  "H5"
+ ],
+ "scope": "PORTFOLIO#2026-Q1",
+ "phases": [
+  {
+   "phase": "plan",
+   "agent": "A1",
+   "title": "Plan — orchestrator delegation",
+   "detail": "Goal 'Kickoff plan reflecting lessons on data-migration delay risk' -> delegated to workers ['A7', 'A2', 'A6']",
+   "delegations": [
+    {
+     "agent": "A7",
+     "function": "Knowledge"
+    },
+    {
+     "agent": "A2",
+     "function": "Planning"
+    },
+    {
+     "agent": "A6",
+     "function": "Governance",
+     "gate": "G2-planning"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A7",
+   "function": "Knowledge",
+   "title": "Execute — A7 Knowledge",
+   "elapsed_ms": 251.5,
+   "results": [
+    {
+     "schema": "knowledge.v1",
+     "headline": "3 citations · [LL-2024-01] ERP data migration delay lessons: The data migration project did no"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A2",
+   "function": "Planning",
+   "title": "Execute — A2 Planning",
+   "elapsed_ms": 11.8,
+   "results": [
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']"
+    },
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']"
+    },
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A6",
+   "function": "Governance",
+   "title": "Execute — A6 Governance",
+   "elapsed_ms": 7.1,
+   "results": [
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-14 G2-planning → pass"
+    },
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-22 G2-planning → pass"
+    },
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-31 G2-planning → conditional"
+    }
+   ]
+  },
+  {
+   "phase": "complete",
+   "agent": "A1",
+   "title": "Complete — synthesis",
+   "summary": "Synthesized 7 worker outputs for goal 'Kickoff plan reflecting lessons on data-migration delay risk'. - A7(knowledge.v1): 3 citations · [LL-2024-01] ERP data migration delay lessons: The data migration project did no - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+  },
+  {
+   "phase": "insight",
+   "title": "Insight — five-axis KPIs · hypothesis check",
+   "kpi_delta": {
+    "spi": {
+     "new_events": 3,
+     "sum": 1.586,
+     "avg": 0.529
+    },
+    "projected_slippage_days": {
+     "new_events": 3,
+     "sum": 120.0,
+     "avg": 40.0
+    },
+    "gate_review": {
+     "new_events": 3,
+     "sum": 2.5,
+     "avg": 0.833
+    }
+   },
+   "findings": [
+    {
+     "axis": "delivery",
+     "hypothesis": "H5",
+     "finding": "Schedule and critical path computed for 3 projects; projected finish measured"
+    },
+    {
+     "axis": "delivery",
+     "hypothesis": "H4",
+     "finding": "Gate review: ['pass', 'pass', 'conditional']"
+    },
+    {
+     "axis": "cost",
+     "hypothesis": "H4",
+     "finding": "3 lessons learned cited -> evidence for decisions and estimates"
+    }
+   ],
+   "hypotheses": [
+    "H4",
+    "H5"
+   ]
+  }
+ ],
+ "communications": [
+  {
+   "message_id": "89975dbb-65cb-45bc-ab5b-22deeb7c7151",
+   "sender": "A7",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "knowledge.v1",
+   "task_ref": "PORTFOLIO#2026-Q1",
+   "confidence": 0.85,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.170876"
+  },
+  {
+   "message_id": "c06f149a-a57b-4762-8e50-0b2ed7718e7d",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.178807"
+  },
+  {
+   "message_id": "88402f5e-4810-4e2f-9918-8d9cb6884997",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-22",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.181811"
+  },
+  {
+   "message_id": "706f7faf-854a-4f9f-8108-28b8108e62c9",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.185506"
+  },
+  {
+   "message_id": "b94f5742-8999-44dd-ae9c-f3a3fb2a4185",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.189625"
+  },
+  {
+   "message_id": "b5a5fcdd-e7a0-4824-a244-c9230e4fd242",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-22",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:26.191508"
+  },
+  {
+   "message_id": "b3dd1b6e-f357-4dfe-8103-fbb53e7174f3",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.95,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:26.193188"
+  }
+ ],
+ "paper_markdown": "## Scenario validation: Knowledge-driven kickoff plan\n\n- **Scope**: `PORTFOLIO#2026-Q1`\n- **Hypotheses**: H4(knowledge-driven success rate), H5(complexity moderation)\n\n### 1) Agent collaboration (plan → execute → complete)\n\n| Phase | Agent | Time (ms) | Outputs |\n|---|---|---|---|\n| Plan | A1 | – | delegated: A7, A2, A6 |\n| Execute | A7 Knowledge | 251.5 | knowledge.v1 |\n| Execute | A2 Planning | 11.8 | schedule.v1, schedule.v1, schedule.v1 |\n| Execute | A6 Governance | 7.1 | gate_review.v1, gate_review.v1, gate_review.v1 |\n\n### 2) Five-axis KPIs measured (this run's contribution)\n\n| Metric | New events | Avg |\n|---|---|---|\n| `spi` | 3 | 0.529 |\n| `projected_slippage_days` | 3 | 40.0 |\n| `gate_review` | 3 | 0.833 |\n\n### 3) Hypothesis results\n\n- **H5** [delivery] — Schedule and critical path computed for 3 projects; projected finish measured\n- **H4** [delivery] — Gate review: ['pass', 'pass', 'conditional']\n- **H4** [cost] — 3 lessons learned cited -> evidence for decisions and estimates\n\n### 4) Structured messages between agents (audit trail, paper §4)\n\n| Sender→Receiver | intent | schema | confidence | HITL |\n|---|---|---|---|---|\n| A7→A1 | inform | `knowledge.v1` | 0.85 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A6→A1 | inform | `gate_review.v1` | 0.95 | — |\n| A6→A1 | inform | `gate_review.v1` | 0.95 | — |\n| A6→A1 | propose | `gate_review.v1` | 0.95 | approval needed |\n\n> Every message is stored in an append-only audit log for reproducibility and traceability."
+}

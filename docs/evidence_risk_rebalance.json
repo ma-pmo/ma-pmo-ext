@@ -1,0 +1,210 @@
+{
+ "scenario_id": "risk_rebalance",
+ "title": "Risk early warning -> resource rebalancing",
+ "hypotheses": [
+  "H2",
+  "H3"
+ ],
+ "scope": "PORTFOLIO#2026-Q1",
+ "phases": [
+  {
+   "phase": "plan",
+   "agent": "A1",
+   "title": "Plan — orchestrator delegation",
+   "detail": "Goal 'Risk-driven resource reallocation and gate check' -> delegated to workers ['A4', 'A3', 'A6']",
+   "delegations": [
+    {
+     "agent": "A4",
+     "function": "Risk"
+    },
+    {
+     "agent": "A3",
+     "function": "Resources"
+    },
+    {
+     "agent": "A6",
+     "function": "Governance",
+     "gate": "G3-execution"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A4",
+   "function": "Risk",
+   "title": "Execute — A4 Risk",
+   "elapsed_ms": 507.1,
+   "results": [
+    {
+     "schema": "risk_alert.v1",
+     "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']"
+    },
+    {
+     "schema": "risk_alert.v1",
+     "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A3",
+   "function": "Resources",
+   "title": "Execute — A3 Resources",
+   "elapsed_ms": 8.3,
+   "results": [
+    {
+     "schema": "allocation.v1",
+     "headline": "12 allocations · utilization=45.1% · overloads=[]"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A6",
+   "function": "Governance",
+   "title": "Execute — A6 Governance",
+   "elapsed_ms": 6.6,
+   "results": [
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-14 G3-execution → fail"
+    },
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-22 G3-execution → pass"
+    },
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-31 G3-execution → fail"
+    }
+   ]
+  },
+  {
+   "phase": "complete",
+   "agent": "A1",
+   "title": "Complete — synthesis",
+   "summary": "Synthesized 6 worker outputs for goal 'Risk-driven resource reallocation and gate check'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail"
+  },
+  {
+   "phase": "insight",
+   "title": "Insight — five-axis KPIs · hypothesis check",
+   "kpi_delta": {
+    "utilization_pct": {
+     "new_events": 1,
+     "sum": 45.1,
+     "avg": 45.1
+    },
+    "idle_pct": {
+     "new_events": 1,
+     "sum": 54.9,
+     "avg": 54.9
+    },
+    "risk_lead_time_days": {
+     "new_events": 2,
+     "sum": -3.0,
+     "avg": -1.5
+    },
+    "risk_detected": {
+     "new_events": 2,
+     "sum": 2.0,
+     "avg": 1.0
+    },
+    "gate_review": {
+     "new_events": 3,
+     "sum": 1.0,
+     "avg": 0.333
+    }
+   },
+   "findings": [
+    {
+     "axis": "risk",
+     "hypothesis": "H3",
+     "finding": "2 risks detected (1 high) — early warning secured"
+    },
+    {
+     "axis": "resource",
+     "hypothesis": "H2",
+     "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads"
+    },
+    {
+     "axis": "delivery",
+     "hypothesis": "H3",
+     "finding": "Gate review: ['fail', 'pass', 'fail']"
+    }
+   ],
+   "hypotheses": [
+    "H2",
+    "H3"
+   ]
+  }
+ ],
+ "communications": [
+  {
+   "message_id": "f3717781-f5fb-4863-81ec-88e79052a876",
+   "sender": "A4",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "risk_alert.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.85,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:25.627307"
+  },
+  {
+   "message_id": "192a159b-61bd-4788-af5c-232f8af16a45",
+   "sender": "A4",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "risk_alert.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.85,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:25.902286"
+  },
+  {
+   "message_id": "c20be913-69ba-488b-9bd3-cfe9d2dddbfc",
+   "sender": "A3",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "allocation.v1",
+   "task_ref": "PORTFOLIO#2026-Q1",
+   "confidence": 0.9,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:25.911552"
+  },
+  {
+   "message_id": "e445ec3e-6530-4ef2-b7b8-dc73e4b6fcf3",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.95,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:25.914593"
+  },
+  {
+   "message_id": "e49c1fa7-37a6-4d89-9a5d-a0632aab6e21",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-22",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:25.916561"
+  },
+  {
+   "message_id": "b0d3ddbc-f3fc-4430-b90c-4c8774e5c1fc",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.95,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:25.918243"
+  }
+ ],
+ "paper_markdown": "## Scenario validation: Risk early warning -> resource rebalancing\n\n- **Scope**: `PORTFOLIO#2026-Q1`\n- **Hypotheses**: H2(lower resource idle rate), H3(risk/schedule accuracy)\n\n### 1) Agent collaboration (plan → execute → complete)\n\n| Phase | Agent | Time (ms) | Outputs |\n|---|---|---|---|\n| Plan | A1 | – | delegated: A4, A3, A6 |\n| Execute | A4 Risk | 507.1 | risk_alert.v1, risk_alert.v1 |\n| Execute | A3 Resources | 8.3 | allocation.v1 |\n| Execute | A6 Governance | 6.6 | gate_review.v1, gate_review.v1, gate_review.v1 |\n\n### 2) Five-axis KPIs measured (this run's contribution)\n\n| Metric | New events | Avg |\n|---|---|---|\n| `utilization_pct` | 1 | 45.1 |\n| `idle_pct` | 1 | 54.9 |\n| `risk_lead_time_days` | 2 | -1.5 |\n| `risk_detected` | 2 | 1.0 |\n| `gate_review` | 3 | 0.333 |\n\n### 3) Hypothesis results\n\n- **H3** [risk] — 2 risks detected (1 high) — early warning secured\n- **H2** [resource] — Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads\n- **H3** [delivery] — Gate review: ['fail', 'pass', 'fail']\n\n### 4) Structured messages between agents (audit trail, paper §4)\n\n| Sender→Receiver | intent | schema | confidence | HITL |\n|---|---|---|---|---|\n| A4→A1 | inform | `risk_alert.v1` | 0.85 | — |\n| A4→A1 | propose | `risk_alert.v1` | 0.85 | approval needed |\n| A3→A1 | inform | `allocation.v1` | 0.9 | — |\n| A6→A1 | propose | `gate_review.v1` | 0.95 | approval needed |\n| A6→A1 | inform | `gate_review.v1` | 0.95 | — |\n| A6→A1 | propose | `gate_review.v1` | 0.95 | approval needed |\n\n> Every message is stored in an append-only audit log for reproducibility and traceability."
+}

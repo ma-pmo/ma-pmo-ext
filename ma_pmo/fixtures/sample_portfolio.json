@@ -1,0 +1,47 @@
+{
+  "portfolio": { "id": "PORTFOLIO#2026-Q1", "name": "2026 Q1 Digital Transformation Portfolio", "period": "2026-Q1" },
+  "resources": [
+    { "id": "R-01", "skill": "backend", "capacity": 40 },
+    { "id": "R-02", "skill": "frontend", "capacity": 40 },
+    { "id": "R-03", "skill": "data", "capacity": 32 }
+  ],
+  "projects": [
+    {
+      "id": "PROJ-14",
+      "skill": "backend",
+      "planned_start": "2026-01-06",
+      "planned_finish": "2026-03-27",
+      "deadline": "2026-03-31",
+      "status": "amber",
+      "tasks": [
+        { "id": "T-1401", "wbs": "1.1", "effort": 80, "deps": [], "percent_complete": 100 },
+        { "id": "T-1402", "wbs": "1.2", "effort": 120, "deps": ["T-1401"], "percent_complete": 60 },
+        { "id": "T-1403", "wbs": "1.3", "effort": 100, "deps": ["T-1402"], "percent_complete": 10 }
+      ]
+    },
+    {
+      "id": "PROJ-22",
+      "skill": "frontend",
+      "planned_start": "2026-01-13",
+      "planned_finish": "2026-03-13",
+      "deadline": "2026-03-20",
+      "status": "green",
+      "tasks": [
+        { "id": "T-2201", "wbs": "1.1", "effort": 60, "deps": [], "percent_complete": 100 },
+        { "id": "T-2202", "wbs": "1.2", "effort": 90, "deps": ["T-2201"], "percent_complete": 75 }
+      ]
+    },
+    {
+      "id": "PROJ-31",
+      "skill": "data",
+      "planned_start": "2026-02-03",
+      "planned_finish": "2026-04-10",
+      "deadline": "2026-04-03",
+      "status": "red",
+      "tasks": [
+        { "id": "T-3101", "wbs": "1.1", "effort": 100, "deps": [], "percent_complete": 40 },
+        { "id": "T-3102", "wbs": "1.2", "effort": 140, "deps": ["T-3101"], "percent_complete": 5 }
+      ]
+    }
+  ]
+}

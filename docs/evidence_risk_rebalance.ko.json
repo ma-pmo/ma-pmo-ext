@@ -1,0 +1,210 @@
+{
+ "scenario_id": "risk_rebalance",
+ "title": "리스크 조기경보 → 자원 재배분",
+ "hypotheses": [
+  "H2",
+  "H3"
+ ],
+ "scope": "PORTFOLIO#2026-Q1",
+ "phases": [
+  {
+   "phase": "plan",
+   "agent": "A1",
+   "title": "계획 — 오케스트레이터 위임",
+   "detail": "목표 '리스크 기반 자원 재배분 및 게이트 검증' → 작업자 ['A4', 'A3', 'A6'] 위임",
+   "delegations": [
+    {
+     "agent": "A4",
+     "function": "리스크"
+    },
+    {
+     "agent": "A3",
+     "function": "자원"
+    },
+    {
+     "agent": "A6",
+     "function": "거버넌스",
+     "gate": "G3-execution"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A4",
+   "function": "리스크",
+   "title": "수행 — A4 리스크",
+   "elapsed_ms": 480.7,
+   "results": [
+    {
+     "schema": "risk_alert.v1",
+     "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']"
+    },
+    {
+     "schema": "risk_alert.v1",
+     "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A3",
+   "function": "자원",
+   "title": "수행 — A3 자원",
+   "elapsed_ms": 6.9,
+   "results": [
+    {
+     "schema": "allocation.v1",
+     "headline": "배분 12건 · 활용률=45.1% · 과부하=[]"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A6",
+   "function": "거버넌스",
+   "title": "수행 — A6 거버넌스",
+   "elapsed_ms": 6.9,
+   "results": [
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-14 G3-execution → fail"
+    },
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-22 G3-execution → pass"
+    },
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-31 G3-execution → fail"
+    }
+   ]
+  },
+  {
+   "phase": "complete",
+   "agent": "A1",
+   "title": "완료 — 종합",
+   "summary": "목표 '리스크 기반 자원 재배분 및 게이트 검증' 에 대해 6개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail"
+  },
+  {
+   "phase": "insight",
+   "title": "인사이트 — 5축 KPI · 가설 검증",
+   "kpi_delta": {
+    "utilization_pct": {
+     "new_events": 1,
+     "sum": 45.1,
+     "avg": 45.1
+    },
+    "idle_pct": {
+     "new_events": 1,
+     "sum": 54.9,
+     "avg": 54.9
+    },
+    "risk_lead_time_days": {
+     "new_events": 2,
+     "sum": -3.0,
+     "avg": -1.5
+    },
+    "risk_detected": {
+     "new_events": 2,
+     "sum": 2.0,
+     "avg": 1.0
+    },
+    "gate_review": {
+     "new_events": 3,
+     "sum": 1.0,
+     "avg": 0.333
+    }
+   },
+   "findings": [
+    {
+     "axis": "risk",
+     "hypothesis": "H3",
+     "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보"
+    },
+    {
+     "axis": "resource",
+     "hypothesis": "H2",
+     "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건"
+    },
+    {
+     "axis": "delivery",
+     "hypothesis": "H3",
+     "finding": "게이트 심사: ['fail', 'pass', 'fail']"
+    }
+   ],
+   "hypotheses": [
+    "H2",
+    "H3"
+   ]
+  }
+ ],
+ "communications": [
+  {
+   "message_id": "a65cc9fc-6c03-4cf0-a79a-22c1ea6712c4",
+   "sender": "A4",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "risk_alert.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.85,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.188523"
+  },
+  {
+   "message_id": "c1e9f002-bd6a-4857-bf2f-09df08b0c312",
+   "sender": "A4",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "risk_alert.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.85,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:27.425354"
+  },
+  {
+   "message_id": "579453a5-f8b3-4fe3-b622-7e5590605c91",
+   "sender": "A3",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "allocation.v1",
+   "task_ref": "PORTFOLIO#2026-Q1",
+   "confidence": 0.9,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.432577"
+  },
+  {
+   "message_id": "fd35596a-bbb0-4aed-b966-01521d20d326",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.95,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:27.435954"
+  },
+  {
+   "message_id": "02538722-74f5-423d-9cec-6ad1216a56c1",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-22",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.437962"
+  },
+  {
+   "message_id": "03b3f4db-4d38-4c84-aa47-53a37c5fde79",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.95,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:27.439776"
+  }
+ ],
+ "paper_markdown": "## 시나리오 검증: 리스크 조기경보 → 자원 재배분\n\n- **대상 범위**: `PORTFOLIO#2026-Q1`\n- **검증 가설**: H2(자원 유휴율 개선), H3(리스크/일정 정확도)\n\n### 1) 에이전트 협업 (계획 → 수행 → 완료)\n\n| 단계 | 에이전트 | 소요(ms) | 산출물 |\n|---|---|---|---|\n| 계획 | A1 | – | 위임: A4, A3, A6 |\n| 수행 | A4 리스크 | 480.7 | risk_alert.v1, risk_alert.v1 |\n| 수행 | A3 자원 | 6.9 | allocation.v1 |\n| 수행 | A6 거버넌스 | 6.9 | gate_review.v1, gate_review.v1, gate_review.v1 |\n\n### 2) 5축 KPI 실측 (이번 실행 기여분)\n\n| 지표 | 신규 이벤트 | 평균 |\n|---|---|---|\n| `utilization_pct` | 1 | 45.1 |\n| `idle_pct` | 1 | 54.9 |\n| `risk_lead_time_days` | 2 | -1.5 |\n| `risk_detected` | 2 | 1.0 |\n| `gate_review` | 3 | 0.333 |\n\n### 3) 가설 검증 결과\n\n- **H3** [risk] — 리스크 2건 탐지(고위험 1건) — 선행경보 확보\n- **H2** [resource] — 자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건\n- **H3** [delivery] — 게이트 심사: ['fail', 'pass', 'fail']\n\n### 4) 에이전트 간 구조화 메시지 (감사 추적, 논문 §4)\n\n| 발신→수신 | intent | schema | confidence | HITL |\n|---|---|---|---|---|\n| A4→A1 | inform | `risk_alert.v1` | 0.85 | — |\n| A4→A1 | propose | `risk_alert.v1` | 0.85 | 승인필요 |\n| A3→A1 | inform | `allocation.v1` | 0.9 | — |\n| A6→A1 | propose | `gate_review.v1` | 0.95 | 승인필요 |\n| A6→A1 | inform | `gate_review.v1` | 0.95 | — |\n| A6→A1 | propose | `gate_review.v1` | 0.95 | 승인필요 |\n\n> 모든 메시지는 append-only 감사 로그로 저장되어 재현성·추적성을 보장한다."
+}

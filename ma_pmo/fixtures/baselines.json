@@ -1,0 +1,7 @@
+{
+  "_note": "Comparison baselines for hypothesis validation. Replace with measured manual-PMO values (currently example values).",
+  "manual_report_cycle_time_sec": 21600,
+  "target_utilization_pct": 80,
+  "manual_risk_lead_time_days": 0,
+  "manual_estimation_error_pct": 30
+}

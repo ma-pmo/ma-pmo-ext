@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: ma-pmo
+  labels: { app: ma-pmo-web }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: ma-pmo-web }
+  template:
+    metadata:
+      labels: { app: ma-pmo-web }
+    spec:
+      containers:
+        - name: web
+          # note: NEXT_PUBLIC_API_BASE is inlined at build time.
+          # build the image with the API URL the browser will use:
+          #   docker build --build-arg NEXT_PUBLIC_API_BASE=http://api.mapmo.local -t ma-pmo/web:latest apps/web
+          image: ma-pmo/web:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet: { path: /, port: 3000 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests: { cpu: "100m", memory: 256Mi }
+            limits: { memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: ma-pmo
+spec:
+  selector: { app: ma-pmo-web }
+  ports:
+    - port: 3000
+      targetPort: 3000

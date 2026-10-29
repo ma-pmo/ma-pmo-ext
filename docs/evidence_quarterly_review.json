@@ -1,0 +1,214 @@
+{
+ "scenario_id": "quarterly_review",
+ "title": "Quarterly portfolio review",
+ "hypotheses": [
+  "H1",
+  "H3"
+ ],
+ "scope": "PORTFOLIO#2026-Q1",
+ "phases": [
+  {
+   "phase": "plan",
+   "agent": "A1",
+   "title": "Plan — orchestrator delegation",
+   "detail": "Goal 'Q1 integrated portfolio review (schedule, risk, executive report)' -> delegated to workers ['A2', 'A4', 'A5']",
+   "delegations": [
+    {
+     "agent": "A2",
+     "function": "Planning"
+    },
+    {
+     "agent": "A4",
+     "function": "Risk"
+    },
+    {
+     "agent": "A5",
+     "function": "Reporting"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A2",
+   "function": "Planning",
+   "title": "Execute — A2 Planning",
+   "elapsed_ms": 6.7,
+   "results": [
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']"
+    },
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']"
+    },
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A4",
+   "function": "Risk",
+   "title": "Execute — A4 Risk",
+   "elapsed_ms": 593.3,
+   "results": [
+    {
+     "schema": "risk_alert.v1",
+     "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']"
+    },
+    {
+     "schema": "risk_alert.v1",
+     "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A5",
+   "function": "Reporting",
+   "title": "Execute — A5 Reporting",
+   "elapsed_ms": 241.7,
+   "results": [
+    {
+     "schema": "report.v1",
+     "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+    }
+   ]
+  },
+  {
+   "phase": "complete",
+   "agent": "A1",
+   "title": "Complete — synthesis",
+   "summary": "Synthesized 6 worker outputs for goal 'Q1 integrated portfolio review (schedule, risk, executive report)'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+  },
+  {
+   "phase": "insight",
+   "title": "Insight — five-axis KPIs · hypothesis check",
+   "kpi_delta": {
+    "report_cycle_time_sec": {
+     "new_events": 1,
+     "sum": 0.239,
+     "avg": 0.239
+    },
+    "risk_lead_time_days": {
+     "new_events": 2,
+     "sum": -3.0,
+     "avg": -1.5
+    },
+    "risk_detected": {
+     "new_events": 2,
+     "sum": 2.0,
+     "avg": 1.0
+    },
+    "spi": {
+     "new_events": 3,
+     "sum": 1.586,
+     "avg": 0.529
+    },
+    "projected_slippage_days": {
+     "new_events": 3,
+     "sum": 120.0,
+     "avg": 40.0
+    }
+   },
+   "findings": [
+    {
+     "axis": "delivery",
+     "hypothesis": "H1",
+     "finding": "Schedule and critical path computed for 3 projects; projected finish measured"
+    },
+    {
+     "axis": "risk",
+     "hypothesis": "H3",
+     "finding": "2 risks detected (1 high) — early warning secured"
+    },
+    {
+     "axis": "time",
+     "hypothesis": "H1",
+     "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba"
+    },
+    {
+     "axis": "time",
+     "hypothesis": "H1",
+     "finding": "Report cycle time (RCT) measured: avg 0.239s"
+    }
+   ],
+   "hypotheses": [
+    "H1",
+    "H3"
+   ]
+  }
+ ],
+ "communications": [
+  {
+   "message_id": "dfa2e38b-9392-48a1-86da-29e7267f3b91",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:24.552247"
+  },
+  {
+   "message_id": "94c39db8-bfee-417f-b8f4-85d1a4f1404e",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-22",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:24.554035"
+  },
+  {
+   "message_id": "5a2506b1-a92f-48c7-a3f4-c3fe39837578",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:24.555974"
+  },
+  {
+   "message_id": "ba4284ec-fdfa-4a40-813a-52c07bce4646",
+   "sender": "A4",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "risk_alert.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.85,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:24.903572"
+  },
+  {
+   "message_id": "00f9a679-5629-4987-bf26-c7f382593ca5",
+   "sender": "A4",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "risk_alert.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.85,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:25.147615"
+  },
+  {
+   "message_id": "0677fa79-9d68-4877-b08a-0232958e4c4e",
+   "sender": "A5",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "report.v1",
+   "task_ref": "PORTFOLIO#2026-Q1",
+   "confidence": 0.9,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:25.389946"
+  }
+ ],
+ "paper_markdown": "## Scenario validation: Quarterly portfolio review\n\n- **Scope**: `PORTFOLIO#2026-Q1`\n- **Hypotheses**: H1(shorter reporting time), H3(risk/schedule accuracy)\n\n### 1) Agent collaboration (plan → execute → complete)\n\n| Phase | Agent | Time (ms) | Outputs |\n|---|---|---|---|\n| Plan | A1 | – | delegated: A2, A4, A5 |\n| Execute | A2 Planning | 6.7 | schedule.v1, schedule.v1, schedule.v1 |\n| Execute | A4 Risk | 593.3 | risk_alert.v1, risk_alert.v1 |\n| Execute | A5 Reporting | 241.7 | report.v1 |\n\n### 2) Five-axis KPIs measured (this run's contribution)\n\n| Metric | New events | Avg |\n|---|---|---|\n| `report_cycle_time_sec` | 1 | 0.239 |\n| `risk_lead_time_days` | 2 | -1.5 |\n| `risk_detected` | 2 | 1.0 |\n| `spi` | 3 | 0.529 |\n| `projected_slippage_days` | 3 | 40.0 |\n\n### 3) Hypothesis results\n\n- **H1** [delivery] — Schedule and critical path computed for 3 projects; projected finish measured\n- **H3** [risk] — 2 risks detected (1 high) — early warning secured\n- **H1** [time] — Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba\n- **H1** [time] — Report cycle time (RCT) measured: avg 0.239s\n\n### 4) Structured messages between agents (audit trail, paper §4)\n\n| Sender→Receiver | intent | schema | confidence | HITL |\n|---|---|---|---|---|\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A4→A1 | inform | `risk_alert.v1` | 0.85 | — |\n| A4→A1 | propose | `risk_alert.v1` | 0.85 | approval needed |\n| A5→A1 | inform | `report.v1` | 0.9 | — |\n\n> Every message is stored in an append-only audit log for reproducibility and traceability."
+}

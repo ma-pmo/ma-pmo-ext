@@ -1,0 +1,53 @@
+# MA-PMO full stack — shippable form (docker compose up --build)
+# default: SQLite (volume) + host Ollama. Postgres is opt-in via a profile.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ma-pmo/api:latest
+    ports:
+      - "8000:8000"
+    environment:
+      # use local (host) Ollama — no API key needed
+      LLM_MODEL: ${LLM_MODEL:-ollama_chat/llama3.1:8b}
+      LLM_MODEL_FAST: ${LLM_MODEL_FAST:-ollama_chat/llama3.1:8b}
+      LLM_API_BASE: ${LLM_API_BASE:-http://host.docker.internal:11434}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # default SQLite (volume). For Postgres: DB_URL=postgresql+psycopg://mapmo:mapmo@postgres:5432/mapmo
+      DB_URL: ${DB_URL:-sqlite:////app/data/ma_pmo.db}
+      CHECKPOINT_DB: /app/data/ma_pmo_checkpoints.sqlite
+    volumes:
+      - api_data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # reach host Ollama on Linux
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      args:
+        # API URL the browser uses (inlined at build time)
+        NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:-http://localhost:8000}
+    image: ma-pmo/web:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  # optional: production Postgres (docker compose --profile postgres up)
+  postgres:
+    image: postgres:16
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: mapmo
+      POSTGRES_PASSWORD: mapmo
+      POSTGRES_DB: mapmo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  api_data:
+  pgdata:

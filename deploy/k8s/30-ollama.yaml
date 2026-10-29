@@ -1,0 +1,52 @@
+# optional: in-cluster Ollama. (When using an external/host Ollama, skip this file
+# and point LLM_API_BASE in the ConfigMap at that endpoint)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-pvc
+  namespace: ma-pmo
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: ma-pmo
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: ollama }
+  template:
+    metadata:
+      labels: { app: ollama }
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          ports:
+            - containerPort: 11434
+          resources:
+            requests: { cpu: "2", memory: 8Gi }
+            limits: { memory: 12Gi }
+          volumeMounts:
+            - { name: models, mountPath: /root/.ollama }
+          # pull the model after the first start:
+          #   kubectl -n ma-pmo exec deploy/ollama -- ollama pull llama3.1:8b
+      volumes:
+        - name: models
+          persistentVolumeClaim: { claimName: ollama-pvc }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  namespace: ma-pmo
+spec:
+  selector: { app: ollama }
+  ports:
+    - port: 11434
+      targetPort: 11434

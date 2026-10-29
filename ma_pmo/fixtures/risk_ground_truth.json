@@ -1,0 +1,8 @@
+{
+  "_note": "Risks that actually materialized (ground-truth labels) for validating H3 risk detection. medium or above = positive.",
+  "labels": {
+    "PROJ-14": "medium",
+    "PROJ-22": "low",
+    "PROJ-31": "high"
+  }
+}

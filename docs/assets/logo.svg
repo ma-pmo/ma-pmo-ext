@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Seven round blob agents in a huddle around a checkmark</title>
+  <rect width="512" height="512" rx="112" fill="#FFF6E9"/>
+  <circle cx="256" cy="256" r="196" fill="#FFE7C7"/>
+  <!-- center badge -->
+  <circle cx="256" cy="262" r="62" fill="#5A9BF0"/>
+  <path d="M226 262 l20 20 40 -42" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- seven blobs -->
+  <g id="faces">
+    <g transform="translate(256 104)"><circle r="44" fill="#FF8A80"/><circle cx="-14" cy="-4" r="6" fill="#3A2A2A"/><circle cx="14" cy="-4" r="6" fill="#3A2A2A"/><path d="M-10 12 q10 9 20 0" stroke="#3A2A2A" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="-24" cy="10" rx="7" ry="4" fill="#fff" opacity=".5"/><ellipse cx="24" cy="10" rx="7" ry="4" fill="#fff" opacity=".5"/></g>
+    <g transform="translate(386 168)"><circle r="40" fill="#FFC857"/><circle cx="-12" cy="-4" r="6" fill="#3A2A2A"/><circle cx="12" cy="-4" r="6" fill="#3A2A2A"/><path d="M-9 11 q9 8 18 0" stroke="#3A2A2A" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <g transform="translate(410 308)"><circle r="40" fill="#7ED6A7"/><path d="M-18 -4 q6 -7 12 0 M6 -4 q6 -7 12 0" stroke="#3A2A2A" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M-9 11 q9 8 18 0" stroke="#3A2A2A" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <g transform="translate(326 412)"><circle r="40" fill="#B39DDB"/><circle cx="-12" cy="-4" r="6" fill="#3A2A2A"/><circle cx="12" cy="-4" r="6" fill="#3A2A2A"/><ellipse cy="13" rx="7" ry="5" fill="#3A2A2A"/></g>
+    <g transform="translate(186 412)"><circle r="40" fill="#4FC3F7"/><circle cx="-12" cy="-4" r="6" fill="#3A2A2A"/><circle cx="12" cy="-4" r="6" fill="#3A2A2A"/><path d="M-9 11 q9 8 18 0" stroke="#3A2A2A" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <g transform="translate(102 308)"><circle r="40" fill="#F48FB1"/><circle cx="-12" cy="-4" r="6" fill="#3A2A2A"/><path d="M6 -4 q6 -7 12 0" stroke="#3A2A2A" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M-9 11 q9 8 18 0" stroke="#3A2A2A" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <g transform="translate(126 168)"><circle r="40" fill="#A5D6A7"/><circle cx="-12" cy="-4" r="6" fill="#3A2A2A"/><circle cx="12" cy="-4" r="6" fill="#3A2A2A"/><path d="M-9 11 q9 8 18 0" stroke="#3A2A2A" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+  </g>
+  <!-- hands holding -->
+  <g stroke="#E8B88A" stroke-width="7" stroke-linecap="round" opacity=".9">
+    <line x1="290" y1="138" x2="352" y2="152"/><line x1="404" y1="206" x2="412" y2="268"/><line x1="392" y1="342" x2="356" y2="384"/>
+    <line x1="286" y1="420" x2="226" y2="420"/><line x1="156" y1="384" x2="120" y2="342"/><line x1="100" y1="268" x2="108" y2="206"/><line x1="160" y1="152" x2="222" y2="138"/>
+  </g>
+</svg>

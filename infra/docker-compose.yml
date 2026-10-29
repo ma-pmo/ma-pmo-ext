@@ -1,0 +1,29 @@
+# production infra (prepared only — lightweight-first policy defaults to SQLite/in-memory).
+# to switch: `make infra-up`, then change DB_URL/CHECKPOINT/observability keys in .env.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: mapmo
+      POSTGRES_PASSWORD: mapmo
+      POSTGRES_DB: mapmo
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  # LLM tracing (optional). See the official langfuse compose for real deployments.
+  langfuse:
+    image: langfuse/langfuse:latest
+    depends_on: [postgres]
+    environment:
+      DATABASE_URL: postgresql://mapmo:mapmo@postgres:5432/mapmo
+      NEXTAUTH_SECRET: change-me
+      SALT: change-me
+      NEXTAUTH_URL: http://localhost:3001
+    ports: ["3001:3000"]
+
+volumes:
+  pgdata:

@@ -1,0 +1,215 @@
+{
+ "scenario_id": "knowledge_kickoff",
+ "title": "지식기반 착수 계획",
+ "hypotheses": [
+  "H4",
+  "H5"
+ ],
+ "scope": "PORTFOLIO#2026-Q1",
+ "phases": [
+  {
+   "phase": "plan",
+   "agent": "A1",
+   "title": "계획 — 오케스트레이터 위임",
+   "detail": "목표 '데이터 마이그레이션 지연 리스크 교훈 반영 착수 계획' → 작업자 ['A7', 'A2', 'A6'] 위임",
+   "delegations": [
+    {
+     "agent": "A7",
+     "function": "지식"
+    },
+    {
+     "agent": "A2",
+     "function": "계획"
+    },
+    {
+     "agent": "A6",
+     "function": "거버넌스",
+     "gate": "G2-planning"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A7",
+   "function": "지식",
+   "title": "수행 — A7 지식",
+   "elapsed_ms": 252.5,
+   "results": [
+    {
+     "schema": "knowledge.v1",
+     "headline": "인용 3건 · [LL-2024-01] ERP 데이터 마이그레이션 지연 교훈: 데이터 마이그레이션 프로젝트는 원천 데이터 품질 검증을 초기에 수행하지 않아 임계"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A2",
+   "function": "계획",
+   "title": "수행 — A2 계획",
+   "elapsed_ms": 11.2,
+   "results": [
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']"
+    },
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']"
+    },
+    {
+     "schema": "schedule.v1",
+     "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']"
+    }
+   ]
+  },
+  {
+   "phase": "execute",
+   "agent": "A6",
+   "function": "거버넌스",
+   "title": "수행 — A6 거버넌스",
+   "elapsed_ms": 6.7,
+   "results": [
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-14 G2-planning → pass"
+    },
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-22 G2-planning → pass"
+    },
+    {
+     "schema": "gate_review.v1",
+     "headline": "PROJ-31 G2-planning → conditional"
+    }
+   ]
+  },
+  {
+   "phase": "complete",
+   "agent": "A1",
+   "title": "완료 — 종합",
+   "summary": "목표 '데이터 마이그레이션 지연 리스크 교훈 반영 착수 계획' 에 대해 7개 작업자 산출을 종합했습니다. - A7(knowledge.v1): 인용 3건 · [LL-2024-01] ERP 데이터 마이그레이션 지연 교훈: 데이터 마이그레이션 프로젝트는 원천 데이터 품질 검증을 초기에 수행하지 않아 임계 - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+  },
+  {
+   "phase": "insight",
+   "title": "인사이트 — 5축 KPI · 가설 검증",
+   "kpi_delta": {
+    "spi": {
+     "new_events": 3,
+     "sum": 1.586,
+     "avg": 0.529
+    },
+    "projected_slippage_days": {
+     "new_events": 3,
+     "sum": 120.0,
+     "avg": 40.0
+    },
+    "gate_review": {
+     "new_events": 3,
+     "sum": 2.5,
+     "avg": 0.833
+    }
+   },
+   "findings": [
+    {
+     "axis": "delivery",
+     "hypothesis": "H5",
+     "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측"
+    },
+    {
+     "axis": "delivery",
+     "hypothesis": "H4",
+     "finding": "게이트 심사: ['pass', 'pass', 'conditional']"
+    },
+    {
+     "axis": "cost",
+     "hypothesis": "H4",
+     "finding": "과거 교훈 3건 인용 → 판단·견적 근거 확보"
+    }
+   ],
+   "hypotheses": [
+    "H4",
+    "H5"
+   ]
+  }
+ ],
+ "communications": [
+  {
+   "message_id": "6c694e35-da5d-4e1d-8adf-c2cb5d72421d",
+   "sender": "A7",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "knowledge.v1",
+   "task_ref": "PORTFOLIO#2026-Q1",
+   "confidence": 0.85,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.695048"
+  },
+  {
+   "message_id": "8eca512d-f6e6-407f-b52c-6da57ea14d36",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.701145"
+  },
+  {
+   "message_id": "79b80245-96f3-435f-ab4d-a1747650a692",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-22",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.704538"
+  },
+  {
+   "message_id": "27120115-36ce-4eb1-b012-68490ec4fa11",
+   "sender": "A2",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "schedule.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.707831"
+  },
+  {
+   "message_id": "c475f940-8511-4225-8223-dd1569f0a78e",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-14",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.711190"
+  },
+  {
+   "message_id": "aaf6fed9-0938-498b-b081-227814197635",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "inform",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-22",
+   "confidence": 0.95,
+   "human_gate_required": false,
+   "timestamp": "2026-10-29T10:00:27.712974"
+  },
+  {
+   "message_id": "359a32ef-7fbf-47a2-98f8-f65c7f00c1ef",
+   "sender": "A6",
+   "receiver": "A1",
+   "intent": "propose",
+   "schema": "gate_review.v1",
+   "task_ref": "PORTFOLIO#2026-Q1/PROJ-31",
+   "confidence": 0.95,
+   "human_gate_required": true,
+   "timestamp": "2026-10-29T10:00:27.714735"
+  }
+ ],
+ "paper_markdown": "## 시나리오 검증: 지식기반 착수 계획\n\n- **대상 범위**: `PORTFOLIO#2026-Q1`\n- **검증 가설**: H4(지식 기반 성공률), H5(복잡성 조절효과)\n\n### 1) 에이전트 협업 (계획 → 수행 → 완료)\n\n| 단계 | 에이전트 | 소요(ms) | 산출물 |\n|---|---|---|---|\n| 계획 | A1 | – | 위임: A7, A2, A6 |\n| 수행 | A7 지식 | 252.5 | knowledge.v1 |\n| 수행 | A2 계획 | 11.2 | schedule.v1, schedule.v1, schedule.v1 |\n| 수행 | A6 거버넌스 | 6.7 | gate_review.v1, gate_review.v1, gate_review.v1 |\n\n### 2) 5축 KPI 실측 (이번 실행 기여분)\n\n| 지표 | 신규 이벤트 | 평균 |\n|---|---|---|\n| `spi` | 3 | 0.529 |\n| `projected_slippage_days` | 3 | 40.0 |\n| `gate_review` | 3 | 0.833 |\n\n### 3) 가설 검증 결과\n\n- **H5** [delivery] — 3개 프로젝트 일정·임계경로 산출, 예상완료 계측\n- **H4** [delivery] — 게이트 심사: ['pass', 'pass', 'conditional']\n- **H4** [cost] — 과거 교훈 3건 인용 → 판단·견적 근거 확보\n\n### 4) 에이전트 간 구조화 메시지 (감사 추적, 논문 §4)\n\n| 발신→수신 | intent | schema | confidence | HITL |\n|---|---|---|---|---|\n| A7→A1 | inform | `knowledge.v1` | 0.85 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A2→A1 | inform | `schedule.v1` | 0.95 | — |\n| A6→A1 | inform | `gate_review.v1` | 0.95 | — |\n| A6→A1 | inform | `gate_review.v1` | 0.95 | — |\n| A6→A1 | propose | `gate_review.v1` | 0.95 | 승인필요 |\n\n> 모든 메시지는 append-only 감사 로그로 저장되어 재현성·추적성을 보장한다."
+}
