@@ -1,11 +1,12 @@
 name: Release
 
-# Pushing a version tag (e.g. v0.1.0) builds the package, publishes it to PyPI
-# via Trusted Publishing (no API token stored in GitHub), and creates a GitHub Release.
+# Publishing a GitHub Release with a version tag (e.g. v0.1.0) builds the package,
+# publishes it to PyPI via Trusted Publishing (no API token stored in GitHub),
+# and attaches the built files to that release.
 
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -51,23 +52,18 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
 
-  github-release:
+  release-assets:
     needs: publish-pypi
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v7
-
       - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
 
-      - name: Create GitHub Release
+      - name: Attach build files to the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "$GITHUB_REF_NAME" dist/* \
-            --title "MA-PMO $GITHUB_REF_NAME" \
-            --notes "See [CHANGELOG.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/CHANGELOG.md) for details. / 변경 내역은 CHANGELOG.md를 참고하세요."
+        run: gh release upload "$GITHUB_REF_NAME" dist/* --clobber --repo "$GITHUB_REPOSITORY"
