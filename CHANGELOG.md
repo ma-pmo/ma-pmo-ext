@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- Pluggable integrations (`ma_pmo/integrations/`): Slack and generic webhook notifiers, a Jira Cloud tracker, and a `ma_pmo.integrations` entry-point group for third-party plugins. Enabled with `MA_PMO_INTEGRATIONS`; see [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md).
+- Integration events: `approval.requested`, `approval.resolved`, `risk.detected`, `gate.failed`, `report.generated`.
+- `GET /integrations` and `POST /integrations/{name}/test`.
+- Smoke and regression test suites (`make test-smoke`, `make test-regression`), run as separate CI steps.
+
+### Changed
+- Agents, the API and the evaluation harness read portfolio data from the configured tracker (falls back to the demo data).
+- Releases are published from the GitHub Releases page; the workflow then uploads to PyPI and attaches the build files.
+
 ## [0.1.0] - 2026-10-29
 
 First public release.
@@ -58,3 +68,11 @@ First public release.
 
 #### 수정
 - 대시보드 진척률 막대가 채워지지 않던 문제.
+
+### [Unreleased] (한국어)
+
+- 플러그인 연동 추가: Slack·범용 웹훅 알림, Jira Cloud 데이터 연결, 외부 패키지용 `ma_pmo.integrations` entry point. `MA_PMO_INTEGRATIONS`로 켭니다([docs/INTEGRATIONS.ko.md](docs/INTEGRATIONS.ko.md)).
+- 연동 이벤트: 승인 요청·승인 처리·고위험 리스크·게이트 미통과·보고서 생성.
+- `GET /integrations`, `POST /integrations/{name}/test` API.
+- smoke·regression 테스트(`make test-smoke`, `make test-regression`)를 CI에서 단계별로 실행.
+- 에이전트·API·평가 하네스가 설정된 데이터 연동을 사용(없으면 데모 데이터).

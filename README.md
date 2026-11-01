@@ -30,6 +30,7 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 - **Human-in-the-loop** — high-severity risks, failed gates and low-confidence messages wait in an approval queue.
 - **Measurable** — five-axis KPIs (time, resource, delivery, risk, cost), 20 lifecycle scenarios and an experiment harness that exports paper-ready Markdown.
 - **Bilingual** — dashboard, API responses, reports and LLM output in English or Korean (`?lang=ko`, `Accept-Language`, or `MA_PMO_LANG`).
+- **Pluggable integrations** — Slack and webhook notifications, Jira Cloud as the data source, and a plugin entry point for your own.
 
 ## Screenshots
 
@@ -72,6 +73,18 @@ make web          # dashboard on http://localhost:3000
 | Anthropic Claude | set `ANTHROPIC_API_KEY` in `.env`, then `make api` |
 
 Docker Compose and Kubernetes manifests are described in [deploy/README.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/deploy/README.md).
+
+### Integrations (Slack, Jira, webhooks)
+
+Turn them on with environment variables; failures never stop the agents.
+
+```bash
+MA_PMO_INTEGRATIONS=slack,jira
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=...  JIRA_PROJECT_KEYS=PAY,DATA
+```
+
+`GET /integrations` shows what is active; `POST /integrations/slack/test` sends a test message. Setup, event list and how to write your own plugin: [docs/INTEGRATIONS.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/INTEGRATIONS.md).
 
 ### Language
 
@@ -173,6 +186,7 @@ ma_pmo/            Python package (published to PyPI)
   api/             FastAPI app and routers
   core/            schemas, protocol, KPIs, HITL, graph, i18n, scenarios
   connectors/      issue tracker (mock), calendar (stub), knowledge store
+  integrations/    Slack, webhook and Jira integrations + plugin registry
   db/              SQLAlchemy models and init
   eval/  harness/  hypothesis evaluation and experiment harness
   fixtures/        demo portfolio, lessons learned (English + Korean), baselines

@@ -10,7 +10,7 @@ from sqlalchemy import delete, select
 
 from ma_pmo.agents.allocation import allocate
 from ma_pmo.agents.base import BaseAgent
-from ma_pmo.connectors.jira_mock import MockJiraConnector
+from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, protocol
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
@@ -18,6 +18,7 @@ from ma_pmo.core.schemas.payloads.allocation_v1 import AllocationLine, Allocatio
 from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.db.models import Allocation, Resource
 from ma_pmo.db.session import get_session
+from ma_pmo.integrations.registry import get_tracker
 
 _ROLE = """You are the PMO resource agent. Allocate resources by skill match and flag overloads."""
 
@@ -28,8 +29,8 @@ class ResourceAgent(BaseAgent[AllocationV1]):
     role_prompt = _ROLE
     output_schema = AllocationV1
 
-    def __init__(self, tracker: MockJiraConnector | None = None) -> None:
-        self.tracker = tracker or MockJiraConnector()
+    def __init__(self, tracker: IssueTrackerConnector | None = None) -> None:
+        self.tracker = tracker or get_tracker()
 
     def _resources(self) -> list[dict]:
         with get_session() as s:

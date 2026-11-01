@@ -97,6 +97,10 @@ ignore = ["UP042"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "smoke: fast end-to-end checks that the app boots and the main paths work (make test-smoke)",
+    "regression: pinned results on the demo portfolio that should only change on purpose (make test-regression)",
+]
 
 [tool.mypy]
 python_version = "3.11"

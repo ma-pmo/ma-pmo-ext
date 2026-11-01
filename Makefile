@@ -1,4 +1,4 @@
-.PHONY: dev db-init api web test lint fmt clean infra-up infra-down
+.PHONY: dev db-init api web test test-smoke test-regression lint fmt clean infra-up infra-down
 
 # install dependencies (uv if available, otherwise pip)
 dev:
@@ -35,6 +35,14 @@ web:
 
 test:
 	pytest -q
+
+# fast checks: app boots, main endpoints answer, pipeline runs with integrations
+test-smoke:
+	pytest -q -m smoke
+
+# pinned results on the demo portfolio (gate decisions, routing, payload shapes, ...)
+test-regression:
+	pytest -q -m regression
 
 lint:
 	ruff check .

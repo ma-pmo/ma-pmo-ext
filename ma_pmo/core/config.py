@@ -48,6 +48,25 @@ class Settings(BaseSettings):
     # default language for generated text and LLM output: en | ko
     default_lang: str = Field(default="en", alias="MA_PMO_LANG")
 
+    # integrations (see docs/INTEGRATIONS.md): comma-separated names, e.g. "slack,jira"
+    integrations: str = Field(default="", alias="MA_PMO_INTEGRATIONS")
+    # which event types notifiers receive (comma-separated); empty = all
+    notify_events: str = Field(default="", alias="MA_PMO_NOTIFY_EVENTS")
+    integration_timeout_sec: float = Field(default=5.0, alias="MA_PMO_INTEGRATION_TIMEOUT")
+    # base URL of the dashboard, used for links in notifications
+    public_url: str = Field(default="http://localhost:3000", alias="MA_PMO_PUBLIC_URL")
+
+    slack_webhook_url: str = Field(default="", alias="SLACK_WEBHOOK_URL")
+    webhook_url: str = Field(default="", alias="MA_PMO_WEBHOOK_URL")
+
+    jira_base_url: str = Field(default="", alias="JIRA_BASE_URL")
+    jira_email: str = Field(default="", alias="JIRA_EMAIL")
+    jira_api_token: str = Field(default="", alias="JIRA_API_TOKEN")
+    # Jira project keys that form the portfolio, e.g. "PAY,DATA"
+    jira_project_keys: str = Field(default="", alias="JIRA_PROJECT_KEYS")
+    # custom field holding story points (used as effort when there is no time estimate)
+    jira_story_points_field: str = Field(default="", alias="JIRA_STORY_POINTS_FIELD")
+
 
 @lru_cache
 def get_settings() -> Settings:
