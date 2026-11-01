@@ -1,5 +1,5 @@
 # MA-PMO API image (FastAPI + LangGraph orchestration)
-FROM python:3.11-slim
+FROM python:3.15-slim
 
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1 \
