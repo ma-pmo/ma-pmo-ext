@@ -34,6 +34,8 @@ make test    # pytest -q
 make lint    # ruff check . && mypy ma_pmo
 ```
 
+While iterating, `make test-smoke` (a few seconds) checks the app still boots and the main paths work, and `make test-regression` checks pinned results on the demo portfolio. If you change one of those results on purpose, update the expected value in `tests/test_regression.py` in the same PR and explain why.
+
 Add tests under `tests/` for new features. When adding a new agent/worker, define a Pydantic `.v1` schema in `ma_pmo/core/schemas/`, and mention any impact on the hypothesis (H1–H5) measurements in `ma_pmo/eval/`.
 
 ## PR process

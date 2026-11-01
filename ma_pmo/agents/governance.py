@@ -7,12 +7,13 @@ from __future__ import annotations
 
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.gates import evaluate_gate, normalize_gate
-from ma_pmo.connectors.jira_mock import MockJiraConnector
+from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, protocol
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.gate_review_v1 import ChecklistItem, GateReviewV1
 from ma_pmo.core.state.blackboard import PortfolioState
+from ma_pmo.integrations.registry import get_tracker
 
 _ROLE = """You are the PMO governance agent. Review deliverables against gate criteria
 and checklists."""
@@ -27,8 +28,8 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
     role_prompt = _ROLE
     output_schema = GateReviewV1
 
-    def __init__(self, tracker: MockJiraConnector | None = None) -> None:
-        self.tracker = tracker or MockJiraConnector()
+    def __init__(self, tracker: IssueTrackerConnector | None = None) -> None:
+        self.tracker = tracker or get_tracker()
 
     def run(self, state: PortfolioState) -> dict:
         scope = state.get("task_ref", "PORTFOLIO#2026-Q1")

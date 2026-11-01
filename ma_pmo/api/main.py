@@ -15,6 +15,7 @@ configure_logging()
 from ma_pmo.api.routers import (  # noqa: E402
     approvals,
     evaluation,
+    integrations,
     knowledge,
     kpi,
     messages,
@@ -24,10 +25,10 @@ from ma_pmo.api.routers import (  # noqa: E402
     scenarios,
     webhooks,
 )
-from ma_pmo.connectors.jira_mock import MockJiraConnector  # noqa: E402
 from ma_pmo.core import protocol  # noqa: E402
 from ma_pmo.core.i18n import from_accept_language, normalize, tr, use_lang  # noqa: E402
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload  # noqa: E402
+from ma_pmo.integrations.registry import get_tracker  # noqa: E402
 
 app = FastAPI(title="MA-PMO API", version="0.1.0")
 
@@ -60,6 +61,7 @@ app.include_router(evaluation.router)
 app.include_router(scenarios.router)
 app.include_router(messages.router)
 app.include_router(webhooks.router)
+app.include_router(integrations.router)
 
 
 @app.get("/health")
@@ -70,7 +72,7 @@ def health() -> dict:
 @app.get("/portfolio/{portfolio_id}")
 def portfolio_status(portfolio_id: str) -> dict:
     """Portfolio and project progress for the dashboard."""
-    return MockJiraConnector().get_portfolio_status(portfolio_id)
+    return get_tracker().get_portfolio_status(portfolio_id)
 
 
 @app.post("/demo/gated-message")

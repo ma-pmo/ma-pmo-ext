@@ -7,12 +7,13 @@ from __future__ import annotations
 
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.cpm import CpmResult, compute_cpm
-from ma_pmo.connectors.jira_mock import MockJiraConnector
+from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, protocol
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.schedule_v1 import ScheduledTask, ScheduleV1
 from ma_pmo.core.state.blackboard import PortfolioState
+from ma_pmo.integrations.registry import get_tracker
 
 _ROLE = """You are the PMO planning agent. Compute the CPM critical path."""
 
@@ -52,8 +53,8 @@ class PlanningAgent(BaseAgent[ScheduleV1]):
     role_prompt = _ROLE
     output_schema = ScheduleV1
 
-    def __init__(self, tracker: MockJiraConnector | None = None) -> None:
-        self.tracker = tracker or MockJiraConnector()
+    def __init__(self, tracker: IssueTrackerConnector | None = None) -> None:
+        self.tracker = tracker or get_tracker()
 
     def run(self, state: PortfolioState) -> dict:
         scope = state.get("task_ref", "PORTFOLIO#2026-Q1")

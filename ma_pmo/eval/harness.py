@@ -14,9 +14,9 @@ from ma_pmo.agents.knowledge import KnowledgeAgent
 from ma_pmo.agents.planning import PlanningAgent
 from ma_pmo.agents.resource import ResourceAgent
 from ma_pmo.agents.risk_signals import baseline_severity, compute_signals
-from ma_pmo.connectors.jira_mock import MockJiraConnector
 from ma_pmo.core.i18n import tr
 from ma_pmo.eval.aggregate import metric_summary
+from ma_pmo.integrations.registry import get_tracker
 
 _FIX = Path(__file__).resolve().parent.parent / "fixtures"
 _POSITIVE = {"medium", "high", "critical"}
@@ -69,7 +69,7 @@ def h2_idle_rate() -> dict:
 # ── H3: risk detection performance (rule-based vs. ground truth) ─
 def h3_risk_detection(scope: str = "PORTFOLIO#2026-Q1") -> dict:
     labels = _load("risk_ground_truth.json")["labels"]
-    status = MockJiraConnector().get_portfolio_status(scope)
+    status = get_tracker().get_portfolio_status(scope)
     tp = fp = fn = tn = 0
     rows = []
     for proj in status.get("projects", []):
@@ -121,7 +121,7 @@ def h4_knowledge_ablation(query: str | None = None) -> dict:
 
 # ── H5: stratification by portfolio complexity ──────────────────
 def h5_complexity(scope: str = "PORTFOLIO#2026-Q1") -> dict:
-    status = MockJiraConnector().get_portfolio_status(scope)
+    status = get_tracker().get_portfolio_status(scope)
     projs = status.get("projects", [])
 
     def complexity(p: dict) -> int:

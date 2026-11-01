@@ -28,7 +28,13 @@ jobs:
       - name: Type check (mypy)
         run: uv run mypy ma_pmo
 
-      - name: Test (pytest)
+      - name: Smoke tests
+        run: uv run pytest -q -m smoke
+
+      - name: Regression tests
+        run: uv run pytest -q -m regression
+
+      - name: Full test suite
         run: uv run pytest -q
 
   web:

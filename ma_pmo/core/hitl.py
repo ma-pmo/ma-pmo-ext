@@ -15,6 +15,8 @@ from sqlalchemy import select
 from ma_pmo.core import kpi
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
+from ma_pmo.integrations.dispatch import emit
+from ma_pmo.integrations.events import approval_resolved_event
 
 
 def list_pending() -> list[dict]:
@@ -64,9 +66,11 @@ def resolve(approval_id: int, *, approver: str, decision: str) -> dict:
             latency = (now - requested).total_seconds()
             kpi.record_approval_latency(latency, message_id=approval.message_id)
 
-        return {
+        result = {
             "approval_id": approval_id,
             "message_id": approval.message_id,
             "decision": decision,
             "approver": approver,
         }
+    emit([approval_resolved_event(result)])
+    return result

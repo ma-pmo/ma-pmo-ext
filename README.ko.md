@@ -30,6 +30,7 @@
 - **Human-in-the-loop** — 고심각도 리스크, 게이트 실패, 저신뢰 메시지는 승인 큐에서 대기합니다.
 - **측정 가능** — 5축 KPI(시간·자원·전달·리스크·비용), 20개 생애주기 시나리오, 논문용 Markdown을 내보내는 실험 하네스를 제공합니다.
 - **영어/한국어 지원** — 대시보드, API 응답, 보고서, LLM 출력을 영어 또는 한국어로 제공합니다(`?lang=ko`, `Accept-Language`, `MA_PMO_LANG`).
+- **플러그인 연동** — Slack·웹훅 알림, Jira Cloud 데이터 연결, 직접 만든 연동을 꽂는 플러그인 구조를 지원합니다.
 
 ## 스크린샷 (한국어 UI)
 
@@ -70,6 +71,18 @@ make web          # 대시보드 http://localhost:3000
 | Anthropic Claude | `.env`에 `ANTHROPIC_API_KEY` 설정 후 `make api` |
 
 Docker Compose·Kubernetes 배포는 [deploy/README.ko.md](deploy/README.ko.md)를 참고하세요.
+
+### 연동 (Slack, Jira, 웹훅)
+
+환경 변수만으로 켜고 끕니다. 연동이 실패해도 에이전트는 멈추지 않습니다.
+
+```bash
+MA_PMO_INTEGRATIONS=slack,jira
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=...  JIRA_PROJECT_KEYS=PAY,DATA
+```
+
+`GET /integrations`로 켜진 연동을 확인하고, `POST /integrations/slack/test`로 테스트 메시지를 보낼 수 있습니다. 설정 방법·이벤트 목록·직접 만드는 법은 [docs/INTEGRATIONS.ko.md](docs/INTEGRATIONS.ko.md)를 참고하세요.
 
 ### 언어 설정
 
@@ -173,6 +186,7 @@ ma_pmo/            Python 패키지 (PyPI 배포)
   api/             FastAPI 앱·라우터
   core/            스키마·프로토콜·KPI·HITL·그래프·i18n·시나리오
   connectors/      이슈트래커(mock)·캘린더(stub)·지식 스토어
+  integrations/    Slack·웹훅·Jira 연동 + 플러그인 레지스트리
   db/              SQLAlchemy 모델·초기화
   eval/  harness/  가설 검증·실험 하네스
   fixtures/        데모 포트폴리오·교훈(영어+한국어)·기준선
