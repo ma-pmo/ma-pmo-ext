@@ -36,9 +36,13 @@
 
 | 대시보드 | 에이전트 협업 트레이스 |
 |---|---|
-| ![5축 KPI·인사이트·차트 대시보드](docs/assets/dashboard-ko.png) | ![4단계 시나리오 트레이스와 감사 로그](docs/assets/scenario-trace-ko.png) |
-| **20개 생애주기 시나리오** | **Human-in-the-loop 승인** |
-| ![생애주기 단계별 시나리오 목록](docs/assets/scenarios-ko.png) | ![고위험 결정 승인 큐](docs/assets/approvals-ko.png) |
+| ![5축 KPI·인사이트·차트 관리자 대시보드](docs/assets/dashboard-ko.png) | ![4단계 시나리오 트레이스](docs/assets/scenario-trace-ko.png) |
+| **평가 (H1~H5 판정·템플릿)** | **Human-in-the-loop 승인** |
+| ![가설 판정과 템플릿 다운로드가 있는 평가 화면](docs/assets/evaluation-ko.png) | ![고위험 결정 승인 큐](docs/assets/approvals-ko.png) |
+| **20개 생애주기 시나리오** | **연동 (Slack·웹훅·Jira)** |
+| ![카테고리 탭이 있는 시나리오 목록](docs/assets/scenarios-ko.png) | ![연동 상태 화면](docs/assets/integrations-ko.png) |
+
+라이트·다크 테마는 OS 설정을 따릅니다.
 
 ## 빠른 시작
 

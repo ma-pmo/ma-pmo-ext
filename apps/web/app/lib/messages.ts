@@ -2,9 +2,50 @@
 export type Lang = "en" | "ko";
 
 const en = {
-  appTitle: "MA-PMO Dashboard",
-  nav: { dashboard: "Dashboard", scenarios: "Scenarios", approvals: "Approval queue (HITL)" },
+  appTitle: "MA-PMO Admin",
+  nav: {
+    dashboard: "Dashboard", scenarios: "Scenarios", approvals: "Approvals",
+    evaluation: "Evaluation", integrations: "Integrations",
+    groups: { overview: "Overview", operations: "Operations", insights: "Insights", settings: "Settings" },
+  },
   langLabel: "Language",
+  shell: {
+    subtitle: "Multi-agent PMO",
+    apiUp: "API connected", apiDown: "API offline", menu: "Menu",
+    docs: "Docs", github: "GitHub",
+  },
+  pages: {
+    dashboard: "Portfolio status, KPIs and agent activity at a glance.",
+    scenarios: "Run a lifecycle use case and watch the agents plan, execute, complete and report.",
+    approvals: "High-risk decisions and low-confidence outputs wait here for a human.",
+    evaluation: "Hypotheses H1–H5 measured on live telemetry, with templates to evaluate your own data.",
+    integrations: "Connect Slack, webhooks and Jira. Turn them on with environment variables.",
+  },
+  common2: { refresh: "Refresh", all: "All", yes: "Yes", no: "No", loading: "Loading…", none: "–" },
+  evalp: {
+    verdicts: "Hypothesis verdicts",
+    verdictsDesc: "Demo portfolio unless you evaluate your own data with the CLI.",
+    hyp: "Hypothesis", claim: "Claim", evidence: "Evidence", verdict: "Verdict",
+    verdict_supported: "Supported", verdict_not_supported: "Not supported",
+    verdict_partial: "Partly supported", verdict_insufficient: "Insufficient data",
+    report: "Evaluation report", reportDesc: "Verdicts, five-axis KPIs and limitations, ready for a paper or an executive.",
+    openHtml: "Open HTML report", downloadMd: "Download Markdown",
+    template: "Evaluate your own data", templateDesc: "Download the template, fill it in a spreadsheet, check it here, then run it with the CLI.",
+    downloadTemplate: "Download data template (.zip)", downloadEmpty: "Empty template",
+    validate: "Check filled-in template", validateHint: "Choose the .zip you filled in. Nothing is uploaded to the database.",
+    valid: "No errors — ready to evaluate", invalid: (n: number) => `${n} error(s) to fix`,
+    counts: (p: number, t: number, r: number, l: number) => `${p} projects · ${t} tasks · ${r} resources · ${l} risk labels`,
+    level: "Level", file: "File", line: "Line", message: "Message",
+    cli: "Then run",
+    experiments: "New experiment", experimentsDesc: "Scaffold an experiment and its test, discovered automatically by the harness.",
+  },
+  integ: {
+    table: "Available integrations", name: "Name", kind: "Kind", enabled: "Enabled", configured: "Configured",
+    missing: "Missing settings", actions: "", test: "Send test", testOk: "Test message sent ✓", testFail: "Test failed",
+    notifier: "Notifier", tracker: "Data source", unknown: "Not installed",
+    howTo: "How to turn one on", howToDesc: "Set these in .env and restart the API.",
+    guide: "Full guide: docs/INTEGRATIONS.md",
+  },
 
   common: {
     apiError: "API error",
@@ -151,7 +192,7 @@ const en = {
     desc2: " state until approved. Approving/rejecting records the approval latency as a cost-axis KPI.",
     pending: "pending",
     empty1: "No pending approvals. Run a high-risk scenario from the dashboard, or demo:",
-    showingLatest: (n: number) => `Showing the latest 25 of ${n} pending`,
+    showingLatest: (n: number, shown = 25) => `Showing the latest ${shown} of ${n} pending`,
     awaiting: "Awaiting approval",
     reason: "Reason",
     lowConfidence: (c: number) => `low confidence (confidence ${c} < 0.6)`,
@@ -183,9 +224,50 @@ const en = {
 export type Messages = typeof en;
 
 const ko: Messages = {
-  appTitle: "MA-PMO 대시보드",
-  nav: { dashboard: "대시보드", scenarios: "시나리오", approvals: "승인 큐 (HITL)" },
+  appTitle: "MA-PMO 관리자",
+  nav: {
+    dashboard: "대시보드", scenarios: "시나리오", approvals: "승인 큐",
+    evaluation: "평가", integrations: "연동",
+    groups: { overview: "개요", operations: "운영", insights: "분석", settings: "설정" },
+  },
   langLabel: "언어",
+  shell: {
+    subtitle: "멀티 에이전트 PMO",
+    apiUp: "API 연결됨", apiDown: "API 연결 안 됨", menu: "메뉴",
+    docs: "문서", github: "GitHub",
+  },
+  pages: {
+    dashboard: "포트폴리오 상태, KPI, 에이전트 활동을 한눈에 봅니다.",
+    scenarios: "생애주기 유즈케이스를 실행하고 에이전트의 계획·수행·완료·보고 과정을 봅니다.",
+    approvals: "고위험 결정과 저신뢰 결과가 사람의 승인을 기다립니다.",
+    evaluation: "가설 H1~H5를 실측 텔레메트리로 평가하고, 우리 조직 데이터 평가용 템플릿을 받습니다.",
+    integrations: "Slack, 웹훅, Jira를 연결합니다. 환경 변수로 켜고 끕니다.",
+  },
+  common2: { refresh: "새로고침", all: "전체", yes: "예", no: "아니오", loading: "불러오는 중…", none: "–" },
+  evalp: {
+    verdicts: "가설 판정",
+    verdictsDesc: "CLI로 조직 데이터를 평가하기 전까지는 데모 포트폴리오 기준입니다.",
+    hyp: "가설", claim: "내용", evidence: "근거", verdict: "판정",
+    verdict_supported: "지지됨", verdict_not_supported: "지지 안 됨",
+    verdict_partial: "부분 지지", verdict_insufficient: "데이터 부족",
+    report: "평가 보고서", reportDesc: "판정, 5축 KPI, 한계를 논문·경영 보고용으로 정리합니다.",
+    openHtml: "HTML 보고서 열기", downloadMd: "Markdown 받기",
+    template: "우리 조직 데이터로 평가", templateDesc: "양식을 받아 엑셀에서 채우고, 여기서 검사한 뒤 CLI로 평가합니다.",
+    downloadTemplate: "데이터 양식 받기 (.zip)", downloadEmpty: "빈 양식",
+    validate: "작성한 양식 검사", validateHint: "작성한 .zip 파일을 고르세요. 데이터베이스에는 저장되지 않습니다.",
+    valid: "오류 없음 — 평가할 준비가 됐습니다", invalid: (n: number) => `고칠 오류 ${n}건`,
+    counts: (p: number, t: number, r: number, l: number) => `프로젝트 ${p} · 태스크 ${t} · 자원 ${r} · 리스크 레이블 ${l}`,
+    level: "수준", file: "파일", line: "줄", message: "내용",
+    cli: "그다음 실행",
+    experiments: "새 실험 만들기", experimentsDesc: "실험과 테스트 뼈대를 만들면 하네스가 자동으로 인식합니다.",
+  },
+  integ: {
+    table: "사용 가능한 연동", name: "이름", kind: "종류", enabled: "켜짐", configured: "설정 완료",
+    missing: "빠진 설정", actions: "", test: "테스트 전송", testOk: "테스트 메시지를 보냈습니다 ✓", testFail: "테스트 실패",
+    notifier: "알림", tracker: "데이터 연결", unknown: "설치 안 됨",
+    howTo: "켜는 방법", howToDesc: ".env에 아래 값을 넣고 API를 다시 시작하세요.",
+    guide: "전체 안내: docs/INTEGRATIONS.ko.md",
+  },
 
   common: {
     apiError: "API 오류",
@@ -328,7 +410,7 @@ const ko: Messages = {
     desc2: " 상태로 대기합니다. 승인/반려 시 승인 지연이 비용축 KPI로 계측됩니다.",
     pending: "건 대기",
     empty1: "대기 중인 승인 항목이 없습니다. 대시보드에서 고위험 시나리오를 실행하거나 데모:",
-    showingLatest: (n: number) => `대기 ${n}건 중 최근 25건 표시`,
+    showingLatest: (n: number, shown = 25) => `대기 ${n}건 중 최근 ${shown}건 표시`,
     awaiting: "승인 대기",
     reason: "사유",
     lowConfidence: (c: number) => `저신뢰(confidence ${c} < 0.6)`,

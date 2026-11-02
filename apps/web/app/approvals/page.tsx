@@ -1,10 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 import type { Messages } from "../lib/messages";
+import { Card, PageHeader, Stat } from "../components/shell";
+import { Icon } from "../components/icons";
 
 const APPROVER = "demo-approver@example.com";
+const PAGE = 50;
 
 // readable summary of a payload, per schema
 function summarize(payload: any, m: Messages["appr"]["sum"]): { title: string; lines: string[] } {
@@ -35,6 +38,7 @@ export default function Approvals() {
     try {
       setItems(await api.approvals());
       setMessages(await api.messages(15));
+      setErr("");
     } catch (e: any) { setErr(String(e.message || e)); }
   }
   useEffect(() => { load(); }, [lang]);
@@ -50,97 +54,90 @@ export default function Approvals() {
   const bySchema = items.reduce((acc: Record<string, number>, it) => {
     const s = it.payload?.schema ?? "?"; acc[s] = (acc[s] || 0) + 1; return acc;
   }, {});
+  const lowConf = items.filter((it) => it.confidence < 0.6).length;
 
   return (
-    <main className="grid" style={{ gap: 16 }}>
-      <h1>{a.title}</h1>
+    <div className="stack">
+      <PageHeader
+        title={a.title}
+        desc={t.pages.approvals}
+        actions={<button className="ghost" onClick={load}><Icon.refresh />{t.common2.refresh}</button>}
+      />
+      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.apiError}: {err}</div>}
 
-      {/* description + legend */}
-      <div className="card">
-        <div className="section-desc" style={{ marginTop: 0 }}>
-          {a.desc1}<b>propose</b>{a.desc2}
-        </div>
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
-          <div><span className="kpi-value" style={{ fontSize: 22 }}>{items.length}</span> <span className="muted">{a.pending}</span></div>
-          <div className="legend">
-            {Object.entries(bySchema).map(([s, n]) => (
-              <span key={s} className="item"><span className="dot purple" /><code>{s}</code> {n}</span>
-            ))}
-          </div>
-        </div>
+      <div className="grid cols-4">
+        <Stat icon={<Icon.approvals />} label={a.awaiting} value={items.length} sub={a.pending} />
+        <Stat icon={<Icon.alert />} label="risk_alert.v1" value={bySchema["risk_alert.v1"] ?? 0} />
+        <Stat icon={<Icon.gate />} label="gate_review.v1" value={bySchema["gate_review.v1"] ?? 0} />
+        <Stat icon={<Icon.trend />} label="confidence < 0.6" value={lowConf} />
       </div>
 
-      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.apiError}: {err}</div>}
-      {items.length === 0 && (
-        <div className="card muted">
-          {a.empty1} <code>POST /demo/gated-message</code>
-        </div>
-      )}
-
-      {items.length > 25 && (
-        <div className="muted" style={{ fontSize: 13 }}>{a.showingLatest(items.length)}</div>
-      )}
-
-      {/* approval cards */}
-      {items.slice(0, 25).map((it) => {
-        const s = summarize(it.payload, a.sum);
-        return (
-          <div className="card" key={it.approval_id}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-              <div>
-                <div style={{ marginBottom: 4 }}>
-                  <span className="badge" style={{ background: "rgba(88,166,255,.15)", color: "var(--accent)", marginRight: 6 }}>{it.sender}</span>
-                  <span className="muted">→ A1 · {it.intent}</span>
-                  <span className="badge purple" style={{ background: "rgba(163,113,247,.15)", color: "#a371f7", marginLeft: 6 }}>{a.awaiting}</span>
-                </div>
-                <strong>{s.title}</strong>
-                <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>{s.lines.filter(Boolean).join(" · ")}</div>
-                <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
-                  {a.reason}: {reason(it)} · {it.task_ref} · {it.requested_at?.slice(0, 19).replace("T", " ")}
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                <button onClick={() => decide(it.approval_id, "approve")} disabled={busy === it.approval_id}>{a.approve}</button>
-                <button className="ghost" onClick={() => decide(it.approval_id, "reject")} disabled={busy === it.approval_id}>{a.reject}</button>
-              </div>
-            </div>
-            <button className="ghost" style={{ marginTop: 8, fontSize: 12, padding: "3px 8px" }}
-              onClick={() => setRaw((r) => ({ ...r, [it.approval_id]: !r[it.approval_id] }))}>
-              {raw[it.approval_id] ? a.hideRaw : a.showRaw}
-            </button>
-            {raw[it.approval_id] && (
-              <pre className="muted scroll-y" style={{ marginTop: 8, fontSize: 12 }}>
-                {JSON.stringify(it.payload, null, 2)}
-              </pre>
-            )}
+      <Card flush title={a.title} desc={<>{a.desc1}<b>propose</b>{a.desc2}</>}>
+        {items.length === 0 ? (
+          <div className="empty">{a.empty1} <code>POST /demo/gated-message</code></div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr><th>#</th><th>{t.common.senderReceiver}</th><th>{t.evalp.claim}</th><th>{a.reason}</th><th className="num">conf.</th><th /></tr>
+              </thead>
+              <tbody>
+                {items.slice(0, PAGE).map((it) => {
+                  const s = summarize(it.payload, a.sum);
+                  return (
+                    <Fragment key={it.approval_id}>
+                      <tr>
+                        <td className="muted">{it.approval_id}</td>
+                        <td><span className="badge accent">{it.sender} → A1</span><div className="muted">{it.requested_at?.slice(0, 16).replace("T", " ")}</div></td>
+                        <td>
+                          <b>{s.title}</b>
+                          <div className="muted">{s.lines.filter(Boolean).join(" · ")}</div>
+                          <button className="ghost sm" style={{ marginTop: 6 }}
+                            onClick={() => setRaw((r) => ({ ...r, [it.approval_id]: !r[it.approval_id] }))}>
+                            {raw[it.approval_id] ? a.hideRaw : a.showRaw}
+                          </button>
+                        </td>
+                        <td><span className={`badge ${it.confidence < 0.6 ? "amber" : "purple"}`}>{reason(it)}</span><div className="muted">{it.task_ref}</div></td>
+                        <td className="num">{it.confidence}</td>
+                        <td>
+                          <div className="row" style={{ flexWrap: "nowrap" }}>
+                            <button className="sm" onClick={() => decide(it.approval_id, "approve")} disabled={busy === it.approval_id}>{a.approve}</button>
+                            <button className="sm ghost" onClick={() => decide(it.approval_id, "reject")} disabled={busy === it.approval_id}>{a.reject}</button>
+                          </div>
+                        </td>
+                      </tr>
+                      {raw[it.approval_id] && (
+                        <tr><td colSpan={6}><pre className="code">{JSON.stringify(it.payload, null, 2)}</pre></td></tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        );
-      })}
+        )}
+        {items.length > PAGE && <div className="muted" style={{ padding: "8px 16px" }}>{a.showingLatest(items.length, PAGE)}</div>}
+      </Card>
 
-      {/* audit log */}
-      <div className="card">
-        <h2>{a.recentTitle}</h2>
-        <div className="section-desc" style={{ marginTop: 0 }}>
-          {a.recentDesc} <code>GET /messages</code>
-        </div>
-        <div className="scroll-y">
+      <Card flush title={a.recentTitle} desc={<>{a.recentDesc} <code>GET /messages</code></>}>
+        <div className="table-wrap scroll-y">
           <table>
-            <thead><tr><th>{t.common.time}</th><th>{t.common.senderReceiver}</th><th>intent</th><th>schema</th><th>conf.</th><th>HITL</th></tr></thead>
+            <thead><tr><th>{t.common.time}</th><th>{t.common.senderReceiver}</th><th>intent</th><th>schema</th><th className="num">conf.</th><th>HITL</th></tr></thead>
             <tbody>
               {messages.map((m) => (
                 <tr key={m.message_id}>
                   <td className="muted">{m.timestamp?.slice(11, 19)}</td>
-                  <td><span className="badge" style={{ background: "rgba(88,166,255,.15)", color: "var(--accent)" }}>{m.sender}→{m.receiver}</span></td>
+                  <td><span className="badge accent">{m.sender}→{m.receiver}</span></td>
                   <td>{m.intent}</td>
                   <td><code>{m.schema}</code></td>
-                  <td className="muted">{m.confidence}</td>
+                  <td className="num muted">{m.confidence}</td>
                   <td>{m.human_gate_required ? <span className="badge red">{t.common.approvalNeeded}</span> : "—"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
-    </main>
+      </Card>
+    </div>
   );
 }

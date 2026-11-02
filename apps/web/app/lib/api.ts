@@ -40,4 +40,22 @@ export const api = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ goal, task_ref }),
     }),
+  health: () => req(`/health`),
+  evaluation: () => req(`/eval`),
+  validateTemplate: (zip: Blob) =>
+    req(`/templates/validate`, {
+      method: "POST",
+      headers: { "content-type": "application/zip" },
+      body: zip,
+    }),
+  integrations: () => req(`/integrations`),
+  testIntegration: (name: string) =>
+    req(`/integrations/${encodeURIComponent(name)}/test`, { method: "POST" }),
+};
+
+// direct links (downloads, reports opened in a new tab)
+export const links = {
+  reportHtml: () => `${BASE}/eval/report?format=html&lang=${LANG}`,
+  reportMd: () => `${BASE}/eval/report?format=md&lang=${LANG}`,
+  dataTemplate: (empty = false) => `${BASE}/templates/data.zip${empty ? "?empty=true" : ""}`,
 };

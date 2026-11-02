@@ -18,8 +18,11 @@ All notable changes to this project are documented here. The format follows [Kee
   - experiment template: `ma-pmo harness new` scaffolds an experiment and its test; experiments are discovered automatically.
   - `GET /templates/data.zip`, `POST /templates/validate`; `GET /eval` now includes a verdict summary.
 
+- Admin-style dashboard: grouped sidebar navigation with a pending-approvals badge, top bar with API status and language switch, mobile menu, light/dark themes, and new **Evaluation** (verdicts, report, data template download and validation) and **Integrations** (status, test send) pages.
+
 ### Changed
 - Agents, the API and the evaluation harness read portfolio data from the configured tracker (falls back to the demo data).
+- Dashboard, Scenarios (category tabs) and Approvals (table with inline actions) rebuilt on shared admin components; README screenshots and demo GIF updated.
 - Releases are published from the GitHub Releases page; the workflow then uploads to PyPI and attaches the build files.
 
 ## [0.1.0] - 2026-10-29
@@ -82,4 +85,5 @@ First public release.
 - `GET /integrations`, `POST /integrations/{name}/test` API.
 - smoke·regression 테스트(`make test-smoke`, `make test-regression`)를 CI에서 단계별로 실행.
 - 에이전트·API·평가 하네스가 설정된 데이터 연동을 사용(없으면 데모 데이터).
+- 관리자 스타일 대시보드: 그룹형 사이드바(승인 대기 배지), API 상태·언어 전환 상단 바, 모바일 메뉴, 라이트/다크 테마, 새 **평가**(판정·보고서·데이터 양식 다운로드/검사)와 **연동**(상태·테스트 전송) 화면.
 - 평가 템플릿 생성기: 조직 데이터 입력 양식(`ma-pmo template data`)·검사(`validate`)·실데이터 평가(`ma-pmo eval --data`), 판정이 담긴 평가 보고서(`ma-pmo template report`, `GET /eval/report`), 실험 뼈대 생성(`ma-pmo harness new`).

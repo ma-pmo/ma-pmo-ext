@@ -2,12 +2,15 @@
 import { useEffect, useState } from "react";
 import { api } from "./lib/api";
 import { useI18n } from "./lib/i18n";
-import { BarRow, Gauge, StackBar, Tip } from "./components/charts";
+import { BarRow, Gauge, StackBar } from "./components/charts";
+import { Card, PageHeader, Stat } from "./components/shell";
+import { Icon } from "./components/icons";
 
 const PORTFOLIO = "PORTFOLIO#2026-Q1";
 const GATES = ["G1-initiation", "G2-planning", "G3-execution", "G4-closure"];
 const STATUS_COLOR: Record<string, string> = { green: "var(--green)", amber: "var(--amber)", red: "var(--red)" };
-const SELECT_STYLE = { flex: 1, background: "#0b0e14", color: "var(--text)", border: "1px solid var(--border)", borderRadius: 6, padding: "7px 10px" };
+const sevClass = (s: string) => (s === "high" || s === "critical" ? "red" : s === "medium" ? "amber" : "green");
+const fmt = (v: number | undefined | null, digits = 1) => (v == null ? "–" : v.toFixed(digits));
 
 export default function Dashboard() {
   const { lang, t } = useI18n();
@@ -31,6 +34,7 @@ export default function Dashboard() {
       setKpi(await api.kpi());
       setRisks(await api.risks());
       setAllocations(await api.allocations());
+      setErr("");
     } catch (e: any) { setErr(String(e.message || e)); }
   }
   // reload when the language changes so server-generated text follows it
@@ -73,147 +77,161 @@ export default function Dashboard() {
   if (!insights.length) insights.push({ kind: "ok", text: d.insightOk });
 
   return (
-    <main className="grid" style={{ gap: 24 }}>
-      <h1>{d.title(portfolio?.name ?? PORTFOLIO)}</h1>
+    <div className="stack">
+      <PageHeader
+        title={portfolio?.name ?? PORTFOLIO}
+        desc={t.pages.dashboard}
+        actions={<button className="ghost" onClick={load}><Icon.refresh />{t.common2.refresh}</button>}
+      />
       {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.apiError}: {err} — <span className="muted">{t.common.checkApi}</span></div>}
 
-      {/* legend */}
-      <div className="card">
-        <h2>{d.legendTitle}</h2>
-        <div className="legend" style={{ marginBottom: 8 }}>
-          <span className="item"><span className="dot green" />{d.legend.green}</span>
-          <span className="item"><span className="dot amber" />{d.legend.amber}</span>
-          <span className="item"><span className="dot red" />{d.legend.red}</span>
-          <span className="item"><span className="dot accent" />{d.legend.agent}</span>
-          <span className="item"><span className="dot purple" />{d.legend.hitl}</span>
-        </div>
-        <div className="muted" style={{ fontSize: 12, lineHeight: 1.7 }}>{d.metricGuide}</div>
-      </div>
-
-      {/* orchestration */}
-      <div className="card">
-        <h2>{d.orchestrateTitle}</h2>
-        <div className="section-desc">{d.orchestrateDesc}</div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <select value={goalIdx} onChange={(e) => setGoalIdx(Number(e.target.value))} style={SELECT_STYLE}>
-            {d.goals.map((g, i) => <option key={i} value={i}>{g}</option>)}
-          </select>
-          <button onClick={runOrchestrate} disabled={running}>{running ? t.common.running : t.common.run}</button>
-        </div>
-        {result && (
-          <div style={{ marginTop: 12 }}>
-            {result.routing && (
-              <div style={{ marginBottom: 6 }}>
-                <span className="muted" style={{ marginRight: 8 }}>{d.routing(result.routing.mode)}</span>
-                {(result.routing.delegations || []).map((del: any, i: number) => (
-                  <span key={i} className="badge" style={{ background: "rgba(88,166,255,.15)", color: "var(--accent)", marginRight: 4 }}>{del.agent}</span>
-                ))}
-              </div>
-            )}
-            {result?.synthesis?.summary && <p style={{ marginTop: 6, fontSize: 14 }}>{result.synthesis.summary}</p>}
-          </div>
-        )}
-      </div>
-
-      {/* insights */}
-      <div className="card">
-        <h2>{d.insightsTitle}</h2>
-        {insights.map((it, i) => <div key={i} className={`insight ${it.kind}`}>{it.text}</div>)}
-      </div>
-
       {/* five-axis KPIs */}
-      <div>
-        <h2>{d.kpiTitle}</h2>
-        <div className="grid cols-3">
-          <div className="card"><div className="muted"><Tip text={d.kpi.rctTip}>{d.kpi.rct}</Tip></div>
-            <div className="kpi-value">{byMetric("report_cycle_time_sec")?.avg?.toFixed(1) ?? "–"}s</div><div className="muted">n={byMetric("report_cycle_time_sec")?.count ?? 0}</div></div>
-          <div className="card"><div className="muted"><Tip text={d.kpi.tokensTip}>{d.kpi.tokens}</Tip></div>
-            <div className="kpi-value">{byMetric("llm_tokens_total")?.sum ?? "–"}</div><div className="muted">{d.kpi.calls} n={byMetric("llm_tokens_total")?.count ?? 0}</div></div>
-          <div className="card"><div className="muted"><Tip text={d.kpi.rltTip}>{d.kpi.rlt}</Tip></div>
-            <div className="kpi-value">{byMetric("risk_lead_time_days")?.avg?.toFixed(1) ?? "–"}{d.kpi.days}</div><div className="muted">{d.kpi.detected} n={byMetric("risk_detected")?.count ?? 0}</div></div>
-          <div className="card"><div className="muted"><Tip text={d.kpi.utilTip}>{d.kpi.util}</Tip></div>
-            <div className="kpi-value">{byMetric("utilization_pct")?.avg?.toFixed(0) ?? "–"}%</div><div className="muted">{d.kpi.idle} {byMetric("idle_pct")?.avg?.toFixed(0) ?? "–"}%</div></div>
-          <div className="card"><div className="muted"><Tip text={d.kpi.spiTip}>{d.kpi.spi}</Tip></div>
-            <div className="kpi-value">{byMetric("spi")?.avg?.toFixed(2) ?? "–"}</div><div className="muted">{d.kpi.slippage} {byMetric("projected_slippage_days")?.avg?.toFixed(0) ?? "–"}{d.kpi.days}</div></div>
-          <div className="card"><div className="muted"><Tip text={d.kpi.gateTip}>{d.kpi.gate}</Tip></div>
-            <div className="kpi-value">{byMetric("gate_review")?.avg?.toFixed(2) ?? "–"}</div><div className="muted">{d.kpi.reviews} n={byMetric("gate_review")?.count ?? 0}</div></div>
-        </div>
+      <div className="grid cols-6">
+        <Stat icon={<Icon.clock />} label={d.kpi.rct} tip={d.kpi.rctTip}
+          value={`${fmt(byMetric("report_cycle_time_sec")?.avg)}s`} sub={`n=${byMetric("report_cycle_time_sec")?.count ?? 0}`} />
+        <Stat icon={<Icon.users />} label={d.kpi.util} tip={d.kpi.utilTip}
+          value={`${fmt(byMetric("utilization_pct")?.avg, 0)}%`} sub={`${d.kpi.idle} ${fmt(byMetric("idle_pct")?.avg, 0)}%`} />
+        <Stat icon={<Icon.trend />} label={d.kpi.spi} tip={d.kpi.spiTip}
+          value={fmt(byMetric("spi")?.avg, 2)} sub={`${d.kpi.slippage} ${fmt(byMetric("projected_slippage_days")?.avg, 0)}${d.kpi.days}`} />
+        <Stat icon={<Icon.alert />} label={d.kpi.rlt} tip={d.kpi.rltTip}
+          value={`${fmt(byMetric("risk_lead_time_days")?.avg)}${d.kpi.days}`} sub={`${d.kpi.detected} n=${byMetric("risk_detected")?.count ?? 0}`} />
+        <Stat icon={<Icon.gate />} label={d.kpi.gate} tip={d.kpi.gateTip}
+          value={fmt(byMetric("gate_review")?.avg, 2)} sub={`${d.kpi.reviews} n=${byMetric("gate_review")?.count ?? 0}`} />
+        <Stat icon={<Icon.coins />} label={d.kpi.tokens} tip={d.kpi.tokensTip}
+          value={byMetric("llm_tokens_total")?.sum ?? "–"} sub={`${d.kpi.calls} n=${byMetric("llm_tokens_total")?.count ?? 0}`} />
+      </div>
+
+      {/* orchestration + insights */}
+      <div className="grid cols-3 top">
+        <Card className="span-2" title={d.orchestrateTitle} desc={d.orchestrateDesc}>
+          <div className="row">
+            <select className="input" style={{ flex: 1 }} value={goalIdx} onChange={(e) => setGoalIdx(Number(e.target.value))}>
+              {d.goals.map((g, i) => <option key={i} value={i}>{g}</option>)}
+            </select>
+            <button onClick={runOrchestrate} disabled={running}>{running ? t.common.running : t.common.run}</button>
+          </div>
+          {result && (
+            <div style={{ marginTop: 12 }}>
+              {result.routing && (
+                <div className="row" style={{ marginBottom: 6 }}>
+                  <span className="muted">{d.routing(result.routing.mode)}</span>
+                  {(result.routing.delegations || []).map((del: any, i: number) => (
+                    <span key={i} className="badge accent">{del.agent}</span>
+                  ))}
+                </div>
+              )}
+              {result?.synthesis?.summary && <p style={{ margin: "6px 0 0" }}>{result.synthesis.summary}</p>}
+            </div>
+          )}
+          <details style={{ marginTop: 14 }}>
+            <summary>{d.legendTitle}</summary>
+            <div className="legend" style={{ margin: "8px 0" }}>
+              <span className="item"><span className="dot green" />{d.legend.green}</span>
+              <span className="item"><span className="dot amber" />{d.legend.amber}</span>
+              <span className="item"><span className="dot red" />{d.legend.red}</span>
+              <span className="item"><span className="dot accent" />{d.legend.agent}</span>
+              <span className="item"><span className="dot purple" />{d.legend.hitl}</span>
+            </div>
+            <div className="muted">{d.metricGuide}</div>
+          </details>
+        </Card>
+        <Card title={d.insightsTitle}>
+          {insights.map((it, i) => <div key={i} className={`insight ${it.kind}`}>{it.text}</div>)}
+        </Card>
       </div>
 
       {/* charts */}
-      <div className="grid cols-2">
-        <div className="card">
-          <h2>{d.progressTitle}</h2>
+      <div className="grid cols-4">
+        <Card title={d.progressTitle}>
           {projects.map((p: any) => (
             <BarRow key={p.project_id} label={`${p.project_id}`} value={p.percent_complete}
               color={STATUS_COLOR[p.status] || "var(--accent)"} suffix="%" />
           ))}
           <div className="legend" style={{ marginTop: 8 }}>{d.progressLegend}</div>
-        </div>
-        <div className="card">
-          <h2>{d.utilTitle}</h2>
-          <div style={{ display: "flex", justifyContent: "center", padding: "8px 0" }}>
+        </Card>
+        <Card title={d.utilTitle}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
             <Gauge value={Math.round(util ?? 0)} target={80} label={d.avgUtil} targetLabel={d.target} />
           </div>
-        </div>
-        <div className="card">
-          <h2>{d.riskDistTitle}</h2>
+        </Card>
+        <Card title={d.riskDistTitle}>
           <StackBar segments={[
             { label: "high+", value: latestRisks.filter((r) => r.severity === "high" || r.severity === "critical").length, color: "var(--red)" },
             { label: "medium", value: latestRisks.filter((r) => r.severity === "medium").length, color: "var(--amber)" },
             { label: "low", value: latestRisks.filter((r) => r.severity === "low").length, color: "var(--green)" },
           ]} />
-          <div className="muted" style={{ fontSize: 12, marginTop: 8 }}>{d.riskDistNote(latestRisks.length, risks.length)}</div>
-        </div>
-        <div className="card">
-          <h2>{d.statusDistTitle}</h2>
+          <div className="muted" style={{ marginTop: 8 }}>{d.riskDistNote(latestRisks.length, risks.length)}</div>
+        </Card>
+        <Card title={d.statusDistTitle}>
           <StackBar segments={[
             { label: "red", value: reds.length, color: "var(--red)" },
             { label: "amber", value: projects.filter((p: any) => p.status === "amber").length, color: "var(--amber)" },
             { label: "green", value: projects.filter((p: any) => p.status === "green").length, color: "var(--green)" },
           ]} />
-        </div>
+        </Card>
       </div>
 
-      {/* A2/A3 */}
-      <div className="card">
-        <h2>{d.planTitle}</h2>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button onClick={runPlan}>{d.runPlan}</button>
-          <button onClick={runAllocate}>{d.runAllocate}</button>
-        </div>
-        {allocations.length > 0 && (
-          <div className="scroll-y" style={{ marginTop: 12 }}>
+      {/* projects + risk register */}
+      <div className="grid cols-2">
+        <Card flush title={d.projectsTitle}>
+          <div className="table-wrap">
             <table>
-              <thead><tr><th>{t.common.project}</th><th>{d.resource}</th><th>{d.week}</th><th>{d.hours}</th></tr></thead>
+              <thead><tr><th>{t.common.project}</th><th>{d.skill}</th><th>{t.common.status}</th><th className="num">{d.progress}</th><th>{d.deadline}</th></tr></thead>
               <tbody>
-                {allocations.map((a, i) => (
-                  <tr key={i}><td>{a.project_id}</td><td>{a.resource_id}</td><td>{a.week}</td><td>{a.hours}h</td></tr>
+                {projects.map((p: any) => (
+                  <tr key={p.project_id}><td><b>{p.project_id}</b></td><td>{p.skill}</td>
+                    <td><span className={`badge ${p.status}`}>{p.status}</span></td>
+                    <td className="num">{p.percent_complete}%</td><td>{p.deadline}</td></tr>
                 ))}
               </tbody>
             </table>
           </div>
-        )}
-        {allocations.length > 0 && <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>{d.allocTotal(allocations.length)}</div>}
+        </Card>
+        <Card flush title={d.riskRegisterTitle}>
+          {risks.length === 0 ? <div className="empty">{d.riskEmpty}</div> : (
+            <div className="table-wrap scroll-y">
+              <table>
+                <thead><tr><th>{t.common.project}</th><th>{t.common.severity}</th><th>{d.signal}</th><th>{d.detectedAt}</th></tr></thead>
+                <tbody>
+                  {risks.map((r) => (
+                    <tr key={r.id} title={r.mitigation}><td><b>{r.project_id}</b></td>
+                      <td><span className={`badge ${sevClass(r.severity)}`}>{r.severity}</span></td>
+                      <td>{r.signal}</td><td className="muted">{r.detected_at?.slice(0, 10)}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
       </div>
 
-      {/* A6 / A7 */}
-      <div className="grid cols-2">
-        <div className="card">
-          <h2>{d.gateTitle}</h2>
-          <div style={{ display: "flex", gap: 8 }}>
-            <select value={gate} onChange={(e) => setGate(e.target.value)} style={SELECT_STYLE}>
+      {/* A2/A3 · A6 · A7 */}
+      <div className="grid cols-3">
+        <Card flush title={d.planTitle} actions={
+          <div className="row"><button className="sm" onClick={runPlan}>{d.runPlan}</button>
+            <button className="sm ghost" onClick={runAllocate}>{d.runAllocate}</button></div>}>
+          {allocations.length > 0 ? (
+            <div className="table-wrap scroll-y">
+              <table>
+                <thead><tr><th>{t.common.project}</th><th>{d.resource}</th><th>{d.week}</th><th className="num">{d.hours}</th></tr></thead>
+                <tbody>
+                  {allocations.map((a, i) => (
+                    <tr key={i}><td>{a.project_id}</td><td>{a.resource_id}</td><td>{a.week}</td><td className="num">{a.hours}h</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : <div className="empty">–</div>}
+        </Card>
+        <Card flush title={d.gateTitle} actions={
+          <div className="row">
+            <select className="input" value={gate} onChange={(e) => setGate(e.target.value)}>
               {GATES.map((g) => <option key={g} value={g}>{d.gateLabels[g] ?? g}</option>)}
             </select>
-            <button onClick={runGateReview}>{d.review}</button>
-          </div>
-          <div className="legend" style={{ margin: "8px 0" }}>
-            <span className="item"><span className="dot green" />pass</span>
-            <span className="item"><span className="dot amber" />conditional</span>
-            <span className="item"><span className="dot red" />fail</span>
-          </div>
-          {gates.length > 0 && (
-            <div className="scroll-y">
+            <button className="sm" onClick={runGateReview}>{d.review}</button>
+          </div>}>
+          {gates.length > 0 ? (
+            <div className="table-wrap scroll-y">
               <table>
                 <thead><tr><th>{t.common.project}</th><th>{d.decision}</th><th>{d.conditions}</th></tr></thead>
                 <tbody>
@@ -225,70 +243,26 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
-        <div className="card">
-          <h2>{d.knowledgeTitle}</h2>
-          <div style={{ display: "flex", gap: 8 }}>
-            <select value={queryIdx} onChange={(e) => setQueryIdx(Number(e.target.value))} style={SELECT_STYLE}>
+          ) : <div className="empty">pass · conditional · fail</div>}
+        </Card>
+        <Card title={d.knowledgeTitle}>
+          <div className="row">
+            <select className="input" style={{ flex: 1 }} value={queryIdx} onChange={(e) => setQueryIdx(Number(e.target.value))}>
               {d.queries.map((q, i) => <option key={i} value={i}>{q}</option>)}
             </select>
-            <button onClick={runKnowledge}>{d.search}</button>
+            <button className="sm" onClick={runKnowledge}>{d.search}</button>
           </div>
           <div className="scroll-y" style={{ marginTop: 8 }}>
-            {citations.length === 0 && <div className="muted" style={{ fontSize: 13 }}>{d.knowledgeEmpty}</div>}
+            {citations.length === 0 && <div className="muted" style={{ paddingTop: 8 }}>{d.knowledgeEmpty}</div>}
             {citations.map((c) => (
-              <div key={c.source_id} style={{ marginTop: 8, borderTop: "1px solid var(--border)", paddingTop: 8 }}>
-                <div><strong>{c.title}</strong> <span className="muted">[{c.source_id}] sim={c.similarity}</span></div>
-                <div className="muted" style={{ fontSize: 13 }}>{c.excerpt}…</div>
+              <div key={c.source_id} style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
+                <div><b>{c.title}</b> <span className="badge">{c.source_id}</span></div>
+                <div className="muted">{c.excerpt}…</div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
-
-      {/* risk register */}
-      <div className="card">
-        <h2>{d.riskRegisterTitle}</h2>
-        <div className="legend" style={{ marginBottom: 8 }}>
-          <span className="item"><span className="dot red" />high/critical</span>
-          <span className="item"><span className="dot amber" />medium</span>
-          <span className="item"><span className="dot green" />low</span>
-        </div>
-        {risks.length === 0 ? (
-          <div className="muted">{d.riskEmpty}</div>
-        ) : (
-          <div className="scroll-y">
-            <table>
-              <thead><tr><th>{t.common.project}</th><th>{t.common.severity}</th><th>{d.signal}</th><th>{d.mitigation}</th><th>{d.detectedAt}</th></tr></thead>
-              <tbody>
-                {risks.map((r) => (
-                  <tr key={r.id}><td>{r.project_id}</td>
-                    <td><span className={`badge ${r.severity === "high" || r.severity === "critical" ? "red" : r.severity === "medium" ? "amber" : "green"}`}>{r.severity}</span></td>
-                    <td>{r.signal}</td><td className="muted">{r.mitigation}</td><td className="muted">{r.detected_at?.slice(0, 10)}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* project status */}
-      <div className="card">
-        <h2>{d.projectsTitle}</h2>
-        <div className="scroll-y">
-          <table>
-            <thead><tr><th>{t.common.project}</th><th>{d.skill}</th><th>{t.common.status}</th><th>{d.progress}</th><th>{d.deadline}</th></tr></thead>
-            <tbody>
-              {projects.map((p: any) => (
-                <tr key={p.project_id}><td>{p.project_id}</td><td>{p.skill}</td>
-                  <td><span className={`badge ${p.status}`}>{p.status}</span></td>
-                  <td>{p.percent_complete}%</td><td>{p.deadline}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </main>
+    </div>
   );
 }
