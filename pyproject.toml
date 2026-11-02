@@ -92,6 +92,9 @@ ignore = ["UP042"]
 [tool.ruff.lint.per-file-ignores]
 # bilingual scenario catalog: one (English, Korean) pair per line reads better than wrapping
 "ma_pmo/core/scenarios.py" = ["E501"]
+# report/data templates embed Markdown tables, CSS and bilingual sentences
+"ma_pmo/eval/report.py" = ["E501"]
+"ma_pmo/eval/dataset.py" = ["E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

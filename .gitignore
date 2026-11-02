@@ -37,3 +37,6 @@ apps/web/next-env.d.ts
 
 # Claude Code local settings (personal, not shared)
 .claude/settings.local.json
+
+# isolated evaluation databases created by `ma-pmo eval --data`
+.ma-pmo-eval.db*

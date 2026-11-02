@@ -34,6 +34,17 @@ MA_PMO_LANG=ko ma-pmo harness a7_ablation --save  # 한국어 ablation 리포트
 make harness                              # = full_suite --save
 ```
 
+## 새 실험 만들기
+
+```bash
+ma-pmo harness new risk_focus --hypothesis H3 --repeat 3     # H3를 검증하는 모든 시나리오
+ma-pmo harness new kickoff --scenarios knowledge_kickoff,baseline_planning --ablate A7
+```
+
+`experiments/<이름>.py`와 `experiments/test_<이름>.py`가 생성됩니다(폴더는 `--dir` 또는
+`MA_PMO_EXPERIMENTS_DIR`로 지정). 실험은 자동으로 인식되므로 따로 등록할 필요가 없습니다.
+이름·시나리오·가설·제외 에이전트를 검사하고, `--force` 없이는 기존 파일을 덮어쓰지 않습니다.
+
 ## 프로그래밍 API
 
 ```python
