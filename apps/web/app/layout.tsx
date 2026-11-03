@@ -1,11 +1,12 @@
 import "./globals.css";
 import type { ReactNode } from "react";
-import { Nav } from "./components/nav";
+import { Shell } from "./components/shell";
 import { LanguageProvider } from "./lib/i18n";
 
 export const metadata = {
-  title: "MA-PMO Dashboard",
-  description: "Multi-Agent PMO — portfolio status · KPIs · HITL approvals",
+  title: "MA-PMO Admin",
+  description: "Multi-Agent PMO — portfolio status · KPIs · HITL approvals · evaluation",
+  icons: { icon: "/logo.png" },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -13,10 +14,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <LanguageProvider>
-          <div className="container">
-            <Nav />
-            {children}
-          </div>
+          <Shell>{children}</Shell>
         </LanguageProvider>
       </body>
     </html>
