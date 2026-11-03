@@ -122,6 +122,18 @@ curl -X POST 'localhost:8000/scenarios/quarterly_review/run?format=markdown'
 curl localhost:8000/eval                  # H1–H5 as JSON
 ```
 
+### Evaluate on your own data (templates)
+
+```bash
+ma-pmo template data ./my-org            # fill-in CSV/JSON files + guide (English/Korean)
+ma-pmo template validate ./my-org        # line-by-line checks: dates, numbers, ids, cycles
+ma-pmo eval --data ./my-org              # H1–H5 on your data, in an isolated DB inside the folder
+ma-pmo template report --data ./my-org --format html --out report.html   # report with verdicts
+ma-pmo harness new risk_focus --hypothesis H3 --repeat 3                  # scaffold an experiment
+```
+
+The same is available over HTTP: `GET /templates/data.zip`, `POST /templates/validate` (zip body), `GET /eval/report?format=md|html`.
+
 ## Architecture
 
 ```

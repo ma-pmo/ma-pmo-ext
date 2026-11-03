@@ -122,6 +122,18 @@ curl 'localhost:8000/eval?lang=ko'         # H1~H5 JSON
 
 > 게이트 ID는 `G1-initiation`, `G2-planning`, `G3-execution`, `G4-closure` 입니다. 이전 버전의 한글 ID(`G2-계획완료` 등)도 그대로 인식합니다.
 
+### 우리 조직 데이터로 평가하기 (템플릿)
+
+```bash
+ma-pmo template data ./my-org            # 입력 양식(CSV/JSON) + 작성 안내(영어·한국어) 생성
+ma-pmo template validate ./my-org        # 날짜·숫자·ID·순환 참조를 파일·줄 번호와 함께 검사
+ma-pmo eval --data ./my-org              # 폴더 안 별도 DB에서 H1~H5 평가
+ma-pmo template report --data ./my-org --format html --out report.html   # 판정이 담긴 보고서
+ma-pmo harness new risk_focus --hypothesis H3 --repeat 3                  # 새 실험 뼈대 생성
+```
+
+HTTP로도 쓸 수 있습니다: `GET /templates/data.zip`, `POST /templates/validate`(zip 본문), `GET /eval/report?format=md|html`.
+
 ## 아키텍처
 
 ```

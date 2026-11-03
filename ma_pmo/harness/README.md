@@ -30,6 +30,18 @@ MA_PMO_LANG=ko ma-pmo harness a7_ablation --save   # ablation report in Korean
 make harness                              # = full_suite --save
 ```
 
+## Create a new experiment
+
+```bash
+ma-pmo harness new risk_focus --hypothesis H3 --repeat 3     # every scenario that tests H3
+ma-pmo harness new kickoff --scenarios knowledge_kickoff,baseline_planning --ablate A7
+```
+
+This writes `experiments/<name>.py` and `experiments/test_<name>.py` (folder set by
+`--dir` or `MA_PMO_EXPERIMENTS_DIR`). Experiments are discovered automatically: no
+registration step. Names, scenario ids, hypotheses and ablated agents are validated, and
+existing files are never overwritten without `--force`.
+
 ## Python API
 
 ```python

@@ -34,8 +34,8 @@ def populate_deterministic_kpis(scope: str = "PORTFOLIO#2026-Q1") -> None:
 
 
 # ── H1: shorter report cycle time ───────────────────────────────
-def h1_report_time() -> dict:
-    base = _load("baselines.json")["manual_report_cycle_time_sec"]
+def h1_report_time(baselines: dict | None = None) -> dict:
+    base = (baselines or _load("baselines.json"))["manual_report_cycle_time_sec"]
     rct = metric_summary("report_cycle_time_sec")
     auto = rct["avg"]
     reduction = None if auto is None else round((1 - auto / base) * 100, 1)
@@ -52,8 +52,8 @@ def h1_report_time() -> dict:
 
 
 # ── H2: lower resource idle rate ────────────────────────────────
-def h2_idle_rate() -> dict:
-    target = _load("baselines.json")["target_utilization_pct"]
+def h2_idle_rate(baselines: dict | None = None) -> dict:
+    target = (baselines or _load("baselines.json"))["target_utilization_pct"]
     util = metric_summary("utilization_pct")
     idle = metric_summary("idle_pct")
     return {
@@ -67,8 +67,8 @@ def h2_idle_rate() -> dict:
 
 
 # ── H3: risk detection performance (rule-based vs. ground truth) ─
-def h3_risk_detection(scope: str = "PORTFOLIO#2026-Q1") -> dict:
-    labels = _load("risk_ground_truth.json")["labels"]
+def h3_risk_detection(scope: str = "PORTFOLIO#2026-Q1", labels: dict | None = None) -> dict:
+    labels = labels if labels is not None else _load("risk_ground_truth.json")["labels"]
     status = get_tracker().get_portfolio_status(scope)
     tp = fp = fn = tn = 0
     rows = []
@@ -159,13 +159,15 @@ def h5_complexity(scope: str = "PORTFOLIO#2026-Q1") -> dict:
     }
 
 
-def run_all(populate: bool = True, scope: str = "PORTFOLIO#2026-Q1") -> dict:
+def run_all(populate: bool = True, scope: str = "PORTFOLIO#2026-Q1",
+            baselines: dict | None = None, labels: dict | None = None) -> dict:
+    """Run H1–H5. `baselines`/`labels` override the bundled fixtures (see eval/dataset.py)."""
     if populate:
         populate_deterministic_kpis(scope)
     return {
-        "H1": h1_report_time(),
-        "H2": h2_idle_rate(),
-        "H3": h3_risk_detection(scope),
+        "H1": h1_report_time(baselines),
+        "H2": h2_idle_rate(baselines),
+        "H3": h3_risk_detection(scope, labels),
         "H4": h4_knowledge_ablation(),
         "H5": h5_complexity(scope),
     }
