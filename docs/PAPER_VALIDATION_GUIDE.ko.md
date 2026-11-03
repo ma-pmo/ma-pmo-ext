@@ -61,17 +61,17 @@ make web                 # http://localhost:3000  (대시보드)
 - 캡처: `http://localhost:8000/docs` (엔드포인트 = 기능 매핑) 스크린샷
 
 ### Figure B — 에이전트 협업 4단계 (대표 그림)
-- 화면: `시나리오` 탭 → "분기 포트폴리오 통합 리뷰" 실행
+- 화면: 사이드바 `시나리오` → "분기 포트폴리오 통합 리뷰" 실행
 - 캡처: 계획(A1 위임) → 수행(A2/A4/A5 산출·소요시간) → 완료(종합) → 인사이트(H1/H3) 전체 타임라인
 - 논문 메시지: *구조화 메시지 기반 협업 + 단계별 계측*
 
 ### Figure C — 5축 KPI 대시보드
-- 화면: `대시보드` 탭
+- 화면: 사이드바 `대시보드`
 - 준비: "일정 산출(A2)", "자원 배분(A3)", "게이트 리뷰(A6)" 버튼 클릭 → KPI 채움
 - 캡처: RCT·활용률/유휴율(H2)·SPI·슬리피지·RLT 카드 + 프로젝트 상태 + 리스크 등록부
 
 ### Figure D — HITL 거버넌스 게이트
-- 화면: `승인 큐 (HITL)` 탭
+- 화면: 사이드바 `승인 큐` (배지에 대기 건수 표시)
 - 준비: `curl -X POST localhost:8000/demo/gated-message` (또는 A6 conditional 게이트)
 - 캡처: 대기 승인 항목(발신 에이전트·confidence·payload) + 승인/반려 버튼
 - 논문 메시지: *고위험 결정의 인간 승인 게이트(§8 거버넌스)*
@@ -95,6 +95,9 @@ make web                 # http://localhost:3000  (대시보드)
   ma-pmo eval                  # 콘솔 표 (= python -m ma_pmo.eval.run)
   curl 'localhost:8000/eval?lang=ko'   # JSON (precision/recall/F1 등)
   ```
+- 화면: 사이드바 `평가` — 가설별 판정(지지됨 / 부분 지지 / 지지 안 됨 / 데이터 부족)
+- 보고서: `ma-pmo template report --format html --out report.html` 또는 `GET /eval/report?format=md|html` (판정·KPI·한계)
+- 우리 조직 데이터: `ma-pmo template data ./my-org` → 채우기 → `ma-pmo template validate ./my-org` → `ma-pmo eval --data ./my-org`
 - 캡처: H3 precision/recall/F1, H2 활용률/유휴율, H4 A7 ablation, H5 복잡성 층화
 - 논문 표: 아래 §3 표를 그대로 사용
 

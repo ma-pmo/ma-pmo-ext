@@ -12,6 +12,7 @@ from ma_pmo.core.obs import configure_logging
 
 configure_logging()
 
+from ma_pmo import __version__  # noqa: E402
 from ma_pmo.api.routers import (  # noqa: E402
     approvals,
     evaluation,
@@ -30,7 +31,7 @@ from ma_pmo.core.i18n import from_accept_language, normalize, tr, use_lang  # no
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload  # noqa: E402
 from ma_pmo.integrations.registry import get_tracker  # noqa: E402
 
-app = FastAPI(title="MA-PMO API", version="0.1.0")
+app = FastAPI(title="MA-PMO API", version=__version__)
 
 
 @app.middleware("http")

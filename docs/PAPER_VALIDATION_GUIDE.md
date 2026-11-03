@@ -53,17 +53,17 @@ Pick a use case in the **Scenarios** tab to run four phases — **plan → execu
 - Capture: `http://localhost:8000/docs` (endpoints = function mapping)
 
 ### Figure B — four-phase agent collaboration (main figure)
-- Screen: **Scenarios** tab → run "Quarterly portfolio review"
+- Screen: **Scenarios** (sidebar) → run "Quarterly portfolio review"
 - Capture: the whole timeline — plan (A1 delegation) → execute (A2/A4/A5 outputs and timings) → complete (synthesis) → insight (H1/H3)
 - Message: *collaboration through structured messages + per-phase instrumentation*
 
 ### Figure C — five-axis KPI dashboard
-- Screen: **Dashboard** tab
+- Screen: **Dashboard** (sidebar)
 - Prepare: click "Compute schedule (A2)", "Allocate resources (A3)" and "Review" (A6) to fill KPIs
 - Capture: RCT, utilization/idle (H2), SPI, slippage and RLT cards + project status + risk register
 
 ### Figure D — HITL governance gate
-- Screen: **Approval queue (HITL)** tab
+- Screen: **Approvals** (sidebar; the badge shows how many are pending)
 - Prepare: `curl -X POST localhost:8000/demo/gated-message` (or a conditional A6 gate)
 - Capture: pending items (sender agent, confidence, payload) + approve/reject buttons
 - Message: *human approval gate for high-risk decisions (§8 governance)*
@@ -87,6 +87,9 @@ Pick a use case in the **Scenarios** tab to run four phases — **plan → execu
   ma-pmo eval                  # console table (= python -m ma_pmo.eval.run)
   curl localhost:8000/eval     # JSON (precision/recall/F1, ...)
   ```
+- Screen: **Evaluation** (sidebar) — one verdict per hypothesis (Supported / Partly supported / Not supported / Insufficient data)
+- Report: `ma-pmo template report --format html --out report.html` or `GET /eval/report?format=md|html` (verdicts, KPIs, limitations)
+- Your own data: `ma-pmo template data ./my-org` → fill in → `ma-pmo template validate ./my-org` → `ma-pmo eval --data ./my-org`
 - Capture: H3 precision/recall/F1, H2 utilization/idle, H4 A7 ablation, H5 complexity strata
 
 ---

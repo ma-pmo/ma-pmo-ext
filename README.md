@@ -31,6 +31,8 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 - **Measurable** — five-axis KPIs (time, resource, delivery, risk, cost), 20 lifecycle scenarios and an experiment harness that exports paper-ready Markdown.
 - **Bilingual** — dashboard, API responses, reports and LLM output in English or Korean (`?lang=ko`, `Accept-Language`, or `MA_PMO_LANG`).
 - **Pluggable integrations** — Slack and webhook notifications, Jira Cloud as the data source, and a plugin entry point for your own.
+- **Evaluate on your own data** — fill-in data templates with line-by-line validation, H1–H5 reports with verdicts (Markdown/HTML), and an experiment scaffold (`ma-pmo harness new`).
+- **Admin dashboard** — sidebar navigation with a pending-approvals badge, Evaluation and Integrations pages, light/dark themes and a mobile layout.
 
 ## Screenshots
 
