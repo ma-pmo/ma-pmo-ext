@@ -75,9 +75,12 @@ async def validate_template(request: Request) -> dict:
         raise HTTPException(status_code=400, detail="not a zip file") from e
     wanted = {*COLUMNS, "baselines.json"}
     with tempfile.TemporaryDirectory() as tmp, zf:
-        for info in zf.infolist():
-            name = Path(info.filename).name  # flatten folders; never trust archive paths
-            if name in wanted and not info.is_dir() and info.file_size <= _MAX_UPLOAD:
+        # Only known template files are extracted, and the target path is built from our own
+        # file names, never from archive paths (folders inside the zip are flattened).
+        members = {Path(i.filename).name: i for i in zf.infolist() if not i.is_dir()}
+        for name in sorted(wanted):
+            info = members.get(name)
+            if info is not None and info.file_size <= _MAX_UPLOAD:
                 (Path(tmp) / name).write_bytes(zf.read(info))
         ds, issues = load_dataset(tmp)
     errors = [i for i in issues if i.level == "error"]
