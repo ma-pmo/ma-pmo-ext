@@ -40,3 +40,6 @@ apps/web/next-env.d.ts
 
 # isolated evaluation databases created by `ma-pmo eval --data`
 .ma-pmo-eval.db*
+
+# TypeScript incremental build cache
+*.tsbuildinfo
