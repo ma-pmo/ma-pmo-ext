@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-05
+
 ### Added
 - API authentication middleware ([docs/AUTH.md](docs/AUTH.md)): `MA_PMO_AUTH_MODE=off|api_key|custom` (default `off`), API keys with roles `viewer`, `operator`, `approver`, `admin`, a route policy, a pluggable authenticator for SSO/OIDC or proxy headers, and `GET /auth/whoami`.
 - The dashboard sends `NEXT_PUBLIC_API_KEY` as `X-API-Key` when set.
@@ -81,7 +83,8 @@ First public release.
 ### Fixed
 - Progress bars on the dashboard did not render their fill.
 
-[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ma-pmo/ma-pmo-ext/releases/tag/v0.1.0
@@ -90,7 +93,7 @@ First public release.
 
 ## 변경 내역 (한국어)
 
-### [Unreleased]
+### [0.4.0] - 2026-11-05
 
 - API 인증 미들웨어([docs/AUTH.ko.md](docs/AUTH.ko.md)): `MA_PMO_AUTH_MODE=off|api_key|custom`(기본 `off`), 역할(`viewer`, `operator`, `approver`, `admin`)이 있는 API 키, 경로별 권한 정책, SSO/OIDC·프록시 헤더용 인증기 플러그인, `GET /auth/whoami`.
 - 대시보드는 `NEXT_PUBLIC_API_KEY`가 있으면 `X-API-Key`로 보냅니다.
