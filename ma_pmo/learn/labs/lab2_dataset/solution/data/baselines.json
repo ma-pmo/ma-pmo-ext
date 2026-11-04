@@ -1,0 +1,6 @@
+{
+  "manual_report_cycle_time_sec": 14400,
+  "target_utilization_pct": 80,
+  "manual_risk_lead_time_days": 0,
+  "manual_estimation_error_pct": 25
+}

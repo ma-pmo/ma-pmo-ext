@@ -36,7 +36,7 @@ make lint    # ruff check . && mypy ma_pmo
 
 While iterating, `make test-smoke` (a few seconds) checks the app still boots and the main paths work, and `make test-regression` checks pinned results on the demo portfolio. If you change one of those results on purpose, update the expected value in `tests/test_regression.py` in the same PR and explain why.
 
-Add tests under `tests/` for new features. When adding a new agent/worker, define a Pydantic `.v1` schema in `ma_pmo/core/schemas/`, and mention any impact on the hypothesis (H1–H5) measurements in `ma_pmo/eval/`.
+Add tests under `tests/` for new features. A new course lab goes in `ma_pmo/learn/labs/` with a starter, a solution, checks in `ma_pmo/learn/checks.py` and guides in both languages; `tests/test_learn.py` then proves the solution passes and the starter fails. The short version of all conventions is in [AGENTS.md](AGENTS.md). When adding a new agent/worker, define a Pydantic `.v1` schema in `ma_pmo/core/schemas/`, and mention any impact on the hypothesis (H1–H5) measurements in `ma_pmo/eval/`.
 
 ## PR process
 
@@ -100,7 +100,7 @@ make web          # (프론트엔드) apps/web 의존성 설치 + 개발 서버
 
 ### 테스트 & 린트
 
-PR 전에 `make test`, `make lint`를 통과시켜주세요. 새 기능은 `tests/`에 테스트를 함께 추가하고, 새 에이전트는 `ma_pmo/core/schemas/`에 `.v1` 스키마를 정의하며, `ma_pmo/eval/` 가설(H1~H5) 측정에 영향이 있다면 함께 언급해주세요.
+PR 전에 `make test`, `make lint`를 통과시켜주세요. 새 기능은 `tests/`에 테스트를 함께 추가하고, 새 에이전트는 `ma_pmo/core/schemas/`에 `.v1` 스키마를 정의하며, `ma_pmo/eval/` 가설(H1~H5) 측정에 영향이 있다면 함께 언급해주세요. 새 교육 실습은 `ma_pmo/learn/labs/`에 시작 코드·정답·두 언어 안내서를 두고 채점을 `ma_pmo/learn/checks.py`에 추가하세요. `tests/test_learn.py`가 정답은 통과하고 시작 코드는 실패하는지 확인합니다. 모든 규칙의 요약은 [AGENTS.md](AGENTS.md)에 있습니다.
 
 ### 언어 (영어 / 한국어)
 

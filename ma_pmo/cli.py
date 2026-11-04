@@ -10,6 +10,8 @@ Examples:
     ma-pmo template report --format html    # evaluation report (Markdown/HTML)
     ma-pmo harness full_suite               # run an experiment from the harness
     ma-pmo harness new my_exp --hypothesis H3   # scaffold a new experiment
+    ma-pmo learn start 1                    # course lab: copy the starter files
+    ma-pmo learn check 1                    # course lab: check your work
 """
 from __future__ import annotations
 
@@ -127,6 +129,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     harness.add_argument("args", nargs=argparse.REMAINDER)
 
+    learn = sub.add_parser("learn", help="course labs: list | start N | check N")
+    learn.add_argument("args", nargs=argparse.REMAINDER)
+
     ns = parser.parse_args(argv)
 
     if ns.command == "init-db":
@@ -151,6 +156,10 @@ def main(argv: list[str] | None = None) -> int:
         from ma_pmo.harness.cli import main as harness_main
 
         return harness_main(ns.args)
+    elif ns.command == "learn":
+        from ma_pmo.learn.cli import main as learn_main
+
+        return learn_main(ns.args)
     return 0
 
 

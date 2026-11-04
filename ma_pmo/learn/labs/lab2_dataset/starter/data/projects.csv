@@ -1,0 +1,5 @@
+id,skill,planned_start,planned_finish,deadline,status
+ACME-1,backend,2027-01-04,2027-02-26,2027-03-05,green
+ACME-2,frontend,2027-01-11,2027-02-30,2027-03-12,amber
+ACME-3,data,2027-02-01,2027-04-16,2027-04-09,red
+ACME-4,backend,2027-03-01,2027-05-28,2027-06-04,green

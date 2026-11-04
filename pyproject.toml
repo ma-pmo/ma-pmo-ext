@@ -95,6 +95,9 @@ ignore = ["UP042"]
 # report/data templates embed Markdown tables, CSS and bilingual sentences
 "ma_pmo/eval/report.py" = ["E501"]
 "ma_pmo/eval/dataset.py" = ["E501"]
+# course checks: each requirement and hint is an (English, Korean) pair on one line
+"ma_pmo/learn/checks.py" = ["E501"]
+"ma_pmo/learn/cli.py" = ["E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
