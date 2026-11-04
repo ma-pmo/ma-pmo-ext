@@ -32,6 +32,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [apiUp, setApiUp] = useState<boolean | null>(null);
   const [pending, setPending] = useState(0);
+  const [me, setMe] = useState<{ subject: string; auth_enabled: boolean } | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -45,6 +46,7 @@ export function Shell({ children }: { children: ReactNode }) {
       }
     };
     poll();
+    api.whoami().then((w) => alive && setMe(w)).catch(() => {});
     const id = setInterval(poll, 15000);
     return () => { alive = false; clearInterval(id); };
   }, [path]);
@@ -93,6 +95,9 @@ export function Shell({ children }: { children: ReactNode }) {
           </button>
           <span className="crumb">{current ? t.nav[current.key] : "MA-PMO"}</span>
           <span className="spacer" />
+          {me && (me.auth_enabled
+            ? <span className="badge accent">{me.subject}</span>
+            : <span className="badge amber tip" data-tip={t.shell.authOffTip}>{t.shell.authOff}</span>)}
           <span className={`status ${apiUp === null ? "" : apiUp ? "up" : "down"}`}>
             <i />{apiUp === false ? t.shell.apiDown : t.shell.apiUp}
           </span>

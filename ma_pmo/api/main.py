@@ -83,6 +83,30 @@ def health() -> dict:
     return {"status": "ok"}
 
 
+@app.get("/system")
+def system_status() -> dict:
+    """Which platform features are on — never secret values."""
+    import importlib.util
+
+    from ma_pmo.core import tracing
+
+    s = get_settings()
+    retriever = s.retriever.strip().lower() or "lexical"
+    return {
+        "version": __version__,
+        "auth": {"mode": s.auth_mode.strip().lower() or "off"},
+        "tracing": {"enabled": tracing._tracer is not None,
+                    "exporter": "otlp" if tracing._global_mode == "otlp" else
+                    "console" if tracing._tracer is not None else None},
+        "retriever": {"mode": retriever,
+                      "model": (s.embedding_model or "char-ngrams") if retriever == "vector"
+                      else None},
+        "calendar": {"configured": bool(s.calendar_dir)},
+        "mcp": {"installed": importlib.util.find_spec("mcp") is not None},
+        "hitl_threshold": s.hitl_confidence_threshold,
+    }
+
+
 @app.get("/auth/whoami")
 def whoami(principal: CurrentPrincipal) -> dict:
     """Who the API thinks you are, and with which roles."""

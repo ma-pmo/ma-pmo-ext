@@ -221,3 +221,13 @@ def test_api_validate_rejects_bad_uploads():
     body = client.post("/templates/validate", content=buf.getvalue()).json()
     assert body["valid"] is False
     assert any(i["file"] == "baselines.json" for i in body["issues"])
+
+
+def test_viewing_the_evaluation_does_not_queue_approvals():
+    from ma_pmo.core import hitl
+
+    client.get("/eval")  # telemetry exists after the first run
+    before = len(hitl.list_pending())
+    client.get("/eval")
+    client.get("/eval")
+    assert len(hitl.list_pending()) == before

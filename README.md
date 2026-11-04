@@ -41,10 +41,10 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 | Dashboard | Agent collaboration trace |
 |---|---|
 | ![Admin dashboard with five-axis KPIs, insights and charts](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/dashboard-en.png) | ![Four-phase scenario trace](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenario-trace-en.png) |
-| **Evaluation (H1–H5 verdicts, templates)** | **Human-in-the-loop approvals** |
-| ![Evaluation page with hypothesis verdicts and template downloads](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-en.png) | ![Approval queue for high-risk decisions](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-en.png) |
-| **20 lifecycle scenarios** | **Integrations (Slack, webhook, Jira)** |
-| ![Scenario catalog with category tabs](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-en.png) | ![Integrations status page](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-en.png) |
+| **Evaluation (verdicts, calibration, search quality)** | **Human-in-the-loop approvals** |
+| ![Evaluation page with hypothesis verdicts, confidence calibration and A7 search quality](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-en.png) | ![Approval queue for high-risk decisions](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-en.png) |
+| **20 lifecycle scenarios** | **Integrations and platform status** |
+| ![Scenario catalog with category tabs](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-en.png) | ![Integrations and platform status (auth, tracing, search, calendars, MCP)](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-en.png) |
 
 Korean UI: [dashboard](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/dashboard-ko.png) · [scenario trace](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenario-trace-ko.png) · [evaluation](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-ko.png) · [approvals](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-ko.png) · [scenarios](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-ko.png) · [integrations](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-ko.png). Light and dark themes follow the OS setting.
 

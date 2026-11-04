@@ -286,3 +286,9 @@ def test_agents_run_on_a_jira_style_tracker():
     (out,) = result["outputs"]
     assert out["data"]["project_id"] == "PAY"
     assert out["data"]["critical_path"]
+
+
+def test_status_names_the_environment_variables_to_set():
+    rows = {r["name"]: r for r in registry.status(_settings(MA_PMO_INTEGRATIONS="webhook"))}
+    assert rows["webhook"]["missing_env"] == ["MA_PMO_WEBHOOK_URL"]
+    assert rows["slack"]["missing_env"] == ["SLACK_WEBHOOK_URL"]
