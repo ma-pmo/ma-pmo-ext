@@ -32,6 +32,7 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 - **Bilingual** — dashboard, API responses, reports and LLM output in English or Korean (`?lang=ko`, `Accept-Language`, or `MA_PMO_LANG`).
 - **Pluggable integrations** — Slack and webhook notifications, Jira Cloud as the data source, and a plugin entry point for your own.
 - **Evaluate on your own data** — fill-in data templates with line-by-line validation, H1–H5 reports with verdicts (Markdown/HTML), and an experiment scaffold (`ma-pmo harness new`).
+- **Learn harness engineering** — a [hands-on course](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.md): seven lectures and four labs with automatic checks (`ma-pmo learn`).
 - **Admin dashboard** — sidebar navigation with a pending-approvals badge, Evaluation and Integrations pages, light/dark themes and a mobile layout.
 
 ## Screenshots
@@ -138,6 +139,18 @@ ma-pmo harness new risk_focus --hypothesis H3 --repeat 3                  # scaf
 
 The same is available over HTTP: `GET /templates/data.zip`, `POST /templates/validate` (zip body), `GET /eval/report?format=md|html`.
 
+### Learn harness engineering (course)
+
+Seven lectures on building dependable multi-agent systems, taught on this codebase, plus four labs with starter files, reference solutions and automatic checks. Offline, no API key.
+
+```bash
+ma-pmo learn list          # the four labs
+ma-pmo learn start 1       # copy the starter files to ./learn/lab1
+ma-pmo learn check 1       # ✓/✗ per requirement, with hints
+```
+
+Start here: [docs/learn/README.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.md).
+
 ## Architecture
 
 ```
@@ -205,10 +218,11 @@ ma_pmo/            Python package (published to PyPI)
   integrations/    Slack, webhook and Jira integrations + plugin registry
   db/              SQLAlchemy models and init
   eval/  harness/  hypothesis evaluation and experiment harness
+  learn/           course labs: starters, solutions, automatic checks
   fixtures/        demo portfolio, lessons learned (English + Korean), baselines
 apps/web/          Next.js dashboard (English / Korean)
 deploy/  infra/    Docker, Kubernetes, optional production infra
-docs/              paper validation guide, evidence, screenshots
+docs/              paper validation guide, course (docs/learn), evidence, screenshots
 tests/             pytest suite
 ```
 

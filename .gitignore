@@ -40,6 +40,10 @@ apps/web/next-env.d.ts
 
 # isolated evaluation databases created by `ma-pmo eval --data`
 .ma-pmo-eval.db*
+.ma-pmo-learn.db*
+.ma-pmo-learn.ckpt.sqlite
+# course lab work folders (`ma-pmo learn start`)
+/learn/
 
 # TypeScript incremental build cache
 *.tsbuildinfo

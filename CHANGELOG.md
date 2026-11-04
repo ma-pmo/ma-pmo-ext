@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- Course "Learn harness engineering with MA-PMO" ([docs/learn](docs/learn/README.md)): seven lectures in English and Korean, four labs (notifier plugin, dataset repair, ablation experiment, custom tracker) with starter files, reference solutions and automatic checks.
+- `ma-pmo learn list | scenarios | start N | check N` (`--solution` to copy or check the reference solution).
+- CI test that every lab solution passes and every untouched starter fails.
+- `AGENTS.md`: repository conventions for contributors and AI coding tools.
+
 ## [0.2.0] - 2026-11-04
 
 ### Added
@@ -60,6 +66,13 @@ First public release.
 ---
 
 ## 변경 내역 (한국어)
+
+### [Unreleased]
+
+- 교육 과정 "MA-PMO로 배우는 하네스 엔지니어링"([docs/learn](docs/learn/README.ko.md)): 영어·한국어 강의 7개, 실습 4개(알림 플러그인, 데이터 고치기, 제거 실험, 나만의 트래커)와 시작 코드·정답·자동 채점.
+- `ma-pmo learn list | scenarios | start N | check N` 명령(`--solution`으로 정답 복사·채점).
+- 모든 실습 정답은 통과하고 손대지 않은 시작 코드는 실패하는지 CI에서 검사.
+- `AGENTS.md`: 기여자와 AI 코딩 도구를 위한 저장소 규칙.
 
 ### [0.2.0] - 2026-11-04
 

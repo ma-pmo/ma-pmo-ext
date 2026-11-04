@@ -32,6 +32,7 @@
 - **영어/한국어 지원** — 대시보드, API 응답, 보고서, LLM 출력을 영어 또는 한국어로 제공합니다(`?lang=ko`, `Accept-Language`, `MA_PMO_LANG`).
 - **플러그인 연동** — Slack·웹훅 알림, Jira Cloud 데이터 연결, 직접 만든 연동을 꽂는 플러그인 구조를 지원합니다.
 - **우리 조직 데이터로 평가** — 데이터 입력 양식과 줄 단위 검사, 판정이 담긴 H1~H5 보고서(Markdown/HTML), 실험 뼈대 생성(`ma-pmo harness new`)을 제공합니다.
+- **하네스 엔지니어링 교육 과정** — 강의 7개와 자동 채점 실습 4개로 된 [실습 과정](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.ko.md)(`ma-pmo learn`).
 - **관리자 대시보드** — 승인 대기 배지가 있는 사이드바, 평가·연동 화면, 라이트/다크 테마, 모바일 화면을 지원합니다.
 
 ## 스크린샷 (한국어 UI)
@@ -140,6 +141,18 @@ ma-pmo harness new risk_focus --hypothesis H3 --repeat 3                  # 새 
 
 HTTP로도 쓸 수 있습니다: `GET /templates/data.zip`, `POST /templates/validate`(zip 본문), `GET /eval/report?format=md|html`.
 
+### 하네스 엔지니어링 배우기 (교육 과정)
+
+믿고 쓸 수 있는 멀티 에이전트 시스템을 만드는 방법을 이 코드베이스로 배우는 강의 7개와, 시작 코드·정답·자동 채점이 있는 실습 4개입니다. 오프라인, API 키 불필요.
+
+```bash
+ma-pmo learn list          # 실습 4개
+ma-pmo learn start 1       # 시작 코드를 ./learn/lab1에 복사
+ma-pmo learn check 1       # 요구사항별 ✓/✗와 힌트
+```
+
+시작: [docs/learn/README.ko.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.ko.md)
+
 ## 아키텍처
 
 ```
@@ -207,10 +220,11 @@ ma_pmo/            Python 패키지 (PyPI 배포)
   integrations/    Slack·웹훅·Jira 연동 + 플러그인 레지스트리
   db/              SQLAlchemy 모델·초기화
   eval/  harness/  가설 검증·실험 하네스
+  learn/           교육 과정 실습: 시작 코드·정답·자동 채점
   fixtures/        데모 포트폴리오·교훈(영어+한국어)·기준선
 apps/web/          Next.js 대시보드 (영어/한국어)
 deploy/  infra/    Docker·Kubernetes·선택적 운영 인프라
-docs/              논문 검증 가이드·증거 자료·스크린샷
+docs/              논문 검증 가이드·교육 과정(docs/learn)·증거 자료·스크린샷
 tests/             pytest
 ```
 
