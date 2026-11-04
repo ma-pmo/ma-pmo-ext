@@ -137,6 +137,10 @@ def main(argv: list[str] | None = None) -> int:
 
     ns = parser.parse_args(argv)
 
+    from ma_pmo.core.tracing import configure_tracing
+
+    configure_tracing()  # no-op unless OTEL_ENABLED=true
+
     if ns.command == "init-db":
         from ma_pmo.db.init import main as init_main
 

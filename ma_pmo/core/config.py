@@ -51,6 +51,7 @@ class Settings(BaseSettings):
 
     # observability
     otel_enabled: bool = Field(default=False, alias="OTEL_ENABLED")
+    otel_service_name: str = Field(default="ma-pmo", alias="OTEL_SERVICE_NAME")
 
     # default language for generated text and LLM output: en | ko
     default_lang: str = Field(default="en", alias="MA_PMO_LANG")

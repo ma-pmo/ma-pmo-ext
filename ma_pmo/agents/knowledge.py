@@ -11,7 +11,7 @@ import json
 
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.vectordb import LocalLexicalStore
-from ma_pmo.core import protocol
+from ma_pmo.core import protocol, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.knowledge_v1 import Citation, KnowledgeV1
@@ -60,7 +60,8 @@ class KnowledgeAgent(BaseAgent[KnowledgeV1]):
         )
         try:
             result = self.structured(prompt)
-        except Exception:  # no LLM / outage -> extractive fallback answer
+        except Exception as e:  # no LLM / outage -> extractive fallback answer
+            tracing.mark_fallback("A7 answer", e)
             top = hits[0]
             result = KnowledgeV1(
                 query=query,

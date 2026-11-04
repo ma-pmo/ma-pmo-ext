@@ -14,7 +14,7 @@ from typing import TypeVar
 import litellm
 from pydantic import BaseModel
 
-from ma_pmo.core import kpi
+from ma_pmo.core import kpi, tracing
 from ma_pmo.core.config import get_settings
 from ma_pmo.core.i18n import get_lang
 
@@ -53,15 +53,21 @@ def complete(
     language = "Korean" if get_lang() == "ko" else "English"
     system = f"{system}\n\nWrite all natural-language text in {language}."
     t0 = time.monotonic()
-    resp = litellm.completion(
-        model=model,
-        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-        temperature=_settings.llm_temperature if temperature is None else temperature,
-        max_tokens=max_tokens or _settings.llm_max_tokens,
-        **_provider_kwargs(model),
-    )
+    with tracing.span(f"chat {model}", {tracing.OPERATION: "chat", tracing.REQUEST_MODEL: model,
+                                        tracing.AGENT_ID: agent}):
+        resp = litellm.completion(
+            model=model,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+            temperature=_settings.llm_temperature if temperature is None else temperature,
+            max_tokens=max_tokens or _settings.llm_max_tokens,
+            **_provider_kwargs(model),
+        )
+        usage = getattr(resp, "usage", None)
+        tracing.set_attributes({
+            tracing.INPUT_TOKENS: getattr(usage, "prompt_tokens", None),
+            tracing.OUTPUT_TOKENS: getattr(usage, "completion_tokens", None),
+        })
     latency_ms = (time.monotonic() - t0) * 1000
-    usage = getattr(resp, "usage", None)
     kpi.record_llm_cost(
         model=model,
         prompt_tokens=getattr(usage, "prompt_tokens", 0) or 0,

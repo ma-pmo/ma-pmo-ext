@@ -9,8 +9,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from ma_pmo.core.obs import configure_logging
+from ma_pmo.core.tracing import configure_tracing
 
 configure_logging()
+configure_tracing()
 
 from ma_pmo import __version__  # noqa: E402
 from ma_pmo.api.auth import (  # noqa: E402
