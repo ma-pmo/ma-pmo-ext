@@ -32,6 +32,7 @@
 - **영어/한국어 지원** — 대시보드, API 응답, 보고서, LLM 출력을 영어 또는 한국어로 제공합니다(`?lang=ko`, `Accept-Language`, `MA_PMO_LANG`).
 - **플러그인 연동** — Slack·웹훅 알림, Jira Cloud 데이터 연결, 직접 만든 연동을 꽂는 플러그인 구조를 지원합니다.
 - **우리 조직 데이터로 평가** — 데이터 입력 양식과 줄 단위 검사, 판정이 담긴 H1~H5 보고서(Markdown/HTML), 실험 뼈대 생성(`ma-pmo harness new`)을 제공합니다.
+- **MCP 서버** — `ma-pmo mcp`로 AI 어시스턴트에 도구 8개를 제공합니다. 승인은 사람만 합니다.
 - **하네스 엔지니어링 교육 과정** — 강의 7개와 자동 채점 실습 4개로 된 [실습 과정](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.ko.md)(`ma-pmo learn`).
 - **관리자 대시보드** — 승인 대기 배지가 있는 사이드바, 평가·연동 화면, 라이트/다크 테마, 모바일 화면을 지원합니다.
 
@@ -90,6 +91,15 @@ JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=..
 ```
 
 `GET /integrations`로 켜진 연동을 확인하고, `POST /integrations/slack/test`로 테스트 메시지를 보낼 수 있습니다. 설정 방법·이벤트 목록·직접 만드는 법은 [docs/INTEGRATIONS.ko.md](docs/INTEGRATIONS.ko.md)를 참고하세요.
+
+### MCP 서버 (AI 어시스턴트 연결)
+
+```bash
+pip install "ma-pmo[mcp]"
+claude mcp add ma-pmo -- ma-pmo mcp      # 다른 MCP 클라이언트는 명령 `ma-pmo mcp`
+```
+
+포트폴리오 현황, CPM 일정, 리스크, 승인 대기, 시나리오, H1~H5 판정, 과거 교훈의 8개 도구를 제공합니다. 승인은 사람만 합니다. 설정: [docs/MCP.ko.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/MCP.ko.md)
 
 ### 인증
 

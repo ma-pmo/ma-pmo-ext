@@ -2,8 +2,8 @@
 
 # install dependencies (uv if available, otherwise pip)
 dev:
-	@if command -v uv >/dev/null 2>&1; then uv sync --extra dev; \
-	else python -m pip install -e ".[dev]"; fi
+	@if command -v uv >/dev/null 2>&1; then uv sync --extra dev --extra mcp; \
+	else python -m pip install -e ".[dev,mcp]"; fi
 	@test -f .env || cp .env.example .env
 	@echo "✓ Done. Set ANTHROPIC_API_KEY in .env (or use make api-ollama)."
 
