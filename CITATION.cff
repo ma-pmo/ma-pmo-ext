@@ -9,8 +9,8 @@ type: software
 authors:
   - name: "myeongjin.ji"
     email: mjinttt@gmail.com
-version: 0.2.0
-date-released: 2026-11-04
+version: 0.3.0
+date-released: 2026-11-05
 license: AGPL-3.0-or-later
 repository-code: "https://github.com/ma-pmo/ma-pmo-ext"
 keywords:

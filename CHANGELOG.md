@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-05
+
 ### Added
 - Course "Learn harness engineering with MA-PMO" ([docs/learn](docs/learn/README.md)): seven lectures in English and Korean, four labs (notifier plugin, dataset repair, ablation experiment, custom tracker) with starter files, reference solutions and automatic checks.
 - `ma-pmo learn list | scenarios | start N | check N` (`--solution` to copy or check the reference solution).
@@ -59,7 +61,8 @@ First public release.
 ### Fixed
 - Progress bars on the dashboard did not render their fill.
 
-[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ma-pmo/ma-pmo-ext/releases/tag/v0.1.0
 
@@ -67,7 +70,7 @@ First public release.
 
 ## 변경 내역 (한국어)
 
-### [Unreleased]
+### [0.3.0] - 2026-11-05
 
 - 교육 과정 "MA-PMO로 배우는 하네스 엔지니어링"([docs/learn](docs/learn/README.ko.md)): 영어·한국어 강의 7개, 실습 4개(알림 플러그인, 데이터 고치기, 제거 실험, 나만의 트래커)와 시작 코드·정답·자동 채점.
 - `ma-pmo learn list | scenarios | start N | check N` 명령(`--solution`으로 정답 복사·채점).
