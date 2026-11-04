@@ -11,6 +11,7 @@ from sqlalchemy import delete, select
 from ma_pmo.agents.allocation import allocate
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.base import IssueTrackerConnector
+from ma_pmo.connectors.calendar import CalendarConnector, get_calendar
 from ma_pmo.core import kpi, protocol
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
@@ -29,8 +30,10 @@ class ResourceAgent(BaseAgent[AllocationV1]):
     role_prompt = _ROLE
     output_schema = AllocationV1
 
-    def __init__(self, tracker: IssueTrackerConnector | None = None) -> None:
+    def __init__(self, tracker: IssueTrackerConnector | None = None,
+                 calendar: CalendarConnector | None = None) -> None:
         self.tracker = tracker or get_tracker()
+        self.calendar = calendar if calendar is not None else get_calendar()
 
     def _resources(self) -> list[dict]:
         with get_session() as s:
@@ -56,7 +59,8 @@ class ResourceAgent(BaseAgent[AllocationV1]):
     def _allocate(self, scope: str) -> tuple[AllocationV1, AgentMessage]:
         status = self.tracker.get_portfolio_status(scope)
         projects = status.get("projects", [])
-        result = allocate(projects, self._resources())
+        busy = self.calendar.busy_hours if self.calendar is not None else None
+        result = allocate(projects, self._resources(), busy=busy)
 
         alloc = AllocationV1(
             plan=[

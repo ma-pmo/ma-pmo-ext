@@ -98,6 +98,25 @@ How Jira data is mapped:
 
 The resource master (people, skills, capacity) still comes from MA-PMO's database.
 
+## Resource calendars (.ics)
+
+A3 allocates work as if everyone is free every week unless it knows about meetings, leave and
+holidays. Point it at a folder with one iCalendar file per person, named after the resource id:
+
+```bash
+MA_PMO_CALENDAR_DIR=./calendars      # ./calendars/R-01.ics, ./calendars/R-02.ics, ...
+```
+
+Export the file from any calendar app (Google Calendar: Settings → Import & export; Outlook:
+Save calendar; Apple Calendar: File → Export). A3 then takes each person's busy hours off their
+weekly capacity before allocating, so overloads appear where the calendar says they will.
+
+Counting rules: Monday–Friday only, at most 8 busy hours per day; all-day events block the whole
+day; events shown as free or cancelled are ignored; times are counted as written (no time-zone
+conversion); recurring events count their first occurrence only, so export with occurrences
+expanded. A person without a file is treated as fully available. Code:
+`ma_pmo/connectors/calendar.py` — implement `busy_hours(resource_id, week)` for another source.
+
 ## Writing your own integration
 
 An integration is an `IntegrationSpec`. Publish it from any Python package through the

@@ -75,6 +75,9 @@ class Settings(BaseSettings):
     # custom field holding story points (used as effort when there is no time estimate)
     jira_story_points_field: str = Field(default="", alias="JIRA_STORY_POINTS_FIELD")
 
+    # resource calendars for A3: folder with one <resource_id>.ics per person (empty = off)
+    calendar_dir: str = Field(default="", alias="MA_PMO_CALENDAR_DIR")
+
 
 @lru_cache
 def get_settings() -> Settings:

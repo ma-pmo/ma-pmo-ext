@@ -88,6 +88,7 @@ Turn them on with environment variables; failures never stop the agents.
 MA_PMO_INTEGRATIONS=slack,jira
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=...  JIRA_PROJECT_KEYS=PAY,DATA
+MA_PMO_CALENDAR_DIR=./calendars     # <resource_id>.ics per person: A3 allocates around meetings and leave
 ```
 
 `GET /integrations` shows what is active; `POST /integrations/slack/test` sends a test message. Setup, event list and how to write your own plugin: [docs/INTEGRATIONS.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/INTEGRATIONS.md).
@@ -240,7 +241,7 @@ ma_pmo/            Python package (published to PyPI)
   agents/          A1–A7
   api/             FastAPI app and routers
   core/            schemas, protocol, KPIs, HITL, graph, i18n, scenarios
-  connectors/      issue tracker (mock), calendar (stub), knowledge store
+  connectors/      issue tracker (mock), resource calendars (.ics), knowledge store
   integrations/    Slack, webhook and Jira integrations + plugin registry
   db/              SQLAlchemy models and init
   eval/  harness/  hypothesis evaluation and experiment harness
