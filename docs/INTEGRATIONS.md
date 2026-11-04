@@ -98,6 +98,44 @@ How Jira data is mapped:
 
 The resource master (people, skills, capacity) still comes from MA-PMO's database.
 
+## GitHub
+
+```bash
+MA_PMO_INTEGRATIONS=github
+GITHUB_REPOS=acme/api,acme/web     # each repository becomes one MA-PMO project
+GITHUB_TOKEN=github_pat_...        # optional for public repositories; read-only access is enough
+```
+
+| MA-PMO | GitHub |
+|---|---|
+| task | issue (`owner/repo#123`); pull requests and issues closed as "not planned" are skipped |
+| effort (hours) | label `hours:N`, or `points:N` / `sp:N` / `estimate:N` × 8, else 8 |
+| progress | closed 100% · open with an `in progress` / `doing` / `wip` label 50% · open 0% |
+| dependencies | "blocked by #12" or "depends on owner/repo#12" in the issue body |
+| due date | the issue's milestone due date |
+| skill | label `skill:<name>` |
+
+## Linear
+
+```bash
+MA_PMO_INTEGRATIONS=linear
+LINEAR_API_KEY=lin_api_...         # Settings → Security & access → Personal API keys
+LINEAR_TEAM_KEYS=ENG,DATA          # each team becomes one MA-PMO project
+```
+
+| MA-PMO | Linear |
+|---|---|
+| task | issue (`ENG-42`); canceled issues are skipped |
+| effort (hours) | estimate (points) × 8; label `hours:N` wins; else 8 |
+| progress | completed 100% · started 50% · other states 0% |
+| dependencies | "blocks" relations pointing at the issue |
+| due date | issue due date |
+| skill | label `skill:<name>` |
+
+Jira, GitHub and Linear share the project rules (start, finish, deadline, status colour,
+effort-weighted progress) in `ma_pmo/integrations/mapping.py`. Enable one tracker at a time; if
+several are enabled, the first is used and a warning is logged.
+
 ## Resource calendars (.ics)
 
 A3 allocates work as if everyone is free every week unless it knows about meetings, leave and

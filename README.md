@@ -30,7 +30,7 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 - **Human-in-the-loop** — high-severity risks, failed gates and low-confidence messages wait in an approval queue.
 - **Measurable** — five-axis KPIs (time, resource, delivery, risk, cost), 20 lifecycle scenarios and an experiment harness that exports paper-ready Markdown.
 - **Bilingual** — dashboard, API responses, reports and LLM output in English or Korean (`?lang=ko`, `Accept-Language`, or `MA_PMO_LANG`).
-- **Pluggable integrations** — Slack and webhook notifications, Jira Cloud as the data source, and a plugin entry point for your own.
+- **Pluggable integrations** — Slack and webhook notifications; Jira Cloud, GitHub or Linear as the data source; .ics resource calendars; and a plugin entry point for your own.
 - **Evaluate on your own data** — fill-in data templates with line-by-line validation, H1–H5 reports with verdicts (Markdown/HTML), and an experiment scaffold (`ma-pmo harness new`).
 - **MCP server** — `ma-pmo mcp` gives AI assistants eight tools over the Model Context Protocol; approvals stay human.
 - **Learn harness engineering** — a [hands-on course](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.md): seven lectures and four labs with automatic checks (`ma-pmo learn`).
@@ -80,12 +80,12 @@ make web          # dashboard on http://localhost:3000
 
 Docker Compose and Kubernetes manifests are described in [deploy/README.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/deploy/README.md).
 
-### Integrations (Slack, Jira, webhooks)
+### Integrations (Slack, webhooks, Jira, GitHub, Linear)
 
 Turn them on with environment variables; failures never stop the agents.
 
 ```bash
-MA_PMO_INTEGRATIONS=slack,jira
+MA_PMO_INTEGRATIONS=slack,jira       # trackers: jira | github | linear (one at a time)
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=...  JIRA_PROJECT_KEYS=PAY,DATA
 MA_PMO_CALENDAR_DIR=./calendars     # <resource_id>.ics per person: A3 allocates around meetings and leave
@@ -243,7 +243,7 @@ ma_pmo/            Python package (published to PyPI)
   api/             FastAPI app and routers
   core/            schemas, protocol, KPIs, HITL, graph, i18n, scenarios
   connectors/      issue tracker (mock), resource calendars (.ics), knowledge store
-  integrations/    Slack, webhook and Jira integrations + plugin registry
+  integrations/    Slack, webhook, Jira, GitHub and Linear integrations + plugin registry
   db/              SQLAlchemy models and init
   eval/  harness/  hypothesis evaluation and experiment harness
   learn/           course labs: starters, solutions, automatic checks

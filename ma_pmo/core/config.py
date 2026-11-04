@@ -75,6 +75,13 @@ class Settings(BaseSettings):
     # custom field holding story points (used as effort when there is no time estimate)
     jira_story_points_field: str = Field(default="", alias="JIRA_STORY_POINTS_FIELD")
 
+    # GitHub tracker: repositories that form the portfolio, e.g. "acme/api,acme/web"
+    github_repos: str = Field(default="", alias="GITHUB_REPOS")
+    github_token: str = Field(default="", alias="GITHUB_TOKEN")
+    # Linear tracker: team keys that form the portfolio, e.g. "ENG,DATA"
+    linear_api_key: str = Field(default="", alias="LINEAR_API_KEY")
+    linear_team_keys: str = Field(default="", alias="LINEAR_TEAM_KEYS")
+
     # A7 retrieval: lexical (default) | vector; empty model = offline character n-gram vectors
     retriever: str = Field(default="lexical", alias="MA_PMO_RETRIEVER")
     embedding_model: str = Field(default="", alias="MA_PMO_EMBEDDING_MODEL")

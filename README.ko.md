@@ -30,7 +30,7 @@
 - **Human-in-the-loop** — 고심각도 리스크, 게이트 실패, 저신뢰 메시지는 승인 큐에서 대기합니다.
 - **측정 가능** — 5축 KPI(시간·자원·전달·리스크·비용), 20개 생애주기 시나리오, 논문용 Markdown을 내보내는 실험 하네스를 제공합니다.
 - **영어/한국어 지원** — 대시보드, API 응답, 보고서, LLM 출력을 영어 또는 한국어로 제공합니다(`?lang=ko`, `Accept-Language`, `MA_PMO_LANG`).
-- **플러그인 연동** — Slack·웹훅 알림, Jira Cloud 데이터 연결, 직접 만든 연동을 꽂는 플러그인 구조를 지원합니다.
+- **플러그인 연동** — Slack·웹훅 알림, Jira Cloud·GitHub·Linear 데이터 연결, .ics 자원 캘린더, 직접 만든 연동을 꽂는 플러그인 구조를 지원합니다.
 - **우리 조직 데이터로 평가** — 데이터 입력 양식과 줄 단위 검사, 판정이 담긴 H1~H5 보고서(Markdown/HTML), 실험 뼈대 생성(`ma-pmo harness new`)을 제공합니다.
 - **MCP 서버** — `ma-pmo mcp`로 AI 어시스턴트에 도구 8개를 제공합니다. 승인은 사람만 합니다.
 - **하네스 엔지니어링 교육 과정** — 강의 7개와 자동 채점 실습 4개로 된 [실습 과정](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.ko.md)(`ma-pmo learn`).
@@ -80,12 +80,12 @@ make web          # 대시보드 http://localhost:3000
 
 Docker Compose·Kubernetes 배포는 [deploy/README.ko.md](deploy/README.ko.md)를 참고하세요.
 
-### 연동 (Slack, Jira, 웹훅)
+### 연동 (Slack, 웹훅, Jira, GitHub, Linear)
 
 환경 변수만으로 켜고 끕니다. 연동이 실패해도 에이전트는 멈추지 않습니다.
 
 ```bash
-MA_PMO_INTEGRATIONS=slack,jira
+MA_PMO_INTEGRATIONS=slack,jira       # 트래커: jira | github | linear (하나만)
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=...  JIRA_PROJECT_KEYS=PAY,DATA
 MA_PMO_CALENDAR_DIR=./calendars     # 사람별 <resource_id>.ics: A3가 회의·휴가를 피해 배정
@@ -245,7 +245,7 @@ ma_pmo/            Python 패키지 (PyPI 배포)
   api/             FastAPI 앱·라우터
   core/            스키마·프로토콜·KPI·HITL·그래프·i18n·시나리오
   connectors/      이슈트래커(mock)·자원 캘린더(.ics)·지식 스토어
-  integrations/    Slack·웹훅·Jira 연동 + 플러그인 레지스트리
+  integrations/    Slack·웹훅·Jira·GitHub·Linear 연동 + 플러그인 레지스트리
   db/              SQLAlchemy 모델·초기화
   eval/  harness/  가설 검증·실험 하네스
   learn/           교육 과정 실습: 시작 코드·정답·자동 채점

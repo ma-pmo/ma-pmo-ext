@@ -18,19 +18,18 @@ Uses the Jira Cloud REST API v3 (`/rest/api/3/search/jql`) with basic auth
 """
 from __future__ import annotations
 
-from datetime import date
 from typing import Any
 
 import httpx
 
 from ma_pmo.core.config import Settings
+from ma_pmo.integrations.mapping import HOURS_PER_POINT, IssueRecord, build_project
 
 _FIELDS = [
     "summary", "status", "duedate", "created", "timeoriginalestimate",
     "issuelinks", "project", "components", "aggregateprogress",
 ]
 _MAX_ISSUES = 1000
-_HOURS_PER_POINT = 8.0
 
 
 class JiraTracker:
@@ -93,7 +92,7 @@ class JiraTracker:
             return round(seconds / 3600, 1)
         points = fields.get(self.story_points_field) if self.story_points_field else None
         if isinstance(points, (int, float)) and points > 0:
-            return float(points) * _HOURS_PER_POINT
+            return float(points) * HOURS_PER_POINT
         return 8.0
 
     @staticmethod
@@ -116,51 +115,14 @@ class JiraTracker:
         return deps
 
     def _project(self, key: str, issues: list[dict[str, Any]]) -> dict:
-        today = date.today().isoformat()
-        tasks = []
-        created: list[str] = []
-        due_all: list[str] = []
-        due_open: list[str] = []
-        overdue = 0
-        components: list[str] = []
+        records = []
         for issue in issues:
             f = issue.get("fields") or {}
-            progress = self._progress(f)
-            due = f.get("duedate")
-            if f.get("created"):
-                created.append(str(f["created"])[:10])
-            if due:
-                due_all.append(due)
-                if progress < 100:
-                    due_open.append(due)
-                    if due < today:
-                        overdue += 1
-            components += [c.get("name", "") for c in f.get("components") or []]
-            tasks.append(
-                {
-                    "task_id": issue["key"],
-                    "wbs": issue["key"],
-                    "effort": self._effort(f),
-                    "deps": self._blocked_by(f),
-                    "percent_complete": progress,
-                }
-            )
-
-        done_ids = {t["task_id"] for t in tasks if t["percent_complete"] >= 100}
-        blocked = any(
-            t["percent_complete"] < 100 and any(d not in done_ids for d in t["deps"])
-            for t in tasks
-        )
-        total = sum(t["effort"] for t in tasks) or 1.0
-        earned = sum(t["effort"] * t["percent_complete"] / 100 for t in tasks)
-        status = "red" if overdue else "amber" if blocked else "green"
-        return {
-            "project_id": key,
-            "skill": components[0] if components else "general",
-            "status": status,
-            "planned_start": min(created) if created else None,
-            "planned_finish": max(due_open) if due_open else (max(due_all) if due_all else None),
-            "deadline": max(due_all) if due_all else None,
-            "percent_complete": round(earned / total * 100, 1),
-            "tasks": tasks,
-        }
+            components = [c.get("name", "") for c in f.get("components") or []]
+            records.append(IssueRecord(
+                key=issue["key"], effort=self._effort(f), progress=self._progress(f),
+                deps=self._blocked_by(f),
+                created=str(f["created"])[:10] if f.get("created") else None,
+                due=f.get("duedate"), skill=components[0] if components else None,
+            ))
+        return build_project(key, records)
