@@ -6,6 +6,7 @@ utilization/idle rate and overloads. No LLM required.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from ma_pmo.core.i18n import tr
@@ -41,8 +42,10 @@ def _remaining_effort(project: dict) -> float:
     )
 
 
-def allocate(projects: list[dict], resources: list[dict]) -> AllocationResult:
-    """Greedy allocation per skill. utilization = allocated hours / (capacity × weeks used)."""
+def allocate(projects: list[dict], resources: list[dict],
+             busy: Callable[[str, str], float] | None = None) -> AllocationResult:
+    """Greedy allocation per skill. utilization = allocated hours / available hours in the weeks
+    used. `busy(resource_id, week)` (a calendar) takes hours off a person's weekly capacity."""
     result = AllocationResult()
 
     # skill -> resources
@@ -54,7 +57,9 @@ def allocate(projects: list[dict], resources: list[dict]) -> AllocationResult:
     cap: dict[tuple[str, int], float] = {}
     for r in resources:
         for w in range(HORIZON_WEEKS):
-            cap[(r["id"], w)] = r.get("capacity", 40.0)
+            blocked = busy(r["id"], _week_label(w)) if busy else 0.0
+            cap[(r["id"], w)] = max(0.0, r.get("capacity", 40.0) - blocked)
+    available = dict(cap)  # before allocation, for the utilization denominator
 
     max_week_used = 0
 
@@ -100,7 +105,8 @@ def allocate(projects: list[dict], resources: list[dict]) -> AllocationResult:
             )
 
     allocated = sum(line.hours for line in result.lines)
-    denom = sum(r.get("capacity", 40.0) for r in resources) * max(1, max_week_used)
+    weeks = range(max(1, max_week_used))
+    denom = sum(available[(r["id"], w)] for r in resources for w in weeks)
     result.utilization_pct = round(allocated / denom * 100, 1) if denom else 0.0
     result.idle_pct = round(100.0 - result.utilization_pct, 1)
     return result

@@ -88,6 +88,7 @@ Docker Compose·Kubernetes 배포는 [deploy/README.ko.md](deploy/README.ko.md)�
 MA_PMO_INTEGRATIONS=slack,jira
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=...  JIRA_PROJECT_KEYS=PAY,DATA
+MA_PMO_CALENDAR_DIR=./calendars     # 사람별 <resource_id>.ics: A3가 회의·휴가를 피해 배정
 ```
 
 `GET /integrations`로 켜진 연동을 확인하고, `POST /integrations/slack/test`로 테스트 메시지를 보낼 수 있습니다. 설정 방법·이벤트 목록·직접 만드는 법은 [docs/INTEGRATIONS.ko.md](docs/INTEGRATIONS.ko.md)를 참고하세요.
@@ -242,7 +243,7 @@ ma_pmo/            Python 패키지 (PyPI 배포)
   agents/          A1~A7
   api/             FastAPI 앱·라우터
   core/            스키마·프로토콜·KPI·HITL·그래프·i18n·시나리오
-  connectors/      이슈트래커(mock)·캘린더(stub)·지식 스토어
+  connectors/      이슈트래커(mock)·자원 캘린더(.ics)·지식 스토어
   integrations/    Slack·웹훅·Jira 연동 + 플러그인 레지스트리
   db/              SQLAlchemy 모델·초기화
   eval/  harness/  가설 검증·실험 하네스
