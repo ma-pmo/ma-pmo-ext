@@ -208,6 +208,7 @@ Platform       LLM 게이트웨이(LiteLLM: Anthropic/Ollama) · 로컬 RAG · �
 | H3 리스크 | 규칙기반 탐지 precision/recall/F1 | `ma_pmo/fixtures/risk_ground_truth.json` 레이블 |
 | H4 성공률 | A7 지식 ablation (citation 커버리지) | A7 on/off |
 | H5 조절효과 | 포트폴리오 복잡성 층화 SPI | 복잡성 중앙값 |
+| 확신도 보정 | 에이전트 확신도의 ECE / Brier, HITL 기준값별 효과 | 리스크 레이블, 승인 결정 |
 
 재현 절차 전체는 [docs/PAPER_VALIDATION_GUIDE.ko.md](docs/PAPER_VALIDATION_GUIDE.ko.md), 배치 실험·ablation은 [ma_pmo/harness/README.ko.md](ma_pmo/harness/README.ko.md)를 참고하세요.
 

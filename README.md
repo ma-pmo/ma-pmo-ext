@@ -206,6 +206,7 @@ Platform       LLM gateway (LiteLLM: Anthropic / Ollama) · local RAG · structu
 | H3 Risk | rule-based detection precision / recall / F1 | labels in `ma_pmo/fixtures/risk_ground_truth.json` |
 | H4 Success rate | A7 knowledge ablation (citation coverage) | A7 on / off |
 | H5 Moderation | SPI stratified by portfolio complexity | complexity median |
+| Calibration | ECE / Brier of agent confidence; HITL threshold what-if | risk labels, approval decisions |
 
 See [docs/PAPER_VALIDATION_GUIDE.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/PAPER_VALIDATION_GUIDE.md) for the full reproduction procedure, and [ma_pmo/harness/README.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/ma_pmo/harness/README.md) for batch experiments and ablations.
 

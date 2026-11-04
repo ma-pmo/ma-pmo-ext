@@ -92,6 +92,19 @@ Pick a use case in the **Scenarios** tab to run four phases — **plan → execu
 - Your own data: `ma-pmo template data ./my-org` → fill in → `ma-pmo template validate ./my-org` → `ma-pmo eval --data ./my-org`
 - Capture: H3 precision/recall/F1, H2 utilization/idle, H4 A7 ablation, H5 complexity strata
 
+### Figure F — confidence calibration of the HITL gate
+- Question: does an agent's stated confidence match how often it is right? The approval gate
+  (`HITL_CONFIDENCE_THRESHOLD`) is only meaningful if it does.
+- Data: A4 risk alerts against the risk labels (run scenarios with A4 first) and resolved
+  approvals (approved = right, rejected = wrong).
+- Output: `ma-pmo eval` → `[calibration]`, `GET /eval` → `calibration`, report section 4:
+  ECE, Brier score, reliability bins, number of distinct confidence values, and a threshold
+  table (messages to review vs. wrong ones not reviewed per threshold).
+- Verdicts: calibrated (ECE ≤ 0.1) / overconfident / underconfident / uninformative (only one
+  confidence value — it cannot separate right from wrong) / insufficient data (n < 5).
+- Paper angle: a gate on uncalibrated confidence is oversight in name only; report the threshold
+  table next to the approval-latency KPI (cost of review vs. errors that slip through).
+
 ---
 
 ## 3. Hypothesis results table (example — fixtures)
