@@ -1,3 +1,3 @@
 """MA-PMO: LLM-backed supervisor-worker multi-agent PMO orchestration."""
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
