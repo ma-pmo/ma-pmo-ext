@@ -75,6 +75,11 @@ class Settings(BaseSettings):
     # custom field holding story points (used as effort when there is no time estimate)
     jira_story_points_field: str = Field(default="", alias="JIRA_STORY_POINTS_FIELD")
 
+    # A7 retrieval: lexical (default) | vector; empty model = offline character n-gram vectors
+    retriever: str = Field(default="lexical", alias="MA_PMO_RETRIEVER")
+    embedding_model: str = Field(default="", alias="MA_PMO_EMBEDDING_MODEL")
+    embedding_api_base: str = Field(default="", alias="MA_PMO_EMBEDDING_API_BASE")
+
     # resource calendars for A3: folder with one <resource_id>.ics per person (empty = off)
     calendar_dir: str = Field(default="", alias="MA_PMO_CALENDAR_DIR")
 

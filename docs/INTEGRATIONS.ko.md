@@ -100,6 +100,23 @@ MA_PMO_CALENDAR_DIR=./calendars      # ./calendars/R-01.ics, ./calendars/R-02.ic
 회차만 계산하므로 반복을 펼친 상태로 내보내세요. 파일이 없는 사람은 완전히 비어 있다고 봅니다. 코드:
 `ma_pmo/connectors/calendar.py` — 다른 출처를 쓰려면 `busy_hours(resource_id, week)`를 구현하세요.
 
+## 과거 교훈 벡터 검색 (A7)
+
+A7은 기본적으로 단어가 그대로 겹치는 교훈을 찾습니다. 벡터 검색으로 바꾸면 어형 변화와 조사가 붙은
+한국어 단어도 찾고, 임베딩 모델을 연결하면 동의어까지 찾습니다.
+
+```bash
+MA_PMO_RETRIEVER=vector                          # 오프라인 문자 n-gram 벡터
+MA_PMO_EMBEDDING_MODEL=ollama/nomic-embed-text   # 선택: LiteLLM이 지원하는 임베딩 모델
+MA_PMO_EMBEDDING_API_BASE=http://localhost:11434 # 선택: 로컬·사내 엔드포인트
+ma-pmo eval --retrieval                          # 라벨링된 질의로 recall@1, recall@3, MRR
+```
+
+기본 제공 질의 세트(`ma_pmo/fixtures/retrieval_eval.json`, 영어·한국어 14개)에서 오프라인 벡터는
+recall@3을 0.857 → 1.0, MRR을 0.774 → 0.964로 올렸고, 향상분은 모두 조사가 붙은 한국어 질의입니다.
+임베딩 모델에 연결할 수 없으면 A7은 어휘 검색으로 대체합니다(로그·추적·`--retrieval` 결과에 표시).
+출처 인용은 항상 함께 나옵니다. 코드: `ma_pmo/connectors/vectordb.py`.
+
 ## 직접 연동 만들기
 
 연동 하나는 `IntegrationSpec` 하나입니다. 어떤 Python 패키지든 `ma_pmo.integrations` entry point로

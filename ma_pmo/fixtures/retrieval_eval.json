@@ -1,0 +1,19 @@
+{
+  "_help": "Labeled queries for A7 retrieval quality: each query and the lesson that answers it. Paraphrased on purpose (inflections, Korean particles, synonyms) so it measures more than exact word overlap.",
+  "queries": [
+    {"query": "migrating legacy data slipped the schedule", "relevant": ["LL-2024-01"], "lang": "en", "kind": "inflection"},
+    {"query": "overloaded frontend developers", "relevant": ["LL-2023-07"], "lang": "en", "kind": "inflection"},
+    {"query": "rollback criteria at the planning gate", "relevant": ["LL-2022-03"], "lang": "en", "kind": "overlap"},
+    {"query": "manual reporting took hours every week", "relevant": ["LL-2022-09"], "lang": "en", "kind": "inflection"},
+    {"query": "upstream pipeline blocked downstream analytics work", "relevant": ["LL-2023-11"], "lang": "en", "kind": "overlap"},
+    {"query": "how much buffer for payment gateway testing", "relevant": ["LL-2024-02"], "lang": "en", "kind": "overlap"},
+    {"query": "staff burnout on the UI team", "relevant": ["LL-2023-07"], "lang": "en", "kind": "synonym"},
+    {"query": "card processor integration contingency", "relevant": ["LL-2024-02"], "lang": "en", "kind": "synonym"},
+    {"query": "마이그레이션이 늦어진 사례", "relevant": ["LL-2024-01"], "lang": "ko", "kind": "particle"},
+    {"query": "보고서 자동화로 시간을 줄인 경험", "relevant": ["LL-2022-09"], "lang": "ko", "kind": "particle"},
+    {"query": "결제 연동 견적에 버퍼를 얼마나 두나", "relevant": ["LL-2024-02"], "lang": "ko", "kind": "particle"},
+    {"query": "프론트엔드 인력에 일이 몰린 경우", "relevant": ["LL-2023-07"], "lang": "ko", "kind": "particle"},
+    {"query": "상류 파이프라인 지연으로 막힌 작업", "relevant": ["LL-2023-11"], "lang": "ko", "kind": "particle"},
+    {"query": "게이트에서 롤백 계획을 검증한 이전 사례", "relevant": ["LL-2022-03"], "lang": "ko", "kind": "particle"}
+  ]
+}
