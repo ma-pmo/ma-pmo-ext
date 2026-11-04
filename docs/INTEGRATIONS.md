@@ -117,6 +117,24 @@ conversion); recurring events count their first occurrence only, so export with 
 expanded. A person without a file is treated as fully available. Code:
 `ma_pmo/connectors/calendar.py` — implement `busy_hours(resource_id, week)` for another source.
 
+## Vector search for lessons learned (A7)
+
+A7 finds lessons by whole-word overlap by default. Switch to vector search to also match
+inflections and Korean words with particles attached, or plug in an embedding model for synonyms:
+
+```bash
+MA_PMO_RETRIEVER=vector                          # offline character n-gram vectors
+MA_PMO_EMBEDDING_MODEL=ollama/nomic-embed-text   # optional: any LiteLLM embedding model
+MA_PMO_EMBEDDING_API_BASE=http://localhost:11434 # optional: local or private endpoint
+ma-pmo eval --retrieval                          # recall@1, recall@3, MRR on labeled queries
+```
+
+On the bundled labeled queries (`ma_pmo/fixtures/retrieval_eval.json`, 14 queries in English
+and Korean) the offline vectors raise recall@3 from 0.857 to 1.0 and MRR from 0.774 to 0.964;
+every gain is a Korean query whose words carry particles. If the embedding model cannot be
+reached, A7 falls back to lexical search (logged, traced, and reported by `--retrieval`).
+Citations are always returned. Code: `ma_pmo/connectors/vectordb.py`.
+
 ## Writing your own integration
 
 An integration is an `IntegrationSpec`. Publish it from any Python package through the

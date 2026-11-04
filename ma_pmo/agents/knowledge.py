@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 
 from ma_pmo.agents.base import BaseAgent
-from ma_pmo.connectors.vectordb import LocalLexicalStore
+from ma_pmo.connectors.vectordb import Retriever, get_store
 from ma_pmo.core import protocol, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
@@ -28,8 +28,8 @@ class KnowledgeAgent(BaseAgent[KnowledgeV1]):
     role_prompt = _ROLE
     output_schema = KnowledgeV1
 
-    def __init__(self, store: LocalLexicalStore | None = None) -> None:
-        self.store = store or LocalLexicalStore()
+    def __init__(self, store: Retriever | None = None) -> None:
+        self.store = store if store is not None else get_store()
 
     # ── retrieval only (deterministic, no key) ─────────────────────
     def retrieve(self, query: str, k: int = 3) -> list[dict]:

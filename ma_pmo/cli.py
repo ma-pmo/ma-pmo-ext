@@ -4,6 +4,7 @@ Examples:
     ma-pmo init-db                          # create SQLite schema + load demo fixtures
     ma-pmo serve --port 8000                # start the FastAPI server
     ma-pmo eval                             # run the H1–H5 evaluation on the demo data
+    ma-pmo eval --retrieval                 # A7 retrieval quality: lexical vs. vector search
     ma-pmo template data ./my-org           # write the evaluation data template
     ma-pmo template validate ./my-org       # check the filled-in data
     ma-pmo eval --data ./my-org             # evaluate H1–H5 on your own data
@@ -95,6 +96,34 @@ def _cmd_template(ns: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_retrieval() -> int:
+    from ma_pmo.connectors.vectordb import LiteLLMEmbedder, Retriever, VectorStore
+    from ma_pmo.core.config import get_settings
+    from ma_pmo.core.i18n import tr
+    from ma_pmo.eval.retrieval import compare
+
+    model = get_settings().embedding_model.strip()
+    extra: dict[str, Retriever] = {}
+    if model:
+        extra[f"vector ({model})"] = VectorStore(
+            LiteLLMEmbedder(model, get_settings().embedding_api_base))
+    results = compare(extra=extra)
+    print(tr("A7 retrieval on the labeled query set (ma_pmo/fixtures/retrieval_eval.json)",
+             "라벨링된 질의 세트로 본 A7 검색 품질 (ma_pmo/fixtures/retrieval_eval.json)"))
+    print(f"{'':26}{'recall@1':>10}{'recall@3':>10}{'MRR':>8}   by kind")
+    for name, r in results.items():
+        kinds = ", ".join(f"{k} {v}" for k, v in r["by_kind"].items())
+        if r["fallbacks"]:
+            print(f"{name:26}  " + tr(
+                f"model unreachable — {r['fallbacks']}/{r['n']} searches fell back to lexical",
+                f"모델 연결 안 됨 — {r['n']}건 중 {r['fallbacks']}건이 어휘 검색으로 대체됨"))
+            continue
+        print(f"{name:26}{r['recall_at_1']:>10}{r['recall_at_3']:>10}{r['mrr']:>8}   {kinds}")
+        for miss in r["misses"]:
+            print(f"{'':28}{tr('missed', '놓침')}: {miss}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="ma-pmo", description="MA-PMO multi-agent PMO orchestration"
@@ -111,6 +140,8 @@ def main(argv: list[str] | None = None) -> int:
 
     ev = sub.add_parser("eval", help="run the H1–H5 evaluation harness")
     ev.add_argument("--data", help="folder made with `ma-pmo template data` (default: demo data)")
+    ev.add_argument("--retrieval", action="store_true",
+                    help="A7 retrieval quality (recall@k, MRR): lexical vs. vector search")
 
     tpl = sub.add_parser("template", help="evaluation templates: data | validate | report")
     tsub = tpl.add_subparsers(dest="kind", required=True)
@@ -149,6 +180,8 @@ def main(argv: list[str] | None = None) -> int:
         import uvicorn
 
         uvicorn.run("ma_pmo.api.main:app", host=ns.host, port=ns.port, reload=ns.reload)
+    elif ns.command == "eval" and ns.retrieval:
+        return _cmd_retrieval()
     elif ns.command == "eval":
         if ns.data:
             from ma_pmo.eval.workflow import use_isolated_db
