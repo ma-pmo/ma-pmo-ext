@@ -12,7 +12,7 @@ import uuid
 
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.base import IssueTrackerConnector
-from ma_pmo.core import kpi, protocol
+from ma_pmo.core import kpi, protocol, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.report_v1 import ProjectStatusLine, ReportV1
@@ -97,7 +97,8 @@ class ReportingAgent(BaseAgent[ReportV1]):
         )
         try:
             report = self.structured(user_prompt)
-        except Exception:  # no LLM / outage -> deterministic report fallback
+        except Exception as e:  # no LLM / outage -> deterministic report fallback
+            tracing.mark_fallback("A5 report", e)
             report = _fallback_report(status, scope)
 
         # persist output

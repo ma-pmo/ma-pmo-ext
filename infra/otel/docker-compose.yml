@@ -1,0 +1,12 @@
+# Local trace viewer for MA-PMO agent runs: Jaeger with an OTLP receiver.
+#   docker compose -f infra/otel/docker-compose.yml up -d
+#   OTEL_ENABLED=true OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 ma-pmo serve
+#   open http://localhost:16686  (service: ma-pmo)
+services:
+  jaeger:
+    image: jaegertracing/jaeger:2.22.0
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP (MA-PMO's exporter)
+    restart: unless-stopped

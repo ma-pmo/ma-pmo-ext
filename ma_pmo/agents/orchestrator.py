@@ -11,7 +11,7 @@ import structlog
 
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.orchestrator_rules import deterministic_synthesis, keyword_route
-from ma_pmo.core import llm
+from ma_pmo.core import llm, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.payloads.routing_v1 import WORKER_AGENTS, RoutingV1
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -52,6 +52,7 @@ class OrchestratorAgent(BaseAgent[RoutingV1]):
             mode = "llm"
         except Exception as e:  # no key / gateway outage -> deterministic routing
             _log.warning("route_fallback", error=str(e))
+            tracing.mark_fallback("A1 routing", e)
             decision = keyword_route(goal)
             mode = "rule"
         # keep only valid workers (guards against hallucinated routing)
@@ -84,5 +85,6 @@ class OrchestratorAgent(BaseAgent[RoutingV1]):
             )
         except Exception as e:
             _log.warning("synthesize_fallback", error=str(e))
+            tracing.mark_fallback("A1 synthesis", e)
             summary = deterministic_synthesis(goal, outputs)
         return {"synthesis": {"summary": summary, "outputs": outputs}}

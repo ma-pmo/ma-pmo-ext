@@ -59,6 +59,11 @@ dev = [
 mcp = [
     "mcp>=2.2,<3",
 ]
+# OpenTelemetry tracing of agent runs (OTEL_ENABLED=true, see infra/otel)
+otel = [
+    "opentelemetry-sdk>=1.30,<2",
+    "opentelemetry-exporter-otlp-proto-http>=1.30,<2",
+]
 # for production Postgres — needed when DB_URL=postgresql+psycopg://...
 postgres = [
     "psycopg[binary]>=3.2",

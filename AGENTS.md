@@ -38,7 +38,7 @@ tests must not depend on network access or an LLM.
    (`name.v1`) from `ma_pmo/core/schemas/`. Do not pass free-form dicts between agents. A
    breaking payload change is a new version.
 2. **Every LLM step has a fallback** that returns the same schema. Catch the LLM failure, log
-   it, and fall back; never swallow errors from our own code.
+   it, call `tracing.mark_fallback(...)`, and fall back; never swallow errors from our own code.
 3. **High-risk or low-confidence decisions go through HITL** (`human_gate_required`, or
    confidence below `HITL_CONFIDENCE_THRESHOLD`). Do not add a path that skips `protocol.publish`.
 4. **New endpoints are covered by the auth policy.** `required_role()` in

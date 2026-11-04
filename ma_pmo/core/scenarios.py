@@ -17,6 +17,7 @@ from typing import cast
 from sqlalchemy import select
 
 from ma_pmo.agents.orchestrator_rules import deterministic_synthesis
+from ma_pmo.core import tracing
 from ma_pmo.core.graph import WORKERS
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
@@ -372,7 +373,16 @@ def run_scenario(
     """Run a scenario in four phases (plan -> execute -> complete -> insight); return the trace.
 
     drop_agents: agents to skip during the execute phase (for ablation experiments).
+    One trace per run when tracing is on (see core/tracing.py).
     """
+    with tracing.span(f"invoke_workflow {scenario_id}", {
+        tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: scenario_id,
+        tracing.SCOPE: scope, "ma_pmo.dropped_agents": list(drop_agents),
+    }):
+        return _run_scenario(scenario_id, scope, drop_agents)
+
+
+def _run_scenario(scenario_id: str, scope: str, drop_agents: tuple[str, ...]) -> dict:
     if scenario_id not in SCENARIOS:
         raise KeyError(f"unknown scenario: {scenario_id}")
     scen = SCENARIOS[scenario_id]
@@ -413,9 +423,14 @@ def run_scenario(
         state = cast(PortfolioState, {"task_ref": scope, "goal": goal, **params})
         _log.info("execute_start", agent=agent_id, function=_fn(agent_id))
         t0 = time.perf_counter()
-        result = agent.run(state)
+        with tracing.span(f"invoke_agent {agent_id}", {
+            tracing.OPERATION: "invoke_agent", tracing.AGENT_ID: agent_id,
+            tracing.AGENT_NAME: _fn(agent_id), tracing.SCENARIO: scenario_id,
+        }):
+            result = agent.run(state)
+            outs = result.get("outputs", [])
+            tracing.set_attributes({tracing.OUTPUT_SCHEMAS: [o.get("schema") for o in outs]})
         elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
-        outs = result.get("outputs", [])
         all_outputs.extend(outs)
         _log.info(
             "execute_done",

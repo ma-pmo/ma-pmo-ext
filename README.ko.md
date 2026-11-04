@@ -101,6 +101,10 @@ claude mcp add ma-pmo -- ma-pmo mcp      # 다른 MCP 클라이언트는 명령 
 
 포트폴리오 현황, CPM 일정, 리스크, 승인 대기, 시나리오, H1~H5 판정, 과거 교훈의 8개 도구를 제공합니다. 승인은 사람만 합니다. 설정: [docs/MCP.ko.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/MCP.ko.md)
 
+### 에이전트 실행 추적 (OpenTelemetry)
+
+`pip install "ma-pmo[otel]"` 후 `OTEL_ENABLED=true`(Jaeger·Tempo·컬렉터로 보내려면 `OTEL_EXPORTER_OTLP_ENDPOINT`도)를 켜면, 시나리오 실행 하나가 워크플로 → 에이전트 → LLM 호출로 이어진 트레이스 하나가 되고 대체 경로 사용도 표시됩니다. 로컬 Jaeger 설정: [infra/otel](https://github.com/ma-pmo/ma-pmo-ext/blob/main/infra/otel/README.md)
+
 ### 인증
 
 로컬에서 쓰기 편하도록 API 인증은 **꺼진** 상태로 시작합니다. 다른 사람이 접근할 수 있게 되기 전에 역할(`viewer`, `operator`, `approver`, `admin`)이 있는 API 키를 켜세요. 그러면 승인 기록에는 인증된 사용자가 남습니다.

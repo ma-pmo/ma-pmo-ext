@@ -101,6 +101,10 @@ claude mcp add ma-pmo -- ma-pmo mcp      # or any MCP client: command `ma-pmo mc
 
 Eight tools — portfolio status, CPM schedule, risks, pending approvals, scenarios, H1–H5 verdicts, lessons learned. Approving stays a human action. Setup: [docs/MCP.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/MCP.md).
 
+### Tracing agent runs (OpenTelemetry)
+
+`pip install "ma-pmo[otel]"`, then `OTEL_ENABLED=true` (plus `OTEL_EXPORTER_OTLP_ENDPOINT` for Jaeger, Tempo or a collector). Each scenario run becomes one trace — workflow → agents → LLM calls — with fallbacks marked. Local Jaeger setup: [infra/otel](https://github.com/ma-pmo/ma-pmo-ext/blob/main/infra/otel/README.md).
+
 ### Authentication
 
 The API starts with authentication **off** for local use. Before others can reach it, turn on API keys with roles (`viewer`, `operator`, `approver`, `admin`) — the approver recorded on a decision is then the authenticated user:
