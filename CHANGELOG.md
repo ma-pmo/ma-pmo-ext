@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- API authentication middleware ([docs/AUTH.md](docs/AUTH.md)): `MA_PMO_AUTH_MODE=off|api_key|custom` (default `off`), API keys with roles `viewer`, `operator`, `approver`, `admin`, a route policy, a pluggable authenticator for SSO/OIDC or proxy headers, and `GET /auth/whoami`.
+- The dashboard sends `NEXT_PUBLIC_API_KEY` as `X-API-Key` when set.
+
+### Security
+- With auth on, the approver recorded on a HITL decision is the authenticated user; the `approver` in the request body is ignored.
+
 ## [0.3.0] - 2026-11-05
 
 ### Added
@@ -69,6 +76,12 @@ First public release.
 ---
 
 ## 변경 내역 (한국어)
+
+### [Unreleased]
+
+- API 인증 미들웨어([docs/AUTH.ko.md](docs/AUTH.ko.md)): `MA_PMO_AUTH_MODE=off|api_key|custom`(기본 `off`), 역할(`viewer`, `operator`, `approver`, `admin`)이 있는 API 키, 경로별 권한 정책, SSO/OIDC·프록시 헤더용 인증기 플러그인, `GET /auth/whoami`.
+- 대시보드는 `NEXT_PUBLIC_API_KEY`가 있으면 `X-API-Key`로 보냅니다.
+- 보안: 인증이 켜져 있으면 HITL 승인 기록에는 인증된 사용자가 남고, 요청 본문의 `approver`는 무시됩니다.
 
 ### [0.3.0] - 2026-11-05
 

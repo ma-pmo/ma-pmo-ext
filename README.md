@@ -91,6 +91,17 @@ JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=..
 
 `GET /integrations` shows what is active; `POST /integrations/slack/test` sends a test message. Setup, event list and how to write your own plugin: [docs/INTEGRATIONS.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/INTEGRATIONS.md).
 
+### Authentication
+
+The API starts with authentication **off** for local use. Before others can reach it, turn on API keys with roles (`viewer`, `operator`, `approver`, `admin`) — the approver recorded on a decision is then the authenticated user:
+
+```bash
+MA_PMO_AUTH_MODE=api_key
+MA_PMO_API_KEYS=alice:approver:$(openssl rand -hex 24),ci-bot:operator:$(openssl rand -hex 24)
+```
+
+SSO/OIDC or a proxy header plug in as a custom authenticator: [docs/AUTH.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/AUTH.md).
+
 ### Language
 
 | Where | How |

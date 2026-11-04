@@ -91,6 +91,17 @@ JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=..
 
 `GET /integrations`로 켜진 연동을 확인하고, `POST /integrations/slack/test`로 테스트 메시지를 보낼 수 있습니다. 설정 방법·이벤트 목록·직접 만드는 법은 [docs/INTEGRATIONS.ko.md](docs/INTEGRATIONS.ko.md)를 참고하세요.
 
+### 인증
+
+로컬에서 쓰기 편하도록 API 인증은 **꺼진** 상태로 시작합니다. 다른 사람이 접근할 수 있게 되기 전에 역할(`viewer`, `operator`, `approver`, `admin`)이 있는 API 키를 켜세요. 그러면 승인 기록에는 인증된 사용자가 남습니다.
+
+```bash
+MA_PMO_AUTH_MODE=api_key
+MA_PMO_API_KEYS=alice:approver:$(openssl rand -hex 24),ci-bot:operator:$(openssl rand -hex 24)
+```
+
+SSO/OIDC나 프록시 헤더는 직접 만든 인증기로 붙일 수 있습니다: [docs/AUTH.ko.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/AUTH.ko.md)
+
 ### 언어 설정
 
 | 위치 | 방법 |

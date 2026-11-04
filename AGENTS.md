@@ -40,23 +40,27 @@ tests must not depend on network access or an LLM.
    it, and fall back; never swallow errors from our own code.
 3. **High-risk or low-confidence decisions go through HITL** (`human_gate_required`, or
    confidence below `HITL_CONFIDENCE_THRESHOLD`). Do not add a path that skips `protocol.publish`.
-4. **Integrations are best effort.** Notifiers raise on failure; `dispatch.emit` records it and
+4. **New endpoints are covered by the auth policy.** `required_role()` in
+   `ma_pmo/api/auth.py` maps method and path to a role; add a rule there if a new `POST` needs
+   more than `operator`, and add a case to `tests/test_auth.py`. Take the caller with
+   `principal: CurrentPrincipal`, never from the request body.
+5. **Integrations are best effort.** Notifiers raise on failure; `dispatch.emit` records it and
    the agents keep running. Trackers return `found: False` instead of raising for unknown data.
    Status endpoints never return secret values.
-5. **Bilingual by default.** User-facing backend text uses `tr("English", "한국어")`
+6. **Bilingual by default.** User-facing backend text uses `tr("English", "한국어")`
    (`ma_pmo/core/i18n.py`). Dashboard strings go in both `en` and `ko` in
    `apps/web/app/lib/messages.ts`. Docs: English `*.md` with a Korean `*.ko.md` next to it.
    Code, comments and docstrings are in English.
-6. **Tests with every change.** New behavior gets a test; mark end-to-end checks `smoke`. If a
+7. **Tests with every change.** New behavior gets a test; mark end-to-end checks `smoke`. If a
    pinned result in `tests/test_regression.py` changes on purpose, update it in the same change
    and say why.
-7. **Evaluation data stays isolated.** `--data` evaluations use their own SQLite file
+8. **Evaluation data stays isolated.** `--data` evaluations use their own SQLite file
    (`eval/workflow.use_isolated_db`); lab 3 does the same. Do not write into the demo database
    from tools or tests that process user data.
-8. **Course labs** live in `ma_pmo/learn/labs/labN_slug/` with `starter/`, `solution/`,
+9. **Course labs** live in `ma_pmo/learn/labs/labN_slug/` with `starter/`, `solution/`,
    `README.md`, `README.ko.md`, and checks in `ma_pmo/learn/checks.py`. Every failed check needs
    a hint. `tests/test_learn.py` must show the solution passes and the starter fails.
-9. **Style.** ruff (line length 100) and mypy must pass. Match the surrounding code; keep
+10. **Style.** ruff (line length 100) and mypy must pass. Match the surrounding code; keep
    comments short and about *why*.
 
 ## Do not
