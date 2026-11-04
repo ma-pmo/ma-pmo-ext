@@ -143,6 +143,27 @@ def _limitations() -> list[str]:
     ]
 
 
+_CALIBRATION = {
+    "calibrated": ("Calibrated", "보정됨"),
+    "overconfident": ("Overconfident", "과신"),
+    "underconfident": ("Underconfident", "과소 확신"),
+    "uninformative": ("Uninformative (one confidence value)", "변별력 없음 (확신도 값이 하나)"),
+    "insufficient": ("Insufficient data", "데이터 부족"),
+}
+
+
+def _calibration_rows(report: dict) -> list[tuple[str, str, str, str, str, str]]:
+    """(source, n, verdict, ECE, Brier, distinct values) for overall and each source."""
+    cal = report["results"].get("calibration")
+    if not cal:
+        return []
+    names = {"overall": tr("All", "전체"), "risk_alert": tr("Risk alerts (A4)", "리스크 경보(A4)"),
+             "approval": tr("Approval decisions", "승인 결정")}
+    blocks = [("overall", cal["overall"]), *cal["by_source"].items()]
+    return [(names[k], str(c["n"]), tr(*_CALIBRATION[c["verdict"]]), _fmt(c["ece"]),
+             _fmt(c["brier"]), str(c["distinct_confidences"])) for k, c in blocks]
+
+
 def build_report(results: dict, *, scope: str, source: str) -> dict:
     """Structured report content, shared by the Markdown and HTML renderers."""
     return {
@@ -192,7 +213,14 @@ def render_markdown(report: dict) -> str:
     for d in report["results"].get("H3", {}).get("detail", []):
         L.append(f"| {d['project_id']} | {d['predicted']} | {d['actual']} |")
     L.append("")
-    L.append(tr("## 4. Limitations", "## 4. 한계"))
+    L.append(tr("## 4. Confidence calibration", "## 4. 확신도 보정"))
+    L.append("")
+    L.append(tr("| Source | n | Verdict | ECE | Brier | Distinct values |",
+                "| 출처 | n | 판정 | ECE | Brier | 확신도 값 종류 |"))
+    L.append("|---|---|---|---|---|---|")
+    L += ["| " + " | ".join(row) + " |" for row in _calibration_rows(report)]
+    L.append("")
+    L.append(tr("## 5. Limitations", "## 5. 한계"))
     L.append("")
     L += [f"- {x}" for x in report["limitations"]]
     L.append("")
@@ -216,13 +244,18 @@ def render_html(report: dict) -> str:
         f"<td>{e(d['actual'])}</td></tr>"
         for d in report["results"].get("H3", {}).get("detail", [])
     )
+    cal = "".join("<tr>" + "".join(f"<td>{e(c)}</td>" for c in row) + "</tr>"
+                  for row in _calibration_rows(report))
     lim = "".join(f"<li>{e(x)}</li>" for x in report["limitations"])
     labels = {
         "scope": tr("Scope", "대상"), "data": tr("Data", "데이터"),
         "generated": tr("Generated", "생성"),
         "s1": tr("Summary", "요약"), "s2": tr("Five-axis KPIs", "5축 KPI"),
         "s3": tr("H3 risk detection detail", "H3 리스크 탐지 상세"),
-        "s4": tr("Limitations", "한계"),
+        "s4": tr("Confidence calibration", "확신도 보정"),
+        "s5": tr("Limitations", "한계"),
+        "th4": [tr("Source", "출처"), "n", tr("Verdict", "판정"), "ECE", "Brier",
+                tr("Distinct values", "확신도 값 종류")],
         "th1": [tr("Hypothesis", "가설"), tr("Claim", "내용"), tr("Evidence", "근거"),
                 tr("Verdict", "판정")],
         "th2": [tr("Axis", "축"), tr("Metric", "지표"), "n", tr("Average", "평균")],
@@ -254,7 +287,8 @@ ul{{padding-left:20px}} footer{{margin-top:40px;color:var(--muted);font-size:12p
 <h2>1. {labels['s1']}</h2><table><tr>{th(labels['th1'])}</tr>{rows}</table>
 <h2>2. {labels['s2']}</h2><table><tr>{th(labels['th2'])}</tr>{kpis}</table>
 <h2>3. {labels['s3']}</h2><table><tr>{th(labels['th3'])}</tr>{h3}</table>
-<h2>4. {labels['s4']}</h2><ul>{lim}</ul>
+<h2>4. {labels['s4']}</h2><table><tr>{th(labels['th4'])}</tr>{cal}</table>
+<h2>5. {labels['s5']}</h2><ul>{lim}</ul>
 <footer>MA-PMO {e(report['version'])} · github.com/ma-pmo/ma-pmo-ext</footer>
 </main></body></html>
 """

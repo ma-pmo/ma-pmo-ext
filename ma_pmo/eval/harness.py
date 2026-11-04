@@ -162,12 +162,16 @@ def h5_complexity(scope: str = "PORTFOLIO#2026-Q1") -> dict:
 def run_all(populate: bool = True, scope: str = "PORTFOLIO#2026-Q1",
             baselines: dict | None = None, labels: dict | None = None) -> dict:
     """Run H1–H5. `baselines`/`labels` override the bundled fixtures (see eval/dataset.py)."""
+    from ma_pmo.eval.calibration import calibration_report
+
     if populate:
         populate_deterministic_kpis(scope)
+    labels = labels if labels is not None else _load("risk_ground_truth.json")["labels"]
     return {
         "H1": h1_report_time(baselines),
         "H2": h2_idle_rate(baselines),
         "H3": h3_risk_detection(scope, labels),
         "H4": h4_knowledge_ablation(),
         "H5": h5_complexity(scope),
+        "calibration": calibration_report(scope, labels),
     }

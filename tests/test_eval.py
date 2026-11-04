@@ -41,4 +41,5 @@ def test_h5_complexity_stratification():
 
 def test_run_all_returns_five_hypotheses():
     r = run_all(populate=True)
-    assert set(r.keys()) == {"H1", "H2", "H3", "H4", "H5"}
+    # five hypotheses plus the confidence-calibration check of the HITL threshold
+    assert set(r.keys()) == {"H1", "H2", "H3", "H4", "H5", "calibration"}
