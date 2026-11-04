@@ -32,6 +32,7 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 - **Bilingual** — dashboard, API responses, reports and LLM output in English or Korean (`?lang=ko`, `Accept-Language`, or `MA_PMO_LANG`).
 - **Pluggable integrations** — Slack and webhook notifications, Jira Cloud as the data source, and a plugin entry point for your own.
 - **Evaluate on your own data** — fill-in data templates with line-by-line validation, H1–H5 reports with verdicts (Markdown/HTML), and an experiment scaffold (`ma-pmo harness new`).
+- **MCP server** — `ma-pmo mcp` gives AI assistants eight tools over the Model Context Protocol; approvals stay human.
 - **Learn harness engineering** — a [hands-on course](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.md): seven lectures and four labs with automatic checks (`ma-pmo learn`).
 - **Admin dashboard** — sidebar navigation with a pending-approvals badge, Evaluation and Integrations pages, light/dark themes and a mobile layout.
 
@@ -90,6 +91,15 @@ JIRA_BASE_URL=https://your-team.atlassian.net  JIRA_EMAIL=...  JIRA_API_TOKEN=..
 ```
 
 `GET /integrations` shows what is active; `POST /integrations/slack/test` sends a test message. Setup, event list and how to write your own plugin: [docs/INTEGRATIONS.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/INTEGRATIONS.md).
+
+### MCP server (AI assistants)
+
+```bash
+pip install "ma-pmo[mcp]"
+claude mcp add ma-pmo -- ma-pmo mcp      # or any MCP client: command `ma-pmo mcp`
+```
+
+Eight tools — portfolio status, CPM schedule, risks, pending approvals, scenarios, H1–H5 verdicts, lessons learned. Approving stays a human action. Setup: [docs/MCP.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/MCP.md).
 
 ### Authentication
 

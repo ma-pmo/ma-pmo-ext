@@ -12,6 +12,7 @@ Examples:
     ma-pmo harness new my_exp --hypothesis H3   # scaffold a new experiment
     ma-pmo learn start 1                    # course lab: copy the starter files
     ma-pmo learn check 1                    # course lab: check your work
+    ma-pmo mcp                              # MCP server over stdio (pip install "ma-pmo[mcp]")
 """
 from __future__ import annotations
 
@@ -129,6 +130,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     harness.add_argument("args", nargs=argparse.REMAINDER)
 
+    sub.add_parser("mcp", help='MCP server over stdio for AI assistants (needs "ma-pmo[mcp]")')
+
     learn = sub.add_parser("learn", help="course labs: list | start N | check N")
     learn.add_argument("args", nargs=argparse.REMAINDER)
 
@@ -156,6 +159,14 @@ def main(argv: list[str] | None = None) -> int:
         from ma_pmo.harness.cli import main as harness_main
 
         return harness_main(ns.args)
+    elif ns.command == "mcp":
+        from ma_pmo.mcp_server import main as mcp_main
+
+        try:
+            return mcp_main()
+        except ImportError as e:
+            print(f"✗ {e}", file=sys.stderr)
+            return 1
     elif ns.command == "learn":
         from ma_pmo.learn.cli import main as learn_main
 
