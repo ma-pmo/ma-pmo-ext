@@ -82,6 +82,44 @@ Jira 데이터 변환 규칙:
 
 자원 마스터(사람·스킬·가용 시간)는 계속 MA-PMO 데이터베이스를 씁니다.
 
+## GitHub
+
+```bash
+MA_PMO_INTEGRATIONS=github
+GITHUB_REPOS=acme/api,acme/web     # 저장소 하나가 MA-PMO 프로젝트 하나
+GITHUB_TOKEN=github_pat_...        # 공개 저장소는 선택, 읽기 권한이면 충분
+```
+
+| MA-PMO | GitHub |
+|---|---|
+| 태스크 | 이슈(`owner/repo#123`). PR과 "계획 없음"으로 닫힌 이슈는 제외 |
+| 공수(시간) | 라벨 `hours:N`, 또는 `points:N` / `sp:N` / `estimate:N` × 8, 없으면 8 |
+| 진척률 | 닫힘 100% · 열림 + `in progress`/`doing`/`wip` 라벨 50% · 열림 0% |
+| 선후행 관계 | 이슈 본문의 "blocked by #12" 또는 "depends on owner/repo#12" |
+| 기한 | 이슈 마일스톤의 기한 |
+| 스킬 | 라벨 `skill:<이름>` |
+
+## Linear
+
+```bash
+MA_PMO_INTEGRATIONS=linear
+LINEAR_API_KEY=lin_api_...         # Settings → Security & access → Personal API keys
+LINEAR_TEAM_KEYS=ENG,DATA          # 팀 하나가 MA-PMO 프로젝트 하나
+```
+
+| MA-PMO | Linear |
+|---|---|
+| 태스크 | 이슈(`ENG-42`). 취소된 이슈는 제외 |
+| 공수(시간) | 견적(포인트) × 8. 라벨 `hours:N`이 있으면 우선, 없으면 8 |
+| 진척률 | 완료 100% · 진행 중 50% · 그 외 0% |
+| 선후행 관계 | 해당 이슈를 가리키는 "blocks" 관계 |
+| 기한 | 이슈 기한 |
+| 스킬 | 라벨 `skill:<이름>` |
+
+Jira·GitHub·Linear는 프로젝트 규칙(시작일, 완료일, 마감일, 상태색, 공수 가중 진척률)을
+`ma_pmo/integrations/mapping.py`에서 함께 씁니다. 트래커는 한 번에 하나만 켜세요. 여러 개를 켜면
+첫 번째를 쓰고 경고를 남깁니다.
+
 ## 자원 캘린더 (.ics)
 
 A3는 회의·휴가·공휴일을 모르면 모든 사람이 매주 비어 있다고 보고 일을 배정합니다. 사람마다 자원 id를

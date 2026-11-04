@@ -15,7 +15,9 @@ from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core.config import Settings, get_settings
 from ma_pmo.core.obs import get_logger
 from ma_pmo.integrations.base import IntegrationSpec, Notifier
+from ma_pmo.integrations.github import GitHubTracker
 from ma_pmo.integrations.jira import JiraTracker
+from ma_pmo.integrations.linear import LinearTracker
 from ma_pmo.integrations.notifiers import SlackNotifier, WebhookNotifier
 
 ENTRY_POINT_GROUP = "ma_pmo.integrations"
@@ -42,6 +44,20 @@ BUILTINS: tuple[IntegrationSpec, ...] = (
         description="Read projects and issues from Jira Cloud instead of the demo data.",
         required_settings=("jira_base_url", "jira_email", "jira_api_token", "jira_project_keys"),
         factory=JiraTracker.from_settings,
+    ),
+    IntegrationSpec(
+        name="github",
+        kind="tracker",
+        description="Read issues and milestones from GitHub repositories instead of the demo data.",
+        required_settings=("github_repos",),
+        factory=GitHubTracker.from_settings,
+    ),
+    IntegrationSpec(
+        name="linear",
+        kind="tracker",
+        description="Read issues from Linear teams instead of the demo data.",
+        required_settings=("linear_api_key", "linear_team_keys"),
+        factory=LinearTracker.from_settings,
     ),
 )
 
