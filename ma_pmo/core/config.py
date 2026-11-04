@@ -42,6 +42,13 @@ class Settings(BaseSettings):
     api_host: str = Field(default="0.0.0.0", alias="API_HOST")
     api_port: int = Field(default=8000, alias="API_PORT")
 
+    # API authentication (see docs/AUTH.md): off | api_key | custom
+    auth_mode: str = Field(default="off", alias="MA_PMO_AUTH_MODE")
+    # api_key mode: "name:role+role:key,..." — roles: viewer, operator, approver, admin
+    api_keys: str = Field(default="", alias="MA_PMO_API_KEYS")
+    # custom mode: "package.module:factory" returning an object with authenticate(request)
+    authenticator: str = Field(default="", alias="MA_PMO_AUTHENTICATOR")
+
     # observability
     otel_enabled: bool = Field(default=False, alias="OTEL_ENABLED")
 

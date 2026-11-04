@@ -1,5 +1,8 @@
 // FastAPI backend client. Every request carries the UI language (?lang=en|ko).
 const BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+// Only when the API runs with MA_PMO_AUTH_MODE=api_key. The key is visible to anyone who can
+// open the dashboard, so use a viewer/approver key and keep the dashboard on a private network.
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY || "";
 
 let LANG = "en";
 export function setApiLang(lang: string) {
@@ -8,7 +11,9 @@ export function setApiLang(lang: string) {
 
 async function req(path: string, init?: RequestInit) {
   const sep = path.includes("?") ? "&" : "?";
-  const res = await fetch(`${BASE}${path}${sep}lang=${LANG}`, { cache: "no-store", ...init });
+  const headers = new Headers(init?.headers);
+  if (API_KEY) headers.set("X-API-Key", API_KEY);
+  const res = await fetch(`${BASE}${path}${sep}lang=${LANG}`, { cache: "no-store", ...init, headers });
   if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
   return res.json();
 }

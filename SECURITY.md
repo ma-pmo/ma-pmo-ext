@@ -29,6 +29,7 @@ Including the following speeds up the response:
 ## Known caveats
 
 - `.env` may contain secrets such as `ANTHROPIC_API_KEY`. **Never commit it** (already in `.gitignore`).
+- API authentication is **off by default** for local development. Turn it on (`MA_PMO_AUTH_MODE=api_key` or `custom`, see [docs/AUTH.md](docs/AUTH.md)) before the API is reachable by anyone else; otherwise anyone who can reach it can resolve approvals.
 - Default credentials in `docker-compose.yml` / `deploy/k8s/` (e.g. `mapmo/mapmo`) are local-development examples only and must be changed in production.
 
 ---
@@ -58,4 +59,5 @@ Including the following speeds up the response:
 ### 알려진 주의사항
 
 - `.env`에는 `ANTHROPIC_API_KEY` 등 시크릿이 들어갈 수 있으니 **절대 커밋하지 마세요** (`.gitignore`에 포함됨).
+- API 인증은 로컬 개발을 위해 **기본으로 꺼져** 있습니다. 다른 사람이 API에 접근할 수 있게 되기 전에 켜세요(`MA_PMO_AUTH_MODE=api_key` 또는 `custom`, [docs/AUTH.ko.md](docs/AUTH.ko.md) 참고). 끈 상태에서는 접근 가능한 누구나 승인을 처리할 수 있습니다.
 - `docker-compose.yml`/`deploy/k8s/`의 기본 계정정보(`mapmo/mapmo` 등)는 로컬 개발용 예시이며, 운영 환경에서는 반드시 교체해야 합니다.

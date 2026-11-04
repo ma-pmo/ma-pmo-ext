@@ -13,6 +13,12 @@ from ma_pmo.core.obs import configure_logging
 configure_logging()
 
 from ma_pmo import __version__  # noqa: E402
+from ma_pmo.api.auth import (  # noqa: E402
+    ANONYMOUS,
+    AuthMiddleware,
+    CurrentPrincipal,
+    build_authenticator,
+)
 from ma_pmo.api.routers import (  # noqa: E402
     approvals,
     evaluation,
@@ -27,11 +33,16 @@ from ma_pmo.api.routers import (  # noqa: E402
     webhooks,
 )
 from ma_pmo.core import protocol  # noqa: E402
+from ma_pmo.core.config import get_settings  # noqa: E402
 from ma_pmo.core.i18n import from_accept_language, normalize, tr, use_lang  # noqa: E402
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload  # noqa: E402
 from ma_pmo.integrations.registry import get_tracker  # noqa: E402
 
 app = FastAPI(title="MA-PMO API", version=__version__)
+
+# Added first so it runs inside the language and CORS middleware: auth errors are translated
+# and still carry CORS headers. Misconfigured auth fails here, at startup, not per request.
+app.add_middleware(AuthMiddleware, authenticator=build_authenticator(get_settings()))
 
 
 @app.middleware("http")
@@ -68,6 +79,13 @@ app.include_router(integrations.router)
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/auth/whoami")
+def whoami(principal: CurrentPrincipal) -> dict:
+    """Who the API thinks you are, and with which roles."""
+    return {"subject": principal.subject, "roles": sorted(principal.roles),
+            "auth_enabled": principal is not ANONYMOUS}
 
 
 @app.get("/portfolio/{portfolio_id}")
