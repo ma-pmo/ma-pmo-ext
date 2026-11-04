@@ -16,6 +16,9 @@ All notable changes to this project are documented here. The format follows [Kee
 - OpenTelemetry tracing ([infra/otel](infra/otel/README.md)), extra `ma-pmo[otel]`, off unless `OTEL_ENABLED=true`: one trace per scenario run (`invoke_workflow` → `invoke_agent` → `chat`) with GenAI semantic-convention attributes, failed LLM calls recorded as errors, and deterministic fallbacks marked (`ma_pmo.fallback`). Jaeger compose file for local viewing.
 - MCP server ([docs/MCP.md](docs/MCP.md)): `ma-pmo mcp` (stdio, extra `ma-pmo[mcp]`) with eight tools — portfolio status, CPM schedule, risks, pending approvals, scenarios, scenario runs, H1–H5 verdicts, lessons learned. Approving is not a tool.
 
+### Added (course)
+- Course: lecture 8 "Operating agents: identity, traces, calibration" (EN/KO); Lab 5 "Write an MCP tool" (needs the `mcp` extra) and Lab 6 "Calibrate the approval gate" with starters, solutions and checks; lectures 3, 4, 5 and 7 point at tracing, authentication, calibration, retrieval quality, the new trackers and MCP.
+
 ### Changed
 - Dashboard: Evaluation shows confidence calibration (with the threshold table) and A7 search quality; Integrations shows platform status (auth, tracing, search, calendars, MCP) and the real environment variable names to set; the top bar warns when API auth is off. New endpoints `GET /system` and `GET /eval/retrieval`. README screenshots and demo GIF updated.
 - `GET /eval` populates KPIs only on an empty database by default, so opening the Evaluation page no longer queues a new approval each time.
@@ -97,6 +100,7 @@ First public release.
 - HITL 게이트의 확신도 보정 측정(`ma_pmo/eval/calibration.py`): A4 리스크 경보(레이블 대비)와 처리된 승인으로 ECE, Brier 점수, 구간별 신뢰도, 확신도 값 종류를 계산하고, 기준값별 검토 대상과 빠져나간 오류를 표로 보여 줌. `ma-pmo eval`, `GET /eval`(`calibration`), 보고서 4절.
 - OpenTelemetry 추적([infra/otel](infra/otel/README.md)), extra `ma-pmo[otel]`, `OTEL_ENABLED=true`일 때만 동작: 시나리오 실행마다 트레이스 하나(`invoke_workflow` → `invoke_agent` → `chat`), GenAI 시맨틱 규약 속성, 실패한 LLM 호출은 오류로, 대체 경로 사용은 `ma_pmo.fallback`으로 표시. 로컬 확인용 Jaeger compose 파일.
 - MCP 서버([docs/MCP.ko.md](docs/MCP.ko.md)): `ma-pmo mcp`(stdio, extra `ma-pmo[mcp]`)로 포트폴리오 현황, CPM 일정, 리스크, 승인 대기, 시나리오 목록·실행, H1~H5 판정, 과거 교훈 도구 8개 제공. 승인은 도구로 제공하지 않음.
+- 교육 과정: 8강 "에이전트 운영하기: 신원, 추적, 보정"(영어·한국어), 실습 5 "MCP 도구 만들기"(`mcp` extra 필요)와 실습 6 "승인 게이트 보정하기"(시작 코드·정답·채점), 3·4·5·7강에 추적·인증·보정·검색 품질·새 트래커·MCP 안내 추가.
 - 대시보드: 평가 화면에 확신도 보정(기준값 표 포함)과 A7 검색 품질, 연동 화면에 플랫폼 상태(인증·추적·검색·캘린더·MCP)와 실제로 넣을 환경 변수 이름, 상단 바에 인증 꺼짐 경고. 새 API `GET /system`, `GET /eval/retrieval`. README 스크린샷과 데모 GIF 갱신.
 - `GET /eval`은 기본적으로 빈 데이터베이스일 때만 KPI를 채우므로, 평가 화면을 열 때마다 승인 대기가 새로 생기지 않음.
 - 보안: 인증이 켜져 있으면 HITL 승인 기록에는 인증된 사용자가 남고, 요청 본문의 `approver`는 무시됩니다.

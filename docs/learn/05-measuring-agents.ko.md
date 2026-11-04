@@ -32,6 +32,10 @@
   **baselines.json**, **risk_labels.csv**. `ma-pmo template validate`는 있을 수 없는 값이 그럴듯한
   결과로 둔갑하기 전에 막습니다.
 
+같은 방법을 따르는 측정이 두 가지 더 있습니다. 승인 게이트의 **확신도 보정**
+(`ma_pmo/eval/calibration.py`, 8강)과 라벨 질의로 본 A7의 **검색 품질**입니다.
+`ma-pmo eval --retrieval`은 단어 검색과 벡터 검색의 recall@k와 MRR을 보여 줍니다.
+
 ## 해보기
 
 ```bash

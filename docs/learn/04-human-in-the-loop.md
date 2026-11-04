@@ -40,12 +40,18 @@ curl -s localhost:8000/approvals | python -m json.tool  # it is waiting
 Open the dashboard (`make web`, then http://localhost:3000/approvals), approve it, and watch
 the badge count drop.
 
+## Who approved?
+
+With API authentication on (`MA_PMO_AUTH_MODE=api_key`), only keys with the `approver` role can
+resolve approvals, and the recorded approver is the authenticated user — not whatever name the
+request body carries. See [docs/AUTH.md](../AUTH.md).
+
 ## Choosing the threshold
 
 Too low and risky actions slip through; too high and people rubber-stamp a flood of requests
 — which is worse, because it *looks* safe. Start strict, measure approval volume and how often
 people reject, then relax per decision type. Rejections are data: they show where an agent is
-miscalibrated.
+miscalibrated. [Lecture 8](08-operating-agents.md) measures exactly that.
 
 ## Checkpoint
 

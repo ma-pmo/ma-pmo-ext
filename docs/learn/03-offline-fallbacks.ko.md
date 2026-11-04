@@ -45,6 +45,12 @@ env -u ANTHROPIC_API_KEY ma-pmo eval
 모든 가설에 숫자가 나옵니다. 이제 `ma_pmo/agents/reporting.py`에서 보고서가 계속 나오게 하는
 `except`를 찾아보세요.
 
+## 대체 경로 보기
+
+`OTEL_ENABLED=true`면 모든 대체 경로가 트레이스 span에 표시됩니다(`ma_pmo.fallback=true`와
+`fallback` 이벤트). 원인이 된 실패한 LLM 호출도 바로 옆에 보입니다.
+[8강](08-operating-agents.ko.md)과 [infra/otel](../../infra/otel/README.md)을 참고하세요.
+
 ## 흔한 실수
 
 - **너무 많이 잡기.** 대체 경로는 *LLM의 실패*만 잡아야지, 내 코드의 버그까지 삼키면 안 됩니다.

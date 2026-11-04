@@ -358,8 +358,131 @@ def check_lab4(workdir: Path) -> list[Result]:
     return results
 
 
+# ── Lab 5: an MCP tool ─────────────────────────────────────────────────────────────
+
+def check_lab5(workdir: Path) -> list[Result]:
+    import asyncio
+
+    results: list[Result] = []
+    state: dict[str, Any] = {}
+
+    def imports() -> None:
+        state["m"] = _load_module(workdir / "health_tool.py")
+        _require(callable(getattr(state["m"], "project_health", None))
+                 and callable(getattr(state["m"], "register", None)),
+                 tr("health_tool.py must define project_health and register",
+                    "health_tool.py에 project_health와 register가 있어야 합니다"))
+
+    def health() -> None:
+        h = state["m"].project_health("PROJ-14")
+        _require(h.get("critical_path") == ["T-1401", "T-1402", "T-1403"],
+                 tr("use A2's compute_cpm: PROJ-14's critical path is T-1401 → T-1402 → T-1403",
+                    "A2의 compute_cpm을 쓰세요: PROJ-14의 임계경로는 T-1401 → T-1402 → T-1403"))
+        _require({"project_id", "status", "percent_complete", "min_slack_days"} <= h.keys(),
+                 tr("return project_id, status, percent_complete, critical_path, min_slack_days",
+                    "project_id, status, percent_complete, critical_path, min_slack_days를 돌려주세요"))
+        _require(h["status"] in ("green", "amber", "red"),
+                 tr("status comes from the tracker (green/amber/red)",
+                    "status는 트래커 값(green/amber/red)을 그대로 쓰세요"))
+
+    def unknown() -> None:
+        h = state["m"].project_health("NOPE-1")
+        _require("error" in h and "PROJ-14" in h.get("projects", []),
+                 tr("an unknown project returns an error and the known project ids, no exception",
+                    "없는 프로젝트는 예외 대신 error와 알려진 프로젝트 id 목록을 돌려줘야 합니다"))
+
+    def over_mcp() -> None:
+        from mcp import Client
+
+        from ma_pmo.mcp_server import create_server
+
+        server = create_server()
+        state["m"].register(server)
+
+        async def call() -> tuple[Any, Any]:
+            async with Client(server) as client:
+                tools = {t.name: t for t in (await client.list_tools()).tools}
+                result = await client.call_tool("project_health", {"project_id": "PROJ-22"})
+                return tools, result
+
+        tools, result = asyncio.run(call())
+        _require("project_health" in tools, tr("register() must add the tool to the server",
+                                                "register()가 서버에 도구를 추가해야 합니다"))
+        hint = tools["project_health"].annotations
+        _require(hint is not None and hint.read_only_hint is True,
+                 tr("mark the tool read-only so clients can call it without asking",
+                    "클라이언트가 묻지 않고 부를 수 있도록 읽기 전용으로 표시하세요"))
+        _require(not result.is_error, tr(f"the tool call failed: {result.content}",
+                                          f"도구 호출이 실패했습니다: {result.content}"))
+
+    _run(results, tr("module defines project_health and register", "project_health와 register 정의"),
+         imports)
+    if not results[-1].ok:
+        return results
+    _run(results, tr("project health uses the CPM schedule", "CPM 일정으로 프로젝트 상태 계산"), health)
+    _run(results, tr("unknown project is reported, not crashed", "없는 프로젝트 처리"), unknown)
+    _run(results, tr("the tool works over MCP and is read-only", "MCP로 호출되고 읽기 전용"), over_mcp)
+    return results
+
+
+# ── Lab 6: calibrate the approval gate ─────────────────────────────────────────────
+
+LAB6_CALIBRATED = [(0.8, True)] * 4 + [(0.8, False)] + [(0.2, True)] + [(0.2, False)] * 4
+LAB6_OVERCONFIDENT = [(0.9, False)] * 3 + [(0.95, True)] * 2 + [(0.65, True), (0.62, False)]
+LAB6_THRESHOLD = [(0.55, False), (0.65, False), (0.75, True), (0.85, False), (0.92, True),
+                  (0.97, True)]
+
+
+def check_lab6(workdir: Path) -> list[Result]:
+    from ma_pmo.eval.calibration import Pair, calibration
+
+    results: list[Result] = []
+    state: dict[str, Any] = {}
+
+    def imports() -> None:
+        state["m"] = _load_module(workdir / "calibrate.py")
+
+    def brier() -> None:
+        got = state["m"].brier(LAB6_CALIBRATED)
+        _require(abs(got - 0.16) < 1e-9, tr(f"Brier on the calibrated sample is 0.16, got {got}",
+                                            f"보정된 표본의 Brier는 0.16인데 {got}입니다"))
+
+    def ece() -> None:
+        m = state["m"]
+        _require(abs(m.ece(LAB6_CALIBRATED)) < 1e-9,
+                 tr("a perfectly calibrated sample has ECE 0", "완벽히 보정된 표본의 ECE는 0입니다"))
+        expected = calibration([Pair(c, ok, "lab") for c, ok in LAB6_OVERCONFIDENT])["ece"]
+        got = m.ece(LAB6_OVERCONFIDENT)
+        _require(abs(got - expected) < 1e-3,
+                 tr(f"ECE on the overconfident sample should be {expected}, got {round(got, 3)} — "
+                    "weight each bin by its share of the samples",
+                    f"과신 표본의 ECE는 {expected}여야 하는데 {round(got, 3)}입니다 — "
+                    "구간마다 표본 비율로 가중하세요"))
+
+    def threshold() -> None:
+        choose = state["m"].choose_threshold
+        got = {b: choose(LAB6_THRESHOLD, b) for b in (0, 3, 4)}
+        _require(got == {0: 0.5, 3: 0.7, 4: 0.9},
+                 tr(f"with budgets 0/3/4 the thresholds are 0.5/0.7/0.9, got {got}",
+                    f"검토 한도 0/3/4에서 기준값은 0.5/0.7/0.9여야 하는데 {got}입니다"))
+        try:
+            choose([(0.1, True)] * 3, 0)
+        except ValueError:
+            return
+        raise _Fail(tr("raise ValueError when no threshold fits the review budget",
+                       "검토 한도에 맞는 기준값이 없으면 ValueError를 내야 합니다"))
+
+    _run(results, tr("calibrate.py loads", "calibrate.py 로드"), imports)
+    if not results[-1].ok:
+        return results
+    _run(results, tr("Brier score", "Brier 점수"), brier)
+    _run(results, tr("expected calibration error (ECE)", "기대 보정 오차(ECE)"), ece)
+    _run(results, tr("threshold within a review budget", "검토 한도 안에서 기준값 선택"), threshold)
+    return results
+
+
 CHECKS: dict[int, Callable[[Path], list[Result]]] = {
-    1: check_lab1, 2: check_lab2, 3: check_lab3, 4: check_lab4,
+    1: check_lab1, 2: check_lab2, 3: check_lab3, 4: check_lab4, 5: check_lab5, 6: check_lab6,
 }
 
 

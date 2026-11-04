@@ -1,10 +1,11 @@
 """Course labs: every reference solution passes its checks and every untouched starter fails.
 
-Labs 1, 2 and 4 are checked in-process. Lab 3 runs scenarios, so it is checked through the CLI
-in a subprocess with its own SQLite file, keeping the shared test database untouched.
+Labs without a database are checked in-process. Labs that run agents (3, 5) are checked through
+the CLI in a subprocess with their own SQLite file, keeping the shared test database untouched.
 """
 from __future__ import annotations
 
+import importlib.util
 import os
 import re
 import subprocess
@@ -19,11 +20,18 @@ from ma_pmo.learn.cli import main as learn_main
 
 ROOT = Path(__file__).resolve().parents[1]
 IN_PROCESS = [n for n, lab in LABS.items() if not lab.needs_db]
+THROUGH_CLI = [
+    pytest.param(n, marks=pytest.mark.skipif(
+        bool(lab.needs_extra) and importlib.util.find_spec(lab.needs_extra) is None,
+        reason=f"needs the {lab.needs_extra} extra"))
+    for n, lab in LABS.items() if lab.needs_db
+]
 
 
 def _cli(*args: str, cwd: Path) -> subprocess.CompletedProcess:
     env = {k: v for k, v in os.environ.items() if k not in ("DB_URL", "CHECKPOINT_DB")}
     env["PYTHONPATH"] = str(ROOT)
+    env["MA_PMO_LANG"] = "en"
     return subprocess.run([sys.executable, "-m", "ma_pmo.cli", "learn", *args], cwd=cwd,
                           env=env, capture_output=True, text=True, timeout=300)
 
@@ -56,13 +64,15 @@ def test_starter_fails(number, tmp_path):
     assert learn_main(["check", str(number), "--dir", str(tmp_path)]) == 1
 
 
-def test_lab3_through_cli(tmp_path):
-    ok = _cli("check", "3", "--solution", "--dir", str(tmp_path), cwd=tmp_path)
+@pytest.mark.parametrize("number", THROUGH_CLI)
+def test_db_labs_through_cli(number, tmp_path):
+    ok = _cli("check", str(number), "--solution", "--dir", str(tmp_path), cwd=tmp_path)
     assert ok.returncode == 0, ok.stdout + ok.stderr
-    assert "6/6" in ok.stdout
-    assert _cli("start", "3", "--dir", str(tmp_path), cwd=tmp_path).returncode == 0
-    bad = _cli("check", "3", "--dir", str(tmp_path), cwd=tmp_path)
+    assert "lab complete" in ok.stdout
+    assert _cli("start", str(number), "--dir", str(tmp_path), cwd=tmp_path).returncode == 0
+    bad = _cli("check", str(number), "--dir", str(tmp_path), cwd=tmp_path)
     assert bad.returncode == 1, bad.stdout + bad.stderr
+    assert "→" in bad.stdout  # failed checks come with hints
 
 
 def test_lab2_starter_has_the_seven_documented_errors():

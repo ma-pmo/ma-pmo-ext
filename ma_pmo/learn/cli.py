@@ -97,6 +97,13 @@ def _quiet_logs() -> None:
 def _cmd_check(lab: Lab, base: str, *, solution: bool) -> int:
     from ma_pmo.learn.checks import run_checks
 
+    if lab.needs_extra:
+        import importlib.util
+
+        if importlib.util.find_spec(lab.needs_extra) is None:
+            print(tr(f'✗ lab {lab.number} needs the extra: pip install "ma-pmo[{lab.needs_extra}]"',
+                     f'✗ 실습 {lab.number}에는 추가 설치가 필요합니다: pip install "ma-pmo[{lab.needs_extra}]"'))
+            return 1
     workdir = lab.solution if solution else _workdir(base, lab)
     if not workdir.is_dir():
         print(tr(f"✗ {workdir} not found — run `ma-pmo learn start {lab.number}` first",
