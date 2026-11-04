@@ -25,11 +25,32 @@ router = APIRouter(tags=["eval"])
 _MAX_UPLOAD = 5 * 1024 * 1024
 
 
+def _has_telemetry() -> bool:
+    from sqlalchemy import select
+
+    from ma_pmo.db.models import KpiEvent
+    from ma_pmo.db.session import get_session
+
+    with get_session() as s:
+        return s.scalars(select(KpiEvent.id).limit(1)).first() is not None
+
+
 @router.get("/eval")
-def evaluate(populate: bool = True) -> dict:
-    """Compute H1–H5 metrics. With populate=True, deterministic agents fill the KPIs first."""
+def evaluate(populate: bool | None = None) -> dict:
+    """Compute H1–H5 metrics. populate=true runs the deterministic agents first; by default
+    that happens only on an empty database, so opening the page does not queue new approvals."""
+    if populate is None:
+        populate = not _has_telemetry()
     results = run_all(populate=populate)
     return {**results, "summary": summarize(results)}
+
+
+@router.get("/eval/retrieval")
+def retrieval_quality() -> dict:
+    """A7 lessons search on the labeled queries: lexical vs. offline vector search."""
+    from ma_pmo.eval.retrieval import compare
+
+    return compare()
 
 
 @router.get("/eval/report")

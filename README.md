@@ -33,7 +33,7 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 - **Pluggable integrations** — Slack and webhook notifications; Jira Cloud, GitHub or Linear as the data source; .ics resource calendars; and a plugin entry point for your own.
 - **Evaluate on your own data** — fill-in data templates with line-by-line validation, H1–H5 reports with verdicts (Markdown/HTML), and an experiment scaffold (`ma-pmo harness new`).
 - **MCP server** — `ma-pmo mcp` gives AI assistants eight tools over the Model Context Protocol; approvals stay human.
-- **Learn harness engineering** — a [hands-on course](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.md): seven lectures and four labs with automatic checks (`ma-pmo learn`).
+- **Learn harness engineering** — a [hands-on course](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.md): eight lectures and six labs with automatic checks (`ma-pmo learn`).
 - **Admin dashboard** — sidebar navigation with a pending-approvals badge, Evaluation and Integrations pages, light/dark themes and a mobile layout.
 
 ## Screenshots
@@ -41,10 +41,10 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 | Dashboard | Agent collaboration trace |
 |---|---|
 | ![Admin dashboard with five-axis KPIs, insights and charts](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/dashboard-en.png) | ![Four-phase scenario trace](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenario-trace-en.png) |
-| **Evaluation (H1–H5 verdicts, templates)** | **Human-in-the-loop approvals** |
-| ![Evaluation page with hypothesis verdicts and template downloads](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-en.png) | ![Approval queue for high-risk decisions](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-en.png) |
-| **20 lifecycle scenarios** | **Integrations (Slack, webhook, Jira)** |
-| ![Scenario catalog with category tabs](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-en.png) | ![Integrations status page](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-en.png) |
+| **Evaluation (verdicts, calibration, search quality)** | **Human-in-the-loop approvals** |
+| ![Evaluation page with hypothesis verdicts, confidence calibration and A7 search quality](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-en.png) | ![Approval queue for high-risk decisions](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-en.png) |
+| **20 lifecycle scenarios** | **Integrations and platform status** |
+| ![Scenario catalog with category tabs](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-en.png) | ![Integrations and platform status (auth, tracing, search, calendars, MCP)](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-en.png) |
 
 Korean UI: [dashboard](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/dashboard-ko.png) · [scenario trace](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenario-trace-ko.png) · [evaluation](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-ko.png) · [approvals](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-ko.png) · [scenarios](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-ko.png) · [integrations](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-ko.png). Light and dark themes follow the OS setting.
 
@@ -168,10 +168,10 @@ The same is available over HTTP: `GET /templates/data.zip`, `POST /templates/val
 
 ### Learn harness engineering (course)
 
-Seven lectures on building dependable multi-agent systems, taught on this codebase, plus four labs with starter files, reference solutions and automatic checks. Offline, no API key.
+Eight lectures on building dependable multi-agent systems, taught on this codebase, plus six labs (notifier, dataset repair, ablation, tracker, MCP tool, gate calibration) with starter files, reference solutions and automatic checks. Offline, no API key.
 
 ```bash
-ma-pmo learn list          # the four labs
+ma-pmo learn list          # the six labs
 ma-pmo learn start 1       # copy the starter files to ./learn/lab1
 ma-pmo learn check 1       # ✓/✗ per requirement, with hints
 ```

@@ -3,7 +3,7 @@
 Lectures live in `docs/learn/`. Each lab ships a starter, a reference solution and automatic
 checks, so learners get feedback without a teacher:
 
-    ma-pmo learn list              # the four labs
+    ma-pmo learn list              # the six labs
     ma-pmo learn scenarios         # scenario ids and the agents they use (lab 3)
     ma-pmo learn start 1           # copy the starter files to ./learn/lab1
     ma-pmo learn check 1           # run the checks against ./learn/lab1
@@ -24,6 +24,7 @@ class Lab:
     title: tuple[str, str]  # (English, Korean)
     lecture: str  # lecture file in docs/learn/ this lab practices
     needs_db: bool = False
+    needs_extra: str = ""  # optional dependency the lab needs, e.g. "mcp"
 
     @property
     def folder(self) -> Path:
@@ -49,6 +50,10 @@ LABS: dict[int, Lab] = {
             "06-experiments.md", needs_db=True),
         Lab(4, "tracker", ("Build a custom tracker", "나만의 트래커 만들기"),
             "07-integrations.md"),
+        Lab(5, "mcp_tool", ("Write an MCP tool", "MCP 도구 만들기"),
+            "07-integrations.md", needs_db=True, needs_extra="mcp"),
+        Lab(6, "calibration", ("Calibrate the approval gate", "승인 게이트 보정하기"),
+            "08-operating-agents.md"),
     )
 }
 

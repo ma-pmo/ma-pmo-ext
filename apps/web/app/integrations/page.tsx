@@ -5,13 +5,13 @@ import { useI18n } from "../lib/i18n";
 import { Card, PageHeader, Stat } from "../components/shell";
 import { Icon } from "../components/icons";
 
-const ENV_EXAMPLE = `MA_PMO_INTEGRATIONS=slack,jira
+const ENV_EXAMPLE = `MA_PMO_INTEGRATIONS=slack,github      # trackers: jira | github | linear
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
-MA_PMO_WEBHOOK_URL=https://example.com/hook
-JIRA_BASE_URL=https://your-team.atlassian.net
-JIRA_EMAIL=you@company.com
-JIRA_API_TOKEN=...
-JIRA_PROJECT_KEYS=PAY,DATA`;
+GITHUB_REPOS=acme/api,acme/web
+GITHUB_TOKEN=github_pat_...
+MA_PMO_CALENDAR_DIR=./calendars       # <resource_id>.ics per person
+MA_PMO_RETRIEVER=vector               # A7 vector search
+MA_PMO_AUTH_MODE=api_key              # see docs/AUTH.md`;
 
 export default function Integrations() {
   const { lang, t } = useI18n();
@@ -20,9 +20,14 @@ export default function Integrations() {
   const [err, setErr] = useState("");
   const [result, setResult] = useState<Record<string, { ok: boolean; text: string }>>({});
   const [busy, setBusy] = useState("");
+  const [sys, setSys] = useState<any>(null);
 
   async function load() {
-    try { setRows(await api.integrations()); setErr(""); }
+    try {
+      setRows(await api.integrations());
+      setSys(await api.system());
+      setErr("");
+    }
     catch (x: any) { setErr(String(x.message || x)); }
   }
   useEffect(() => { load(); }, [lang]);
@@ -66,7 +71,7 @@ export default function Integrations() {
                   <td><span className={`badge ${r.kind === "notifier" ? "accent" : r.kind === "tracker" ? "purple" : ""}`}>{kindLabel(r.kind)}</span></td>
                   <td><span className={`badge ${r.enabled ? "green" : ""}`}>{r.enabled ? t.common2.yes : t.common2.no}</span></td>
                   <td><span className={`badge ${r.configured ? "green" : r.enabled ? "red" : ""}`}>{r.configured ? t.common2.yes : t.common2.no}</span></td>
-                  <td>{r.missing_settings.length ? r.missing_settings.map((m: string) => <code key={m} style={{ marginRight: 6 }}>{m.toUpperCase()}</code>) : "–"}</td>
+                  <td>{(r.missing_env ?? []).length ? r.missing_env.map((m: string) => <code key={m} style={{ marginRight: 6 }}>{m}</code>) : "–"}</td>
                   <td>
                     {r.kind === "notifier" && (
                       <button className="sm ghost" onClick={() => test(r.name)} disabled={!r.configured || busy === r.name}>{g.test}</button>
@@ -79,6 +84,28 @@ export default function Integrations() {
           </table>
         </div>
       </Card>
+
+      {sys && (
+        <Card flush title={g.platform} desc={g.platformDesc} actions={<span className="badge">v{sys.version}</span>}>
+          <div className="table-wrap">
+            <table>
+              <tbody>
+                {[
+                  [g.auth, sys.auth.mode === "off"
+                    ? <span className="badge amber">{g.authOff}</span>
+                    : <span className="badge green">{g.authOn(sys.auth.mode)}</span>, "MA_PMO_AUTH_MODE"],
+                  [g.tracing, <span className={`badge ${sys.tracing.enabled ? "green" : ""}`}>{sys.tracing.enabled ? `${g.on} · ${sys.tracing.exporter}` : g.off}</span>, "OTEL_ENABLED"],
+                  [g.retrieverName, <span className={`badge ${sys.retriever.mode === "vector" ? "green" : ""}`}>{sys.retriever.mode === "vector" ? g.vector(sys.retriever.model) : g.lexical}</span>, "MA_PMO_RETRIEVER"],
+                  [g.calendars, <span className={`badge ${sys.calendar.configured ? "green" : ""}`}>{sys.calendar.configured ? g.on : g.off}</span>, "MA_PMO_CALENDAR_DIR"],
+                  [g.mcp, <span className={`badge ${sys.mcp.installed ? "green" : ""}`}>{sys.mcp.installed ? g.installed : g.notInstalled}</span>, "ma-pmo mcp"],
+                ].map(([label, value, hint]) => (
+                  <tr key={String(hint)}><td><b>{label}</b></td><td>{value}</td><td className="muted"><code>{hint}</code></td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
 
       <Card title={g.howTo} desc={g.howToDesc}>
         <pre className="code">{ENV_EXAMPLE}</pre>

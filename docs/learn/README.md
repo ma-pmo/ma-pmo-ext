@@ -23,7 +23,7 @@ the most from lectures 1, 4 and 5.
 ```bash
 pip install ma-pmo          # or, from a clone: make dev
 ma-pmo init-db              # demo portfolio + lessons learned
-ma-pmo learn list           # the four labs
+ma-pmo learn list           # the six labs
 ```
 
 Labs are copied to `./learn/labN` and checked with `ma-pmo learn check N`. Labs never touch
@@ -39,10 +39,12 @@ your own database: lab 3 uses its own SQLite file.
 | 4 | [Human-in-the-loop gates](04-human-in-the-loop.md) | which decisions wait for a person, and how | — |
 | 5 | [Measuring agents](05-measuring-agents.md) | KPIs, hypotheses, baselines, ground truth | [Lab 2](../../ma_pmo/learn/labs/lab2_dataset/README.md): repair a dataset |
 | 6 | [Experiments, ablations and tests](06-experiments.md) | turning claims into reproducible runs | [Lab 3](../../ma_pmo/learn/labs/lab3_ablation/README.md): ablation |
-| 7 | [Integrations and failure isolation](07-integrations.md) | plugins that can fail without breaking agents | [Lab 1](../../ma_pmo/learn/labs/lab1_notifier/README.md): notifier · [Lab 4](../../ma_pmo/learn/labs/lab4_tracker/README.md): tracker |
+| 7 | [Integrations and failure isolation](07-integrations.md) | plugins that can fail without breaking agents | [Lab 1](../../ma_pmo/learn/labs/lab1_notifier/README.md): notifier · [Lab 4](../../ma_pmo/learn/labs/lab4_tracker/README.md): tracker · [Lab 5](../../ma_pmo/learn/labs/lab5_mcp_tool/README.md): MCP tool |
+| 8 | [Operating agents: identity, traces, calibration](08-operating-agents.md) | who did what, why a run behaved so, whether the gate filters risk | [Lab 6](../../ma_pmo/learn/labs/lab6_calibration/README.md): calibrate the gate |
 
 Suggested order: lectures 1–4, then 7 with Lab 1 (the gentlest lab), then 5 with Lab 2, 6 with
-Lab 3, and finish with Lab 4. Plan about one hour per lecture and one to two hours per lab.
+Lab 3, Lab 4, then Lab 5 (needs `pip install "ma-pmo[mcp]"`), and finish with lecture 8 and
+Lab 6. Plan about one hour per lecture and one to two hours per lab.
 
 ## How the labs work
 

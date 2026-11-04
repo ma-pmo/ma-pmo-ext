@@ -89,6 +89,11 @@ def enabled_names(settings: Settings | None = None) -> list[str]:
     return [n.strip().lower() for n in settings.integrations.split(",") if n.strip()]
 
 
+def _env_name(setting: str) -> str:
+    field = Settings.model_fields.get(setting)
+    return (field.alias if field is not None and field.alias else setting).upper()
+
+
 def status(settings: Settings | None = None) -> list[dict]:
     """What is available, enabled and correctly configured (no secret values)."""
     settings = settings or get_settings()
@@ -104,6 +109,8 @@ def status(settings: Settings | None = None) -> list[dict]:
                 "enabled": name in enabled,
                 "configured": not missing,
                 "missing_settings": missing,
+                # the environment variable to set for each missing setting
+                "missing_env": [_env_name(m) for m in missing],
                 "active": name in enabled and not missing,
             }
         )
@@ -111,7 +118,7 @@ def status(settings: Settings | None = None) -> list[dict]:
     for name in sorted(unknown):
         out.append(
             {"name": name, "kind": "unknown", "description": "not installed", "enabled": True,
-             "configured": False, "missing_settings": [], "active": False}
+             "configured": False, "missing_settings": [], "missing_env": [], "active": False}
         )
     return out
 

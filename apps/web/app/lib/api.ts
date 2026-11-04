@@ -47,6 +47,9 @@ export const api = {
     }),
   health: () => req(`/health`),
   evaluation: () => req(`/eval`),
+  retrieval: () => req(`/eval/retrieval`),
+  system: () => req(`/system`),
+  whoami: () => req(`/auth/whoami`),
   validateTemplate: (zip: Blob) =>
     req(`/templates/validate`, {
       method: "POST",

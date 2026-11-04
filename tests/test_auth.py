@@ -134,3 +134,16 @@ def test_route_policy():
     assert required_role("OPTIONS", "/approvals/3") is None
     assert Principal("p", frozenset({"approver"})).has("viewer")
     assert not Principal("p", frozenset({"operator"})).has("approver")
+
+
+def test_system_status_lists_features_without_secrets():
+    body = TestClient(default_app).get("/system").json()
+    assert set(body) == {"version", "auth", "tracing", "retriever", "calendar", "mcp",
+                         "hitl_threshold"}
+    assert body["auth"] == {"mode": "off"} and body["retriever"]["mode"] == "lexical"
+    assert "key" not in str(body).lower()
+
+
+def test_retrieval_quality_endpoint():
+    body = TestClient(default_app).get("/eval/retrieval").json()
+    assert body["vector (char n-grams)"]["recall_at_3"] == 1.0

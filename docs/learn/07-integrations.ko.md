@@ -36,6 +36,10 @@
   돌려주는 트래커 두 개.
 - `GET /integrations`는 무엇이 켜졌고 설정됐는지 보여 줍니다(비밀 값은 절대 안 보임).
   `POST /integrations/{name}/test`는 테스트 이벤트를 보냅니다.
+- 같은 접점의 확장: GitHub·Linear 트래커는 Jira와 같은 프로젝트 규칙
+  (`ma_pmo/integrations/mapping.py`)을 쓰고, `.ics` 캘린더는 A3에 바쁜 시간을 넣고
+  (`connectors/calendar.py`), MCP 서버(`ma_pmo/mcp_server.py`)는 에이전트를 AI 어시스턴트의 도구로
+  내보냅니다. 승인은 일부러 도구에서 뺐습니다.
 
 ## 해보기
 
@@ -59,6 +63,8 @@ curl -s -X POST localhost:8001/integrations/webhook/test   # 실패하지만 API
   `ma-pmo learn start 1`.
 - [실습 4 — 나만의 트래커 만들기](../../ma_pmo/learn/labs/lab4_tracker/README.ko.md):
   `ma-pmo learn start 4`.
+- [실습 5 — MCP 도구 만들기](../../ma_pmo/learn/labs/lab5_mcp_tool/README.ko.md):
+  `ma-pmo learn start 5` (`pip install "ma-pmo[mcp]"` 필요).
 
 ## 점검 질문
 
@@ -66,4 +72,4 @@ curl -s -X POST localhost:8001/integrations/webhook/test   # 실패하지만 API
 2. `IntegrationSpec`이 값을 직접 읽지 않고 필요한 *설정 이름*을 나열하는 이유는?
 3. 동료가 "딱 이번만" A4가 Jira를 직접 부르게 하자고 합니다. 무엇을 잃게 되나요?
 
-과정을 마쳤습니다. [과정 지도](README.ko.md)로 돌아가서, 직접 만든 실습을 기여해 보는 것도 고려해 보세요.
+다음: [8. 에이전트 운영하기](08-operating-agents.ko.md)

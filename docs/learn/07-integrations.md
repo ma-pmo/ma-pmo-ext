@@ -37,6 +37,10 @@ Two rules keep them safe:
   the same shape from different sources.
 - `GET /integrations` shows what is enabled and configured (never secret values);
   `POST /integrations/{name}/test` sends a test event.
+- More of the same seam: GitHub and Linear trackers share Jira's project rules
+  (`ma_pmo/integrations/mapping.py`); `.ics` calendars feed A3 (`connectors/calendar.py`); and
+  the MCP server (`ma_pmo/mcp_server.py`) exposes agents to AI assistants as tools — with
+  approving deliberately left out.
 
 ## Try it
 
@@ -60,6 +64,8 @@ curl -s -X POST localhost:8001/integrations/webhook/test   # fails, and the API 
   `ma-pmo learn start 1`.
 - [Lab 4 — Build a custom tracker](../../ma_pmo/learn/labs/lab4_tracker/README.md):
   `ma-pmo learn start 4`.
+- [Lab 5 — Write an MCP tool](../../ma_pmo/learn/labs/lab5_mcp_tool/README.md):
+  `ma-pmo learn start 5` (needs `pip install "ma-pmo[mcp]"`).
 
 ## Checkpoint
 
@@ -68,5 +74,4 @@ curl -s -X POST localhost:8001/integrations/webhook/test   # fails, and the API 
 2. Why does `IntegrationSpec` list required *setting names* instead of reading values itself?
 3. A teammate wants A4 to call Jira directly "just this once". What do you lose?
 
-You have finished the course. Back to the [course map](README.md) — and consider contributing
-a lab of your own.
+Next: [8. Operating agents](08-operating-agents.md)

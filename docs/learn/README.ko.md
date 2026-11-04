@@ -20,7 +20,7 @@ Python을 읽을 수 있고 "LLM 데모"에서 "PMO가 믿을 수 있는 에이�
 ```bash
 pip install ma-pmo          # 저장소를 clone했다면: make dev
 ma-pmo init-db              # 데모 포트폴리오 + 교훈 데이터
-ma-pmo learn list           # 실습 4개
+ma-pmo learn list           # 실습 6개
 ```
 
 실습은 `./learn/labN`에 복사되고 `ma-pmo learn check N`으로 채점합니다. 실습은 여러분의 실제
@@ -36,9 +36,10 @@ ma-pmo learn list           # 실습 4개
 | 4 | [사람 승인 게이트(HITL)](04-human-in-the-loop.ko.md) | 어떤 결정을 사람이 승인해야 하고, 어떻게 하는가 | — |
 | 5 | [에이전트 측정하기](05-measuring-agents.ko.md) | KPI, 가설, 기준선, 정답 레이블 | [실습 2](../../ma_pmo/learn/labs/lab2_dataset/README.ko.md): 데이터 고치기 |
 | 6 | [실험, 제거 실험, 테스트](06-experiments.ko.md) | 주장을 재현 가능한 실행으로 바꾸기 | [실습 3](../../ma_pmo/learn/labs/lab3_ablation/README.ko.md): 제거 실험 |
-| 7 | [연동과 장애 격리](07-integrations.ko.md) | 실패해도 에이전트를 멈추지 않는 플러그인 | [실습 1](../../ma_pmo/learn/labs/lab1_notifier/README.ko.md): 알림 · [실습 4](../../ma_pmo/learn/labs/lab4_tracker/README.ko.md): 트래커 |
+| 7 | [연동과 장애 격리](07-integrations.ko.md) | 실패해도 에이전트를 멈추지 않는 플러그인 | [실습 1](../../ma_pmo/learn/labs/lab1_notifier/README.ko.md): 알림 · [실습 4](../../ma_pmo/learn/labs/lab4_tracker/README.ko.md): 트래커 · [실습 5](../../ma_pmo/learn/labs/lab5_mcp_tool/README.ko.md): MCP 도구 |
+| 8 | [에이전트 운영하기: 신원, 추적, 보정](08-operating-agents.ko.md) | 누가 무엇을 했는지, 실행이 왜 그렇게 됐는지, 게이트가 위험을 거르는지 | [실습 6](../../ma_pmo/learn/labs/lab6_calibration/README.ko.md): 게이트 보정 |
 
-권장 순서: 1~4강 → 7강과 실습 1(가장 쉬움) → 5강과 실습 2 → 6강과 실습 3 → 마지막으로 실습 4.
+권장 순서: 1~4강 → 7강과 실습 1(가장 쉬움) → 5강과 실습 2 → 6강과 실습 3 → 실습 4 → 실습 5(`pip install "ma-pmo[mcp]"` 필요) → 마지막으로 8강과 실습 6.
 강의는 각 1시간, 실습은 각 1~2시간 정도로 잡으세요.
 
 ## 실습 진행 방법

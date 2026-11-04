@@ -8,6 +8,10 @@ import { Icon } from "../components/icons";
 const VERDICT_CLASS: Record<string, string> = {
   supported: "green", partial: "amber", not_supported: "red", insufficient: "",
 };
+const CAL_CLASS: Record<string, string> = {
+  calibrated: "green", overconfident: "red", underconfident: "amber", uninformative: "amber", insufficient: "",
+};
+const num = (v: number | null | undefined) => (v === null || v === undefined ? "–" : String(v));
 
 export default function Evaluation() {
   const { lang, t } = useI18n();
@@ -17,10 +21,14 @@ export default function Evaluation() {
   const [err, setErr] = useState("");
   const [check, setCheck] = useState<any>(null);
   const [checking, setChecking] = useState(false);
+  const [retrieval, setRetrieval] = useState<Record<string, any> | null>(null);
 
   async function load() {
     setLoading(true); setErr("");
-    try { setData(await api.evaluation()); }
+    try {
+      setData(await api.evaluation());
+      setRetrieval(await api.retrieval());
+    }
     catch (x: any) { setErr(String(x.message || x)); }
     finally { setLoading(false); }
   }
@@ -35,6 +43,8 @@ export default function Evaluation() {
   }
 
   const verdictLabel = (v: string) => (e as any)[`verdict_${v}`] ?? v;
+  const cal = data?.calibration;
+  const calRows: [string, any][] = cal ? [["overall", cal.overall], ...Object.entries(cal.by_source) as [string, any][]] : [];
   const errors = check ? check.issues.filter((i: any) => i.level === "error").length : 0;
 
   return (
@@ -68,6 +78,63 @@ export default function Evaluation() {
           </div>
         )}
       </Card>
+
+      <div className="grid cols-2 top">
+        <Card flush title={e.calibration} desc={e.calibrationDesc}
+          actions={cal && <span className={`badge ${CAL_CLASS[cal.overall.verdict] ?? ""}`}>{(e as any)[`cal_${cal.overall.verdict}`]}</span>}>
+          {!cal ? <div className="empty">{t.common2.loading}</div> : (
+            <>
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th /><th className="num">{e.samples}</th><th className="num">ECE</th><th className="num">Brier</th><th className="num">{e.distinct}</th><th>{e.verdict}</th></tr></thead>
+                  <tbody>
+                    {calRows.map(([k, c]) => (
+                      <tr key={k}>
+                        <td>{(e as any)[`source_${k}`] ?? k}</td>
+                        <td className="num">{c.n}</td>
+                        <td className="num">{num(c.ece)}</td>
+                        <td className="num">{num(c.brier)}</td>
+                        <td className="num">{c.distinct_confidences}</td>
+                        <td><span className={`badge ${CAL_CLASS[c.verdict] ?? ""}`}>{(e as any)[`cal_${c.verdict}`]}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>{e.threshold}</th>{cal.thresholds.map((r: any) => <th key={r.threshold} className="num">{r.threshold}</th>)}</tr></thead>
+                  <tbody>
+                    <tr><td>{e.toReview}</td>{cal.thresholds.map((r: any) => <td key={r.threshold} className="num">{r.to_review}</td>)}</tr>
+                    <tr><td>{e.slipped}</td>{cal.thresholds.map((r: any) => <td key={r.threshold} className="num">{r.wrong_not_reviewed}</td>)}</tr>
+                  </tbody>
+                </table>
+              </div>
+              {cal.overall.n < 5 && <div className="muted" style={{ padding: "10px 16px" }}>{e.calHint}</div>}
+            </>
+          )}
+        </Card>
+
+        <Card flush title={e.retrieval} desc={e.retrievalDesc}>
+          {!retrieval ? <div className="empty">{t.common2.loading}</div> : (
+            <div className="table-wrap">
+              <table>
+                <thead><tr><th>{e.retriever}</th><th className="num">recall@1</th><th className="num">recall@3</th><th className="num">MRR</th></tr></thead>
+                <tbody>
+                  {Object.entries(retrieval).map(([name, r]: [string, any]) => (
+                    <tr key={name}>
+                      <td><b>{name === "lexical" ? t.integ.lexical : name.startsWith("vector (") ? t.integ.vector(name.slice(8, -1)) : name}</b><div className="muted">{Object.entries(r.by_kind).map(([k, v]) => `${k} ${v}`).join(" · ")}</div></td>
+                      <td className="num">{r.recall_at_1}</td>
+                      <td className="num">{r.recall_at_3}</td>
+                      <td className="num">{r.mrr}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      </div>
 
       <div className="grid cols-3">
         <Card title={e.report} desc={e.reportDesc}>

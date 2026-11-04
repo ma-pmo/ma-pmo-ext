@@ -47,6 +47,12 @@ env -u ANTHROPIC_API_KEY ma-pmo eval
 Every hypothesis still gets a number. Now read `ma_pmo/agents/reporting.py` and find the
 `except` that keeps the report coming.
 
+## Seeing fallbacks
+
+With `OTEL_ENABLED=true` every fallback is marked on its trace span (`ma_pmo.fallback=true` plus
+a `fallback` event), next to the failed LLM call that caused it — see
+[lecture 8](08-operating-agents.md) and [infra/otel](../../infra/otel/README.md).
+
 ## Pitfalls
 
 - **Catching too much.** A fallback must catch *the LLM failing*, not bugs in your own code.

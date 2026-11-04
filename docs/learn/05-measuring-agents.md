@@ -33,6 +33,10 @@ saying which projects really were in trouble. Precision without labels is a gues
   resources, **baselines.json** and **risk_labels.csv**. `ma-pmo template validate` refuses
   impossible values before they become confident-looking results.
 
+Two more measurements follow the same recipe: **confidence calibration** of the approval gate
+(`ma_pmo/eval/calibration.py`, lecture 8) and **retrieval quality** of A7 on labeled queries —
+`ma-pmo eval --retrieval` reports recall@k and MRR for lexical vs. vector search.
+
 ## Try it
 
 ```bash

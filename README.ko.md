@@ -33,7 +33,7 @@
 - **플러그인 연동** — Slack·웹훅 알림, Jira Cloud·GitHub·Linear 데이터 연결, .ics 자원 캘린더, 직접 만든 연동을 꽂는 플러그인 구조를 지원합니다.
 - **우리 조직 데이터로 평가** — 데이터 입력 양식과 줄 단위 검사, 판정이 담긴 H1~H5 보고서(Markdown/HTML), 실험 뼈대 생성(`ma-pmo harness new`)을 제공합니다.
 - **MCP 서버** — `ma-pmo mcp`로 AI 어시스턴트에 도구 8개를 제공합니다. 승인은 사람만 합니다.
-- **하네스 엔지니어링 교육 과정** — 강의 7개와 자동 채점 실습 4개로 된 [실습 과정](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.ko.md)(`ma-pmo learn`).
+- **하네스 엔지니어링 교육 과정** — 강의 8개와 자동 채점 실습 6개로 된 [실습 과정](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.ko.md)(`ma-pmo learn`).
 - **관리자 대시보드** — 승인 대기 배지가 있는 사이드바, 평가·연동 화면, 라이트/다크 테마, 모바일 화면을 지원합니다.
 
 ## 스크린샷 (한국어 UI)
@@ -41,10 +41,10 @@
 | 대시보드 | 에이전트 협업 트레이스 |
 |---|---|
 | ![5축 KPI·인사이트·차트 관리자 대시보드](docs/assets/dashboard-ko.png) | ![4단계 시나리오 트레이스](docs/assets/scenario-trace-ko.png) |
-| **평가 (H1~H5 판정·템플릿)** | **Human-in-the-loop 승인** |
-| ![가설 판정과 템플릿 다운로드가 있는 평가 화면](docs/assets/evaluation-ko.png) | ![고위험 결정 승인 큐](docs/assets/approvals-ko.png) |
-| **20개 생애주기 시나리오** | **연동 (Slack·웹훅·Jira)** |
-| ![카테고리 탭이 있는 시나리오 목록](docs/assets/scenarios-ko.png) | ![연동 상태 화면](docs/assets/integrations-ko.png) |
+| **평가 (판정·확신도 보정·검색 품질)** | **Human-in-the-loop 승인** |
+| ![가설 판정·확신도 보정·A7 검색 품질이 있는 평가 화면](docs/assets/evaluation-ko.png) | ![고위험 결정 승인 큐](docs/assets/approvals-ko.png) |
+| **20개 생애주기 시나리오** | **연동과 플랫폼 상태** |
+| ![카테고리 탭이 있는 시나리오 목록](docs/assets/scenarios-ko.png) | ![연동과 플랫폼 기능(인증·추적·검색·캘린더·MCP) 상태 화면](docs/assets/integrations-ko.png) |
 
 라이트·다크 테마는 OS 설정을 따릅니다.
 
@@ -170,10 +170,10 @@ HTTP로도 쓸 수 있습니다: `GET /templates/data.zip`, `POST /templates/val
 
 ### 하네스 엔지니어링 배우기 (교육 과정)
 
-믿고 쓸 수 있는 멀티 에이전트 시스템을 만드는 방법을 이 코드베이스로 배우는 강의 7개와, 시작 코드·정답·자동 채점이 있는 실습 4개입니다. 오프라인, API 키 불필요.
+믿고 쓸 수 있는 멀티 에이전트 시스템을 만드는 방법을 이 코드베이스로 배우는 강의 8개와, 시작 코드·정답·자동 채점이 있는 실습 6개(알림, 데이터 고치기, 제거 실험, 트래커, MCP 도구, 게이트 보정)입니다. 오프라인, API 키 불필요.
 
 ```bash
-ma-pmo learn list          # 실습 4개
+ma-pmo learn list          # 실습 6개
 ma-pmo learn start 1       # 시작 코드를 ./learn/lab1에 복사
 ma-pmo learn check 1       # 요구사항별 ✓/✗와 힌트
 ```
