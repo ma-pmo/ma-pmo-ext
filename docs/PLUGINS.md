@@ -52,6 +52,28 @@ ma-pmo agents        # id, name, version, source; exits 1 if a plugin could not 
 
 `GET /agents` shows the same list.
 
+## Use it in a workflow
+
+Workflows are JSON. Put a file in the folder `MA_PMO_WORKFLOWS_DIR` (default `./workflows`) and it
+runs like a built-in scenario, with `POST /scenarios/budget_review/run`:
+
+```json
+{
+  "id": "budget_review",
+  "title": {"en": "Budget review", "ko": "예산 점검"},
+  "goal": {"en": "Review the cost of remaining work", "ko": "남은 작업 비용 점검"},
+  "description": {"en": "Estimate remaining cost, then report.", "ko": "남은 비용을 추정하고 보고한다."},
+  "steps": [
+    {"id": "budget", "agent": "acme.budget"},
+    {"id": "report", "agent": "A5"}
+  ]
+}
+```
+
+A step follows the one before it unless it lists `needs`, and takes optional `params`. Files are
+read at startup. An invalid file, an unknown agent or an id already in use is reported under
+`workflow_problems` in `GET /agents`, and the file is skipped.
+
 ## Rules
 
 | Rule | Why |
