@@ -1,0 +1,18 @@
+[project]
+name = "ma-pmo-budget-agent"
+version = "0.1.0"
+description = "Example MA-PMO agent plugin: the cost of remaining work per project"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0-or-later" }
+dependencies = ["ma-pmo>=0.5"]
+
+# this line is the whole integration: MA-PMO finds the agent here
+[project.entry-points."ma_pmo.agents"]
+budget = "ma_pmo_budget_agent:SPEC"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ma_pmo_budget_agent"]

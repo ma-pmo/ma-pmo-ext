@@ -5,6 +5,7 @@ Examples:
     ma-pmo db upgrade                       # bring the database to the latest schema
     ma-pmo db status                        # current and latest schema revision
     ma-pmo serve --port 8000                # start the FastAPI server
+    ma-pmo agents                           # worker agents, including installed plugins
     ma-pmo eval                             # run the H1–H5 evaluation on the demo data
     ma-pmo eval --retrieval                 # A7 retrieval quality: lexical vs. vector search
     ma-pmo template data ./my-org           # write the evaluation data template
@@ -111,6 +112,19 @@ def _cmd_db(action: str) -> int:
     return 0 if now == latest else 1
 
 
+def _cmd_agents() -> int:
+    from ma_pmo.agents import registry
+    from ma_pmo.core.i18n import tr
+
+    print(f"{'id':<16}{tr('name', '이름'):<14}{tr('version', '버전'):<9}{tr('source', '출처')}")
+    for spec in registry.specs().values():
+        print(f"{spec.id:<16}{spec.title:<14}{spec.version:<9}{spec.source}")
+    problems = registry.problems()
+    for problem in problems:
+        print(tr(f"✗ not loaded: {problem}", f"✗ 불러오지 못함: {problem}"))
+    return 1 if problems else 0
+
+
 def _cmd_retrieval() -> int:
     from ma_pmo.connectors.vectordb import LiteLLMEmbedder, Retriever, VectorStore
     from ma_pmo.core.config import get_settings
@@ -150,6 +164,8 @@ def main(argv: list[str] | None = None) -> int:
 
     db = sub.add_parser("db", help="database schema: upgrade | status")
     db.add_argument("action", choices=["upgrade", "status"])
+
+    sub.add_parser("agents", help="list worker agents, including installed plugins")
 
     serve = sub.add_parser("serve", help="start the FastAPI server")
     serve.add_argument("--host", default="127.0.0.1")
@@ -196,6 +212,8 @@ def main(argv: list[str] | None = None) -> int:
         init_main()
     elif ns.command == "db":
         return _cmd_db(ns.action)
+    elif ns.command == "agents":
+        return _cmd_agents()
     elif ns.command == "serve":
         import uvicorn
 

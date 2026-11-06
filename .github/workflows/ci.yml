@@ -40,6 +40,12 @@ jobs:
       - name: Full test suite
         run: uv run pytest -q
 
+      - name: Example agent plugin, installed as a separate package
+        run: |
+          uv pip install --no-deps ./examples/agent-plugin
+          uv run --no-sync pytest -q examples/agent-plugin
+          uv run --no-sync ma-pmo agents
+
   postgres:
     runs-on: ubuntu-latest
     services:
