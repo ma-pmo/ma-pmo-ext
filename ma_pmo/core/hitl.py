@@ -12,11 +12,14 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
-from ma_pmo.core import kpi
+from ma_pmo.core import kpi, runs
+from ma_pmo.core.obs import get_logger
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
 from ma_pmo.integrations.dispatch import emit
 from ma_pmo.integrations.events import approval_resolved_event
+
+_log = get_logger("hitl")
 
 
 def list_pending() -> list[dict]:
@@ -66,6 +69,7 @@ def resolve(approval_id: int, *, approver: str, decision: str) -> dict:
             latency = (now - requested).total_seconds()
             kpi.record_approval_latency(latency, message_id=approval.message_id)
 
+        run_id = approval.run_id
         result = {
             "approval_id": approval_id,
             "message_id": approval.message_id,
@@ -73,4 +77,25 @@ def resolve(approval_id: int, *, approver: str, decision: str) -> dict:
             "approver": approver,
         }
     emit([approval_resolved_event(result)])
-    return result
+    run_status = _continue_run(run_id, decision, approver)
+    return {**result, "run_status": run_status} if run_status else result
+
+
+def _continue_run(run_id: str | None, decision: str, approver: str) -> str | None:
+    """A run paused at this gate ends on a rejection and resumes once nothing is pending.
+
+    The decision is already recorded, so a failing agent marks the run failed, not the request.
+    """
+    from ma_pmo.core.scenarios import resume_scenario
+
+    run = runs.get_run(run_id) if run_id else None
+    if run is None or run["status"] != runs.WAITING:
+        return None
+    if decision == "reject":
+        runs.cancel(run["run_id"], f"approval rejected by {approver}")
+    elif not runs.pending_approvals(run["run_id"]):
+        try:
+            return resume_scenario(run["run_id"])["status"]
+        except Exception as e:
+            _log.warning("run_resume_failed", run_id=run["run_id"], error=str(e)[:200])
+    return (runs.get_run(run["run_id"]) or {}).get("status")

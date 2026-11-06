@@ -1,4 +1,4 @@
-"""GET /runs — what ran, step by step, and how it ended."""
+"""GET /runs — what ran, step by step, and how it ended. POST to continue a stopped run."""
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
@@ -19,3 +19,16 @@ def get_run(run_id: str) -> dict:
     if run is None:
         raise HTTPException(status_code=404, detail="run not found")
     return run
+
+
+@router.post("/runs/{run_id}/resume")
+def resume_run(run_id: str) -> dict:
+    """Continue a paused or interrupted run. 409 if it cannot continue now."""
+    from ma_pmo.core.scenarios import resume_scenario
+
+    try:
+        return resume_scenario(run_id)
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail="run not found") from e
+    except runs.NotResumable as e:
+        raise HTTPException(status_code=409, detail=str(e)) from e
