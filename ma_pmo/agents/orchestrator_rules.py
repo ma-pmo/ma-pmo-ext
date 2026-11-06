@@ -5,43 +5,9 @@ Integration (P5) requirement: orchestration runs end-to-end with no external dep
 """
 from __future__ import annotations
 
+from ma_pmo.agents import registry
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.payloads.routing_v1 import RoutingDecision, RoutingV1
-
-# keywords (English + Korean) -> (worker, (task in English, task in Korean))
-_KEYWORDS: list[tuple[tuple[str, ...], str, tuple[str, str]]] = [
-    (
-        ("보고", "현황", "리포트", "경영", "report", "status", "executive", "briefing"),
-        "A5",
-        ("Generate portfolio executive report", "포트폴리오 경영 보고 생성"),
-    ),
-    (
-        ("리스크", "위험", "조기경보", "지연", "risk", "delay", "warning", "escalat"),
-        "A4",
-        ("Early risk detection", "리스크 조기탐지"),
-    ),
-    (
-        ("일정", "스케줄", "임계경로", "cpm", "plan", "schedule", "critical path", "baseline"),
-        "A2",
-        ("Compute CPM schedule", "CPM 일정 산출"),
-    ),
-    (
-        ("자원", "배분", "인력", "부하", "유휴", "resource", "allocat", "capacity", "staff"),
-        "A3",
-        ("Allocate resources", "자원 배분"),
-    ),
-    (
-        ("게이트", "품질", "거버넌스", "방법론", "준수", "gate", "quality", "governance",
-         "compliance"),
-        "A6",
-        ("Gate review", "게이트 심사"),
-    ),
-    (
-        ("지식", "교훈", "유사", "사례", "견적", "knowledge", "lesson", "similar", "estimat"),
-        "A7",
-        ("Search knowledge and lessons learned", "지식·교훈 검색"),
-    ),
-]
 
 
 def keyword_route(goal: str) -> RoutingV1:
@@ -49,10 +15,10 @@ def keyword_route(goal: str) -> RoutingV1:
     g = (goal or "").lower()
     dels: list[RoutingDecision] = []
     seen: set[str] = set()
-    for keys, agent, task in _KEYWORDS:
-        if any(k.lower() in g for k in keys) and agent not in seen:
-            dels.append(RoutingDecision(agent=agent, task=tr(*task)))
-            seen.add(agent)
+    for spec in registry.specs().values():
+        if any(k.lower() in g for k in spec.keywords) and spec.id not in seen:
+            dels.append(RoutingDecision(agent=spec.id, task=tr(*spec.default_task)))
+            seen.add(spec.id)
     if not dels:  # safe fallback: portfolio status report
         dels.append(
             RoutingDecision(agent="A5", task=tr("Portfolio status report", "포트폴리오 현황 보고"))

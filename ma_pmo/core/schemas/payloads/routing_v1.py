@@ -3,12 +3,9 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-# workers that can be delegated to (excluding A1)
-WORKER_AGENTS = {"A2", "A3", "A4", "A5", "A6", "A7"}
-
 
 class RoutingDecision(BaseModel):
-    agent: str = Field(description="worker ID to delegate to (A2–A7)")
+    agent: str = Field(description="worker ID to delegate to")
     task: str = Field(description="description of the task delegated to that worker")
 
 

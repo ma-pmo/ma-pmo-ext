@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- Workers are declared once in `ma_pmo/agents/registry.py` (`AgentSpec`). Routing, the graph, scenarios and the orchestrator prompt read from it, and agents are built on first use.
+
 ### Fixed
 - Postgres sessions are pinned to UTC; on a server in another time zone every timestamp was shifted (nine hours in Asia/Seoul), which distorted approval latency.
 - The API image installs from `pyproject.toml` and stays on Python 3.11: 3.15 cannot build `tiktoken` in a slim image, and the hand-kept dependency list had missed `alembic`.
@@ -107,6 +110,7 @@ First public release.
 
 ### [Unreleased]
 
+- 작업자 에이전트를 `ma_pmo/agents/registry.py`(`AgentSpec`) 한 곳에 선언. 라우팅, 그래프, 시나리오, 오케스트레이터 프롬프트가 여기서 읽고, 에이전트는 처음 쓸 때 만들어집니다.
 - 수정: Postgres 세션을 UTC로 고정. 서버 시간대가 다르면 모든 시각이 밀렸습니다(Asia/Seoul에서 9시간). 승인 지연 측정이 왜곡되던 문제입니다.
 - 수정: API 이미지를 `pyproject.toml`로 설치하고 Python 3.11을 유지. 3.15는 slim 이미지에서 `tiktoken`을 빌드할 수 없고, 손으로 관리하던 의존성 목록에 `alembic`이 빠져 있었습니다.
 - 승인이 실제로 실행을 멈출 수 있습니다: `POST /scenarios/{id}/run?pause_on_gate=true`는 게이트에서 대기하고(`waiting_approval`), 승인하면 다음 단계부터 이어 가며 반려하면 취소됩니다. 기본 동작은 그대로입니다.

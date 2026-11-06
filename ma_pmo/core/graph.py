@@ -14,35 +14,19 @@ from typing import Any
 
 from langgraph.graph import END, StateGraph
 
-from ma_pmo.agents.base import BaseAgent
-from ma_pmo.agents.governance import GovernanceAgent
-from ma_pmo.agents.knowledge import KnowledgeAgent
 from ma_pmo.agents.orchestrator import OrchestratorAgent
-from ma_pmo.agents.planning import PlanningAgent
-from ma_pmo.agents.reporting import ReportingAgent
-from ma_pmo.agents.resource import ResourceAgent
-from ma_pmo.agents.risk import RiskAgent
+from ma_pmo.agents.registry import WORKERS
 from ma_pmo.core import runs
 from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.core.state.checkpointer import build_checkpointer
 
 _orchestrator = OrchestratorAgent()
 
-# worker node registry (id -> agent)
-WORKERS: dict[str, BaseAgent[Any]] = {
-    "A2": PlanningAgent(),
-    "A3": ResourceAgent(),
-    "A4": RiskAgent(),
-    "A5": ReportingAgent(),
-    "A6": GovernanceAgent(),
-    "A7": KnowledgeAgent(),
-}
 
-
-def _worker_node(agent_id: str, agent: BaseAgent[Any]) -> Any:
+def _worker_node(agent_id: str) -> Any:
     def run(state: PortfolioState) -> dict:
         with runs.step(agent_id) as step:
-            result = agent.run(state)
+            result = WORKERS[agent_id].run(state)
             step.output_schemas = [o.get("schema") for o in result.get("outputs", [])]
             return result
 
@@ -69,8 +53,8 @@ def build_graph(*, interrupt_before_synthesis: bool = False):
     g = StateGraph(PortfolioState)
 
     g.add_node("route", _route)
-    for wid, agent in WORKERS.items():
-        g.add_node(wid, _worker_node(wid, agent))
+    for wid in WORKERS:
+        g.add_node(wid, _worker_node(wid))
     g.add_node("synthesize", _synthesize)
 
     g.set_entry_point("route")
