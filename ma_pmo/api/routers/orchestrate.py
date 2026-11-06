@@ -7,6 +7,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from ma_pmo.api.deps import get_graph
+from ma_pmo.core import runs
 
 router = APIRouter(tags=["orchestrate"])
 
@@ -22,11 +23,13 @@ def orchestrate(req: OrchestrateRequest) -> dict:
     graph = get_graph()
     thread_id = req.thread_id or f"thread-{uuid.uuid4().hex[:8]}"
     config = {"configurable": {"thread_id": thread_id}}
-    final = graph.invoke(
-        {"goal": req.goal, "task_ref": req.task_ref, "outputs": [], "messages": []},
-        config=config,
-    )
+    with runs.track("orchestrate", req.goal, req.task_ref, thread_id=thread_id) as run_id:
+        final = graph.invoke(
+            {"goal": req.goal, "task_ref": req.task_ref, "outputs": [], "messages": []},
+            config=config,
+        )
     return {
+        "run_id": run_id,
         "thread_id": thread_id,
         "routing": final.get("routing"),
         "outputs": final.get("outputs", []),

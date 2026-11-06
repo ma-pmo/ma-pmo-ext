@@ -54,3 +54,12 @@ def upgrade(engine: Engine | None = None, revision: str = "head") -> str | None:
             command.stamp(config, BASELINE)
         command.upgrade(config, revision)
     return current(engine)
+
+
+def downgrade(engine: Engine | None = None, revision: str = BASELINE) -> str | None:
+    """Step back to `revision`. Dropped columns lose their data: back up first."""
+    config = _config()
+    with _engine(engine).begin() as conn:
+        config.attributes["connection"] = conn
+        command.downgrade(config, revision)
+    return current(engine)

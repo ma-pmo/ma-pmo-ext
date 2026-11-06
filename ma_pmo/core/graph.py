@@ -22,6 +22,7 @@ from ma_pmo.agents.planning import PlanningAgent
 from ma_pmo.agents.reporting import ReportingAgent
 from ma_pmo.agents.resource import ResourceAgent
 from ma_pmo.agents.risk import RiskAgent
+from ma_pmo.core import runs
 from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.core.state.checkpointer import build_checkpointer
 
@@ -36,6 +37,16 @@ WORKERS: dict[str, BaseAgent[Any]] = {
     "A6": GovernanceAgent(),
     "A7": KnowledgeAgent(),
 }
+
+
+def _worker_node(agent_id: str, agent: BaseAgent[Any]) -> Any:
+    def run(state: PortfolioState) -> dict:
+        with runs.step(agent_id) as step:
+            result = agent.run(state)
+            step.output_schemas = [o.get("schema") for o in result.get("outputs", [])]
+            return result
+
+    return run
 
 
 def _route(state: PortfolioState) -> dict:
@@ -59,7 +70,7 @@ def build_graph(*, interrupt_before_synthesis: bool = False):
 
     g.add_node("route", _route)
     for wid, agent in WORKERS.items():
-        g.add_node(wid, agent.run)
+        g.add_node(wid, _worker_node(wid, agent))
     g.add_node("synthesize", _synthesize)
 
     g.set_entry_point("route")

@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- Run records: every scenario and orchestrated goal is stored as a run with its agent steps (`GET /runs`, `GET /runs/{id}`, `run_id` in responses), and messages, approvals and KPI events link to their run. Behaviour is unchanged.
 - Schema migrations (Alembic, shipped in the package): `ma-pmo db upgrade` and `ma-pmo db status`. New databases are created through migrations; databases from 0.4 and earlier are recognized and adopted with their data.
 
 ## [0.4.0] - 2026-11-05
@@ -98,6 +99,7 @@ First public release.
 
 ### [Unreleased]
 
+- 실행 기록: 시나리오와 오케스트레이션 실행이 에이전트 단계와 함께 저장되고(`GET /runs`, `GET /runs/{id}`, 응답의 `run_id`), 메시지·승인·KPI가 해당 실행에 연결됩니다. 기존 동작은 바뀌지 않습니다.
 - 스키마 마이그레이션(Alembic, 패키지에 포함): `ma-pmo db upgrade`, `ma-pmo db status`. 새 데이터베이스도 마이그레이션으로 만들고, 0.4 이하 데이터베이스는 자동으로 인식해 데이터를 유지한 채 이어받습니다.
 
 ### [0.4.0] - 2026-11-05
