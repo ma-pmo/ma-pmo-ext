@@ -115,6 +115,16 @@ def span(name: str, attributes: dict[str, Any] | None = None) -> Iterator[Any]:
         yield current
 
 
+def current_trace_id() -> str | None:
+    """Hex id of the active trace, to link a run record to its trace."""
+    if _tracer is None:
+        return None
+    from opentelemetry import trace
+
+    context = trace.get_current_span().get_span_context()
+    return format(context.trace_id, "032x") if context.is_valid else None
+
+
 def set_attributes(attributes: dict[str, Any]) -> None:
     """Add attributes to the current span (no-op when tracing is off)."""
     if _tracer is None:

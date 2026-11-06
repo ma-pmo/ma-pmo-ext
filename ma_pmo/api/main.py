@@ -31,6 +31,7 @@ from ma_pmo.api.routers import (  # noqa: E402
     orchestrate,
     planning,
     risks,
+    runs,
     scenarios,
     webhooks,
 )
@@ -74,6 +75,7 @@ app.include_router(knowledge.router)
 app.include_router(evaluation.router)
 app.include_router(scenarios.router)
 app.include_router(messages.router)
+app.include_router(runs.router)
 app.include_router(webhooks.router)
 app.include_router(integrations.router)
 

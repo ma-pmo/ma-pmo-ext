@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from ma_pmo.core.config import get_settings
 from ma_pmo.core.obs import get_logger
+from ma_pmo.core.runs import current_run_id
 from ma_pmo.core.schemas.message import AgentMessage
 from ma_pmo.core.schemas.payloads import PAYLOAD_REGISTRY
 from ma_pmo.db.models import AgentMessageRow, Approval
@@ -44,11 +45,13 @@ def publish(message: AgentMessage) -> AgentMessage:
                 confidence=message.confidence,
                 human_gate_required=message.human_gate_required,
                 timestamp=message.timestamp,
+                run_id=current_run_id(),
             )
         )
         gated = message.needs_human_gate(_settings.hitl_confidence_threshold)
         if gated:
-            s.add(Approval(message_id=message.message_id, decision="pending"))
+            s.add(Approval(message_id=message.message_id, decision="pending",
+                           run_id=current_run_id()))
     # behavior log: structured message published (§4 audit trail)
     _log.info(
         "message",

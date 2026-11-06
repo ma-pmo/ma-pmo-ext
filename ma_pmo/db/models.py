@@ -15,6 +15,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -98,6 +99,39 @@ class Report(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
 
 
+class Run(Base):
+    """One execution of a scenario or an orchestrated goal (see core/runs.py)."""
+
+    __tablename__ = "run"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    kind: Mapped[str] = mapped_column(String)  # scenario | orchestrate
+    workflow: Mapped[str] = mapped_column(String)  # scenario id, or the goal
+    scope: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, default="running", index=True)
+    thread_id: Mapped[str | None] = mapped_column(String, nullable=True)  # LangGraph thread
+    trace_id: Mapped[str | None] = mapped_column(String, nullable=True)  # OpenTelemetry
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class RunStep(Base):
+    """One agent's work inside a run."""
+
+    __tablename__ = "run_step"
+    __table_args__ = (UniqueConstraint("run_id", "seq", name="uq_run_step_run_id_seq"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("run.id"), index=True)
+    seq: Mapped[int] = mapped_column(Integer)
+    agent: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, default="running")
+    attempts: Mapped[int] = mapped_column(Integer, default=1)
+    output_schemas: Mapped[list] = mapped_column(JSON, default=list)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
 class AgentMessageRow(Base):
     """Immutable (append-only) log of §4 messages, for audit and reproducibility."""
 
@@ -111,6 +145,9 @@ class AgentMessageRow(Base):
     confidence: Mapped[float] = mapped_column(Float, default=1.0)
     human_gate_required: Mapped[bool] = mapped_column(Boolean, default=False)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    run_id: Mapped[str | None] = mapped_column(
+        ForeignKey("run.id", name="fk_agent_message_run_id"), nullable=True, index=True
+    )
 
 
 class Approval(Base):
@@ -120,6 +157,9 @@ class Approval(Base):
     approver: Mapped[str | None] = mapped_column(String, nullable=True)
     decision: Mapped[str] = mapped_column(String, default="pending")  # pending|approve|reject
     decided_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    run_id: Mapped[str | None] = mapped_column(
+        ForeignKey("run.id", name="fk_approval_run_id"), nullable=True, index=True
+    )
 
 
 class KnowledgeDoc(Base):
@@ -150,3 +190,6 @@ class KpiEvent(Base):
     project_id: Mapped[str | None] = mapped_column(String, nullable=True)
     meta: Mapped[dict] = mapped_column(JSON, default=dict)
     ts: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    run_id: Mapped[str | None] = mapped_column(
+        ForeignKey("run.id", name="fk_kpi_event_run_id"), nullable=True, index=True
+    )

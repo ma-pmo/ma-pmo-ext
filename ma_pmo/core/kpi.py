@@ -9,6 +9,7 @@ from __future__ import annotations
 from enum import Enum
 
 from ma_pmo.core.obs import get_logger
+from ma_pmo.core.runs import current_run_id
 from ma_pmo.db.models import KpiEvent
 from ma_pmo.db.session import get_session
 
@@ -41,6 +42,7 @@ def record(
                 value=float(value),
                 project_id=project_id,
                 meta=meta or {},
+                run_id=current_run_id(),
             )
         )
     _log.info("kpi", axis=axis_val, metric=metric, value=float(value), project_id=project_id)
