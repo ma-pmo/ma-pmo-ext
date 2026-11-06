@@ -38,6 +38,13 @@ curl -s localhost:8000/approvals | python -m json.tool  # 대기 중
 대시보드(`make web` 후 http://localhost:3000/approvals?lang=ko)를 열어 승인하고 배지 숫자가 줄어드는
 것을 확인하세요.
 
+## 실행이 정말 기다리나?
+
+기본 동작은 승인을 대기열에 올리고 실행을 계속하는 것으로, 보고나 데모에 맞습니다.
+`POST /scenarios/{id}/run?pause_on_gate=true`로 실행하면 게이트가 걸린 단계 뒤에서 멈춥니다
+(`waiting_approval`). 승인하면 다음 단계부터 이어 가고 반려하면 취소됩니다. 상태가 데이터베이스에
+있으므로 API를 재시작해도 대기가 유지됩니다(`ma_pmo/core/runs.py`).
+
 ## 누가 승인했나?
 
 API 인증을 켜면(`MA_PMO_AUTH_MODE=api_key`) `approver` 역할의 키만 승인을 처리할 수 있고, 기록되는

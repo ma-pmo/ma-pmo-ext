@@ -40,6 +40,13 @@ curl -s localhost:8000/approvals | python -m json.tool  # it is waiting
 Open the dashboard (`make web`, then http://localhost:3000/approvals), approve it, and watch
 the badge count drop.
 
+## Does the run actually wait?
+
+By default a run queues its approval and carries on, which suits reports and demos. With
+`POST /scenarios/{id}/run?pause_on_gate=true` it stops after the gated step
+(`waiting_approval`): approving resumes from the next step, rejecting cancels the run. The state
+is in the database, so the wait survives an API restart (`ma_pmo/core/runs.py`).
+
 ## Who approved?
 
 With API authentication on (`MA_PMO_AUTH_MODE=api_key`), only keys with the `approver` role can

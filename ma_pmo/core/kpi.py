@@ -8,8 +8,10 @@ from __future__ import annotations
 
 from enum import Enum
 
+from sqlalchemy import select
+
 from ma_pmo.core.obs import get_logger
-from ma_pmo.core.runs import current_run_id
+from ma_pmo.core.runs import current_run_id, dedupe_key
 from ma_pmo.db.models import KpiEvent
 from ma_pmo.db.session import get_session
 
@@ -34,7 +36,10 @@ def record(
 ) -> None:
     """Record a single KPI event."""
     axis_val = axis.value if isinstance(axis, Axis) else axis
+    key = dedupe_key("kpi")
     with get_session() as s:
+        if key and s.scalar(select(KpiEvent.id).where(KpiEvent.dedupe_key == key)):
+            return  # a retried step already recorded this
         s.add(
             KpiEvent(
                 axis=axis_val,
@@ -43,6 +48,7 @@ def record(
                 project_id=project_id,
                 meta=meta or {},
                 run_id=current_run_id(),
+                dedupe_key=key,
             )
         )
     _log.info("kpi", axis=axis_val, metric=metric, value=float(value), project_id=project_id)

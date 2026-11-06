@@ -5,9 +5,11 @@ reproducibility. Payloads are validated against the schema registry to curb erro
 """
 from __future__ import annotations
 
+from sqlalchemy import select
+
 from ma_pmo.core.config import get_settings
 from ma_pmo.core.obs import get_logger
-from ma_pmo.core.runs import current_run_id
+from ma_pmo.core.runs import current_run_id, dedupe_key
 from ma_pmo.core.schemas.message import AgentMessage
 from ma_pmo.core.schemas.payloads import PAYLOAD_REGISTRY
 from ma_pmo.db.models import AgentMessageRow, Approval
@@ -33,7 +35,11 @@ def publish(message: AgentMessage) -> AgentMessage:
     The returned message is stored append-only; its later state is tracked via approval.
     """
     validate_payload(message)
+    key = dedupe_key("message")
     with get_session() as s:
+        if key and s.scalar(select(AgentMessageRow.message_id).where(
+                AgentMessageRow.dedupe_key == key)):
+            return message  # a retried step already published this
         s.add(
             AgentMessageRow(
                 message_id=message.message_id,
@@ -46,6 +52,7 @@ def publish(message: AgentMessage) -> AgentMessage:
                 human_gate_required=message.human_gate_required,
                 timestamp=message.timestamp,
                 run_id=current_run_id(),
+                dedupe_key=key,
             )
         )
         gated = message.needs_human_gate(_settings.hitl_confidence_threshold)

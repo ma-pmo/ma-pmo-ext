@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - The API image installs from `pyproject.toml` and stays on Python 3.11: 3.15 cannot build `tiktoken` in a slim image, and the hand-kept dependency list had missed `alembic`.
 
 ### Added
+- Approvals can really stop a run: `POST /scenarios/{id}/run?pause_on_gate=true` waits at a gate (`waiting_approval`); approving resumes from the next step, rejecting cancels the run. The default is unchanged.
+- Recovery: a run whose process died is marked `interrupted` and continues with `POST /runs/{id}/resume`. Finished steps are reused, a lease gives each run to one process, and retried steps cannot write the same message or KPI twice.
 - Postgres is a first-class backend: `ma-pmo[postgres]` keeps LangGraph checkpoints in the same database, so they survive restarts; migrations take an advisory lock when replicas start together; the full test suite runs on Postgres 16 in CI.
 - CI builds the API image and checks `/health`.
 - Run records: every scenario and orchestrated goal is stored as a run with its agent steps (`GET /runs`, `GET /runs/{id}`, `run_id` in responses), and messages, approvals and KPI events link to their run. Behaviour is unchanged.
@@ -107,6 +109,8 @@ First public release.
 
 - 수정: Postgres 세션을 UTC로 고정. 서버 시간대가 다르면 모든 시각이 밀렸습니다(Asia/Seoul에서 9시간). 승인 지연 측정이 왜곡되던 문제입니다.
 - 수정: API 이미지를 `pyproject.toml`로 설치하고 Python 3.11을 유지. 3.15는 slim 이미지에서 `tiktoken`을 빌드할 수 없고, 손으로 관리하던 의존성 목록에 `alembic`이 빠져 있었습니다.
+- 승인이 실제로 실행을 멈출 수 있습니다: `POST /scenarios/{id}/run?pause_on_gate=true`는 게이트에서 대기하고(`waiting_approval`), 승인하면 다음 단계부터 이어 가며 반려하면 취소됩니다. 기본 동작은 그대로입니다.
+- 복구: 프로세스가 죽은 실행은 `interrupted`로 표시되고 `POST /runs/{id}/resume`으로 이어 갑니다. 끝난 단계는 재사용하고, 임대(lease)가 실행을 한 프로세스에만 주며, 재시도해도 같은 메시지·KPI가 두 번 쓰이지 않습니다.
 - Postgres 정식 지원: `ma-pmo[postgres]`로 LangGraph 체크포인트를 같은 DB에 저장해 재시작 후에도 유지하고, 복제본이 동시에 시작해도 마이그레이션이 잠금으로 순서를 지키며, CI에서 전체 테스트를 Postgres 16으로 실행합니다.
 - CI가 API 이미지를 빌드하고 `/health`를 확인합니다.
 - 실행 기록: 시나리오와 오케스트레이션 실행이 에이전트 단계와 함께 저장되고(`GET /runs`, `GET /runs/{id}`, 응답의 `run_id`), 메시지·승인·KPI가 해당 실행에 연결됩니다. 기존 동작은 바뀌지 않습니다.

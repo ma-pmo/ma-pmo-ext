@@ -111,6 +111,10 @@ class Run(Base):
     thread_id: Mapped[str | None] = mapped_column(String, nullable=True)  # LangGraph thread
     trace_id: Mapped[str | None] = mapped_column(String, nullable=True)  # OpenTelemetry
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    state: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # what a resume needs
+    result: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # final trace
+    lease_owner: Mapped[str | None] = mapped_column(String, nullable=True)
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
@@ -127,6 +131,7 @@ class RunStep(Base):
     status: Mapped[str] = mapped_column(String, default="running")
     attempts: Mapped[int] = mapped_column(Integer, default=1)
     output_schemas: Mapped[list] = mapped_column(JSON, default=list)
+    result: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # reused on resume
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
@@ -148,6 +153,8 @@ class AgentMessageRow(Base):
     run_id: Mapped[str | None] = mapped_column(
         ForeignKey("run.id", name="fk_agent_message_run_id"), nullable=True, index=True
     )
+    # set inside a run step: a retried step cannot write the same row twice
+    dedupe_key: Mapped[str | None] = mapped_column(String, nullable=True, unique=True, index=True)
 
 
 class Approval(Base):
@@ -155,7 +162,8 @@ class Approval(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     message_id: Mapped[str] = mapped_column(ForeignKey("agent_message.message_id"))
     approver: Mapped[str | None] = mapped_column(String, nullable=True)
-    decision: Mapped[str] = mapped_column(String, default="pending")  # pending|approve|reject
+    # pending | approve | reject | cancelled (its run ended first)
+    decision: Mapped[str] = mapped_column(String, default="pending")
     decided_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     run_id: Mapped[str | None] = mapped_column(
         ForeignKey("run.id", name="fk_approval_run_id"), nullable=True, index=True
@@ -193,3 +201,5 @@ class KpiEvent(Base):
     run_id: Mapped[str | None] = mapped_column(
         ForeignKey("run.id", name="fk_kpi_event_run_id"), nullable=True, index=True
     )
+    # set inside a run step: a retried step cannot write the same row twice
+    dedupe_key: Mapped[str | None] = mapped_column(String, nullable=True, unique=True, index=True)

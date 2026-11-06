@@ -72,8 +72,10 @@ kubectl -n ma-pmo get pods,svc,ingress
 접속: `/etc/hosts` 에 `<ingress-ip> mapmo.local api.mapmo.local` 추가 후 http://mapmo.local
 
 ### 주의 사항
-- **API 레플리카**: `DB_URL`이 Postgres면 체크포인트도 Postgres에 저장되고 마이그레이션도 잠금으로 보호되지만,
-  아직 단계 임대(lease)가 없어 재개된 실행이 두 복제본에서 돌 수 있으니 당분간 1 레플리카를 유지하세요. SQLite는 항상 1 레플리카입니다.
+- **API 레플리카**: `DB_URL`이 Postgres면 `replicas`를 늘릴 수 있습니다. 체크포인트가 Postgres에 있고, 마이그레이션은 잠금으로
+  보호되며, 임대(lease)가 실행 하나를 한 프로세스에만 줍니다. SQLite는 항상 1 레플리카입니다.
+- **멈춘 실행**: 프로세스가 죽은 실행은 다음 API 시작 때 `interrupted`로 표시되고, 임대(`MA_PMO_RUN_LEASE_SEC`, 기본 300초)가 끝나면
+  `POST /runs/{id}/resume`으로 이어 갈 수 있습니다. 끝난 단계는 재사용하고 메시지·KPI는 두 번 쓰이지 않지만, 재시도된 A4·A5 단계는 리스크·보고서 행을 하나 더 만들 수 있습니다.
 - **NEXT_PUBLIC_API_BASE**: 빌드 시 인라인. 브라우저가 도달 가능한 API 주소로 web 이미지를 빌드할 것.
 - **Ollama 리소스**: llama3.1:8b 는 ~8GB 메모리 필요. GPU 노드 권장. 외부 Ollama 사용 시 `30-ollama.yaml` 생략하고 ConfigMap 의 `LLM_API_BASE` 만 변경.
 - **Secret**: Anthropic 사용 시 `ma-pmo-secrets.ANTHROPIC_API_KEY` 채우고 ConfigMap 의 LLM_MODEL/LLM_API_BASE 조정.

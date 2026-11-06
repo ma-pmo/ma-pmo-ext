@@ -16,7 +16,7 @@ metadata:
   namespace: ma-pmo
   labels: { app: ma-pmo-api }
 spec:
-  replicas: 1  # keep one until runs have step leases (see deploy/README.md)
+  replicas: 1  # may be raised with Postgres; SQLite needs one (see deploy/README.md)
   selector:
     matchLabels: { app: ma-pmo-api }
   template:

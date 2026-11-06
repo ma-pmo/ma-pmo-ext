@@ -38,6 +38,9 @@ class Settings(BaseSettings):
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )
 
+    # a run not heard from for this long may be resumed elsewhere (renewed at each step)
+    run_lease_sec: int = Field(default=300, alias="MA_PMO_RUN_LEASE_SEC")
+
     # API
     api_host: str = Field(default="0.0.0.0", alias="API_HOST")
     api_port: int = Field(default=8000, alias="API_PORT")

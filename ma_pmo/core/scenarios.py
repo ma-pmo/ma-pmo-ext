@@ -369,37 +369,57 @@ def run_scenario(
     scenario_id: str,
     scope: str = "PORTFOLIO#2026-Q1",
     drop_agents: tuple[str, ...] = (),
+    *,
+    pause_on_gate: bool = False,
 ) -> dict:
     """Run a scenario in four phases (plan -> execute -> complete -> insight); return the trace.
 
     drop_agents: agents to skip during the execute phase (for ablation experiments).
+    pause_on_gate: stop after a step that queued an approval. The trace then has
+    status "waiting_approval"; approving continues the run, rejecting cancels it (core/hitl.py).
     One trace per run when tracing is on (see core/tracing.py); every run is recorded
     (see core/runs.py) and its id is returned as `run_id`.
     """
+    state = {"drop_agents": list(drop_agents), "pause_on_gate": pause_on_gate}
     with tracing.span(f"invoke_workflow {scenario_id}", {
         tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: scenario_id,
         tracing.SCOPE: scope, "ma_pmo.dropped_agents": list(drop_agents),
-    }), runs.track("scenario", scenario_id, scope) as run_id:
-        return {**_run_scenario(scenario_id, scope, drop_agents), "run_id": run_id}
+    }), runs.track("scenario", scenario_id, scope, state=state) as run_id:
+        return _execute(run_id, scenario_id, scope)
 
 
-def _run_scenario(scenario_id: str, scope: str, drop_agents: tuple[str, ...]) -> dict:
+def resume_scenario(run_id: str) -> dict:
+    """Continue a paused or interrupted run: finished steps are reused, the rest run now.
+
+    Raises KeyError for an unknown run and runs.NotResumable if it cannot continue.
+    """
+    run = runs.claim(run_id)
+    with tracing.span(f"invoke_workflow {run['workflow']}", {
+        tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: run["workflow"],
+        tracing.SCOPE: run["scope"], "ma_pmo.resumed": True,
+    }), runs.attach(run_id):
+        return _execute(run_id, run["workflow"], run["scope"])
+
+
+def _execute(run_id: str, scenario_id: str, scope: str) -> dict:
     if scenario_id not in SCENARIOS:
         raise KeyError(f"unknown scenario: {scenario_id}")
     scen = SCENARIOS[scenario_id]
+    saved = runs.get_state(run_id)
+    drop_agents = saved.get("drop_agents", [])
     steps = [(a, p) for a, p in scen["steps"] if a not in drop_agents]
     title, goal = tr(*scen["title"]), tr(*scen["goal"])
-    before = _kpi_snapshot()
-    # baseline to pick out only the messages published during this run
-    with get_session() as s:
-        seen_msg_ids = {m for (m,) in s.execute(select(AgentMessageRow.message_id)).all()}
+    before = saved.get("kpi_before") or runs.update_state(
+        run_id, kpi_before=_kpi_snapshot())["kpi_before"]
+    finished = runs.finished_steps(run_id)
     phases: list[dict] = []
     _log.info(
         "scenario_start",
         scenario=scenario_id,
         scope=scope,
         agents=[a for a, _ in steps],
-        dropped=list(drop_agents),
+        dropped=drop_agents,
+        resumed=bool(finished),
     )
 
     # ① plan (A1 delegation plan)
@@ -417,9 +437,26 @@ def _run_scenario(scenario_id: str, scope: str, drop_agents: tuple[str, ...]) ->
         }
     )
 
+    def trace(status: str) -> dict:
+        return {
+            "scenario_id": scenario_id,
+            "title": title,
+            "hypotheses": scen["hypotheses"],
+            "scope": scope,
+            "phases": phases,
+            # structured messages exchanged during the run (§4 audit trail) — the "behavior" log
+            "communications": _run_messages(run_id),
+            "run_id": run_id,
+            "status": status,
+        }
+
     # ② execute (workers in sequence)
     all_outputs: list[dict] = []
-    for agent_id, params in steps:
+    for seq, (agent_id, params) in enumerate(steps, start=1):
+        if seq in finished:  # resumed run: this step already ran
+            all_outputs.extend(finished[seq].get("outputs", []))
+            phases.append(finished[seq]["phase"])
+            continue
         agent = WORKERS[agent_id]
         state = cast(PortfolioState, {"task_ref": scope, "goal": goal, **params})
         _log.info("execute_start", agent=agent_id, function=_fn(agent_id))
@@ -427,22 +464,14 @@ def _run_scenario(scenario_id: str, scope: str, drop_agents: tuple[str, ...]) ->
         with tracing.span(f"invoke_agent {agent_id}", {
             tracing.OPERATION: "invoke_agent", tracing.AGENT_ID: agent_id,
             tracing.AGENT_NAME: _fn(agent_id), tracing.SCENARIO: scenario_id,
-        }), runs.step(agent_id) as step:
+        }), runs.step(agent_id, seq) as step:
             result = agent.run(state)
             outs = result.get("outputs", [])
             schemas = [o.get("schema") for o in outs]
             tracing.set_attributes({tracing.OUTPUT_SCHEMAS: schemas})
             step.output_schemas = schemas
-        elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
-        all_outputs.extend(outs)
-        _log.info(
-            "execute_done",
-            agent=agent_id,
-            elapsed_ms=elapsed_ms,
-            outputs=[o.get("schema") for o in outs],
-        )
-        phases.append(
-            {
+            elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
+            phase = {
                 "phase": "execute",
                 "agent": agent_id,
                 "function": _fn(agent_id),
@@ -458,7 +487,19 @@ def _run_scenario(scenario_id: str, scope: str, drop_agents: tuple[str, ...]) ->
                     for o in outs
                 ],
             }
+            step.result = {"outputs": outs, "phase": phase}
+        all_outputs.extend(outs)
+        _log.info(
+            "execute_done",
+            agent=agent_id,
+            elapsed_ms=elapsed_ms,
+            outputs=[o.get("schema") for o in outs],
         )
+        phases.append(phase)
+        if saved.get("pause_on_gate") and runs.pending_approvals(run_id):
+            runs.mark_waiting(run_id)
+            _log.info("scenario_waiting", scenario=scenario_id, after=agent_id)
+            return {**trace(runs.WAITING), "pending_approvals": runs.pending_approvals(run_id)}
 
     # ③ complete (A1 synthesis)
     summary = deterministic_synthesis(goal, all_outputs)
@@ -487,18 +528,10 @@ def _run_scenario(scenario_id: str, scope: str, drop_agents: tuple[str, ...]) ->
         }
     )
 
-    # structured messages exchanged during the run (§4 audit trail) — the "behavior" log
-    communications = _new_messages(seen_msg_ids)
-    _log.info("scenario_done", scenario=scenario_id, messages=len(communications))
-
-    return {
-        "scenario_id": scenario_id,
-        "title": title,
-        "hypotheses": scen["hypotheses"],
-        "scope": scope,
-        "phases": phases,
-        "communications": communications,
-    }
+    final = trace(runs.SUCCEEDED)
+    _log.info("scenario_done", scenario=scenario_id, messages=len(final["communications"]))
+    runs.save_result(run_id, final)
+    return final
 
 
 _HYPO_LABEL: dict[str, tuple[str, str]] = {
@@ -596,11 +629,12 @@ def to_paper_markdown(trace: dict) -> str:
     return "\n".join(lines)
 
 
-def _new_messages(seen_ids: set[str]) -> list[dict]:
-    """agent_message rows (append-only) published since the baseline."""
+def _run_messages(run_id: str) -> list[dict]:
+    """agent_message rows (append-only) published by this run."""
     with get_session() as s:
         rows = s.scalars(
-            select(AgentMessageRow).order_by(AgentMessageRow.timestamp)
+            select(AgentMessageRow).where(AgentMessageRow.run_id == run_id)
+            .order_by(AgentMessageRow.timestamp)
         ).all()
         return [
             {
@@ -615,5 +649,4 @@ def _new_messages(seen_ids: set[str]) -> list[dict]:
                 "timestamp": r.timestamp.isoformat() if r.timestamp else None,
             }
             for r in rows
-            if r.message_id not in seen_ids
         ]

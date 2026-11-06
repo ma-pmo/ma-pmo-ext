@@ -5,10 +5,14 @@ dashboard consumes this API. Responses follow `?lang=en|ko` or `Accept-Language`
 """
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import SQLAlchemyError
 
-from ma_pmo.core.obs import configure_logging
+from ma_pmo.core.obs import configure_logging, get_logger
 from ma_pmo.core.tracing import configure_tracing
 
 configure_logging()
@@ -36,12 +40,26 @@ from ma_pmo.api.routers import (  # noqa: E402
     webhooks,
 )
 from ma_pmo.core import protocol  # noqa: E402
+from ma_pmo.core import runs as runs_core  # noqa: E402
 from ma_pmo.core.config import get_settings  # noqa: E402
 from ma_pmo.core.i18n import from_accept_language, normalize, tr, use_lang  # noqa: E402
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload  # noqa: E402
 from ma_pmo.integrations.registry import get_tracker  # noqa: E402
 
-app = FastAPI(title="MA-PMO API", version=__version__)
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    """On startup, surface runs a stopped process left behind (see core/runs.py)."""
+    try:
+        recovered = runs_core.recover_interrupted()
+        if recovered:
+            get_logger("api").warning("runs_interrupted", runs=recovered)
+    except SQLAlchemyError as e:  # schema not created yet: `ma-pmo init-db`
+        get_logger("api").warning("run_recovery_skipped", error=str(e)[:200])
+    yield
+
+
+app = FastAPI(title="MA-PMO API", version=__version__, lifespan=lifespan)
 
 # Added first so it runs inside the language and CORS middleware: auth errors are translated
 # and still carry CORS headers. Misconfigured auth fails here, at startup, not per request.

@@ -71,7 +71,8 @@ kubectl -n ma-pmo get pods,svc,ingress
 Access: add `<ingress-ip> mapmo.local api.mapmo.local` to `/etc/hosts`, then open http://mapmo.local
 
 ### Notes
-- **API replicas**: with a Postgres `DB_URL`, checkpoints live in Postgres and migrations are locked, but keep one replica for now: runs have no step lease yet, so a resumed run could execute on two replicas. With SQLite, always use one replica.
+- **API replicas**: with a Postgres `DB_URL` you can raise `replicas`: checkpoints live in Postgres, migrations are locked, and a lease gives each run to one process. With SQLite, always use one replica.
+- **Stopped runs**: a run whose process died shows as `interrupted` at the next API start, or can be resumed once its lease (`MA_PMO_RUN_LEASE_SEC`, default 300) has expired: `POST /runs/{id}/resume`. Finished steps are reused; messages and KPIs are not written twice, but a retried A4 or A5 step can add a second risk or report row.
 - **NEXT_PUBLIC_API_BASE**: inlined at build time. Build the web image with an API URL the browser can reach.
 - **Ollama resources**: llama3.1:8b needs ~8 GB of memory; GPU nodes recommended. For an external Ollama, skip `30-ollama.yaml` and change only `LLM_API_BASE` in the ConfigMap.
 - **Secret**: for Anthropic, fill `ma-pmo-secrets.ANTHROPIC_API_KEY` and adjust `LLM_MODEL`/`LLM_API_BASE` in the ConfigMap.

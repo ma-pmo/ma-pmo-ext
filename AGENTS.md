@@ -41,6 +41,7 @@ tests must not depend on network access or an LLM.
    it, call `tracing.mark_fallback(...)`, and fall back; never swallow errors from our own code.
 3. **High-risk or low-confidence decisions go through HITL** (`human_gate_required`, or
    confidence below `HITL_CONFIDENCE_THRESHOLD`). Do not add a path that skips `protocol.publish`.
+   Writes in a run step need a `runs.dedupe_key(...)`, so a retried step cannot repeat them.
 4. **New endpoints are covered by the auth policy.** `required_role()` in
    `ma_pmo/api/auth.py` maps method and path to a role; add a rule there if a new `POST` needs
    more than `operator`, and add a case to `tests/test_auth.py`. Take the caller with
