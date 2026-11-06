@@ -80,6 +80,12 @@ kubectl -n ma-pmo get pods,svc,ingress
 
 ---
 
+## 업그레이드
+
+데이터베이스를 백업하고 새 버전을 설치한 뒤 `ma-pmo db upgrade`를 실행합니다(`ma-pmo db status`로
+현재·최신 버전 확인). 컨테이너 entrypoint는 시작할 때 자동으로 실행합니다. 0.4 이하 데이터베이스는
+데이터를 유지한 채 이어받습니다. API 복제본이 여러 개면 배포 전에 업그레이드를 한 번만 실행하세요.
+
 ## 헬스체크 / 스모크
 
 ```bash

@@ -2,6 +2,8 @@
 
 Examples:
     ma-pmo init-db                          # create SQLite schema + load demo fixtures
+    ma-pmo db upgrade                       # bring the database to the latest schema
+    ma-pmo db status                        # current and latest schema revision
     ma-pmo serve --port 8000                # start the FastAPI server
     ma-pmo eval                             # run the H1–H5 evaluation on the demo data
     ma-pmo eval --retrieval                 # A7 retrieval quality: lexical vs. vector search
@@ -96,6 +98,19 @@ def _cmd_template(ns: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_db(action: str) -> int:
+    from ma_pmo.core.i18n import tr
+    from ma_pmo.db import migrate
+
+    if action == "upgrade":
+        print(tr(f"✓ schema at {migrate.upgrade()}", f"✓ 스키마 버전: {migrate.upgrade()}"))
+        return 0
+    now, latest = migrate.current(), migrate.head()
+    print(tr(f"current: {now or 'none'} · latest: {latest}",
+             f"현재: {now or '없음'} · 최신: {latest}"))
+    return 0 if now == latest else 1
+
+
 def _cmd_retrieval() -> int:
     from ma_pmo.connectors.vectordb import LiteLLMEmbedder, Retriever, VectorStore
     from ma_pmo.core.config import get_settings
@@ -132,6 +147,9 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("init-db", help="create the schema and load demo fixtures")
+
+    db = sub.add_parser("db", help="database schema: upgrade | status")
+    db.add_argument("action", choices=["upgrade", "status"])
 
     serve = sub.add_parser("serve", help="start the FastAPI server")
     serve.add_argument("--host", default="127.0.0.1")
@@ -176,6 +194,8 @@ def main(argv: list[str] | None = None) -> int:
         from ma_pmo.db.init import main as init_main
 
         init_main()
+    elif ns.command == "db":
+        return _cmd_db(ns.action)
     elif ns.command == "serve":
         import uvicorn
 

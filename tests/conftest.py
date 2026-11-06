@@ -16,12 +16,12 @@ os.environ.setdefault("ANTHROPIC_API_KEY", "test-key")
 import pytest  # noqa: E402
 
 from ma_pmo.db.init import load_fixtures, load_lessons  # noqa: E402
-from ma_pmo.db.session import create_all  # noqa: E402
+from ma_pmo.db.session import ensure_schema  # noqa: E402
 
 
 @pytest.fixture(scope="session", autouse=True)
 def _db():
-    create_all()
+    ensure_schema()
     load_fixtures()
     load_lessons()
     yield

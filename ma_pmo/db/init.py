@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from ma_pmo.db.models import KnowledgeDoc, Portfolio, Project, Resource, Task
-from ma_pmo.db.session import create_all, get_session
+from ma_pmo.db.session import ensure_schema, get_session
 
 _FIX_DIR = Path(__file__).resolve().parent.parent / "fixtures"
 FIXTURE = _FIX_DIR / "sample_portfolio.json"
@@ -62,7 +62,7 @@ def load_lessons() -> None:
 
 
 def main() -> None:
-    create_all()
+    ensure_schema()
     load_fixtures()
     load_lessons()
     print(f"✓ schema created + fixtures loaded ({FIXTURE.name}, {LESSONS.name})")

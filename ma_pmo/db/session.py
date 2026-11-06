@@ -8,7 +8,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from ma_pmo.core.config import get_settings
-from ma_pmo.db.models import Base
 
 _settings = get_settings()
 
@@ -20,8 +19,11 @@ engine = create_engine(_settings.db_url, connect_args=_connect_args, future=True
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False, class_=Session)
 
 
-def create_all() -> None:
-    Base.metadata.create_all(engine)
+def ensure_schema() -> None:
+    """Create or upgrade the schema through migrations, the only path that changes it."""
+    from ma_pmo.db.migrate import upgrade
+
+    upgrade(engine)
 
 
 @contextmanager

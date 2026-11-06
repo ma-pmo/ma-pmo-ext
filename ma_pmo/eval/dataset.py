@@ -334,9 +334,9 @@ def load_dataset(data_dir: str | Path) -> tuple[Dataset, list[Issue]]:
 def import_dataset(ds: Dataset) -> None:
     """Write a validated dataset into the current database (merge by id)."""
     from ma_pmo.db.models import Portfolio, Project, Resource, Task
-    from ma_pmo.db.session import create_all, get_session
+    from ma_pmo.db.session import ensure_schema, get_session
 
-    create_all()
+    ensure_schema()
     with get_session() as s:
         p = ds.portfolio
         s.merge(Portfolio(id=p["id"], name=p["name"], period=p["period"]))
