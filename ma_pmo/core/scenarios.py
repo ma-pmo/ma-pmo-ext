@@ -16,9 +16,10 @@ from typing import cast
 
 from sqlalchemy import select
 
+from ma_pmo.agents import registry
 from ma_pmo.agents.orchestrator_rules import deterministic_synthesis
+from ma_pmo.agents.registry import WORKERS
 from ma_pmo.core import runs, tracing
-from ma_pmo.core.graph import WORKERS
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -329,19 +330,7 @@ CATEGORIES: dict[str, tuple[str, str]] = {
 }
 
 # agent ID -> PMO function label (display)
-_AGENT_FN: dict[str, tuple[str, str]] = {
-    "A2": ("Planning", "계획"),
-    "A3": ("Resources", "자원"),
-    "A4": ("Risk", "리스크"),
-    "A5": ("Reporting", "보고"),
-    "A6": ("Governance", "거버넌스"),
-    "A7": ("Knowledge", "지식"),
-}
-
-
-def _fn(agent_id: str) -> str:
-    pair = _AGENT_FN.get(agent_id)
-    return tr(*pair) if pair else agent_id
+_fn = registry.title
 
 
 def list_scenarios() -> list[dict]:

@@ -9,37 +9,36 @@ import json
 
 import structlog
 
+from ma_pmo.agents import registry
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.orchestrator_rules import deterministic_synthesis, keyword_route
 from ma_pmo.core import llm, tracing
 from ma_pmo.core.i18n import tr
-from ma_pmo.core.schemas.payloads.routing_v1 import WORKER_AGENTS, RoutingV1
+from ma_pmo.core.schemas.payloads.routing_v1 import RoutingV1
 from ma_pmo.core.state.blackboard import PortfolioState
 
 _log = structlog.get_logger()
 
-_ROLE = f"""You are the PMO orchestrator (supervisor). Given the user's goal, decide which
-specialist workers to delegate what to. Available workers:
-- A2 Planning (schedule/CPM), A3 Resources (allocation/load), A4 Risk (early detection),
-- A5 Reporting (executive reports/Q&A), A6 Governance (gates/quality), A7 Knowledge (RAG)
+def _role_prompt() -> str:
+    specs = registry.specs()
+    workers = "\n".join(f"- {spec.id} {spec.capability}" for spec in specs.values())
+    return f"""You are the PMO orchestrator (supervisor). Given the user's goal, decide which
+specialist workers to delegate what to. Available workers, with what each one is for:
+{workers}
 
-Select only the minimum set of workers the goal needs. All of A2–A7 are operational.
+Select only the minimum set of workers the goal needs. All listed workers are operational.
 The goal may be written in English or Korean.
-- report / status / executive summary -> A5
-- risk / early warning / delay check -> A4
-- schedule / critical path / CPM -> A2
-- resource / allocation / staffing / load / idle -> A3
-- gate / quality / governance / methodology compliance -> A6
-- knowledge / lessons learned / similar cases / estimate evidence -> A7
-- composite goals delegate to every worker needed (e.g. "executive report incl. risks" -> A4, A5)
-Allowed workers: {sorted(WORKER_AGENTS)}"""
+Composite goals delegate to every worker needed (e.g. "executive report incl. risks" -> A4, A5).
+Allowed workers: {sorted(specs)}"""
 
 
 class OrchestratorAgent(BaseAgent[RoutingV1]):
     agent_id = "A1"
     function = "Portfolio governance (orchestration)"
-    role_prompt = _ROLE
     output_schema = RoutingV1
+
+    def __init__(self) -> None:
+        self.role_prompt = _role_prompt()
 
     def route(self, state: PortfolioState) -> dict:
         """Decompose the goal into a routing decision; rule-based fallback if the LLM fails."""
@@ -56,7 +55,7 @@ class OrchestratorAgent(BaseAgent[RoutingV1]):
             decision = keyword_route(goal)
             mode = "rule"
         # keep only valid workers (guards against hallucinated routing)
-        decision.delegations = [d for d in decision.delegations if d.agent in WORKER_AGENTS]
+        decision.delegations = [d for d in decision.delegations if d.agent in registry.specs()]
         if not decision.delegations:  # backfill with rules if the LLM returned no delegations
             decision = keyword_route(goal)
             mode = "rule"
