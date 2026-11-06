@@ -94,6 +94,10 @@ MA_PMO_RETRIEVER=vector             # A7 vector search (offline, or MA_PMO_EMBED
 
 `GET /integrations` shows what is active; `POST /integrations/slack/test` sends a test message. Setup, event list and how to write your own plugin: [docs/INTEGRATIONS.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/INTEGRATIONS.md).
 
+### Add your own agent (plugins)
+
+A worker agent can live in its own package: declare an `AgentSpec`, register it under the `ma_pmo.agents` entry point, and the orchestrator routes to it, with the same audit log and approval gate as built-in agents. `ma-pmo agents` lists what is installed. Guide: [docs/PLUGINS.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/PLUGINS.md), example: [examples/agent-plugin](https://github.com/ma-pmo/ma-pmo-ext/tree/main/examples/agent-plugin).
+
 ### MCP server (AI assistants)
 
 ```bash
@@ -239,7 +243,8 @@ See [docs/PAPER_VALIDATION_GUIDE.md](https://github.com/ma-pmo/ma-pmo-ext/blob/m
 
 ```
 ma_pmo/            Python package (published to PyPI)
-  agents/          A1–A7
+  agents/          A1–A7 and the agent registry
+  sdk/             public SDK for agent plugins
   api/             FastAPI app and routers
   core/            schemas, protocol, KPIs, HITL, graph, i18n, scenarios
   connectors/      issue tracker (mock), resource calendars (.ics), knowledge store

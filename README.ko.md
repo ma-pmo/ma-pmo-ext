@@ -94,6 +94,10 @@ MA_PMO_RETRIEVER=vector             # A7 벡터 검색 (오프라인, 또는 MA_
 
 `GET /integrations`로 켜진 연동을 확인하고, `POST /integrations/slack/test`로 테스트 메시지를 보낼 수 있습니다. 설정 방법·이벤트 목록·직접 만드는 법은 [docs/INTEGRATIONS.ko.md](docs/INTEGRATIONS.ko.md)를 참고하세요.
 
+### 나만의 에이전트 추가 (플러그인)
+
+작업자 에이전트를 별도 패키지로 만들 수 있습니다. `AgentSpec`을 선언하고 `ma_pmo.agents` entry point에 등록하면 오케스트레이터가 라우팅하고, 기본 에이전트와 같은 감사 로그와 승인 게이트를 거칩니다. 설치된 목록은 `ma-pmo agents`로 봅니다. 안내: [docs/PLUGINS.ko.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/PLUGINS.ko.md), 예제: [examples/agent-plugin](https://github.com/ma-pmo/ma-pmo-ext/tree/main/examples/agent-plugin)
+
 ### MCP 서버 (AI 어시스턴트 연결)
 
 ```bash
@@ -241,7 +245,8 @@ Platform       LLM 게이트웨이(LiteLLM: Anthropic/Ollama) · 로컬 RAG · �
 
 ```
 ma_pmo/            Python 패키지 (PyPI 배포)
-  agents/          A1~A7
+  agents/          A1~A7, 에이전트 레지스트리
+  sdk/             에이전트 플러그인용 공개 SDK
   api/             FastAPI 앱·라우터
   core/            스키마·프로토콜·KPI·HITL·그래프·i18n·시나리오
   connectors/      이슈트래커(mock)·자원 캘린더(.ics)·지식 스토어

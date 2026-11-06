@@ -14,6 +14,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - The API image installs from `pyproject.toml` and stays on Python 3.11: 3.15 cannot build `tiktoken` in a slim image, and the hand-kept dependency list had missed `alembic`.
 
 ### Added
+- Agent plugins ([docs/PLUGINS.md](docs/PLUGINS.md)): packages add worker agents through the `ma_pmo.agents` entry-point group, build on the stable `ma_pmo.sdk`, and check themselves with `assert_agent_contract`. `ma-pmo agents` and `GET /agents` list them; a plugin that cannot load is reported and skipped. Example package in `examples/agent-plugin`.
 - Approvals can really stop a run: `POST /scenarios/{id}/run?pause_on_gate=true` waits at a gate (`waiting_approval`); approving resumes from the next step, rejecting cancels the run. The default is unchanged.
 - Recovery: a run whose process died is marked `interrupted` and continues with `POST /runs/{id}/resume`. Finished steps are reused, a lease gives each run to one process, and retried steps cannot write the same message or KPI twice.
 - Postgres is a first-class backend: `ma-pmo[postgres]` keeps LangGraph checkpoints in the same database, so they survive restarts; migrations take an advisory lock when replicas start together; the full test suite runs on Postgres 16 in CI.
@@ -110,6 +111,7 @@ First public release.
 
 ### [Unreleased]
 
+- 에이전트 플러그인([docs/PLUGINS.ko.md](docs/PLUGINS.ko.md)): 외부 패키지가 `ma_pmo.agents` entry point로 에이전트를 추가하고, 안정 API `ma_pmo.sdk` 위에 만들며, `assert_agent_contract`로 스스로 검사합니다. `ma-pmo agents`, `GET /agents`로 확인하고, 불러오지 못한 플러그인은 알리고 건너뜁니다. 예제 패키지는 `examples/agent-plugin`.
 - 작업자 에이전트를 `ma_pmo/agents/registry.py`(`AgentSpec`) 한 곳에 선언. 라우팅, 그래프, 시나리오, 오케스트레이터 프롬프트가 여기서 읽고, 에이전트는 처음 쓸 때 만들어집니다.
 - 수정: Postgres 세션을 UTC로 고정. 서버 시간대가 다르면 모든 시각이 밀렸습니다(Asia/Seoul에서 9시간). 승인 지연 측정이 왜곡되던 문제입니다.
 - 수정: API 이미지를 `pyproject.toml`로 설치하고 Python 3.11을 유지. 3.15는 slim 이미지에서 `tiktoken`을 빌드할 수 없고, 손으로 관리하던 의존성 목록에 `alembic`이 빠져 있었습니다.

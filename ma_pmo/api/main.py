@@ -19,6 +19,7 @@ configure_logging()
 configure_tracing()
 
 from ma_pmo import __version__  # noqa: E402
+from ma_pmo.agents import registry as agent_registry  # noqa: E402
 from ma_pmo.api.auth import (  # noqa: E402
     ANONYMOUS,
     AuthMiddleware,
@@ -101,6 +102,19 @@ app.include_router(integrations.router)
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/agents")
+def list_agents() -> dict:
+    """Worker agents, including installed plugins, and plugins that failed to load."""
+    return {
+        "agents": [
+            {"id": s.id, "name": s.title, "version": s.version, "source": s.source,
+             "capability": s.capability, "output_schema": s.output_schema}
+            for s in agent_registry.specs().values()
+        ],
+        "problems": agent_registry.problems(),
+    }
 
 
 @app.get("/system")

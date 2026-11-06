@@ -27,6 +27,7 @@ tests must not depend on network access or an LLM.
 | `ma_pmo/eval/`, `ma_pmo/harness/` | H1–H5 evaluation, data/report templates, experiment harness |
 | `ma_pmo/learn/` | course labs: starters, solutions, checks (`ma-pmo learn`) |
 | `ma_pmo/api/` | FastAPI app, routers and auth (`auth.py`) |
+| `ma_pmo/agents/registry.py`, `ma_pmo/sdk/` | worker specs and plugin loading; the SDK is the only public, semver-stable surface for plugins |
 | `ma_pmo/mcp_server.py` | MCP server (`ma-pmo mcp`); approvals are never a tool |
 | `apps/web/` | Next.js admin dashboard |
 | `docs/` | integration guide, paper validation guide, course (`docs/learn/`), screenshots |
