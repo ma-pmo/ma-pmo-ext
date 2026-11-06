@@ -51,6 +51,28 @@ ma-pmo agents        # id, 이름, 버전, 출처. 불러오지 못한 플러그
 
 `GET /agents`도 같은 목록을 보여 줍니다.
 
+## 워크플로에서 쓰기
+
+워크플로는 JSON입니다. `MA_PMO_WORKFLOWS_DIR` 폴더(기본 `./workflows`)에 파일을 두면 기본 시나리오처럼
+`POST /scenarios/budget_review/run`으로 실행됩니다.
+
+```json
+{
+  "id": "budget_review",
+  "title": {"en": "Budget review", "ko": "예산 점검"},
+  "goal": {"en": "Review the cost of remaining work", "ko": "남은 작업 비용 점검"},
+  "description": {"en": "Estimate remaining cost, then report.", "ko": "남은 비용을 추정하고 보고한다."},
+  "steps": [
+    {"id": "budget", "agent": "acme.budget"},
+    {"id": "report", "agent": "A5"}
+  ]
+}
+```
+
+단계는 `needs`가 없으면 바로 앞 단계를 따르고, `params`를 줄 수 있습니다. 파일은 시작할 때 읽습니다. 형식이
+틀리거나, 없는 에이전트를 쓰거나, 이미 있는 id면 `GET /agents`의 `workflow_problems`에 나오고 그 파일은
+건너뜁니다.
+
 ## 규칙
 
 | 규칙 | 이유 |

@@ -44,6 +44,7 @@ from ma_pmo.core import protocol  # noqa: E402
 from ma_pmo.core import runs as runs_core  # noqa: E402
 from ma_pmo.core.config import get_settings  # noqa: E402
 from ma_pmo.core.i18n import from_accept_language, normalize, tr, use_lang  # noqa: E402
+from ma_pmo.core.scenarios import workflow_problems  # noqa: E402
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload  # noqa: E402
 from ma_pmo.integrations.registry import get_tracker  # noqa: E402
 
@@ -114,6 +115,7 @@ def list_agents() -> dict:
             for s in agent_registry.specs().values()
         ],
         "problems": agent_registry.problems(),
+        "workflow_problems": workflow_problems,
     }
 
 

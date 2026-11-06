@@ -1,0 +1,10 @@
+{
+  "id": "budget_review",
+  "title": {"en": "Budget review", "ko": "예산 점검"},
+  "goal": {"en": "Review the cost of remaining work", "ko": "남은 작업 비용 점검"},
+  "description": {"en": "Estimate remaining cost, then report.", "ko": "남은 비용을 추정하고 보고한다."},
+  "steps": [
+    {"id": "budget", "agent": "acme.budget"},
+    {"id": "report", "agent": "A5"}
+  ]
+}

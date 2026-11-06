@@ -38,6 +38,9 @@ class Settings(BaseSettings):
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )
 
+    # folder with your own workflows, one JSON file each (see core/workflow.py)
+    workflows_dir: str = Field(default="workflows", alias="MA_PMO_WORKFLOWS_DIR")
+
     # a run not heard from for this long may be resumed elsewhere (renewed at each step)
     run_lease_sec: int = Field(default=300, alias="MA_PMO_RUN_LEASE_SEC")
 

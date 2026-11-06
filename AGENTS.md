@@ -57,16 +57,18 @@ tests must not depend on network access or an LLM.
 7. **Schema changes need a migration** in `ma_pmo/db/migrations/versions/`.
    `tests/test_migrations.py` fails when models and migrations differ. Never call
    `Base.metadata.create_all`; use `ensure_schema()`.
-8. **Tests with every change.** New behavior gets a test; mark end-to-end checks `smoke`. If a
+8. **Workflows are data.** Edit `ma_pmo/fixtures/workflows.json`, not Python.
+   `tests/golden/` pins what every scenario does; regenerate it only for an intended change.
+9. **Tests with every change.** New behavior gets a test; mark end-to-end checks `smoke`. If a
    pinned result in `tests/test_regression.py` changes on purpose, update it in the same change
    and say why.
-9. **Evaluation data stays isolated.** `--data` evaluations use their own SQLite file
+10. **Evaluation data stays isolated.** `--data` evaluations use their own SQLite file
    (`eval/workflow.use_isolated_db`); lab 3 does the same. Do not write into the demo database
    from tools or tests that process user data.
-10. **Course labs** live in `ma_pmo/learn/labs/labN_slug/` with `starter/`, `solution/`,
+11. **Course labs** live in `ma_pmo/learn/labs/labN_slug/` with `starter/`, `solution/`,
    `README.md`, `README.ko.md`, and checks in `ma_pmo/learn/checks.py`. Every failed check needs
    a hint. `tests/test_learn.py` must show the solution passes and the starter fails.
-11. **Style.** ruff (line length 100) and mypy must pass. Match the surrounding code; keep
+12. **Style.** ruff (line length 100) and mypy must pass. Match the surrounding code; keep
    comments short and about *why*.
 
 ## Do not

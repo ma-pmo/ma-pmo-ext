@@ -1,0 +1,6390 @@
+{
+ "en/baseline_planning": {
+  "hypotheses": [
+   "H2",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Set the project baseline (schedule, resources) and pass the planning gate' -> delegated to workers ['A2', 'A3', 'A6']",
+    "plan": [
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A3",
+      "Resources"
+     ],
+     [
+      "A6",
+      "Governance"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "complete": "Synthesized 7 worker outputs for goal 'Set the project baseline (schedule, resources) and pass the planning gate'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Baseline planning (schedule + resources)"
+ },
+ "en/burndown_alert": {
+  "hypotheses": [
+   "H3",
+   "H1"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Respond to stalled-burndown risk and replan the schedule' -> delegated to workers ['A4', 'A2', 'A5']",
+    "plan": [
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 6 worker outputs for goal 'Respond to stalled-burndown risk and replan the schedule'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H3",
+     "H1"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "Report cycle time (RCT) measured: avg <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Stalled burndown response (event-driven)"
+ },
+ "en/capacity_planning": {
+  "hypotheses": [
+   "H2",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Resource demand/supply capacity plan and planning gate' -> delegated to workers ['A3', 'A2', 'A6']",
+    "plan": [
+     [
+      "A3",
+      "Resources"
+     ],
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A6",
+      "Governance"
+     ]
+    ]
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "complete": "Synthesized 7 worker outputs for goal 'Resource demand/supply capacity plan and planning gate'. - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Capacity planning (demand vs. supply)"
+ },
+ "en/change_control": {
+  "hypotheses": [
+   "H2",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Analyze and approve schedule/resource impact of a scope change' -> delegated to workers ['A2', 'A3', 'A6']",
+    "plan": [
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A3",
+      "Resources"
+     ],
+     [
+      "A6",
+      "Governance"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "complete": "Synthesized 7 worker outputs for goal 'Analyze and approve schedule/resource impact of a scope change'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['fail', 'pass', 'fail']",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Change control (scope change impact)"
+ },
+ "en/compliance_audit": {
+  "hypotheses": [
+   "H3"
+  ],
+  "messages": [
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Audit methodology and quality-gate compliance and report' -> delegated to workers ['A6', 'A5']",
+    "plan": [
+     [
+      "A6",
+      "Governance"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 4 worker outputs for goal 'Audit methodology and quality-gate compliance and report'. - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "report_cycle_time_sec": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Methodology compliance audit"
+ },
+ "en/estimation_calibration": {
+  "hypotheses": [
+   "H4",
+   "H1"
+  ],
+  "messages": [
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Calibrate estimates from actuals and report' -> delegated to workers ['A7', 'A2', 'A5']",
+    "plan": [
+     [
+      "A7",
+      "Knowledge"
+     ],
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "3 citations · [LL-2022-09] CRM integration reporting cycle improvement: In a CRM integration p",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "Execute — A7 Knowledge"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 5 worker outputs for goal 'Calibrate estimates from actuals and report'. - A7(knowledge.v1): 3 citations · [LL-2022-09] CRM integration reporting cycle improvement: In a CRM integration p - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H4",
+     "H1"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "cost",
+      "finding": "3 lessons learned cited -> evidence for decisions and estimates",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "time",
+      "finding": "Report cycle time (RCT) measured: avg <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Estimate calibration (knowledge feedback)"
+ },
+ "en/estimation_review": {
+  "hypotheses": [
+   "H4"
+  ],
+  "messages": [
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Review the evidence behind the payment backend API estimate' -> delegated to workers ['A7', 'A2']",
+    "plan": [
+     [
+      "A7",
+      "Knowledge"
+     ],
+     [
+      "A2",
+      "Planning"
+     ]
+    ]
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "3 citations · [LL-2024-02] Payment backend API estimate evidence: Building a new payment backe",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "Execute — A7 Knowledge"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "complete": "Synthesized 4 worker outputs for goal 'Review the evidence behind the payment backend API estimate'. - A7(knowledge.v1): 3 citations · [LL-2024-02] Payment backend API estimate evidence: Building a new payment backe - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']"
+   },
+   {
+    "hypotheses": [
+     "H4"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "cost",
+      "finding": "3 lessons learned cited -> evidence for decisions and estimates",
+      "hypothesis": "H4"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Estimate review (based on past cases)"
+ },
+ "en/executive_briefing": {
+  "hypotheses": [
+   "H1",
+   "H2",
+   "H3"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Executive briefing across all axes (schedule, resources, risk)' -> delegated to workers ['A2', 'A3', 'A4', 'A5']",
+    "plan": [
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A3",
+      "Resources"
+     ],
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 7 worker outputs for goal 'Executive briefing across all axes (schedule, resources, risk)'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H1",
+     "H2",
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "Report cycle time (RCT) measured: avg <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Integrated executive briefing"
+ },
+ "en/go_nogo_decision": {
+  "hypotheses": [
+   "H3",
+   "H1"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Go/No-Go decision report based on risks and gates' -> delegated to workers ['A4', 'A6', 'A5']",
+    "plan": [
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A6",
+      "Governance"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 6 worker outputs for goal 'Go/No-Go decision report based on risks and gates'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H3",
+     "H1"
+    ],
+    "insight": [
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['fail', 'pass', 'fail']",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "Report cycle time (RCT) measured: avg <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Go/No-Go decision"
+ },
+ "en/knowledge_kickoff": {
+  "hypotheses": [
+   "H4",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Kickoff plan reflecting lessons on data-migration delay risk' -> delegated to workers ['A7', 'A2', 'A6']",
+    "plan": [
+     [
+      "A7",
+      "Knowledge"
+     ],
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A6",
+      "Governance"
+     ]
+    ]
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "3 citations · [LL-2024-01] ERP data migration delay lessons: The data migration project did no",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "Execute — A7 Knowledge"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "complete": "Synthesized 7 worker outputs for goal 'Kickoff plan reflecting lessons on data-migration delay risk'. - A7(knowledge.v1): 3 citations · [LL-2024-01] ERP data migration delay lessons: The data migration project did no - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+   },
+   {
+    "hypotheses": [
+     "H4",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "cost",
+      "finding": "3 lessons learned cited -> evidence for decisions and estimates",
+      "hypothesis": "H4"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "projected_slippage_days": 3,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Knowledge-driven kickoff plan"
+ },
+ "en/lessons_learned_closure": {
+  "hypotheses": [
+   "H4"
+  ],
+  "messages": [
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ],
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Closure gate and capture of lessons learned' -> delegated to workers ['A6', 'A7', 'A5']",
+    "plan": [
+     [
+      "A6",
+      "Governance"
+     ],
+     [
+      "A7",
+      "Knowledge"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G4-closure → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G4-closure → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G4-closure → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "3 citations · [LL-2022-03] Cloud migration gate review success story: The cloud migration stri",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "Execute — A7 Knowledge"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 5 worker outputs for goal 'Closure gate and capture of lessons learned'. - A6(gate_review.v1): PROJ-14 G4-closure → fail - A6(gate_review.v1): PROJ-22 G4-closure → fail - A6(gate_review.v1): PROJ-31 G4-closure → fail - A7(knowledge.v1): 3 citations · [LL-2022-03] Cloud migration gate review success story: The cloud migration stri - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H4"
+    ],
+    "insight": [
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['fail', 'fail', 'fail']",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "cost",
+      "finding": "3 lessons learned cited -> evidence for decisions and estimates",
+      "hypothesis": "H4"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "report_cycle_time_sec": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Project closure & lessons learned"
+ },
+ "en/new_project_intake": {
+  "hypotheses": [
+   "H4",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Review similar cases, schedule and resource feasibility for a new project' -> delegated to workers ['A7', 'A2', 'A3', 'A6']",
+    "plan": [
+     [
+      "A7",
+      "Knowledge"
+     ],
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A3",
+      "Resources"
+     ],
+     [
+      "A6",
+      "Governance"
+     ]
+    ]
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "3 citations · [LL-2023-07] Frontend renewal resource overload: In a frontend renewal, work pil",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "Execute — A7 Knowledge"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G1-initiation → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G1-initiation → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G1-initiation → pass",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "complete": "Synthesized 8 worker outputs for goal 'Review similar cases, schedule and resource feasibility for a new project'. - A7(knowledge.v1): 3 citations · [LL-2023-07] Frontend renewal resource overload: In a frontend renewal, work pil - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A6(gate_review.v1): PROJ-14 G1-initiation → pass - A6(gate_review.v1): PROJ-22 G1-initiation → pass - A6(gate_review.v1): PROJ-31 G1-initiation → pass"
+   },
+   {
+    "hypotheses": [
+     "H4",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['pass', 'pass', 'pass']",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "cost",
+      "finding": "3 lessons learned cited -> evidence for decisions and estimates",
+      "hypothesis": "H4"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "New project intake & feasibility"
+ },
+ "en/portfolio_prioritization": {
+  "hypotheses": [
+   "H2",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Prioritize the portfolio by risk and resources' -> delegated to workers ['A4', 'A3', 'A2', 'A5']",
+    "plan": [
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A3",
+      "Resources"
+     ],
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 7 worker outputs for goal 'Prioritize the portfolio by risk and resources'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Portfolio prioritization & resource optimization"
+ },
+ "en/quarterly_review": {
+  "hypotheses": [
+   "H1",
+   "H3"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Q1 integrated portfolio review (schedule, risk, executive report)' -> delegated to workers ['A2', 'A4', 'A5']",
+    "plan": [
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 6 worker outputs for goal 'Q1 integrated portfolio review (schedule, risk, executive report)'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H1",
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "Report cycle time (RCT) measured: avg <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Quarterly portfolio review"
+ },
+ "en/resource_conflict": {
+  "hypotheses": [
+   "H2",
+   "H3"
+  ],
+  "messages": [
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Resolve resource conflicts across multiple projects' -> delegated to workers ['A3', 'A4', 'A6']",
+    "plan": [
+     [
+      "A3",
+      "Resources"
+     ],
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A6",
+      "Governance"
+     ]
+    ]
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "complete": "Synthesized 6 worker outputs for goal 'Resolve resource conflicts across multiple projects'. - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['fail', 'pass', 'fail']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Resource conflict resolution (multi-project)"
+ },
+ "en/risk_escalation": {
+  "hypotheses": [
+   "H3"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Escalate high-severity risks and submit for approval' -> delegated to workers ['A4', 'A6', 'A5']",
+    "plan": [
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A6",
+      "Governance"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 6 worker outputs for goal 'Escalate high-severity risks and submit for approval'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['fail', 'pass', 'fail']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "High-severity risk escalation"
+ },
+ "en/risk_rebalance": {
+  "hypotheses": [
+   "H2",
+   "H3"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Risk-driven resource reallocation and gate check' -> delegated to workers ['A4', 'A3', 'A6']",
+    "plan": [
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A3",
+      "Resources"
+     ],
+     [
+      "A6",
+      "Governance"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "complete": "Synthesized 6 worker outputs for goal 'Risk-driven resource reallocation and gate check'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['fail', 'pass', 'fail']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Risk early warning -> resource rebalancing"
+ },
+ "en/schedule_recovery": {
+  "hypotheses": [
+   "H3",
+   "H2"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Recover a delayed project schedule and reinforce resources' -> delegated to workers ['A4', 'A2', 'A3']",
+    "plan": [
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A3",
+      "Resources"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "12 allocations · utilization=45.1% · overloads=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "Execute — A3 Resources"
+   },
+   {
+    "complete": "Synthesized 6 worker outputs for goal 'Recover a delayed project schedule and reinforce resources'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[]"
+   },
+   {
+    "hypotheses": [
+     "H3",
+     "H2"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "resource",
+      "finding": "Resources allocated · utilization 45.1% (idle 54.9%) · 0 overloads",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Schedule recovery plan"
+ },
+ "en/stage_gate_review": {
+  "hypotheses": [
+   "H3"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Planning gate (G2) review and risk check' -> delegated to workers ['A2', 'A4', 'A6']",
+    "plan": [
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A4",
+      "Risk"
+     ],
+     [
+      "A6",
+      "Governance"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102'",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "Execute — A4 Risk"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "Execute — A6 Governance"
+   },
+   {
+    "complete": "Synthesized 8 worker outputs for goal 'Planning gate (G2) review and risk check'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+   },
+   {
+    "hypotheses": [
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "risk",
+      "finding": "2 risks detected (1 high) — early warning secured",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "delivery",
+      "finding": "Gate review: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "projected_slippage_days": 3,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Stage gate review"
+ },
+ "en/weekly_status": {
+  "hypotheses": [
+   "H1"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "Goal 'Collect weekly progress and publish a status report' -> delegated to workers ['A2', 'A5']",
+    "plan": [
+     [
+      "A2",
+      "Planning"
+     ],
+     [
+      "A5",
+      "Reporting"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "Execute — A2 Planning"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "Execute — A5 Reporting"
+   },
+   {
+    "complete": "Synthesized 4 worker outputs for goal 'Collect weekly progress and publish a status report'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+   },
+   {
+    "hypotheses": [
+     "H1"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "Schedule and critical path computed for 3 projects; projected finish measured",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "Report cycle time (RCT) measured: avg <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Weekly status roll-up & report"
+ },
+ "ko/baseline_planning": {
+  "hypotheses": [
+   "H2",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '프로젝트 기준선(일정·자원) 수립 및 계획완료 게이트' → 작업자 ['A2', 'A3', 'A6'] 위임",
+    "plan": [
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A3",
+      "자원"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "complete": "목표 '프로젝트 기준선(일정·자원) 수립 및 계획완료 게이트' 에 대해 7개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "기준선 수립(일정+자원)"
+ },
+ "ko/burndown_alert": {
+  "hypotheses": [
+   "H3",
+   "H1"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '번다운 정체 리스크 대응 및 일정 재계획' → 작업자 ['A4', 'A2', 'A5'] 위임",
+    "plan": [
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '번다운 정체 리스크 대응 및 일정 재계획' 에 대해 6개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H3",
+     "H1"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "보고 주기 시간(RCT) 계측: 평균 <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "번다운 정체 대응(이벤트 구동)"
+ },
+ "ko/capacity_planning": {
+  "hypotheses": [
+   "H2",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '자원 수요-공급 용량 계획 및 계획완료 게이트' → 작업자 ['A3', 'A2', 'A6'] 위임",
+    "plan": [
+     [
+      "A3",
+      "자원"
+     ],
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ]
+    ]
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "complete": "목표 '자원 수요-공급 용량 계획 및 계획완료 게이트' 에 대해 7개 작업자 산출을 종합했습니다. - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "용량 계획(수요-공급)"
+ },
+ "ko/change_control": {
+  "hypotheses": [
+   "H2",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '범위 변경에 따른 일정·자원 영향 분석 및 승인' → 작업자 ['A2', 'A3', 'A6'] 위임",
+    "plan": [
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A3",
+      "자원"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "complete": "목표 '범위 변경에 따른 일정·자원 영향 분석 및 승인' 에 대해 7개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['fail', 'pass', 'fail']",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "변경 통제(범위 변경 영향)"
+ },
+ "ko/compliance_audit": {
+  "hypotheses": [
+   "H3"
+  ],
+  "messages": [
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '방법론·품질 게이트 준수 감사 및 보고' → 작업자 ['A6', 'A5'] 위임",
+    "plan": [
+     [
+      "A6",
+      "거버넌스"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '방법론·품질 게이트 준수 감사 및 보고' 에 대해 4개 작업자 산출을 종합했습니다. - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "report_cycle_time_sec": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "방법론 준수 감사"
+ },
+ "ko/estimation_calibration": {
+  "hypotheses": [
+   "H4",
+   "H1"
+  ],
+  "messages": [
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '실적 기반 견적 캘리브레이션 및 보고' → 작업자 ['A7', 'A2', 'A5'] 위임",
+    "plan": [
+     [
+      "A7",
+      "지식"
+     ],
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "인용 2건 · [LL-2022-09] CRM 통합 보고 주기 개선: CRM 통합 프로젝트에서 수작업 경영 보고에 회당 6시간이 소요됐다. 상태 자동 취합 도입",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "수행 — A7 지식"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '실적 기반 견적 캘리브레이션 및 보고' 에 대해 5개 작업자 산출을 종합했습니다. - A7(knowledge.v1): 인용 2건 · [LL-2022-09] CRM 통합 보고 주기 개선: CRM 통합 프로젝트에서 수작업 경영 보고에 회당 6시간이 소요됐다. 상태 자동 취합 도입 - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H4",
+     "H1"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "cost",
+      "finding": "과거 교훈 2건 인용 → 판단·견적 근거 확보",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "time",
+      "finding": "보고 주기 시간(RCT) 계측: 평균 <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "견적 캘리브레이션(지식 환류)"
+ },
+ "ko/estimation_review": {
+  "hypotheses": [
+   "H4"
+  ],
+  "messages": [
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '결제 백엔드 API 견적 근거 검토' → 작업자 ['A7', 'A2'] 위임",
+    "plan": [
+     [
+      "A7",
+      "지식"
+     ],
+     [
+      "A2",
+      "계획"
+     ]
+    ]
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "인용 1건 · [LL-2024-02] 결제 백엔드 API 견적 근거: 결제 백엔드 API 신규 구축은 인증·정산·환불 도메인 포함 시 약 320 인시가 소요됐",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "수행 — A7 지식"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "complete": "목표 '결제 백엔드 API 견적 근거 검토' 에 대해 4개 작업자 산출을 종합했습니다. - A7(knowledge.v1): 인용 1건 · [LL-2024-02] 결제 백엔드 API 견적 근거: 결제 백엔드 API 신규 구축은 인증·정산·환불 도메인 포함 시 약 320 인시가 소요됐 - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']"
+   },
+   {
+    "hypotheses": [
+     "H4"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "cost",
+      "finding": "과거 교훈 1건 인용 → 판단·견적 근거 확보",
+      "hypothesis": "H4"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "견적 검증(과거 사례 기반)"
+ },
+ "ko/executive_briefing": {
+  "hypotheses": [
+   "H1",
+   "H2",
+   "H3"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '전 축(일정·자원·리스크) 경영진 브리핑' → 작업자 ['A2', 'A3', 'A4', 'A5'] 위임",
+    "plan": [
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A3",
+      "자원"
+     ],
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '전 축(일정·자원·리스크) 경영진 브리핑' 에 대해 7개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H1",
+     "H2",
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "보고 주기 시간(RCT) 계측: 평균 <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "경영진 통합 브리핑"
+ },
+ "ko/go_nogo_decision": {
+  "hypotheses": [
+   "H3",
+   "H1"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '리스크·게이트 기반 Go/No-Go 의사결정 보고' → 작업자 ['A4', 'A6', 'A5'] 위임",
+    "plan": [
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '리스크·게이트 기반 Go/No-Go 의사결정 보고' 에 대해 6개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H3",
+     "H1"
+    ],
+    "insight": [
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['fail', 'pass', 'fail']",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "보고 주기 시간(RCT) 계측: 평균 <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "Go/No-Go 의사결정"
+ },
+ "ko/knowledge_kickoff": {
+  "hypotheses": [
+   "H4",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '데이터 마이그레이션 지연 리스크 교훈 반영 착수 계획' → 작업자 ['A7', 'A2', 'A6'] 위임",
+    "plan": [
+     [
+      "A7",
+      "지식"
+     ],
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ]
+    ]
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "인용 3건 · [LL-2024-01] ERP 데이터 마이그레이션 지연 교훈: 데이터 마이그레이션 프로젝트는 원천 데이터 품질 검증을 초기에 수행하지 않아 임계",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "수행 — A7 지식"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "complete": "목표 '데이터 마이그레이션 지연 리스크 교훈 반영 착수 계획' 에 대해 7개 작업자 산출을 종합했습니다. - A7(knowledge.v1): 인용 3건 · [LL-2024-01] ERP 데이터 마이그레이션 지연 교훈: 데이터 마이그레이션 프로젝트는 원천 데이터 품질 검증을 초기에 수행하지 않아 임계 - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+   },
+   {
+    "hypotheses": [
+     "H4",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "cost",
+      "finding": "과거 교훈 3건 인용 → 판단·견적 근거 확보",
+      "hypothesis": "H4"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "projected_slippage_days": 3,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "지식기반 착수 계획"
+ },
+ "ko/lessons_learned_closure": {
+  "hypotheses": [
+   "H4"
+  ],
+  "messages": [
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ],
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '프로젝트 종료 게이트 및 교훈 지식화' → 작업자 ['A6', 'A7', 'A5'] 위임",
+    "plan": [
+     [
+      "A6",
+      "거버넌스"
+     ],
+     [
+      "A7",
+      "지식"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G4-closure → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G4-closure → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G4-closure → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "인용 3건 · [LL-2022-03] 클라우드 이전 게이트 리뷰 성공 사례: 클라우드 이전은 계획완료 게이트에서 WBS·의존성·롤백 계획을 엄격히 검증해 실행",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "수행 — A7 지식"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '프로젝트 종료 게이트 및 교훈 지식화' 에 대해 5개 작업자 산출을 종합했습니다. - A6(gate_review.v1): PROJ-14 G4-closure → fail - A6(gate_review.v1): PROJ-22 G4-closure → fail - A6(gate_review.v1): PROJ-31 G4-closure → fail - A7(knowledge.v1): 인용 3건 · [LL-2022-03] 클라우드 이전 게이트 리뷰 성공 사례: 클라우드 이전은 계획완료 게이트에서 WBS·의존성·롤백 계획을 엄격히 검증해 실행 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H4"
+    ],
+    "insight": [
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['fail', 'fail', 'fail']",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "cost",
+      "finding": "과거 교훈 3건 인용 → 판단·견적 근거 확보",
+      "hypothesis": "H4"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "report_cycle_time_sec": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "프로젝트 종료·교훈 정리"
+ },
+ "ko/new_project_intake": {
+  "hypotheses": [
+   "H4",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A7",
+    "A1",
+    "inform",
+    "knowledge.v1",
+    "PORTFOLIO#2026-Q1",
+    0.85,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '신규 프로젝트 유사사례·일정·자원 타당성 검토' → 작업자 ['A7', 'A2', 'A3', 'A6'] 위임",
+    "plan": [
+     [
+      "A7",
+      "지식"
+     ],
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A3",
+      "자원"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ]
+    ]
+   },
+   {
+    "execute": "A7",
+    "results": [
+     {
+      "headline": "인용 2건 · [LL-2023-07] 프론트엔드 리뉴얼 자원 과부하: 프론트엔드 리뉴얼에서 단일 시니어에 작업이 몰려 번다운이 정체됐다. 교훈: 프론트 스킬 ",
+      "schema": "knowledge.v1"
+     }
+    ],
+    "title": "수행 — A7 지식"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G1-initiation → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G1-initiation → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G1-initiation → pass",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "complete": "목표 '신규 프로젝트 유사사례·일정·자원 타당성 검토' 에 대해 8개 작업자 산출을 종합했습니다. - A7(knowledge.v1): 인용 2건 · [LL-2023-07] 프론트엔드 리뉴얼 자원 과부하: 프론트엔드 리뉴얼에서 단일 시니어에 작업이 몰려 번다운이 정체됐다. 교훈: 프론트 스킬  - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A6(gate_review.v1): PROJ-14 G1-initiation → pass - A6(gate_review.v1): PROJ-22 G1-initiation → pass - A6(gate_review.v1): PROJ-31 G1-initiation → pass"
+   },
+   {
+    "hypotheses": [
+     "H4",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['pass', 'pass', 'pass']",
+      "hypothesis": "H4"
+     },
+     {
+      "axis": "cost",
+      "finding": "과거 교훈 2건 인용 → 판단·견적 근거 확보",
+      "hypothesis": "H4"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "신규 프로젝트 인테이크·타당성"
+ },
+ "ko/portfolio_prioritization": {
+  "hypotheses": [
+   "H2",
+   "H5"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '리스크·자원 기준 포트폴리오 우선순위화' → 작업자 ['A4', 'A3', 'A2', 'A5'] 위임",
+    "plan": [
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A3",
+      "자원"
+     ],
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '리스크·자원 기준 포트폴리오 우선순위화' 에 대해 7개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H5"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H5"
+     },
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "포트폴리오 우선순위·자원 최적화"
+ },
+ "ko/quarterly_review": {
+  "hypotheses": [
+   "H1",
+   "H3"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 'Q1 포트폴리오 통합 리뷰(일정·리스크·경영보고)' → 작업자 ['A2', 'A4', 'A5'] 위임",
+    "plan": [
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 'Q1 포트폴리오 통합 리뷰(일정·리스크·경영보고)' 에 대해 6개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H1",
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "보고 주기 시간(RCT) 계측: 평균 <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "분기 포트폴리오 통합 리뷰"
+ },
+ "ko/resource_conflict": {
+  "hypotheses": [
+   "H2",
+   "H3"
+  ],
+  "messages": [
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '멀티 프로젝트 자원 경합 해소' → 작업자 ['A3', 'A4', 'A6'] 위임",
+    "plan": [
+     [
+      "A3",
+      "자원"
+     ],
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ]
+    ]
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "complete": "목표 '멀티 프로젝트 자원 경합 해소' 에 대해 6개 작업자 산출을 종합했습니다. - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['fail', 'pass', 'fail']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "자원 경합 해소(멀티프로젝트)"
+ },
+ "ko/risk_escalation": {
+  "hypotheses": [
+   "H3"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '고위험 리스크 에스컬레이션 및 승인 상신' → 작업자 ['A4', 'A6', 'A5'] 위임",
+    "plan": [
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '고위험 리스크 에스컬레이션 및 승인 상신' 에 대해 6개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['fail', 'pass', 'fail']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "report_cycle_time_sec": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "고위험 리스크 에스컬레이션"
+ },
+ "ko/risk_rebalance": {
+  "hypotheses": [
+   "H2",
+   "H3"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '리스크 기반 자원 재배분 및 게이트 검증' → 작업자 ['A4', 'A3', 'A6'] 위임",
+    "plan": [
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A3",
+      "자원"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G3-execution → fail",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G3-execution → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G3-execution → fail",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "complete": "목표 '리스크 기반 자원 재배분 및 게이트 검증' 에 대해 6개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(gate_review.v1): PROJ-31 G3-execution → fail"
+   },
+   {
+    "hypotheses": [
+     "H2",
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H2"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['fail', 'pass', 'fail']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "idle_pct": 1,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "리스크 조기경보 → 자원 재배분"
+ },
+ "ko/schedule_recovery": {
+  "hypotheses": [
+   "H3",
+   "H2"
+  ],
+  "messages": [
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A3",
+    "A1",
+    "inform",
+    "allocation.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '지연 프로젝트 일정 회복 및 자원 보강' → 작업자 ['A4', 'A2', 'A3'] 위임",
+    "plan": [
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A3",
+      "자원"
+     ]
+    ]
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A3",
+    "results": [
+     {
+      "headline": "배분 12건 · 활용률=45.1% · 과부하=[]",
+      "schema": "allocation.v1"
+     }
+    ],
+    "title": "수행 — A3 자원"
+   },
+   {
+    "complete": "목표 '지연 프로젝트 일정 회복 및 자원 보강' 에 대해 6개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[]"
+   },
+   {
+    "hypotheses": [
+     "H3",
+     "H2"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "resource",
+      "finding": "자원 배분 완료 · 활용률 45.1% (유휴 54.9%) · 과부하 0건",
+      "hypothesis": "H2"
+     }
+    ],
+    "new_events": {
+     "idle_pct": 1,
+     "projected_slippage_days": 3,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3,
+     "utilization_pct": 1
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "일정 지연 회복 계획"
+ },
+ "ko/stage_gate_review": {
+  "hypotheses": [
+   "H3"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "inform",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.85,
+    false
+   ],
+   [
+    "A4",
+    "A1",
+    "propose",
+    "risk_alert.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.85,
+    true
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "inform",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A6",
+    "A1",
+    "propose",
+    "gate_review.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    true
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '계획완료 게이트(G2) 심사 및 리스크 점검' → 작업자 ['A2', 'A4', 'A6'] 위임",
+    "plan": [
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A4",
+      "리스크"
+     ],
+     [
+      "A6",
+      "거버넌스"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A4",
+    "results": [
+     {
+      "headline": "PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403']",
+      "schema": "risk_alert.v1"
+     },
+     {
+      "headline": "PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102']",
+      "schema": "risk_alert.v1"
+     }
+    ],
+    "title": "수행 — A4 리스크"
+   },
+   {
+    "execute": "A6",
+    "results": [
+     {
+      "headline": "PROJ-14 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-22 G2-planning → pass",
+      "schema": "gate_review.v1"
+     },
+     {
+      "headline": "PROJ-31 G2-planning → conditional",
+      "schema": "gate_review.v1"
+     }
+    ],
+    "title": "수행 — A6 거버넌스"
+   },
+   {
+    "complete": "목표 '계획완료 게이트(G2) 심사 및 리스크 점검' 에 대해 8개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional"
+   },
+   {
+    "hypotheses": [
+     "H3"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "risk",
+      "finding": "리스크 2건 탐지(고위험 1건) — 선행경보 확보",
+      "hypothesis": "H3"
+     },
+     {
+      "axis": "delivery",
+      "finding": "게이트 심사: ['pass', 'pass', 'conditional']",
+      "hypothesis": "H3"
+     }
+    ],
+    "new_events": {
+     "gate_review": 3,
+     "projected_slippage_days": 3,
+     "risk_detected": 2,
+     "risk_lead_time_days": 2,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "스테이지 게이트 심사"
+ },
+ "ko/weekly_status": {
+  "hypotheses": [
+   "H1"
+  ],
+  "messages": [
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-14",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-22",
+    0.95,
+    false
+   ],
+   [
+    "A2",
+    "A1",
+    "inform",
+    "schedule.v1",
+    "PORTFOLIO#2026-Q1/PROJ-31",
+    0.95,
+    false
+   ],
+   [
+    "A5",
+    "A1",
+    "inform",
+    "report.v1",
+    "PORTFOLIO#2026-Q1",
+    0.9,
+    false
+   ]
+  ],
+  "phases": [
+   {
+    "detail": "목표 '주간 진척 상태 취합 및 상태 보고' → 작업자 ['A2', 'A5'] 위임",
+    "plan": [
+     [
+      "A2",
+      "계획"
+     ],
+     [
+      "A5",
+      "보고"
+     ]
+    ]
+   },
+   {
+    "execute": "A2",
+    "results": [
+     {
+      "headline": "PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202']",
+      "schema": "schedule.v1"
+     },
+     {
+      "headline": "PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102']",
+      "schema": "schedule.v1"
+     }
+    ],
+    "title": "수행 — A2 계획"
+   },
+   {
+    "execute": "A5",
+    "results": [
+     {
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "schema": "report.v1"
+     }
+    ],
+    "title": "수행 — A5 보고"
+   },
+   {
+    "complete": "목표 '주간 진척 상태 취합 및 상태 보고' 에 대해 4개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+   },
+   {
+    "hypotheses": [
+     "H1"
+    ],
+    "insight": [
+     {
+      "axis": "delivery",
+      "finding": "3개 프로젝트 일정·임계경로 산출, 예상완료 계측",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "hypothesis": "H1"
+     },
+     {
+      "axis": "time",
+      "finding": "보고 주기 시간(RCT) 계측: 평균 <time>",
+      "hypothesis": "H1"
+     }
+    ],
+    "new_events": {
+     "projected_slippage_days": 3,
+     "report_cycle_time_sec": 1,
+     "spi": 3
+    }
+   }
+  ],
+  "scope": "PORTFOLIO#2026-Q1",
+  "title": "주간 상태 취합·보고"
+ }
+}
