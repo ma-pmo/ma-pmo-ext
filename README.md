@@ -185,7 +185,7 @@ Presentation   Next.js dashboard · scenarios · HITL approval UI (English / Kor
 Orchestration  A1 Orchestrator (LangGraph supervisor)
 Workers        A2 Planning · A3 Resources · A4 Risk · A5 Reporting · A6 Governance · A7 Knowledge
 Shared state   Blackboard (PortfolioState) · append-only message log
-Persistence    SQLite (SQLAlchemy) + LangGraph SqliteSaver checkpointer (Postgres-ready)
+Persistence    SQLite by default, Postgres with ma-pmo[postgres] · migrations · run records · LangGraph checkpoints
 Platform       LLM gateway (LiteLLM: Anthropic / Ollama) · local RAG · structured logging
 ```
 

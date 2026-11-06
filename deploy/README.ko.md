@@ -72,8 +72,8 @@ kubectl -n ma-pmo get pods,svc,ingress
 접속: `/etc/hosts` 에 `<ingress-ip> mapmo.local api.mapmo.local` 추가 후 http://mapmo.local
 
 ### 주의 사항
-- **API 레플리카**: LangGraph 체크포인터가 SQLite(PVC) 라 기본 1 레플리카. 다중화하려면
-  `ma_pmo/core/state/checkpointer.py` 를 Postgres 체크포인터로 전환(스위치 지점 주석 참고).
+- **API 레플리카**: `DB_URL`이 Postgres면 체크포인트도 Postgres에 저장되고 마이그레이션도 잠금으로 보호되지만,
+  아직 단계 임대(lease)가 없어 재개된 실행이 두 복제본에서 돌 수 있으니 당분간 1 레플리카를 유지하세요. SQLite는 항상 1 레플리카입니다.
 - **NEXT_PUBLIC_API_BASE**: 빌드 시 인라인. 브라우저가 도달 가능한 API 주소로 web 이미지를 빌드할 것.
 - **Ollama 리소스**: llama3.1:8b 는 ~8GB 메모리 필요. GPU 노드 권장. 외부 Ollama 사용 시 `30-ollama.yaml` 생략하고 ConfigMap 의 `LLM_API_BASE` 만 변경.
 - **Secret**: Anthropic 사용 시 `ma-pmo-secrets.ANTHROPIC_API_KEY` 채우고 ConfigMap 의 LLM_MODEL/LLM_API_BASE 조정.

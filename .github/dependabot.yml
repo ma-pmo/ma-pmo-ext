@@ -35,3 +35,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    ignore:
+      # the image follows the Python version CI tests, and new versions wait for dependency
+      # wheels (Python 3.15: tiktoken has none yet); raise CI and the Dockerfile together
+      - dependency-name: "python"

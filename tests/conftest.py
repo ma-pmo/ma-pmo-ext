@@ -9,7 +9,8 @@ import os
 import tempfile
 
 _tmp = tempfile.mkdtemp(prefix="mapmo-test-")
-os.environ["DB_URL"] = f"sqlite:///{_tmp}/test.db"
+# TEST_DB_URL runs the suite on another database (CI uses it for Postgres)
+os.environ["DB_URL"] = os.environ.get("TEST_DB_URL") or f"sqlite:///{_tmp}/test.db"
 os.environ["CHECKPOINT_DB"] = f"{_tmp}/ckpt.sqlite"
 os.environ.setdefault("ANTHROPIC_API_KEY", "test-key")
 

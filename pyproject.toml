@@ -67,6 +67,7 @@ otel = [
 # for production Postgres — needed when DB_URL=postgresql+psycopg://...
 postgres = [
     "psycopg[binary]>=3.2",
+    "langgraph-checkpoint-postgres>=3,<4",
 ]
 
 [build-system]

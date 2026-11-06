@@ -37,6 +37,61 @@ jobs:
       - name: Full test suite
         run: uv run pytest -q
 
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: mapmo
+          POSTGRES_PASSWORD: mapmo
+          POSTGRES_DB: mapmo_test
+          TZ: Asia/Seoul
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mapmo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DB_URL: postgresql+psycopg://mapmo:mapmo@localhost:5432/mapmo_test
+      PGTZ: Asia/Seoul  # timestamps must stay UTC whatever the session default is
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        run: python -m pip install --upgrade uv
+
+      - name: Install dependencies
+        run: uv sync --extra dev --extra mcp --extra otel --extra postgres
+
+      - name: Full test suite on Postgres
+        run: uv run pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build the API image
+        run: docker build -t ma-pmo-api .
+
+      - name: Start it and wait for /health
+        run: |
+          docker run -d --name api -p 8000:8000 ma-pmo-api
+          for i in $(seq 1 30); do
+            curl -sf localhost:8000/health && exit 0
+            sleep 2
+          done
+          docker logs api
+          exit 1
+
   web:
     runs-on: ubuntu-latest
     defaults:

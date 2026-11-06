@@ -10,7 +10,6 @@ data:
   LLM_API_BASE: "http://ollama.ma-pmo.svc.cluster.local:11434"
   # data: Postgres (same namespace)
   DB_URL: "postgresql+psycopg://mapmo:mapmo@postgres.ma-pmo.svc.cluster.local:5432/mapmo"
-  CHECKPOINT_DB: "/app/data/ma_pmo_checkpoints.sqlite"
   HITL_CONFIDENCE_THRESHOLD: "0.6"
 ---
 apiVersion: v1

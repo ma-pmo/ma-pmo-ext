@@ -16,7 +16,7 @@ metadata:
   namespace: ma-pmo
   labels: { app: ma-pmo-api }
 spec:
-  replicas: 1  # LangGraph SQLite checkpointer -> single replica. Scaling out needs the Postgres checkpointer
+  replicas: 1  # keep one until runs have step leases (see deploy/README.md)
   selector:
     matchLabels: { app: ma-pmo-api }
   template:
