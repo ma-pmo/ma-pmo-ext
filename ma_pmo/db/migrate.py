@@ -14,9 +14,10 @@ from alembic import command
 from alembic.config import Config
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import Engine, inspect
+from sqlalchemy import Engine, inspect, text
 
 BASELINE = "0001_baseline"
+_LOCK_KEY = 7_203_411  # any fixed number; shared by every MA-PMO process on a database
 _MIGRATIONS = Path(__file__).parent / "migrations"
 
 
@@ -48,6 +49,9 @@ def upgrade(engine: Engine | None = None, revision: str = "head") -> str | None:
     config = _config()
     with _engine(engine).begin() as conn:
         config.attributes["connection"] = conn
+        if conn.dialect.name == "postgresql":
+            # replicas starting together take turns; the lock ends with the transaction
+            conn.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": _LOCK_KEY})
         tables = set(inspect(conn).get_table_names())
         unversioned = "alembic_version" not in tables
         if unversioned and "portfolio" in tables:

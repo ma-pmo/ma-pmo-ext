@@ -71,7 +71,7 @@ kubectl -n ma-pmo get pods,svc,ingress
 Access: add `<ingress-ip> mapmo.local api.mapmo.local` to `/etc/hosts`, then open http://mapmo.local
 
 ### Notes
-- **API replicas**: the LangGraph checkpointer is SQLite (PVC), so one replica by default. To scale out, switch `ma_pmo/core/state/checkpointer.py` to the Postgres checkpointer (see the switch-point comment).
+- **API replicas**: with a Postgres `DB_URL`, checkpoints live in Postgres and migrations are locked, but keep one replica for now: runs have no step lease yet, so a resumed run could execute on two replicas. With SQLite, always use one replica.
 - **NEXT_PUBLIC_API_BASE**: inlined at build time. Build the web image with an API URL the browser can reach.
 - **Ollama resources**: llama3.1:8b needs ~8 GB of memory; GPU nodes recommended. For an external Ollama, skip `30-ollama.yaml` and change only `LLM_API_BASE` in the ConfigMap.
 - **Secret**: for Anthropic, fill `ma-pmo-secrets.ANTHROPIC_API_KEY` and adjust `LLM_MODEL`/`LLM_API_BASE` in the ConfigMap.

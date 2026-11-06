@@ -187,7 +187,7 @@ Presentation   Next.js 대시보드 · 시나리오 · HITL 승인 UI (영어/�
 Orchestration  A1 Orchestrator (LangGraph supervisor)
 Workers        A2 계획 · A3 자원 · A4 리스크 · A5 보고 · A6 거버넌스 · A7 지식
 Shared state   Blackboard(PortfolioState) · append-only 메시지 로그
-Persistence    SQLite(SQLAlchemy) + LangGraph SqliteSaver 체크포인터 (Postgres 전환 가능)
+Persistence    기본 SQLite, ma-pmo[postgres]로 Postgres · 마이그레이션 · 실행 기록 · LangGraph 체크포인트
 Platform       LLM 게이트웨이(LiteLLM: Anthropic/Ollama) · 로컬 RAG · 구조화 로깅
 ```
 

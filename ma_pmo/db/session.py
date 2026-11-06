@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
 from ma_pmo.core.config import get_settings
@@ -16,6 +16,18 @@ _connect_args = (
     {"check_same_thread": False} if _settings.db_url.startswith("sqlite") else {}
 )
 engine = create_engine(_settings.db_url, connect_args=_connect_args, future=True)
+
+
+if engine.dialect.name == "postgresql":
+    @event.listens_for(engine, "connect")
+    def _session_in_utc(dbapi_connection, _record) -> None:  # type: ignore[no-untyped-def]
+        """Columns are timezone-less and the app writes UTC, so a session in Asia/Seoul would
+        shift every timestamp by nine hours. Set here because PGTZ overrides connect options."""
+        with dbapi_connection.cursor() as cursor:
+            cursor.execute("SET TIME ZONE 'UTC'")
+        dbapi_connection.commit()
+
+
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False, class_=Session)
 
 

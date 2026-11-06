@@ -6,7 +6,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+- Postgres sessions are pinned to UTC; on a server in another time zone every timestamp was shifted (nine hours in Asia/Seoul), which distorted approval latency.
+- The API image installs from `pyproject.toml` and stays on Python 3.11: 3.15 cannot build `tiktoken` in a slim image, and the hand-kept dependency list had missed `alembic`.
+
 ### Added
+- Postgres is a first-class backend: `ma-pmo[postgres]` keeps LangGraph checkpoints in the same database, so they survive restarts; migrations take an advisory lock when replicas start together; the full test suite runs on Postgres 16 in CI.
+- CI builds the API image and checks `/health`.
 - Run records: every scenario and orchestrated goal is stored as a run with its agent steps (`GET /runs`, `GET /runs/{id}`, `run_id` in responses), and messages, approvals and KPI events link to their run. Behaviour is unchanged.
 - Schema migrations (Alembic, shipped in the package): `ma-pmo db upgrade` and `ma-pmo db status`. New databases are created through migrations; databases from 0.4 and earlier are recognized and adopted with their data.
 
@@ -99,6 +105,10 @@ First public release.
 
 ### [Unreleased]
 
+- 수정: Postgres 세션을 UTC로 고정. 서버 시간대가 다르면 모든 시각이 밀렸습니다(Asia/Seoul에서 9시간). 승인 지연 측정이 왜곡되던 문제입니다.
+- 수정: API 이미지를 `pyproject.toml`로 설치하고 Python 3.11을 유지. 3.15는 slim 이미지에서 `tiktoken`을 빌드할 수 없고, 손으로 관리하던 의존성 목록에 `alembic`이 빠져 있었습니다.
+- Postgres 정식 지원: `ma-pmo[postgres]`로 LangGraph 체크포인트를 같은 DB에 저장해 재시작 후에도 유지하고, 복제본이 동시에 시작해도 마이그레이션이 잠금으로 순서를 지키며, CI에서 전체 테스트를 Postgres 16으로 실행합니다.
+- CI가 API 이미지를 빌드하고 `/health`를 확인합니다.
 - 실행 기록: 시나리오와 오케스트레이션 실행이 에이전트 단계와 함께 저장되고(`GET /runs`, `GET /runs/{id}`, 응답의 `run_id`), 메시지·승인·KPI가 해당 실행에 연결됩니다. 기존 동작은 바뀌지 않습니다.
 - 스키마 마이그레이션(Alembic, 패키지에 포함): `ma-pmo db upgrade`, `ma-pmo db status`. 새 데이터베이스도 마이그레이션으로 만들고, 0.4 이하 데이터베이스는 자동으로 인식해 데이터를 유지한 채 이어받습니다.
 
