@@ -78,9 +78,9 @@ def _prepare_db(workdir: Path) -> None:
         os.environ["DB_URL"] = f"sqlite:///{path}"
         os.environ.setdefault("CHECKPOINT_DB", str(path.with_suffix(".ckpt.sqlite")))
     from ma_pmo.db.init import load_fixtures, load_lessons
-    from ma_pmo.db.session import create_all
+    from ma_pmo.db.session import ensure_schema
 
-    create_all()
+    ensure_schema()
     load_fixtures()
     load_lessons()
 

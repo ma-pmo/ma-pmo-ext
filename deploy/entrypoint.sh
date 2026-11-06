@@ -1,6 +1,6 @@
 #!/bin/sh
-# create schema + load fixtures/lessons (idempotent), then start the API.
+# migrate the schema + load fixtures/lessons (idempotent), then start the API.
+# A failed migration must stop the container: the API would run on the wrong schema.
 set -e
-echo "[entrypoint] DB_URL=${DB_URL}"
-python -m ma_pmo.db.init || echo "[entrypoint] db.init warning (ignored) — may already be initialized"
+python -m ma_pmo.db.init
 exec uvicorn ma_pmo.api.main:app --host 0.0.0.0 --port 8000

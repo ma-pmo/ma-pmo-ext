@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- Schema migrations (Alembic, shipped in the package): `ma-pmo db upgrade` and `ma-pmo db status`. New databases are created through migrations; databases from 0.4 and earlier are recognized and adopted with their data.
+
 ## [0.4.0] - 2026-11-05
 
 ### Added
@@ -92,6 +95,10 @@ First public release.
 ---
 
 ## 변경 내역 (한국어)
+
+### [Unreleased]
+
+- 스키마 마이그레이션(Alembic, 패키지에 포함): `ma-pmo db upgrade`, `ma-pmo db status`. 새 데이터베이스도 마이그레이션으로 만들고, 0.4 이하 데이터베이스는 자동으로 인식해 데이터를 유지한 채 이어받습니다.
 
 ### [0.4.0] - 2026-11-05
 

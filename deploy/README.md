@@ -78,6 +78,13 @@ Access: add `<ingress-ip> mapmo.local api.mapmo.local` to `/etc/hosts`, then ope
 
 ---
 
+## Upgrading
+
+Back up the database, install the new version, then run `ma-pmo db upgrade` (`ma-pmo db status`
+shows current and latest revisions). The container entrypoint does this at startup. Databases
+from 0.4 and earlier are adopted with their data. With several API replicas, run the upgrade
+once before rolling them out.
+
 ## Health check / smoke test
 
 ```bash
