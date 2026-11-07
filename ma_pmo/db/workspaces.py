@@ -64,6 +64,16 @@ def members(workspace_id: str) -> list[dict]:
         return [{"principal": m.principal, "role": m.role} for m in rows]
 
 
+def memberships_of(principal: str) -> dict[str, frozenset[str]]:
+    """Every workspace where the principal has a membership, with the roles granted there."""
+    found: dict[str, set[str]] = {}
+    with get_session() as s:
+        for where, role in s.execute(select(Membership.workspace_id, Membership.role).where(
+                Membership.principal == principal)):
+            found.setdefault(where, set()).add(role)
+    return {where: frozenset(roles) for where, roles in found.items()}
+
+
 def roles_in(workspace_id: str, principal: str) -> frozenset[str] | None:
     """The principal's granted roles there, or None if the workspace does not exist."""
     with get_session() as s:

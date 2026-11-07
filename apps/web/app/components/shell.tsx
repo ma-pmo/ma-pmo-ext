@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { useI18n } from "../lib/i18n";
+import { usePlace } from "../lib/place";
 import type { Lang } from "../lib/messages";
 import { Icon } from "./icons";
 
@@ -28,6 +29,7 @@ const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items:
 
 export function Shell({ children }: { children: ReactNode }) {
   const { lang, setLang, t } = useI18n();
+  const place = usePlace();
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const [apiUp, setApiUp] = useState<boolean | null>(null);
@@ -68,6 +70,24 @@ export function Shell({ children }: { children: ReactNode }) {
           <img src="/logo.png" alt="" />
           <span><b>MA-PMO</b><small>{t.shell.subtitle}</small></span>
         </a>
+        {place.workspaces.length > 0 && (
+          <div className="place">
+            <label>
+              <span>{t.shell.workspace}</span>
+              <select value={place.workspace} onChange={(e) => place.setWorkspace(e.target.value)}>
+                {place.workspaces.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+              </select>
+            </label>
+            {place.portfolios.length > 0 && (
+              <label>
+                <span>{t.shell.portfolio}</span>
+                <select value={place.portfolio} onChange={(e) => place.setPortfolio(e.target.value)}>
+                  {place.portfolios.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </label>
+            )}
+          </div>
+        )}
         {GROUPS.map((g) => (
           <div className="nav-group" key={g.key}>
             <span>{t.nav.groups[g.key]}</span>

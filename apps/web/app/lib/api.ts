@@ -1,4 +1,5 @@
-// FastAPI backend client. Every request carries the UI language (?lang=en|ko).
+// FastAPI backend client. Every request carries the UI language (?lang=en|ko) and, once one
+// is picked, the workspace (X-Workspace).
 const BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 // Only when the API runs with MA_PMO_AUTH_MODE=api_key. The key is visible to anyone who can
 // open the dashboard, so use a viewer/approver key and keep the dashboard on a private network.
@@ -8,11 +9,18 @@ let LANG = "en";
 export function setApiLang(lang: string) {
   LANG = lang;
 }
+let WORKSPACE = "";
+export function setApiWorkspace(workspace: string) {
+  WORKSPACE = workspace;
+}
+const scoped = (path: string, scope?: string) =>
+  scope ? `${path}${path.includes("?") ? "&" : "?"}scope=${encodeURIComponent(scope)}` : path;
 
 async function req(path: string, init?: RequestInit) {
   const sep = path.includes("?") ? "&" : "?";
   const headers = new Headers(init?.headers);
   if (API_KEY) headers.set("X-API-Key", API_KEY);
+  if (WORKSPACE) headers.set("X-Workspace", WORKSPACE);
   const res = await fetch(`${BASE}${path}${sep}lang=${LANG}`, { cache: "no-store", ...init, headers });
   if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
   return res.json();
@@ -21,16 +29,16 @@ async function req(path: string, init?: RequestInit) {
 export const api = {
   portfolio: (id: string) => req(`/portfolio/${encodeURIComponent(id)}`),
   kpi: (axis?: string) => req(`/kpi${axis ? `?axis=${axis}` : ""}`),
-  risks: () => req(`/risks`),
-  allocations: () => req(`/allocations`),
+  risks: (scope?: string) => req(scoped(`/risks`, scope)),
+  allocations: (scope?: string) => req(scoped(`/allocations`, scope)),
   messages: (limit = 15) => req(`/messages?limit=${limit}`),
-  plan: () => req(`/plan`, { method: "POST" }),
-  allocate: () => req(`/allocate`, { method: "POST" }),
+  plan: (scope?: string) => req(scoped(`/plan`, scope), { method: "POST" }),
+  allocate: (scope?: string) => req(scoped(`/allocate`, scope), { method: "POST" }),
   scenarios: () => req(`/scenarios`),
   runScenario: (id: string) =>
     req(`/scenarios/${id}/run?format=markdown`, { method: "POST" }),
-  gateReview: (gate = "G2-planning") =>
-    req(`/gate-review?gate=${encodeURIComponent(gate)}`, { method: "POST" }),
+  gateReview: (gate = "G2-planning", scope?: string) =>
+    req(scoped(`/gate-review?gate=${encodeURIComponent(gate)}`, scope), { method: "POST" }),
   knowledgeSearch: (q: string) => req(`/knowledge/search?q=${encodeURIComponent(q)}`),
   approvals: () => req(`/approvals`),
   resolveApproval: (id: number, approver: string, decision: "approve" | "reject") =>
@@ -50,6 +58,8 @@ export const api = {
   retrieval: () => req(`/eval/retrieval`),
   system: () => req(`/system`),
   whoami: () => req(`/auth/whoami`),
+  workspaces: () => req(`/workspaces`),
+  portfolios: () => req(`/portfolios`),
   validateTemplate: (zip: Blob) =>
     req(`/templates/validate`, {
       method: "POST",

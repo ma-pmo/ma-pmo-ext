@@ -2,6 +2,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import { Shell } from "./components/shell";
 import { LanguageProvider } from "./lib/i18n";
+import { PlaceProvider } from "./lib/place";
 
 export const metadata = {
   title: "MA-PMO Admin",
@@ -14,7 +15,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <LanguageProvider>
-          <Shell>{children}</Shell>
+          <PlaceProvider>
+            <Shell>{children}</Shell>
+          </PlaceProvider>
         </LanguageProvider>
       </body>
     </html>

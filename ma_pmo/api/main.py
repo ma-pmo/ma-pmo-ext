@@ -39,6 +39,7 @@ from ma_pmo.api.routers import (  # noqa: E402
     runs,
     scenarios,
     webhooks,
+    workspaces,
 )
 from ma_pmo.core import protocol, workspace  # noqa: E402
 from ma_pmo.core import runs as runs_core  # noqa: E402
@@ -101,6 +102,7 @@ app.include_router(messages.router)
 app.include_router(runs.router)
 app.include_router(webhooks.router)
 app.include_router(integrations.router)
+app.include_router(workspaces.router)
 
 
 @app.get("/health")

@@ -2,11 +2,11 @@
 import { useEffect, useState } from "react";
 import { api } from "./lib/api";
 import { useI18n } from "./lib/i18n";
+import { usePlace } from "./lib/place";
 import { BarRow, Gauge, StackBar } from "./components/charts";
 import { Card, PageHeader, Stat } from "./components/shell";
 import { Icon } from "./components/icons";
 
-const PORTFOLIO = "PORTFOLIO#2026-Q1";
 const GATES = ["G1-initiation", "G2-planning", "G3-execution", "G4-closure"];
 const STATUS_COLOR: Record<string, string> = { green: "var(--green)", amber: "var(--amber)", red: "var(--red)" };
 const sevClass = (s: string) => (s === "high" || s === "critical" ? "red" : s === "medium" ? "amber" : "green");
@@ -15,6 +15,7 @@ const fmt = (v: number | undefined | null, digits = 1) => (v == null ? "–" : v
 export default function Dashboard() {
   const { lang, t } = useI18n();
   const d = t.dash;
+  const { portfolio: scope } = usePlace();
   const [portfolio, setPortfolio] = useState<any>(null);
   const [kpi, setKpi] = useState<any>(null);
   const [risks, setRisks] = useState<any[]>([]);
@@ -30,10 +31,10 @@ export default function Dashboard() {
 
   async function load() {
     try {
-      setPortfolio(await api.portfolio(PORTFOLIO));
+      setPortfolio(await api.portfolio(scope));
       setKpi(await api.kpi());
-      setRisks(await api.risks());
-      setAllocations(await api.allocations());
+      setRisks(await api.risks(scope));
+      setAllocations(await api.allocations(scope));
       setErr("");
     } catch (e: any) { setErr(String(e.message || e)); }
   }
@@ -46,12 +47,12 @@ export default function Dashboard() {
   };
   const runOrchestrate = guard(async () => {
     setRunning(true);
-    try { setResult(await api.orchestrate(d.goals[goalIdx], PORTFOLIO)); await load(); }
+    try { setResult(await api.orchestrate(d.goals[goalIdx], scope)); await load(); }
     finally { setRunning(false); }
   });
-  const runPlan = guard(async () => { await api.plan(); await load(); });
-  const runAllocate = guard(async () => { await api.allocate(); await load(); });
-  const runGateReview = guard(async () => { setGates((await api.gateReview(gate)).reviews || []); await load(); });
+  const runPlan = guard(async () => { await api.plan(scope); await load(); });
+  const runAllocate = guard(async () => { await api.allocate(scope); await load(); });
+  const runGateReview = guard(async () => { setGates((await api.gateReview(gate, scope)).reviews || []); await load(); });
   const runKnowledge = guard(async () => { setCitations((await api.knowledgeSearch(d.queries[queryIdx])).citations || []); });
 
   const summary = kpi?.summary ?? [];
@@ -79,7 +80,7 @@ export default function Dashboard() {
   return (
     <div className="stack">
       <PageHeader
-        title={portfolio?.name ?? PORTFOLIO}
+        title={portfolio?.name ?? scope}
         desc={t.pages.dashboard}
         actions={<button className="ghost" onClick={load}><Icon.refresh />{t.common2.refresh}</button>}
       />

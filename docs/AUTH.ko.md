@@ -87,6 +87,11 @@ ma-pmo workspace revoke acme bob approver
 curl -H "X-API-Key: <bob의 키>" -H "X-Workspace: acme" localhost:8000/approvals
 ```
 
+`GET /workspaces`는 호출자가 들어갈 수 있는 워크스페이스와 각 워크스페이스에서의 역할을 돌려줍니다.
+인증은 필요하지만 `X-Workspace`는 필요 없습니다. `GET /portfolios`는 요청한 워크스페이스의
+포트폴리오 목록입니다. 대시보드는 두 API로 사이드바의 워크스페이스·포트폴리오 선택 상자를 채우고,
+고른 워크스페이스를 `X-Workspace`로 보냅니다.
+
 ## 직접 만든 인증기
 
 ```python
