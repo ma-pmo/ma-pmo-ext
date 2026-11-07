@@ -86,6 +86,32 @@ shows current and latest revisions). The container entrypoint does this at start
 from 0.4 and earlier are adopted with their data. From 0.5, existing rows move into the
 `default` workspace. With several API replicas, run the upgrade once before rolling them out.
 
+## Postgres roles
+
+Workspaces are kept apart twice: by the API, and by Postgres row-level security (migration
+`0007`). Postgres skips row-level security for superusers and `BYPASSRLS` roles, so the API must
+connect as an **ordinary role that owns the database**. The compose file and `k8s/20-postgres.yaml`
+do this: `postgres` is the admin, and `deploy/postgres/init-app-role.sh` creates `mapmo` on first
+start. Check with `SELECT rolsuper FROM pg_roles WHERE rolname = current_user` (must be `f`).
+
+A database created before this change is owned by the old superuser `mapmo`, which cannot stop
+being one. The API still keeps workspaces apart, but without the second line. To add it, move
+the database to a new ordinary role (back up first):
+
+```sql
+-- as the superuser, in the MA-PMO database; then point DB_URL at mapmo_app
+CREATE ROLE mapmo_app LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD '<new password>';
+ALTER DATABASE mapmo OWNER TO mapmo_app;
+ALTER SCHEMA public OWNER TO mapmo_app;
+DO $$
+DECLARE t record;
+BEGIN
+  FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+    EXECUTE format('ALTER TABLE public.%I OWNER TO mapmo_app', t.tablename);
+  END LOOP;
+END $$;
+```
+
 ## Health check / smoke test
 
 ```bash

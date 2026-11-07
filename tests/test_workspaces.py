@@ -47,11 +47,12 @@ def second_workspace():
 
 
 def test_the_same_ids_can_live_in_two_workspaces(second_workspace):
-    with get_session() as s:
-        s.add(Portfolio(id="PORTFOLIO#2026-Q1", name="B's", period="Q1", workspace_id="b"))
+    # written from inside "b": on Postgres, row-level security refuses rows for another one
+    with workspace.use("b"), get_session() as s:
+        s.add(Portfolio(id="PORTFOLIO#2026-Q1", name="B's", period="Q1"))
         s.flush()
-        s.add(Project(id="PROJ-14", portfolio_id="PORTFOLIO#2026-Q1", workspace_id="b"))
-        s.add(Resource(id="R-01", skill="x", workspace_id="b"))
+        s.add(Project(id="PROJ-14", portfolio_id="PORTFOLIO#2026-Q1"))
+        s.add(Resource(id="R-01", skill="x"))
     with get_session() as s:
         names = s.execute(select(Portfolio.workspace_id, Portfolio.name)
                           .where(Portfolio.id == "PORTFOLIO#2026-Q1")

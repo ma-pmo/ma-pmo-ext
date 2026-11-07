@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import Connection, create_engine, event, text
 from sqlalchemy.orm import ORMExecuteState, Session, sessionmaker, with_loader_criteria
 
 from ma_pmo.core import workspace
@@ -33,19 +33,44 @@ if engine.dialect.name == "postgresql":
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False, class_=Session)
 
 
+_SET = "SELECT set_config('ma_pmo.{}', :value, true)"  # true: until the transaction ends
+
+
+def see_every_workspace(conn: Connection, on: bool = True) -> None:
+    """Let this Postgres transaction past row-level security (no-op elsewhere)."""
+    if conn.dialect.name == "postgresql":
+        conn.execute(text(_SET.format("all_workspaces")), {"value": "on" if on else ""})
+
+
+@event.listens_for(Session, "after_begin")
+def _tell_postgres_the_workspace(_session: Session, _transaction, conn: Connection) -> None:  # type: ignore[no-untyped-def]
+    """Row-level security (migration 0007) reads the workspace from the transaction. Set at the
+    start of each transaction, so flushes and Core statements in the session are covered."""
+    if conn.dialect.name == "postgresql":
+        conn.execute(text(_SET.format("workspace")), {"value": workspace.current()})
+
+
 @event.listens_for(Session, "do_orm_execute")
-def _only_current_workspace(state: ORMExecuteState) -> None:
+def _only_current_workspace(state: ORMExecuteState):  # type: ignore[no-untyped-def]
     """Every ORM SELECT, UPDATE and DELETE sees only the current workspace's rows, including
     joins and subqueries. Core statements on a raw connection are not filtered."""
     if state.is_column_load or state.is_relationship_load:  # their parent query was filtered
-        return
+        return None
     if not (state.is_select or state.is_update or state.is_delete):
-        return
+        return None
     if state.execution_options.get(workspace.ALL_WORKSPACES):
-        return
+        conn = state.session.connection()
+        if conn.dialect.name != "postgresql":
+            return None
+        see_every_workspace(conn)
+        try:
+            return state.invoke_statement()
+        finally:
+            see_every_workspace(conn, on=False)
     current = workspace.current()
     state.statement = state.statement.options(with_loader_criteria(
         Scoped, lambda cls: cls.workspace_id == current, include_aliases=True))
+    return None
 
 
 def ensure_schema() -> None:

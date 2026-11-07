@@ -88,6 +88,32 @@ kubectl -n ma-pmo get pods,svc,ingress
 현재·최신 버전 확인). 컨테이너 entrypoint는 시작할 때 자동으로 실행합니다. 0.4 이하 데이터베이스는
 데이터를 유지한 채 이어받습니다. 0.5에서 올리면 기존 행은 `default` 워크스페이스로 옮겨집니다. API 복제본이 여러 개면 배포 전에 업그레이드를 한 번만 실행하세요.
 
+## Postgres 역할
+
+워크스페이스는 두 겹으로 분리됩니다. API가 한 번, Postgres 행 수준 보안(마이그레이션 `0007`)이 한 번
+더 막습니다. Postgres는 슈퍼유저와 `BYPASSRLS` 역할에는 행 수준 보안을 적용하지 않으므로, API는
+**데이터베이스를 소유한 일반 역할**로 접속해야 합니다. compose 파일과 `k8s/20-postgres.yaml`은 이렇게
+되어 있습니다. `postgres`가 관리자이고, 처음 시작할 때 `deploy/postgres/init-app-role.sh`가 `mapmo`를
+만듭니다. `SELECT rolsuper FROM pg_roles WHERE rolname = current_user`로 확인하세요(`f`여야 합니다).
+
+이 변경 전에 만든 데이터베이스는 예전 슈퍼유저 `mapmo`가 소유하며, 이 역할은 슈퍼유저를 벗을 수
+없습니다. API가 여전히 워크스페이스를 분리하지만 두 번째 방어선은 없습니다. 추가하려면 새 일반 역할로
+데이터베이스를 옮기세요(먼저 백업).
+
+```sql
+-- 슈퍼유저로 MA-PMO 데이터베이스에서 실행한 뒤 DB_URL을 mapmo_app으로 바꿉니다
+CREATE ROLE mapmo_app LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD '<new password>';
+ALTER DATABASE mapmo OWNER TO mapmo_app;
+ALTER SCHEMA public OWNER TO mapmo_app;
+DO $$
+DECLARE t record;
+BEGIN
+  FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+    EXECUTE format('ALTER TABLE public.%I OWNER TO mapmo_app', t.tablename);
+  END LOOP;
+END $$;
+```
+
 ## 헬스체크 / 스모크
 
 ```bash

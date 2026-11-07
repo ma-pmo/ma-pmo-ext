@@ -14,7 +14,7 @@ from alembic import command
 from alembic.config import Config
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import Engine, inspect, text
+from sqlalchemy import Connection, Engine, inspect, text
 
 BASELINE = "0001_baseline"
 _LOCK_KEY = 7_203_411  # any fixed number; shared by every MA-PMO process on a database
@@ -35,6 +35,12 @@ def _engine(engine: Engine | None) -> Engine:
     return default_engine
 
 
+def _see_every_workspace(conn: Connection) -> None:
+    """Migrations rewrite every workspace's rows, past row-level security (0007)."""
+    if conn.dialect.name == "postgresql":
+        conn.execute(text("SELECT set_config('ma_pmo.all_workspaces', 'on', true)"))
+
+
 def head() -> str | None:
     return ScriptDirectory.from_config(_config()).get_current_head()
 
@@ -52,6 +58,7 @@ def upgrade(engine: Engine | None = None, revision: str = "head") -> str | None:
         if conn.dialect.name == "postgresql":
             # replicas starting together take turns; the lock ends with the transaction
             conn.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": _LOCK_KEY})
+            _see_every_workspace(conn)
         tables = set(inspect(conn).get_table_names())
         unversioned = "alembic_version" not in tables
         if unversioned and "portfolio" in tables:
@@ -65,5 +72,6 @@ def downgrade(engine: Engine | None = None, revision: str = BASELINE) -> str | N
     config = _config()
     with _engine(engine).begin() as conn:
         config.attributes["connection"] = conn
+        _see_every_workspace(conn)
         command.downgrade(config, revision)
     return current(engine)

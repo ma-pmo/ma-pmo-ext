@@ -40,13 +40,18 @@ services:
     image: postgres:16
     profiles: ["postgres"]
     environment:
-      POSTGRES_USER: mapmo
-      POSTGRES_PASSWORD: mapmo
-      POSTGRES_DB: mapmo
+      # the admin is a superuser; the API connects as `mapmo`, an ordinary role created by
+      # deploy/postgres/init-app-role.sh, because superusers skip row-level security
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-postgres}
+      MAPMO_DB_USER: mapmo
+      MAPMO_DB_PASSWORD: mapmo
+      MAPMO_DB_NAME: mapmo
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./deploy/postgres:/docker-entrypoint-initdb.d:ro
 
 volumes:
   api_data:

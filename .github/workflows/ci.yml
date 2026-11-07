@@ -64,7 +64,8 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
-      TEST_DB_URL: postgresql+psycopg://mapmo:mapmo@localhost:5432/mapmo_test
+      # an ordinary role that owns the database: superusers would skip row-level security
+      TEST_DB_URL: postgresql+psycopg://mapmo_app:mapmo_app@localhost:5432/mapmo_app_test
       PGTZ: Asia/Seoul  # timestamps must stay UTC whatever the session default is
     steps:
       - uses: actions/checkout@v7
@@ -79,6 +80,14 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --extra dev --extra mcp --extra otel --extra postgres
+
+      - name: Create the ordinary role the app connects as
+        env:
+          PGPASSWORD: mapmo
+        run: |
+          psql -h localhost -U mapmo -d mapmo_test -v ON_ERROR_STOP=1 \
+            -c "CREATE ROLE mapmo_app LOGIN CREATEDB NOSUPERUSER PASSWORD 'mapmo_app'" \
+            -c "CREATE DATABASE mapmo_app_test OWNER mapmo_app"
 
       - name: Full test suite on Postgres
         run: uv run pytest -q
@@ -100,6 +109,32 @@ jobs:
           done
           docker logs api
           exit 1
+
+      - name: Run it on the compose Postgres, as an ordinary role
+        run: |
+          docker compose --profile postgres up -d postgres
+          for i in $(seq 1 30); do
+            # over TCP: the image's first, setup-only server listens on the socket alone
+            ready=$(docker compose exec -T -e PGPASSWORD=postgres postgres \
+              psql -h 127.0.0.1 -U postgres -tAc \
+              "SELECT rolsuper FROM pg_roles WHERE rolname = 'mapmo'" 2>/dev/null || true)
+            [ "$ready" = "f" ] && break
+            sleep 2
+          done
+          [ "$ready" = "f" ] || { docker compose logs postgres; exit 1; }
+          network=$(docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}' \
+            "$(docker compose ps -q postgres)")
+          docker run -d --name api-pg --network "$network" -p 8001:8000 \
+            -e DB_URL=postgresql+psycopg://mapmo:mapmo@postgres:5432/mapmo ma-pmo-api
+          for i in $(seq 1 30); do
+            curl -sf localhost:8001/health && break
+            sleep 2
+          done
+          curl -sf localhost:8001/allocate -X POST > /dev/null
+          test "$(curl -sf localhost:8001/allocations | python3 -c 'import json,sys; print(len(json.load(sys.stdin)) > 0)')" = True \
+            || { docker logs api-pg; exit 1; }
+          # without a workspace the database shows the app role nothing
+          test "$(docker compose exec -T postgres psql -U mapmo -d mapmo -tAc 'SELECT COUNT(*) FROM project')" = 0
 
   web:
     runs-on: ubuntu-latest
