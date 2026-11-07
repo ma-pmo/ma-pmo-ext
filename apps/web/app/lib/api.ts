@@ -35,6 +35,8 @@ export const api = {
   plan: (scope?: string) => req(scoped(`/plan`, scope), { method: "POST" }),
   allocate: (scope?: string) => req(scoped(`/allocate`, scope), { method: "POST" }),
   scenarios: () => req(`/scenarios`),
+  workflows: () => req(`/workflows`),
+  workflow: (id: string) => req(`/workflows/${encodeURIComponent(id)}`),
   runScenario: (id: string) =>
     req(`/scenarios/${id}/run?format=markdown`, { method: "POST" }),
   gateReview: (gate = "G2-planning", scope?: string) =>

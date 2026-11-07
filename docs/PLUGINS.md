@@ -74,6 +74,11 @@ A step follows the one before it unless it lists `needs`, and takes optional `pa
 read at startup. An invalid file, an unknown agent or an id already in use is reported under
 `workflow_problems` in `GET /agents`, and the file is skipped.
 
+To check the result, open **Workflows** in the dashboard: each workflow is drawn as stages that
+can run in parallel, with the same steps as a table and required steps (such as gates) marked.
+`GET /workflows` and `GET /workflows/{id}` return the same, including each step's resolved
+`needs` and `level`.
+
 ## Rules
 
 | Rule | Why |

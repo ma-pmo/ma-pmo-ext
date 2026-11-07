@@ -186,6 +186,15 @@ CATEGORIES: dict[str, tuple[str, str]] = {
 _fn = registry.title
 
 
+def workflow(workflow_id: str) -> WorkflowSpec:
+    """A loaded workflow; KeyError if there is none with that id."""
+    return _SPECS[workflow_id]
+
+
+def workflows() -> list[WorkflowSpec]:
+    return list(_SPECS.values())
+
+
 def list_scenarios() -> list[dict]:
     return [
         {

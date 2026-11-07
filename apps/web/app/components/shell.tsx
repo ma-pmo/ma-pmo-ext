@@ -13,13 +13,14 @@ const LANGS: { code: Lang; label: string }[] = [
   { code: "ko", label: "한국어" },
 ];
 
-type Item = { href: string; key: "dashboard" | "scenarios" | "approvals" | "evaluation" | "integrations"; icon: () => JSX.Element };
+type Item = { href: string; key: "dashboard" | "scenarios" | "workflows" | "approvals" | "evaluation" | "integrations"; icon: () => JSX.Element };
 const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items: Item[] }[] = [
   { key: "overview", items: [{ href: "/", key: "dashboard", icon: Icon.dashboard }] },
   {
     key: "operations",
     items: [
       { href: "/scenarios", key: "scenarios", icon: Icon.scenarios },
+      { href: "/workflows", key: "workflows", icon: Icon.workflows },
       { href: "/approvals", key: "approvals", icon: Icon.approvals },
     ],
   },
