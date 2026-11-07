@@ -39,6 +39,8 @@ from ma_pmo.core.i18n import tr
 from ma_pmo.core.workspace import ROLES
 
 PUBLIC_PATHS = {"/health", "/docs", "/docs/oauth2-redirect", "/redoc", "/openapi.json"}
+# about the caller, not about a workspace: authenticated, but no workspace is picked
+ACCOUNT_PATHS = {"/workspaces"}
 MIN_KEY_LENGTH = 16
 
 
@@ -202,6 +204,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
                               "인증이 필요합니다: API 키를 보내 주세요")},
                 status_code=401, headers={"WWW-Authenticate": "Bearer"},
             )
+        if request.url.path in ACCOUNT_PATHS:
+            request.state.principal = found
+            return await call_next(request)
         name = request.headers.get(workspace.HEADER) or workspace.current()
         granted = await run_in_threadpool(_roles_in, name, found.subject)
         principal = found.in_workspace(name, granted or frozenset())

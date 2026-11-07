@@ -69,6 +69,15 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1
 .brand img { width: 34px; height: 34px; border-radius: 9px; }
 .brand b { display: block; font-size: 15px; letter-spacing: .2px; }
 .brand small { display: block; font-size: 11px; color: var(--sidebar-text); }
+.place { display: grid; gap: 8px; padding: 0 8px 4px; }
+.place label { display: grid; gap: 3px; }
+.place span { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #6f7a93; }
+.place select {
+  width: 100%; min-width: 0; font: inherit; font-size: 13px; padding: 6px 8px; border-radius: 8px;
+  background: rgba(255, 255, 255, .06); color: #fff; border: 1px solid rgba(255, 255, 255, .12);
+}
+.place select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.place option { color: #1c2333; background: #fff; }
 .nav-group { margin-top: 14px; }
 .nav-group > span {
   display: block; padding: 0 10px 6px; font-size: 11px; text-transform: uppercase;

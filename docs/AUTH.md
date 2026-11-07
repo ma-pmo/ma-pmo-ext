@@ -89,6 +89,11 @@ ma-pmo workspace revoke acme bob approver
 curl -H "X-API-Key: <bob's key>" -H "X-Workspace: acme" localhost:8000/approvals
 ```
 
+`GET /workspaces` lists the workspaces the caller can enter, with their roles in each; it needs
+credentials but no `X-Workspace`. `GET /portfolios` lists the portfolios of the request's
+workspace. The dashboard uses both for its workspace and portfolio switcher in the sidebar, and
+sends the chosen workspace as `X-Workspace`.
+
 ## Custom authenticator
 
 ```python

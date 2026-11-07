@@ -14,6 +14,7 @@ const en = {
     apiUp: "API connected", apiDown: "API offline", menu: "Menu",
     docs: "Docs", github: "GitHub",
     authOff: "Auth off", authOffTip: "Local mode: anyone who can reach the API can approve. See docs/AUTH.md.",
+    workspace: "Workspace", portfolio: "Portfolio",
   },
   pages: {
     dashboard: "Portfolio status, KPIs and agent activity at a glance.",
@@ -250,6 +251,7 @@ const ko: Messages = {
     apiUp: "API 연결됨", apiDown: "API 연결 안 됨", menu: "메뉴",
     docs: "문서", github: "GitHub",
     authOff: "인증 꺼짐", authOffTip: "로컬 모드: API에 접근 가능한 누구나 승인할 수 있습니다. docs/AUTH.ko.md 참고.",
+    workspace: "워크스페이스", portfolio: "포트폴리오",
   },
   pages: {
     dashboard: "포트폴리오 상태, KPI, 에이전트 활동을 한눈에 봅니다.",
