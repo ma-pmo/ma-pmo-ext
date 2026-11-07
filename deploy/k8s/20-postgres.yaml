@@ -9,6 +9,24 @@ spec:
     requests:
       storage: 2Gi
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: ma-pmo
+data:
+  # same as deploy/postgres/init-app-role.sh: the API connects as an ordinary role, because
+  # superusers skip row-level security
+  init-app-role.sh: |
+    #!/bin/sh
+    set -eu
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres \
+      -v user="${MAPMO_DB_USER:-mapmo}" -v password="${MAPMO_DB_PASSWORD:-mapmo}" \
+      -v db="${MAPMO_DB_NAME:-mapmo}" <<'SQL'
+    CREATE ROLE :"user" LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD :'password';
+    CREATE DATABASE :"db" OWNER :"user";
+    SQL
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,21 +44,26 @@ spec:
         - name: postgres
           image: postgres:16
           env:
-            - { name: POSTGRES_USER, value: mapmo }
-            - { name: POSTGRES_PASSWORD, value: mapmo }
-            - { name: POSTGRES_DB, value: mapmo }
+            - { name: POSTGRES_USER, value: postgres }
+            - { name: POSTGRES_PASSWORD, value: postgres }
+            - { name: MAPMO_DB_USER, value: mapmo }
+            - { name: MAPMO_DB_PASSWORD, value: mapmo }
+            - { name: MAPMO_DB_NAME, value: mapmo }
             - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
           ports:
             - containerPort: 5432
           volumeMounts:
             - { name: data, mountPath: /var/lib/postgresql/data }
+            - { name: init, mountPath: /docker-entrypoint-initdb.d, readOnly: true }
           readinessProbe:
-            exec: { command: ["pg_isready", "-U", "mapmo"] }
+            exec: { command: ["pg_isready", "-U", "postgres"] }
             initialDelaySeconds: 5
             periodSeconds: 10
       volumes:
         - name: data
           persistentVolumeClaim: { claimName: postgres-pvc }
+        - name: init
+          configMap: { name: postgres-init }
 ---
 apiVersion: v1
 kind: Service

@@ -4,12 +4,14 @@ from __future__ import annotations
 import os
 import threading
 import uuid
+from contextlib import contextmanager
 
 import pytest
 from sqlalchemy import create_engine, text
 
 from ma_pmo.core.state.checkpointer import _psycopg_url, build_checkpointer
 from ma_pmo.db import migrate
+from ma_pmo.db.session import see_every_workspace
 
 URL = os.environ.get("TEST_DB_URL", "")
 needs_postgres = pytest.mark.skipif(not URL.startswith("postgresql"),
@@ -85,9 +87,79 @@ def test_a_row_cannot_point_into_another_workspace():
                           "VALUES ('fk-test', 'T', now())"))
     try:
         with pytest.raises(IntegrityError), engine.begin() as conn:
+            see_every_workspace(conn)  # past row-level security, so the foreign key decides
             # PORTFOLIO#2026-Q1 exists, but only in `default`
             conn.execute(text("INSERT INTO project (workspace_id, id, portfolio_id, skill, status) "
                               "VALUES ('fk-test', 'X', 'PORTFOLIO#2026-Q1', 'x', 'green')"))
     finally:
         with engine.begin() as conn:
             conn.execute(text("DELETE FROM workspace WHERE id = 'fk-test'"))
+
+
+TENANT_TABLES = ("portfolio", "project", "task", "resource", "allocation", "risk", "report", "run",
+                 "run_step", "agent_message", "approval", "knowledge_doc", "kpi_event")
+
+
+@needs_postgres
+def test_every_scoped_table_has_forced_row_level_security():
+    from ma_pmo.db.models import Base, Scoped
+
+    scoped = {m.class_.__tablename__ for m in Base.registry.mappers
+              if issubclass(m.class_, Scoped)}
+    assert scoped == set(TENANT_TABLES)  # a new table needs a policy in a migration
+    with create_engine(URL).connect() as conn:
+        rows = conn.execute(text(
+            "SELECT relname, relrowsecurity, relforcerowsecurity FROM pg_class "
+            "WHERE relname = ANY(:names)"), {"names": list(scoped)}).all()
+    assert {name for name, on, forced in rows if on and forced} == scoped
+
+
+@contextmanager
+def _subject_to_rls():
+    """A transaction that row-level security applies to: superusers bypass it, so they switch
+    to a plain role; the CI job already connects as one (the table owner, held by FORCE)."""
+    engine = create_engine(URL)
+    with engine.begin() as conn:
+        if conn.execute(text("SELECT rolsuper FROM pg_roles WHERE rolname = current_user")
+                        ).scalar_one():
+            role = f"rls_{uuid.uuid4().hex[:8]}"
+            conn.execute(text(f"CREATE ROLE {role} NOLOGIN"))
+            conn.execute(text(f"GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA public TO {role}"))
+            conn.execute(text(f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO {role}"))
+            conn.execute(text(f"SET LOCAL ROLE {role}"))
+        yield conn
+        conn.rollback()  # leaves no role or row behind
+    engine.dispose()
+
+
+def _set(conn, name: str, value: str) -> None:
+    conn.execute(text(f"SELECT set_config('ma_pmo.{name}', :v, true)"), {"v": value})
+
+
+@needs_postgres
+def test_postgres_itself_hides_other_workspaces():
+    with _subject_to_rls() as conn:
+        count = "SELECT COUNT(*) FROM project"
+        assert conn.execute(text(count)).scalar_one() == 0  # nobody said which workspace
+        _set(conn, "workspace", "default")
+        mine = conn.execute(text(count)).scalar_one()
+        assert mine > 0
+        assert conn.execute(text("SELECT COUNT(*) FROM project WHERE workspace_id <> 'default'")
+                            ).scalar_one() == 0
+        _set(conn, "workspace", "elsewhere")
+        assert conn.execute(text(count)).scalar_one() == 0
+        _set(conn, "all_workspaces", "on")
+        assert conn.execute(text(count)).scalar_one() >= mine
+
+
+@needs_postgres
+def test_postgres_refuses_a_row_for_another_workspace():
+    from sqlalchemy.exc import ProgrammingError
+
+    with _subject_to_rls() as conn:
+        _set(conn, "workspace", "default")
+        conn.execute(text("SAVEPOINT before"))
+        with pytest.raises(ProgrammingError, match="row-level security"):
+            conn.execute(text("INSERT INTO kpi_event (workspace_id, axis, metric, value, meta, ts)"
+                              " VALUES ('elsewhere', 'time', 'x', 1, '{}', now())"))
+        conn.execute(text("ROLLBACK TO SAVEPOINT before"))

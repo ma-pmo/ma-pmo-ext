@@ -77,7 +77,8 @@ What a caller may do there is the sum of three sources:
 | a membership in the database | `ma-pmo workspace grant acme bob approver` | in `acme` only |
 
 A caller with no role in a workspace gets the same 404 as for a workspace that does not exist,
-so strangers cannot tell which workspaces exist. Approving needs `approver` in the approval's
+so strangers cannot tell which workspaces exist. On Postgres the database enforces the same
+separation with row-level security (see [deploy/README.md](../deploy/README.md#postgres-roles)). Approving needs `approver` in the approval's
 workspace. Give plain roles only to people and systems trusted with every workspace.
 
 ```bash

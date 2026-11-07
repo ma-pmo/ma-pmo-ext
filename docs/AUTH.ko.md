@@ -75,7 +75,8 @@ curl -H "X-API-Key: <키>" localhost:8000/auth/whoami     # 내가 누구이고 
 | 데이터베이스 멤버십 | `ma-pmo workspace grant acme bob approver` | `acme`에서만 |
 
 워크스페이스에 역할이 하나도 없으면 없는 워크스페이스와 똑같이 404를 받으므로, 다른 사람은 어떤
-워크스페이스가 있는지 알 수 없습니다. 승인하려면 그 승인이 속한 워크스페이스에서 `approver`가 필요합니다.
+워크스페이스가 있는지 알 수 없습니다. Postgres에서는 데이터베이스도 행 수준 보안으로 같은 분리를
+강제합니다([deploy/README.ko.md](../deploy/README.ko.md#postgres-역할) 참고). 승인하려면 그 승인이 속한 워크스페이스에서 `approver`가 필요합니다.
 일반 역할은 모든 워크스페이스를 맡겨도 되는 사람과 시스템에만 주세요.
 
 ```bash
