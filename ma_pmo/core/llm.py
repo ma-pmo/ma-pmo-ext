@@ -14,7 +14,7 @@ from typing import TypeVar
 import litellm
 from pydantic import BaseModel
 
-from ma_pmo.core import kpi, tracing
+from ma_pmo.core import costs, kpi, tracing
 from ma_pmo.core.config import get_settings
 from ma_pmo.core.i18n import get_lang
 
@@ -68,6 +68,7 @@ def complete(
             tracing.OUTPUT_TOKENS: getattr(usage, "completion_tokens", None),
         })
     latency_ms = (time.monotonic() - t0) * 1000
+    costs.record(model, agent, costs.usage_of(resp), latency_ms)
     kpi.record_llm_cost(
         model=model,
         prompt_tokens=getattr(usage, "prompt_tokens", 0) or 0,

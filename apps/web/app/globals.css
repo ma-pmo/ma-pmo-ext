@@ -340,3 +340,9 @@ tr.wf-row-on td { background: var(--accent-soft); }
 .wf-dry { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
 .wf-dry h3 { margin: 0 0 4px; font-size: 14px; }
 .wf-dry ol { margin: 8px 0 0; padding-left: 20px; }
+/* cost ledger */
+.cost-table th { white-space: nowrap; }
+.cost-table td:nth-child(2), .cost-table td:nth-child(3), .cost-table td:nth-child(4) { white-space: nowrap; }
+.cost-table td:last-child { width: 28%; }
+.cost-bar { display: block; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.cost-bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }

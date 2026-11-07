@@ -23,6 +23,7 @@ from ma_pmo.db.models import (
     Base,
     KnowledgeDoc,
     KpiEvent,
+    LlmCall,
     Portfolio,
     Project,
     Report,
@@ -51,6 +52,7 @@ PATH = {
     # workflows are shared by every workspace; none carries workspace data
     "/workflows/{workflow_id}": (f"/workflows/{MARK}", lambda r: r.status_code == 404),
     "/runs/{run_id}/workflow": (f"/runs/run-{MARK}/workflow", lambda r: r.status_code == 404),
+    "/runs/{run_id}/costs": (f"/runs/run-{MARK}/costs", lambda r: r.status_code == 404),
     # another workspace's version 9 of a shared workflow
     "/workflows/{workflow_id}/versions": (
         "/workflows/weekly_status/versions",
@@ -84,6 +86,8 @@ def _marked_rows() -> list[Base]:
                      text="lesson risk schedule vendor delay", tags=[MARK]),
         KpiEvent(axis="risk", metric=MARK, value=1.0, project_id=f"{MARK}-P",
                  meta={"note": MARK}, run_id=f"run-{MARK}"),
+        LlmCall(run_id=f"run-{MARK}", step_seq=1, agent=MARK, model=MARK, prompt_tokens=7,
+                completion_tokens=7, usd=1.0, price_version=MARK),
         WorkflowVersion(workflow_id="weekly_status", version=9, status="published",
                         created_by=MARK, note=MARK,
                         spec={"id": "weekly_status", "version": 9, "category": "execution",
@@ -113,7 +117,8 @@ def other():
     yield {"approval_id": approval_id}
     with workspace.use(OTHER), get_session() as s:
         for model in (Approval, KpiEvent, AgentMessageRow, RunStep, Run, Risk, Allocation,
-                      Task, Project, Resource, Portfolio, Report, KnowledgeDoc, WorkflowVersion):
+                      Task, Project, Resource, Portfolio, Report, KnowledgeDoc, WorkflowVersion,
+                      LlmCall):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Workspace).where(Workspace.id == OTHER))
@@ -176,7 +181,7 @@ def test_no_get_route_shows_another_workspace(other, client):
         checked.append(path)
     assert uncovered == [], "cover these routes in PATH or QUERY"
     assert {"/runs", "/risks", "/messages", "/kpi", "/allocations", "/approvals",
-            "/knowledge/search"} <= set(checked)
+            "/knowledge/search", "/costs", "/workflows"} <= set(checked)
 
 
 @pytest.mark.parametrize("path", sorted(PATH))

@@ -53,6 +53,12 @@ def current_run_id() -> str | None:
     return _current_run.get()
 
 
+def current_step_seq() -> int | None:
+    """The position of the step running now, if any."""
+    handle = _current_step.get()
+    return handle.seq if handle is not None else None
+
+
 def dedupe_key(kind: str) -> str | None:
     """Key for the next row of `kind` in this step: the same on every attempt of the step."""
     handle = _current_step.get()

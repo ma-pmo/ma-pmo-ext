@@ -28,6 +28,7 @@ from ma_pmo.api.auth import (  # noqa: E402
 )
 from ma_pmo.api.routers import (  # noqa: E402
     approvals,
+    costs,
     evaluation,
     integrations,
     knowledge,
@@ -105,6 +106,7 @@ app.include_router(webhooks.router)
 app.include_router(integrations.router)
 app.include_router(workspaces.router)
 app.include_router(workflows.router)
+app.include_router(costs.router)
 
 
 @app.get("/health")

@@ -64,6 +64,7 @@ export const api = {
   workflowVersion: (id: string, version: number) =>
     req(`/workflows/${encodeURIComponent(id)}/versions/${version}`),
   agents: () => req(`/agents`),
+  costs: (by: string, days?: number) => req(`/costs?by=${by}${days ? `&days=${days}` : ""}`),
   validateWorkflow: (spec: unknown) => req(`/workflows/validate`, json({ spec })),
   dryRun: (spec: unknown) => req(`/workflows/dry-run`, json({ spec })),
   saveDraft: (id: string, spec: unknown, note: string) =>

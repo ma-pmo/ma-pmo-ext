@@ -5,7 +5,7 @@ const en = {
   appTitle: "MA-PMO Admin",
   nav: {
     dashboard: "Dashboard", scenarios: "Scenarios", workflows: "Workflows", approvals: "Approvals",
-    evaluation: "Evaluation", integrations: "Integrations",
+    evaluation: "Evaluation", costs: "Costs", integrations: "Integrations",
     groups: { overview: "Overview", operations: "Operations", insights: "Insights", settings: "Settings" },
   },
   langLabel: "Language",
@@ -23,6 +23,7 @@ const en = {
     evaluation: "Hypotheses H1–H5 measured on live telemetry, with templates to evaluate your own data.",
     integrations: "Connect Slack, webhooks, Jira, GitHub and Linear, and see which platform features are on.",
     workflows: "What each workflow runs, in which order, and which steps must stay.",
+    costs: "What every LLM call cost, by model, agent, workflow, run and day.",
   },
   common2: { refresh: "Refresh", all: "All", yes: "Yes", no: "No", loading: "Loading…", none: "–" },
   evalp: {
@@ -232,6 +233,16 @@ const en = {
     editedHere: "edited in this workspace",
   },
 
+  cost: {
+    range: "Period", days: (n: number) => `Last ${n} days`, all: "All time",
+    usd: "Spend (USD)", calls: "LLM calls", tokens: "Tokens (in / out)", cached: "Cached input tokens",
+    unpriced: "Unpriced calls", unpricedTip: "No price is known for these models, so they are not in the USD total. Add them to a price table (MA_PMO_PRICE_TABLE).",
+    table: (v: string) => `Prices: ${v}`,
+    by: { model: "By model", agent: "By agent", workflow: "By workflow", run: "By run", day: "By day" } as Record<string, string>,
+    key: "Name", none: "No LLM calls yet. Without an API key the agents use their deterministic fallbacks, which cost nothing.",
+    noPrice: "unknown", plusUnpriced: (n: number) => `+${n} unpriced`,
+  },
+
   wfEdit: {
     edit: "Edit", title: (id: string) => `Edit ${id}`,
     desc: "Changes are checked as you type by the same rules the server applies. Saving makes a draft; an approver publishes it.",
@@ -294,7 +305,7 @@ const ko: Messages = {
   appTitle: "MA-PMO 관리자",
   nav: {
     dashboard: "대시보드", scenarios: "시나리오", workflows: "워크플로", approvals: "승인 큐",
-    evaluation: "평가", integrations: "연동",
+    evaluation: "평가", costs: "비용", integrations: "연동",
     groups: { overview: "개요", operations: "운영", insights: "분석", settings: "설정" },
   },
   langLabel: "언어",
@@ -312,6 +323,7 @@ const ko: Messages = {
     evaluation: "가설 H1~H5를 실측 텔레메트리로 평가하고, 우리 조직 데이터 평가용 템플릿을 받습니다.",
     integrations: "Slack, 웹훅, Jira, GitHub, Linear를 연결하고 플랫폼 기능이 켜져 있는지 확인합니다.",
     workflows: "각 워크플로가 무엇을 어떤 순서로 실행하는지, 어떤 단계를 뺄 수 없는지 봅니다.",
+    costs: "모든 LLM 호출의 비용을 모델, 에이전트, 워크플로, 실행, 날짜별로 봅니다.",
   },
   common2: { refresh: "새로고침", all: "전체", yes: "예", no: "아니오", loading: "불러오는 중…", none: "–" },
   evalp: {
@@ -517,6 +529,16 @@ const ko: Messages = {
     viewVersion: (v: number) => `버전 ${v} 보기`,
     viewing: (v: number) => `사용 중이 아닌 버전(v${v})을 보는 중`, backToCurrent: "사용 중인 버전으로",
     editedHere: "이 워크스페이스에서 수정됨",
+  },
+
+  cost: {
+    range: "기간", days: (n: number) => `최근 ${n}일`, all: "전체",
+    usd: "비용 (USD)", calls: "LLM 호출", tokens: "토큰 (입력 / 출력)", cached: "캐시된 입력 토큰",
+    unpriced: "가격 미상 호출", unpricedTip: "이 모델들은 가격을 알 수 없어 USD 합계에 들어가지 않습니다. 가격표(MA_PMO_PRICE_TABLE)에 추가하세요.",
+    table: (v: string) => `가격표: ${v}`,
+    by: { model: "모델별", agent: "에이전트별", workflow: "워크플로별", run: "실행별", day: "날짜별" } as Record<string, string>,
+    key: "이름", none: "아직 LLM 호출이 없습니다. API 키가 없으면 에이전트는 비용이 들지 않는 결정론적 방식으로 동작합니다.",
+    noPrice: "미상", plusUnpriced: (n: number) => `가격 미상 ${n}건 별도`,
   },
 
   wfEdit: {
