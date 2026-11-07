@@ -16,6 +16,7 @@ from ma_pmo.core.config import get_settings
 DEFAULT_WORKSPACE = "default"
 ALL_WORKSPACES = "all_workspaces"  # execution option: skip the filter for one statement
 HEADER = "X-Workspace"
+ROLES = ("viewer", "operator", "approver", "admin")
 
 _current: ContextVar[str | None] = ContextVar("ma_pmo_workspace", default=None)
 

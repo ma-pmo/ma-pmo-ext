@@ -42,7 +42,8 @@ MA_PMO_AUTH_MODE=api_key
 MA_PMO_API_KEYS=alice:approver:<key1>,ci-bot:operator:<key2>,dash:viewer+approver:<key3>
 ```
 
-Each entry is `name:role+role:key`. Keys must be at least 16 characters and unique. Send one
+Each entry is `name:role+role:key`; a role written `workspace/role` applies only in that
+workspace (see [Workspaces](#workspaces)). Keys must be at least 16 characters and unique. Send one
 with either header:
 
 ```bash
@@ -64,10 +65,28 @@ same proxy.
 ## Workspaces
 
 Every request runs in one workspace: the `X-Workspace` header, or `MA_PMO_WORKSPACE` (default
-`default`) when it is absent. An unknown workspace is a 404. All data is filtered by it
-automatically, and ids from another workspace are not found. Roles still apply to every
-workspace alike; per-workspace memberships come next (#39), so until then do not give people
-who must not see each other's data keys to the same server.
+`default`) when it is absent. All data is filtered by it automatically, and ids from another
+workspace are not found.
+
+What a caller may do there is the sum of three sources:
+
+| Source | Example | Applies |
+|---|---|---|
+| a plain role on the key | `ci-bot:operator:<key>` | in every workspace |
+| a `workspace/role` on the key | `bob:acme/viewer+acme/approver:<key>` | in `acme` only |
+| a membership in the database | `ma-pmo workspace grant acme bob approver` | in `acme` only |
+
+A caller with no role in a workspace gets the same 404 as for a workspace that does not exist,
+so strangers cannot tell which workspaces exist. Approving needs `approver` in the approval's
+workspace. Give plain roles only to people and systems trusted with every workspace.
+
+```bash
+ma-pmo workspace create acme --name "Acme"
+ma-pmo workspace grant acme bob approver     # bob = the key name or authenticator subject
+ma-pmo workspace members acme
+ma-pmo workspace revoke acme bob approver
+curl -H "X-API-Key: <bob's key>" -H "X-Workspace: acme" localhost:8000/approvals
+```
 
 ## Custom authenticator
 
@@ -95,6 +114,10 @@ MA_PMO_AUTHENTICATOR=my_company.auth:factory
 ```
 
 Only trust a forwarded header when the API is reachable *only* through that proxy.
+
+Roles in `Principal(subject, roles)` apply in every workspace; pass
+`memberships={"acme": frozenset({"approver"})}` for roles in one workspace. Database
+memberships for `subject` are added on top. A principal with no roles at all has no access.
 
 ## In code
 

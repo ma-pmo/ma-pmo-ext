@@ -41,7 +41,8 @@ MA_PMO_AUTH_MODE=api_key
 MA_PMO_API_KEYS=alice:approver:<키1>,ci-bot:operator:<키2>,dash:viewer+approver:<키3>
 ```
 
-항목 형식은 `이름:역할+역할:키`입니다. 키는 16자 이상이고 서로 달라야 합니다. 둘 중 한 헤더로
+항목 형식은 `이름:역할+역할:키`이며, `워크스페이스/역할`로 쓴 역할은 그 워크스페이스에서만
+적용됩니다([워크스페이스](#워크스페이스) 참고). 키는 16자 이상이고 서로 달라야 합니다. 둘 중 한 헤더로
 보냅니다.
 
 ```bash
@@ -62,10 +63,28 @@ curl -H "X-API-Key: <키>" localhost:8000/auth/whoami     # 내가 누구이고 
 ## 워크스페이스
 
 모든 요청은 워크스페이스 하나 안에서 실행됩니다. `X-Workspace` 헤더로 고르고, 없으면
-`MA_PMO_WORKSPACE`(기본 `default`)를 씁니다. 없는 워크스페이스는 404입니다. 모든 데이터가 자동으로
-그 워크스페이스로 걸러지고, 다른 워크스페이스의 id는 찾을 수 없습니다. 역할은 아직 모든 워크스페이스에
-똑같이 적용됩니다. 워크스페이스별 멤버십은 다음 작업(#39)이므로, 그 전까지는 서로의 데이터를 보면 안 되는
-사람들에게 같은 서버의 키를 주지 마세요.
+`MA_PMO_WORKSPACE`(기본 `default`)를 씁니다. 모든 데이터가 자동으로 그 워크스페이스로 걸러지고, 다른
+워크스페이스의 id는 찾을 수 없습니다.
+
+그 워크스페이스에서 할 수 있는 일은 세 가지를 합친 것입니다.
+
+| 출처 | 예 | 적용 범위 |
+|---|---|---|
+| 키의 일반 역할 | `ci-bot:operator:<키>` | 모든 워크스페이스 |
+| 키의 `워크스페이스/역할` | `bob:acme/viewer+acme/approver:<키>` | `acme`에서만 |
+| 데이터베이스 멤버십 | `ma-pmo workspace grant acme bob approver` | `acme`에서만 |
+
+워크스페이스에 역할이 하나도 없으면 없는 워크스페이스와 똑같이 404를 받으므로, 다른 사람은 어떤
+워크스페이스가 있는지 알 수 없습니다. 승인하려면 그 승인이 속한 워크스페이스에서 `approver`가 필요합니다.
+일반 역할은 모든 워크스페이스를 맡겨도 되는 사람과 시스템에만 주세요.
+
+```bash
+ma-pmo workspace create acme --name "Acme"
+ma-pmo workspace grant acme bob approver     # bob = 키 이름 또는 인증기의 subject
+ma-pmo workspace members acme
+ma-pmo workspace revoke acme bob approver
+curl -H "X-API-Key: <bob의 키>" -H "X-Workspace: acme" localhost:8000/approvals
+```
 
 ## 직접 만든 인증기
 
@@ -93,6 +112,10 @@ MA_PMO_AUTHENTICATOR=my_company.auth:factory
 ```
 
 전달된 헤더는 API가 *오직* 그 프록시를 통해서만 접근 가능할 때만 신뢰하세요.
+
+`Principal(subject, roles)`의 역할은 모든 워크스페이스에 적용됩니다. 한 워크스페이스에서만 줄 역할은
+`memberships={"acme": frozenset({"approver"})}`로 넘기세요. `subject`의 데이터베이스 멤버십이 그 위에
+더해집니다. 역할이 하나도 없는 주체는 접근할 수 없습니다.
 
 ## 코드 위치
 
