@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-07
+
 ### Changed
 - One executor (`ma_pmo/core/executor.py`): scenarios and goals both compile a `WorkflowSpec` to a LangGraph graph. Steps follow `needs`, so independent steps run in parallel and joins wait. `/orchestrate` gains `pause_on_gate`, a `status` in its response, and resume after a crash. A run keeps the workflow it started with.
 - The 20 lifecycle scenarios are data (`ma_pmo/fixtures/workflows.json`), validated as `WorkflowSpec`: unique steps, known dependencies, no cycles. Golden traces pin their results in both languages.
@@ -102,7 +104,8 @@ First public release.
 ### Fixed
 - Progress bars on the dashboard did not render their fill.
 
-[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.1.0...v0.2.0
@@ -113,6 +116,8 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+### [0.5.0] - 2026-11-07
 
 - 실행기 통합(`ma_pmo/core/executor.py`): 시나리오와 목표 모두 `WorkflowSpec`을 LangGraph 그래프로 컴파일해 실행합니다. `needs`대로 실행되어 독립 단계는 병렬로, 합류 단계는 기다렸다가 돕니다. `/orchestrate`에 `pause_on_gate`, 응답의 `status`, 장애 후 재개가 추가됩니다. 실행은 시작할 때의 워크플로를 유지합니다.
 - 시나리오 20개를 데이터(`ma_pmo/fixtures/workflows.json`)로 옮겨 `WorkflowSpec`으로 검증(단계 중복, 없는 의존, 순환). 두 언어의 golden trace로 결과를 고정합니다. 내 워크플로는 `MA_PMO_WORKFLOWS_DIR`의 JSON으로 추가하며 플러그인 에이전트도 쓸 수 있습니다.
