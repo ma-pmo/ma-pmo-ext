@@ -180,6 +180,25 @@ class Run(Scoped, Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
+class LlmCall(Scoped, Base):
+    """One LLM call and what it cost (see core/costs.py). Retries are real spend, so each counts."""
+
+    __tablename__ = "llm_call"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    run_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    step_seq: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    agent: Mapped[str] = mapped_column(String)
+    model: Mapped[str] = mapped_column(String, index=True)
+    prompt_tokens: Mapped[int] = mapped_column(Integer, default=0)  # includes cached ones
+    completion_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cache_read_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cache_write_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    usd: Mapped[float | None] = mapped_column(Float, nullable=True)  # null: price unknown
+    price_version: Mapped[str | None] = mapped_column(String, nullable=True)
+    latency_ms: Mapped[float] = mapped_column(Float, default=0.0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, index=True)
+
+
 class WorkflowVersion(Scoped, Base):
     """One saved version of a workflow in a workspace (see core/workflow_store.py).
 

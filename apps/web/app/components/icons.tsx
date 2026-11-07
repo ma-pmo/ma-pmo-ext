@@ -14,6 +14,7 @@ export const Icon = {
   dashboard: () => <Svg><rect x="3" y="3" width="7" height="9" rx="1.5" /><rect x="14" y="3" width="7" height="5" rx="1.5" /><rect x="14" y="12" width="7" height="9" rx="1.5" /><rect x="3" y="16" width="7" height="5" rx="1.5" /></Svg>,
   scenarios: () => <Svg><path d="M5 3l14 9-14 9V3z" /></Svg>,
   workflows: () => <Svg><rect x="2" y="4" width="6" height="5" rx="1" /><rect x="16" y="4" width="6" height="5" rx="1" /><rect x="9" y="15" width="6" height="5" rx="1" /><path d="M8 6.5h8M5 9v3.5h7V15M19 9v3.5h-7" /></Svg>,
+  costs: () => <Svg><circle cx="12" cy="12" r="9" /><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v2M12 16v2" /></Svg>,
   approvals: () => <Svg><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></Svg>,
   evaluation: () => <Svg><path d="M3 3v18h18" /><path d="M7 15l4-4 3 3 5-6" /></Svg>,
   integrations: () => <Svg><path d="M9 7H6a3 3 0 0 0 0 6h3" /><path d="M15 7h3a3 3 0 0 1 0 6h-3" /><path d="M8 10h8" /><path d="M12 17v4" /></Svg>,
