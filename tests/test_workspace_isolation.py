@@ -21,6 +21,7 @@ from ma_pmo.db.models import (
     Allocation,
     Approval,
     Base,
+    Budget,
     KnowledgeDoc,
     KpiEvent,
     LlmCall,
@@ -86,6 +87,7 @@ def _marked_rows() -> list[Base]:
                      text="lesson risk schedule vendor delay", tags=[MARK]),
         KpiEvent(axis="risk", metric=MARK, value=1.0, project_id=f"{MARK}-P",
                  meta={"note": MARK}, run_id=f"run-{MARK}"),
+        Budget(kind="month", warn_usd=1.0, limit_usd=2.0, updated_by=MARK),
         LlmCall(run_id=f"run-{MARK}", step_seq=1, agent=MARK, model=MARK, prompt_tokens=7,
                 completion_tokens=7, usd=1.0, price_version=MARK),
         WorkflowVersion(workflow_id="weekly_status", version=9, status="published",
@@ -118,7 +120,7 @@ def other():
     with workspace.use(OTHER), get_session() as s:
         for model in (Approval, KpiEvent, AgentMessageRow, RunStep, Run, Risk, Allocation,
                       Task, Project, Resource, Portfolio, Report, KnowledgeDoc, WorkflowVersion,
-                      LlmCall):
+                      LlmCall, Budget):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Workspace).where(Workspace.id == OTHER))
@@ -181,7 +183,7 @@ def test_no_get_route_shows_another_workspace(other, client):
         checked.append(path)
     assert uncovered == [], "cover these routes in PATH or QUERY"
     assert {"/runs", "/risks", "/messages", "/kpi", "/allocations", "/approvals",
-            "/knowledge/search", "/costs", "/workflows"} <= set(checked)
+            "/knowledge/search", "/costs", "/workflows", "/budgets"} <= set(checked)
 
 
 @pytest.mark.parametrize("path", sorted(PATH))
@@ -226,3 +228,9 @@ def test_a_run_writes_only_into_its_workspace(other, client):
 def test_the_marker_never_appears_in_route_paths():
     # a route path containing the marker would make the GET check pass by accident
     assert not any(re.search(MARK, path) for path in _get_routes())
+
+
+def test_another_workspace_budget_does_not_limit_this_one(other, client):
+    assert client.get("/budgets").json()["month"]["limit_usd"] is None
+    there = client.get("/budgets", headers={workspace.HEADER: OTHER}).json()
+    assert there["month"]["limit_usd"] == 2.0 and there["month"]["updated_by"] == MARK

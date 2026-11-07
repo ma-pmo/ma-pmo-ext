@@ -45,6 +45,7 @@ curl -X POST localhost:8000/integrations/slack/test   # 테스트 메시지 전�
 | `risk.detected` | A4가 리스크를 `high`/`critical`로 판정했을 때 |
 | `gate.failed` | A6 스테이지 게이트 심사가 fail일 때 |
 | `report.generated` | A5가 경영 보고서를 만들었을 때 |
+| `budget.warning` | LLM 비용이 예산의 경고 금액을 넘었을 때([docs/COSTS.ko.md](COSTS.ko.md#예산)) |
 | `integration.test` | `POST /integrations/{name}/test` 호출 시 |
 
 보낼 이벤트를 줄이려면 `MA_PMO_NOTIFY_EVENTS=approval.requested,risk.detected`처럼 설정합니다(비우면 전부).

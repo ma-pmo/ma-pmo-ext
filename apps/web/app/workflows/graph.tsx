@@ -14,6 +14,7 @@ export type Step = {
 export type RunSummary = {
   run_id: string; kind: string; workflow: string; scope: string; status: string; started_at: string;
   workflow_version?: number | null;
+  budget_fallback?: { kind: string; agent: string; step: number | null } | null;
 };
 export type Version = {
   version: number; status: "builtin" | "file" | "draft" | "published"; note: string; in_use: boolean;

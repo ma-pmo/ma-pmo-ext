@@ -65,6 +65,10 @@ export const api = {
     req(`/workflows/${encodeURIComponent(id)}/versions/${version}`),
   agents: () => req(`/agents`),
   costs: (by: string, days?: number) => req(`/costs?by=${by}${days ? `&days=${days}` : ""}`),
+  budgets: () => req(`/budgets`),
+  setBudget: (kind: string, warn_usd: number | null, limit_usd: number | null) =>
+    req(`/budgets/${kind}`, { method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ warn_usd, limit_usd }) }),
   validateWorkflow: (spec: unknown) => req(`/workflows/validate`, json({ spec })),
   dryRun: (spec: unknown) => req(`/workflows/dry-run`, json({ spec })),
   saveDraft: (id: string, spec: unknown, note: string) =>

@@ -23,7 +23,7 @@ accident.
 | `viewer` | read everything (`GET`) |
 | `operator` | read, run agents and scenarios, save workflow drafts, send webhooks (`POST`) |
 | `approver` | read, approve or reject HITL decisions (`POST /approvals/{id}`), publish workflow versions (`POST /workflows/{id}/versions/{v}/publish`) |
-| `admin` | everything, including integration test sends |
+| `admin` | everything, including integration test sends and LLM budgets (`PUT /budgets/{kind}`) |
 
 Every role can read. A key can hold several roles: `operator+approver`. `/health`, `/docs`,
 `/redoc`, `/openapi.json` and CORS preflight requests are always public.

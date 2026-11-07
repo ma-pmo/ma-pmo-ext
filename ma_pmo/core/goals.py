@@ -51,6 +51,7 @@ def finish_goal(run_id: str, scope: str) -> dict:
                 "pending_approvals": runs.pending_approvals(run_id)}
     synthesis = OrchestratorAgent().synthesize({"goal": saved["goal"],
                                                 "outputs": outcome.outputs})["synthesis"]
-    final = {**result, "status": runs.SUCCEEDED, "synthesis": synthesis}
+    final = {**result, "status": runs.SUCCEEDED, "synthesis": synthesis,
+             "budget_fallback": runs.get_state(run_id).get("budget")}
     runs.save_result(run_id, final)
     return final

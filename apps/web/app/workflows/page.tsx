@@ -206,6 +206,9 @@ export default function Workflows() {
                   <span className={`badge ${w.badge[overlay.run.status] ?? ""}`}>{w.status[overlay.run.status] ?? overlay.run.status}</span>
                   <span className="muted">{overlay.run.scope} · {when(overlay.run.started_at)} · <code>{overlay.run.run_id}</code></span>
                   {overlay.run.status === "waiting_approval" && <a href="/approvals">{w.toApprovals}</a>}
+                  {overlay.run.budget_fallback && (
+                    <a className="badge amber" href="/costs">{w.budgetFallback(overlay.run.budget_fallback.agent)}</a>
+                  )}
                   {overlay.same_as_current === false && <span className="badge amber">{w.olderVersion}</span>}
                 </div>
               )}

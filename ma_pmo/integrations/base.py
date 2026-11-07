@@ -28,6 +28,7 @@ class EventType(str, Enum):
     RISK_DETECTED = "risk.detected"
     GATE_FAILED = "gate.failed"
     REPORT_GENERATED = "report.generated"
+    BUDGET_WARNING = "budget.warning"
     TEST = "integration.test"
 
 

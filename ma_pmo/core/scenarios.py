@@ -300,6 +300,7 @@ def finish_scenario(run_id: str, scope: str) -> dict:
             "communications": _run_messages(run_id),
             "run_id": run_id,
             "status": status,
+            "budget_fallback": runs.get_state(run_id).get("budget"),
         }
 
     if outcome.paused:

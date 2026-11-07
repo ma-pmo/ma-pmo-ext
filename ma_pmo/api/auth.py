@@ -168,6 +168,8 @@ def required_role(method: str, path: str) -> str | None:
         return "approver"
     if path.startswith("/integrations/") and path.endswith("/test"):
         return "admin"
+    if path.startswith("/budgets"):
+        return "admin"  # what the workspace may spend
     if path.startswith("/workflows/") and path.endswith("/publish"):
         return "approver"  # a draft is an operator's; putting it in use is an approver's
     return "operator"
