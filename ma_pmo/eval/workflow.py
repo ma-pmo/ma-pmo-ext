@@ -5,9 +5,10 @@ import os
 from pathlib import Path
 
 from ma_pmo.core.i18n import tr
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.eval.dataset import Dataset, Issue, import_dataset, load_dataset
 
-DEMO_SCOPE = "PORTFOLIO#2026-Q1"
+DEMO_SCOPE = DEFAULT_SCOPE
 
 
 class DatasetError(ValueError):

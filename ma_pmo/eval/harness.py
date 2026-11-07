@@ -15,6 +15,7 @@ from ma_pmo.agents.planning import PlanningAgent
 from ma_pmo.agents.resource import ResourceAgent
 from ma_pmo.agents.risk_signals import baseline_severity, compute_signals
 from ma_pmo.core.i18n import tr
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.eval.aggregate import metric_summary
 from ma_pmo.integrations.registry import get_tracker
 
@@ -26,7 +27,7 @@ def _load(name: str) -> dict:
     return json.loads((_FIX / name).read_text(encoding="utf-8"))
 
 
-def populate_deterministic_kpis(scope: str = "PORTFOLIO#2026-Q1") -> None:
+def populate_deterministic_kpis(scope: str = DEFAULT_SCOPE) -> None:
     """Run the deterministic agents to fill KPIs (delivery, resource, gate)."""
     PlanningAgent().run({"task_ref": scope})
     ResourceAgent().run({"task_ref": scope})
@@ -67,7 +68,7 @@ def h2_idle_rate(baselines: dict | None = None) -> dict:
 
 
 # ── H3: risk detection performance (rule-based vs. ground truth) ─
-def h3_risk_detection(scope: str = "PORTFOLIO#2026-Q1", labels: dict | None = None) -> dict:
+def h3_risk_detection(scope: str = DEFAULT_SCOPE, labels: dict | None = None) -> dict:
     labels = labels if labels is not None else _load("risk_ground_truth.json")["labels"]
     status = get_tracker().get_portfolio_status(scope)
     tp = fp = fn = tn = 0
@@ -120,7 +121,7 @@ def h4_knowledge_ablation(query: str | None = None) -> dict:
 
 
 # ── H5: stratification by portfolio complexity ──────────────────
-def h5_complexity(scope: str = "PORTFOLIO#2026-Q1") -> dict:
+def h5_complexity(scope: str = DEFAULT_SCOPE) -> dict:
     status = get_tracker().get_portfolio_status(scope)
     projs = status.get("projects", [])
 
@@ -159,7 +160,7 @@ def h5_complexity(scope: str = "PORTFOLIO#2026-Q1") -> dict:
     }
 
 
-def run_all(populate: bool = True, scope: str = "PORTFOLIO#2026-Q1",
+def run_all(populate: bool = True, scope: str = DEFAULT_SCOPE,
             baselines: dict | None = None, labels: dict | None = None) -> dict:
     """Run H1–H5. `baselines`/`labels` override the bundled fixtures (see eval/dataset.py)."""
     from ma_pmo.eval.calibration import calibration_report

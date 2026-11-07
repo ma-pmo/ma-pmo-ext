@@ -11,14 +11,13 @@ from pydantic import BaseModel
 
 from ma_pmo.agents.governance import GovernanceAgent
 from ma_pmo.agents.knowledge import KnowledgeAgent
+from ma_pmo.core.scope import DEFAULT_SCOPE
 
 router = APIRouter(tags=["governance-knowledge"])
 
-_SCOPE = "PORTFOLIO#2026-Q1"
-
 
 @router.post("/gate-review")
-def gate_review(gate: str = "G2-planning", scope: str = _SCOPE) -> dict:
+def gate_review(gate: str = "G2-planning", scope: str = DEFAULT_SCOPE) -> dict:
     """A6: gate review for every project in the portfolio (records gate KPIs)."""
     agent = GovernanceAgent()
     status = agent.tracker.get_portfolio_status(scope)

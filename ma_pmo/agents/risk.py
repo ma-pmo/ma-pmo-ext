@@ -19,6 +19,7 @@ from ma_pmo.core.i18n import tr
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.risk_alert_v1 import RiskAlertV1
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.db.models import Risk
 from ma_pmo.db.session import get_session
@@ -44,7 +45,7 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
 
     # ── LangGraph node: scan the whole portfolio ─────────────────
     def run(self, state: PortfolioState) -> dict:
-        scope = state.get("task_ref", "PORTFOLIO#2026-Q1")
+        scope = state.get("task_ref", DEFAULT_SCOPE)
         status = self.tracker.get_portfolio_status(scope)
         signals = analyze_portfolio(status)
 
@@ -58,7 +59,7 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
         return {"outputs": outputs, "messages": messages}
 
     # ── single-project assessment (also reused by webhooks) ──────
-    def assess_project(self, project_id: str, scope: str = "PORTFOLIO#2026-Q1") -> dict | None:
+    def assess_project(self, project_id: str, scope: str = DEFAULT_SCOPE) -> dict | None:
         status = self.tracker.get_portfolio_status(scope)
         proj = next(
             (p for p in status.get("projects", []) if p["project_id"] == project_id), None

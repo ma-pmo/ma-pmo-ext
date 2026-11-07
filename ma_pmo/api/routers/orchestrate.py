@@ -5,13 +5,14 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from ma_pmo.core.goals import run_goal
+from ma_pmo.core.scope import DEFAULT_SCOPE
 
 router = APIRouter(tags=["orchestrate"])
 
 
 class OrchestrateRequest(BaseModel):
     goal: str
-    task_ref: str = "PORTFOLIO#2026-Q1"
+    task_ref: str = DEFAULT_SCOPE
     thread_id: str | None = None
     pause_on_gate: bool = False
 

@@ -12,6 +12,7 @@ from ma_pmo.core import kpi, protocol
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.gate_review_v1 import ChecklistItem, GateReviewV1
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.integrations.registry import get_tracker
 
@@ -32,7 +33,7 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
         self.tracker = tracker or get_tracker()
 
     def run(self, state: PortfolioState) -> dict:
-        scope = state.get("task_ref", "PORTFOLIO#2026-Q1")
+        scope = state.get("task_ref", DEFAULT_SCOPE)
         gate = normalize_gate(state.get("gate", "G2-planning"))
         status = self.tracker.get_portfolio_status(scope)
         outputs, messages = [], []
@@ -45,7 +46,7 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
         return {"outputs": outputs, "messages": messages}
 
     def review_project(
-        self, project_id: str, gate: str = "G2-planning", scope: str = "PORTFOLIO#2026-Q1"
+        self, project_id: str, gate: str = "G2-planning", scope: str = DEFAULT_SCOPE
     ) -> dict | None:
         status = self.tracker.get_portfolio_status(scope)
         proj = next(

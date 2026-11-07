@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 from ma_pmo.agents.registry import AgentSpec, _check_plugin
+from ma_pmo.core.scope import DEFAULT_SCOPE
 
-DEFAULT_STATE = {"task_ref": "PORTFOLIO#2026-Q1", "goal": "contract check"}
+DEFAULT_STATE = {"task_ref": DEFAULT_SCOPE, "goal": "contract check"}
 
 
 def assert_agent_contract(spec: AgentSpec, state: dict | None = None) -> dict:

@@ -46,6 +46,7 @@ from ma_pmo.core.config import get_settings  # noqa: E402
 from ma_pmo.core.i18n import from_accept_language, normalize, tr, use_lang  # noqa: E402
 from ma_pmo.core.scenarios import workflow_problems  # noqa: E402
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload  # noqa: E402
+from ma_pmo.core.scope import DEFAULT_SCOPE  # noqa: E402
 from ma_pmo.integrations.registry import get_tracker  # noqa: E402
 
 
@@ -157,7 +158,7 @@ def portfolio_status(portfolio_id: str) -> dict:
 
 
 @app.post("/demo/gated-message")
-def demo_gated_message(task_ref: str = "PORTFOLIO#2026-Q1") -> dict:
+def demo_gated_message(task_ref: str = DEFAULT_SCOPE) -> dict:
     """HITL demo: publish a high-risk (external communication) message into the approval queue."""
     msg = AgentMessage(
         sender="A5",

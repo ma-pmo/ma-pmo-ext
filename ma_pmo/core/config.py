@@ -38,6 +38,9 @@ class Settings(BaseSettings):
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )
 
+    # the portfolio used when a caller does not name one
+    default_portfolio: str = Field(default="PORTFOLIO#2026-Q1", alias="MA_PMO_DEFAULT_PORTFOLIO")
+
     # folder with your own workflows, one JSON file each (see core/workflow.py)
     workflows_dir: str = Field(default="workflows", alias="MA_PMO_WORKFLOWS_DIR")
 

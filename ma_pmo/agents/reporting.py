@@ -16,6 +16,7 @@ from ma_pmo.core import kpi, protocol, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.report_v1 import ProjectStatusLine, ReportV1
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.db.models import Report
 from ma_pmo.db.session import get_session
@@ -85,7 +86,7 @@ class ReportingAgent(BaseAgent[ReportV1]):
 
     def run(self, state: PortfolioState) -> dict:
         t0 = time.monotonic()
-        scope = state.get("task_ref", "PORTFOLIO#2026-Q1")
+        scope = state.get("task_ref", DEFAULT_SCOPE)
         goal = state.get("goal", "Generate portfolio executive report")
 
         status = self.tracker.get_portfolio_status(scope)

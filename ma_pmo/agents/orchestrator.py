@@ -15,6 +15,7 @@ from ma_pmo.agents.orchestrator_rules import deterministic_synthesis, keyword_ro
 from ma_pmo.core import llm, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.payloads.routing_v1 import RoutingV1
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
 
 _log = structlog.get_logger()
@@ -43,7 +44,7 @@ class OrchestratorAgent(BaseAgent[RoutingV1]):
     def route(self, state: PortfolioState) -> dict:
         """Decompose the goal into a routing decision; rule-based fallback if the LLM fails."""
         goal = state.get("goal", "")
-        task_ref = state.get("task_ref", "PORTFOLIO#2026-Q1")
+        task_ref = state.get("task_ref", DEFAULT_SCOPE)
         try:
             decision = self.structured(
                 f"Goal: {goal}\nScope: {task_ref}\n\nCreate the delegation plan."

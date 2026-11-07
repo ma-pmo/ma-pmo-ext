@@ -15,6 +15,7 @@ from ma_pmo.core import protocol, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.knowledge_v1 import Citation, KnowledgeV1
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
 
 _ROLE = """You are the PMO knowledge agent. Answer only from the retrieved lessons learned
@@ -77,7 +78,7 @@ class KnowledgeAgent(BaseAgent[KnowledgeV1]):
 
     def run(self, state: PortfolioState) -> dict:
         query = state.get("goal", "")
-        scope = state.get("task_ref", "PORTFOLIO#2026-Q1")
+        scope = state.get("task_ref", DEFAULT_SCOPE)
         result = self.ask(query)
 
         msg = AgentMessage(

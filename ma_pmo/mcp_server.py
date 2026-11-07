@@ -19,8 +19,7 @@ from typing import Any
 
 from ma_pmo import __version__
 from ma_pmo.core.i18n import normalize, use_lang
-
-DEFAULT_SCOPE = "PORTFOLIO#2026-Q1"
+from ma_pmo.core.scope import DEFAULT_SCOPE
 
 INSTRUCTIONS = (
     "MA-PMO is a multi-agent project management office. Use portfolio_status first to see "

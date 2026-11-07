@@ -33,6 +33,7 @@ class Portfolio(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     name: Mapped[str] = mapped_column(String)
     period: Mapped[str] = mapped_column(String)  # e.g. 2026-Q1
+    plan_start: Mapped[str | None] = mapped_column(String, nullable=True)  # ISO week, e.g. 2026-W03
 
     projects: Mapped[list[Project]] = relationship(back_populates="portfolio")
 

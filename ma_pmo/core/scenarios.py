@@ -18,6 +18,7 @@ from ma_pmo.agents.orchestrator_rules import deterministic_synthesis
 from ma_pmo.core import executor, runs, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.workflow import WorkflowSpec, load_workflows
 from ma_pmo.db.models import AgentMessageRow, KpiEvent
 from ma_pmo.db.session import get_session
@@ -202,7 +203,7 @@ def list_scenarios() -> list[dict]:
 
 def run_scenario(
     scenario_id: str,
-    scope: str = "PORTFOLIO#2026-Q1",
+    scope: str = DEFAULT_SCOPE,
     drop_agents: tuple[str, ...] = (),
     *,
     pause_on_gate: bool = False,
