@@ -21,7 +21,7 @@ from pydantic import BaseModel
 
 from ma_pmo.agents import registry
 from ma_pmo.api.auth import CurrentPrincipal
-from ma_pmo.core import runs, scenarios, workflow_store
+from ma_pmo.core import llm, runs, scenarios, workflow_store
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.workflow import WorkflowSpec, builtin_ids
 
@@ -66,7 +66,9 @@ def list_workflows() -> dict:
     builtin, mine = builtin_ids(), set(workflow_store.published_all())
     return {"workflows": [{**_summary(spec, builtin), "published_here": spec.id in mine}
                           for spec in scenarios.workflows()],
-            "problems": scenarios.workflow_problems}
+            "problems": scenarios.workflow_problems,
+            # what each model tier means here (core/llm.py)
+            "models": {"standard": llm.model_for("standard"), "fast": llm.model_for("fast")}}
 
 
 @router.get("/workflows/{workflow_id}")
@@ -132,7 +134,8 @@ def _steps(spec: WorkflowSpec) -> list[dict]:
     needs, levels = spec.dependencies(), spec.levels()
     return [{"id": s.id, "agent": s.agent, "agent_name": registry.title(s.agent),
              "params": s.params, "needs": needs[s.id], "required": s.required,
-             "level": levels[s.id]} for s in spec.steps]
+             "model_tier": s.model_tier or "standard", "level": levels[s.id]}
+            for s in spec.steps]
 
 
 @router.get("/runs/{run_id}/workflow")

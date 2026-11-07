@@ -7,13 +7,15 @@ live in `fixtures/workflows.json`; your own go in the folder `MA_PMO_WORKFLOWS_D
 
 A step's `needs` lists the steps it waits for; left out, it follows the step before it.
 `required` marks a step that must stay in the workflow, such as a governance gate.
+`model_tier` picks the LLM for the step's agent: `standard` (`LLM_MODEL`, the default) or `fast`
+(`LLM_MODEL_FAST`), see core/llm.py.
 """
 from __future__ import annotations
 
 import json
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
@@ -37,6 +39,7 @@ class WorkflowStep(BaseModel):
     params: dict[str, Any] = Field(default_factory=dict)
     needs: list[str] | None = None
     required: bool = False
+    model_tier: Literal["standard", "fast"] | None = None  # None: standard
 
 
 class WorkflowSpec(BaseModel):

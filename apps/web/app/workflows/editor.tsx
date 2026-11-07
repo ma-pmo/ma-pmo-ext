@@ -9,7 +9,10 @@ import { useI18n } from "../lib/i18n";
 import { Card } from "../components/shell";
 import { Graph, params as paramsText, type Step } from "./graph";
 
-type Row = { key: number; id: string; agent: string; needs: string[]; params: string; required: boolean };
+type Row = {
+  key: number; id: string; agent: string; needs: string[]; params: string; required: boolean;
+  tier: "standard" | "fast";
+};
 type Agent = { id: string; name: string };
 type DryRun = {
   ok: boolean; problems: string[]; error?: string | null; status?: string; scope?: string;
@@ -43,8 +46,9 @@ function levels(rows: Row[]): Record<string, number> | null {
   return level;
 }
 
-export function Editor({ spec, steps, onSaved, onClose }: {
-  spec: Record<string, any>; steps: Step[]; onSaved: (version: number) => void; onClose: () => void;
+export function Editor({ spec, steps, models, onSaved, onClose }: {
+  spec: Record<string, any>; steps: Step[]; models: Record<string, string>;
+  onSaved: (version: number) => void; onClose: () => void;
 }) {
   const { t } = useI18n();
   const w = t.wf;
@@ -52,6 +56,7 @@ export function Editor({ spec, steps, onSaved, onClose }: {
   const locked = useMemo(() => new Set(steps.filter((s) => s.required).map((s) => s.id)), [steps]);
   const [rows, setRows] = useState<Row[]>(() => steps.map((s) => ({
     key: nextKey++, id: s.id, agent: s.agent, needs: s.needs, params: paramsText(s.params), required: s.required,
+    tier: s.model_tier ?? "standard",
   })));
   const [agents, setAgents] = useState<Agent[]>([]);
   const [note, setNote] = useState("");
@@ -65,7 +70,10 @@ export function Editor({ spec, steps, onSaved, onClose }: {
 
   const draft = useMemo(() => ({
     ...spec,
-    steps: rows.map((r) => ({ id: r.id, agent: r.agent, needs: r.needs, params: parseParams(r.params), required: r.required })),
+    steps: rows.map((r) => ({
+      id: r.id, agent: r.agent, needs: r.needs, params: parseParams(r.params), required: r.required,
+      model_tier: r.tier === "fast" ? "fast" : null,
+    })),
   }), [spec, rows]);
 
   // ask the server's validator a moment after the last change
@@ -84,7 +92,7 @@ export function Editor({ spec, steps, onSaved, onClose }: {
     const names = Object.fromEntries(agents.map((a) => [a.id, a.name]));
     return rows.map((r) => ({
       id: r.id, agent: r.agent, agent_name: names[r.agent] ?? r.agent, params: parseParams(r.params),
-      needs: r.needs, required: r.required, level: lv[r.id],
+      needs: r.needs, required: r.required, level: lv[r.id], model_tier: r.tier,
     }));
   }, [rows, agents]);
 
@@ -111,7 +119,7 @@ export function Editor({ spec, steps, onSaved, onClose }: {
     let n = rs.length + 1;
     while (rs.some((r) => r.id === `step${n}`)) n += 1;
     const last = rs[rs.length - 1];
-    return [...rs, { key: nextKey++, id: `step${n}`, agent: agents[0]?.id ?? "A2", needs: last ? [last.id] : [], params: "", required: false }];
+    return [...rs, { key: nextKey++, id: `step${n}`, agent: agents[0]?.id ?? "A2", needs: last ? [last.id] : [], params: "", required: false, tier: "standard" }];
   });
   const toggleNeed = (key: number, id: string) => setRows((rs) => rs.map((r) => (r.key !== key ? r
     : { ...r, needs: r.needs.includes(id) ? r.needs.filter((n) => n !== id) : [...r.needs, id] })));
@@ -154,6 +162,14 @@ export function Editor({ spec, steps, onSaved, onClose }: {
                 <label className="grow"><span>{w.params}</span>
                   <input className="input" value={r.params} disabled={lock} placeholder={e.paramsHint}
                     onChange={(ev) => update(r.key, { params: ev.target.value })} />
+                </label>
+                <label><span>{w.tier}</span>
+                  <select className="input" value={r.tier} aria-label={`${w.tier} ${r.id}`}
+                    onChange={(ev) => update(r.key, { tier: ev.target.value as Row["tier"] })}>
+                    {(["standard", "fast"] as const).map((t) => (
+                      <option key={t} value={t}>{w.tierNames[t]}{models[t] ? ` · ${models[t]}` : ""}</option>
+                    ))}
+                  </select>
                 </label>
                 <label className="check"><input type="checkbox" checked={r.required} disabled={lock}
                   onChange={(ev) => update(r.key, { required: ev.target.checked })} /> {w.required}</label>
