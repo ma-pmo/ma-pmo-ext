@@ -6,12 +6,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- A principal with no roles can no longer read: a custom authenticator that returned `Principal(subject)` without roles had read access to everything, and now has none unless it has a membership.
+
 ### Fixed
 - Allocating one portfolio erased every portfolio's plan. A3 now replaces only its own, and an unknown scope erases nothing.
 - A person shared by two portfolios could be booked twice: hours planned elsewhere now count as busy.
 - Allocation always started at 2026-W03 and could not cross a year. A portfolio can set `plan_start` (ISO week, also an optional `portfolio.csv` column); otherwise it starts from the current week. The sample portfolio keeps 2026-W03.
 
 ### Added
+- Workspace memberships: what a caller may do is decided per workspace. A key role written `workspace/role` applies only there, and `ma-pmo workspace create | list | members | grant | revoke` keeps memberships in the database (migration `0006_memberships`). A caller with no role in a workspace gets the same 404 as for one that does not exist. Plain roles still apply everywhere, so existing keys keep working. `GET /auth/whoami` adds `workspace`.
 - Workspace isolation: a request runs in the workspace named by `X-Workspace` (CLI, MCP and background work use `MA_PMO_WORKSPACE`), and every ORM query, join and subquery is filtered by it automatically; new rows land in it. Ids from another workspace are not found (`POST /approvals/{id}` now answers 404 for an unknown approval instead of 400). A test fills a second workspace and checks every table and GET route; a new table or route fails until it is covered.
 - Workspaces in the schema (migration `0005_workspaces`): every row has a `workspace_id`, and portfolio, project, task, resource and knowledge ids are unique per workspace, with composite foreign keys so a row cannot point into another workspace. Existing data moves into the `default` workspace; nothing changes for a single workspace.
 - `MA_PMO_DEFAULT_PORTFOLIO` names the portfolio used when a caller gives none; `GET /allocations` takes `scope`.
@@ -130,6 +134,8 @@ First public release.
 - 수정: 한 포트폴리오를 배분하면 모든 포트폴리오의 계획이 지워지던 문제. 이제 A3는 자기 계획만 교체하고, 없는 범위는 아무것도 지우지 않습니다.
 - 수정: 두 포트폴리오가 공유하는 사람이 이중 배정될 수 있던 문제. 다른 포트폴리오에 잡힌 시간은 이제 바쁜 시간으로 계산합니다.
 - 수정: 배분이 항상 2026-W03에서 시작하고 연도를 넘지 못하던 문제. 포트폴리오에 `plan_start`(ISO 주차, `portfolio.csv`의 선택 열)를 지정할 수 있고, 없으면 이번 주부터 시작합니다. 샘플 포트폴리오는 2026-W03을 유지합니다.
+- 추가: 워크스페이스 멤버십. 할 수 있는 일을 워크스페이스마다 정합니다. 키에 `워크스페이스/역할`로 쓴 역할은 그곳에서만 적용되고, `ma-pmo workspace create | list | members | grant | revoke`로 멤버십을 데이터베이스에 둡니다(마이그레이션 `0006_memberships`). 역할이 없는 워크스페이스는 없는 워크스페이스와 똑같이 404입니다. 일반 역할은 계속 모든 곳에 적용되므로 기존 키는 그대로 동작합니다. `GET /auth/whoami`에 `workspace`가 추가됩니다.
+- 변경: 역할이 하나도 없는 주체는 더 이상 읽을 수 없습니다. 역할 없이 `Principal(subject)`를 돌려주던 직접 만든 인증기는 모든 데이터를 읽을 수 있었지만, 이제는 멤버십이 없으면 접근할 수 없습니다.
 - 추가: 워크스페이스 격리. 요청은 `X-Workspace`로 지정한 워크스페이스에서 실행됩니다(CLI, MCP, 백그라운드 작업은 `MA_PMO_WORKSPACE`). 모든 ORM 조회, 조인, 서브쿼리가 자동으로 걸러지고 새 행도 그 워크스페이스에 생깁니다. 다른 워크스페이스의 id는 찾을 수 없습니다(`POST /approvals/{id}`는 없는 승인에 400 대신 404). 두 번째 워크스페이스를 채워 모든 테이블과 GET 경로를 검사하는 테스트가 있으며, 새 테이블이나 경로는 검사에 넣기 전까지 실패합니다.
 - 추가: 스키마에 워크스페이스(마이그레이션 `0005_workspaces`). 모든 행에 `workspace_id`가 있고, 포트폴리오·프로젝트·태스크·자원·지식 id는 워크스페이스 안에서만 고유합니다. 복합 외래 키로 다른 워크스페이스의 행을 가리킬 수 없습니다. 기존 데이터는 `default` 워크스페이스로 옮겨지며, 워크스페이스 하나만 쓰면 달라지는 것이 없습니다.
 - 추가: `MA_PMO_DEFAULT_PORTFOLIO`로 호출자가 지정하지 않을 때 쓸 포트폴리오를 정합니다. `GET /allocations`는 `scope`를 받습니다.

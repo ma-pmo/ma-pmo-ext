@@ -10,7 +10,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
 from ma_pmo.core.obs import configure_logging, get_logger
@@ -48,8 +47,6 @@ from ma_pmo.core.i18n import from_accept_language, normalize, tr, use_lang  # no
 from ma_pmo.core.scenarios import workflow_problems  # noqa: E402
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload  # noqa: E402
 from ma_pmo.core.scope import DEFAULT_SCOPE  # noqa: E402
-from ma_pmo.db.models import Workspace  # noqa: E402
-from ma_pmo.db.session import get_session  # noqa: E402
 from ma_pmo.integrations.registry import get_tracker  # noqa: E402
 
 
@@ -67,20 +64,6 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(title="MA-PMO API", version=__version__, lifespan=lifespan)
 
-
-
-@app.middleware("http")
-async def in_workspace(request: Request, call_next):
-    """Run the request in the workspace named by X-Workspace (default: MA_PMO_WORKSPACE).
-    Added before auth, so it runs after it."""
-    name = request.headers.get(workspace.HEADER) or workspace.current()
-    with get_session() as s:
-        known = s.get(Workspace, name) is not None
-    if not known:
-        return JSONResponse({"detail": tr(f"unknown workspace '{name}'",
-                                          f"없는 워크스페이스입니다: '{name}'")}, status_code=404)
-    with workspace.use(name):
-        return await call_next(request)
 
 
 # Added first so it runs inside the language and CORS middleware: auth errors are translated
@@ -165,9 +148,9 @@ def system_status() -> dict:
 
 @app.get("/auth/whoami")
 def whoami(principal: CurrentPrincipal) -> dict:
-    """Who the API thinks you are, and with which roles."""
+    """Who the API thinks you are, and with which roles in this workspace."""
     return {"subject": principal.subject, "roles": sorted(principal.roles),
-            "auth_enabled": principal is not ANONYMOUS}
+            "workspace": workspace.current(), "auth_enabled": principal is not ANONYMOUS}
 
 
 @app.get("/portfolio/{portfolio_id}")

@@ -18,7 +18,9 @@ from ma_pmo.db.models import (
 )
 from ma_pmo.db.session import get_session
 
-UNSCOPED = {"workspace"}  # a new table must be scoped or listed here on purpose
+# a new table must be scoped or listed here on purpose; memberships are read before the
+# request knows its workspace
+UNSCOPED = {"workspace", "membership"}
 
 
 def test_every_table_belongs_to_a_workspace():

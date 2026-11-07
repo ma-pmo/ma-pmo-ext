@@ -48,6 +48,20 @@ class Workspace(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
 
 
+class Membership(Base):
+    """A role a principal (a key name, or a custom authenticator's subject) has in a workspace.
+
+    Not `Scoped`: a request reads the caller's memberships before it knows its workspace."""
+
+    __tablename__ = "membership"
+    __table_args__ = (UniqueConstraint("workspace_id", "principal", "role", name="uq_membership"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspace.id"))
+    principal: Mapped[str] = mapped_column(String, index=True)
+    role: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
 class Scoped:
     """A row that belongs to one workspace."""
 

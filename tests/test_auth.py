@@ -74,7 +74,8 @@ def test_api_key_roles():
     assert client.post("/integrations/slack/test",
                        headers={"X-API-Key": APPROVER}).status_code == 403
     me = client.get("/auth/whoami", headers={"X-API-Key": ADMIN}).json()
-    assert me == {"subject": "root", "roles": ["admin"], "auth_enabled": True}
+    assert me == {"subject": "root", "roles": ["admin"], "workspace": "default",
+                  "auth_enabled": True}
 
 
 def test_approver_is_the_authenticated_user():
@@ -96,6 +97,8 @@ def test_error_messages_follow_the_language():
     ("", "at least one"),
     ("alice:approver", "is name:role"),
     ("alice:boss:0123456789abcdef", "roles must be"),
+    ("alice:acme/boss:0123456789abcdef", "roles must be"),
+    ("alice::0123456789abcdef", "roles must be"),
     ("alice:viewer:short", "shorter than"),
     ("a:viewer:0123456789abcdef,b:admin:0123456789abcdef", "used twice"),
 ])

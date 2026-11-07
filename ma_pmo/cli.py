@@ -112,6 +112,37 @@ def _cmd_db(action: str) -> int:
     return 0 if now == latest else 1
 
 
+def _cmd_workspace(ns: argparse.Namespace) -> int:
+    from ma_pmo.core.i18n import tr
+    from ma_pmo.db import workspaces
+
+    try:
+        if ns.action == "create":
+            workspaces.create(ns.id, ns.name)
+            print(tr(f"✓ workspace '{ns.id}' created", f"✓ 워크스페이스 '{ns.id}' 생성"))
+        elif ns.action == "list":
+            for w in workspaces.list_all():
+                print(f"{w['id']:<24}{w['name']}")
+        elif ns.action == "members":
+            for m in workspaces.members(ns.id):
+                print(f"{m['principal']:<24}{m['role']}")
+        elif ns.action == "grant":
+            added = workspaces.grant(ns.id, ns.principal, ns.role)
+            note = "" if added else tr(" (already)", " (이미 있음)")
+            print(tr(f"✓ {ns.principal} is {ns.role} in '{ns.id}'{note}",
+                     f"✓ {ns.principal}: '{ns.id}'에서 {ns.role}{note}"))
+        elif ns.action == "revoke":
+            if not workspaces.revoke(ns.id, ns.principal, ns.role):
+                print(tr("nothing to revoke", "회수할 권한이 없습니다"))
+                return 1
+            print(tr(f"✓ revoked {ns.role} from {ns.principal} in '{ns.id}'",
+                     f"✓ {ns.principal}: '{ns.id}'의 {ns.role} 회수"))
+    except ValueError as e:
+        print(f"✗ {e}")
+        return 1
+    return 0
+
+
 def _cmd_agents() -> int:
     from ma_pmo.agents import registry
     from ma_pmo.core.i18n import tr
@@ -167,6 +198,20 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("agents", help="list worker agents, including installed plugins")
 
+    ws = sub.add_parser("workspace", help="workspaces and memberships")
+    wsub = ws.add_subparsers(dest="action", required=True)
+    w_create = wsub.add_parser("create", help="create a workspace")
+    w_create.add_argument("id")
+    w_create.add_argument("--name", default="")
+    wsub.add_parser("list", help="list workspaces")
+    w_members = wsub.add_parser("members", help="who has which role in a workspace")
+    w_members.add_argument("id")
+    for verb in ("grant", "revoke"):
+        w_verb = wsub.add_parser(verb, help=f"{verb} a role (viewer, operator, approver, admin)")
+        w_verb.add_argument("id")
+        w_verb.add_argument("principal", help="an API key name or an authenticator subject")
+        w_verb.add_argument("role")
+
     serve = sub.add_parser("serve", help="start the FastAPI server")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
@@ -214,6 +259,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_db(ns.action)
     elif ns.command == "agents":
         return _cmd_agents()
+    elif ns.command == "workspace":
+        return _cmd_workspace(ns)
     elif ns.command == "serve":
         import uvicorn
 
