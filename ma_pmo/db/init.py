@@ -16,7 +16,8 @@ def load_fixtures() -> None:
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
     with get_session() as s:
         p = data["portfolio"]
-        s.merge(Portfolio(id=p["id"], name=p["name"], period=p["period"]))
+        s.merge(Portfolio(id=p["id"], name=p["name"], period=p["period"],
+                          plan_start=p.get("plan_start")))
         for r in data.get("resources", []):
             s.merge(Resource(id=r["id"], skill=r["skill"], capacity=r["capacity"]))
         for proj in data["projects"]:

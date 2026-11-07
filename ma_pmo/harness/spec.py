@@ -11,6 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from ma_pmo.core.scope import DEFAULT_SCOPE
+
 
 @dataclass
 class ExperimentSpec:
@@ -21,7 +23,7 @@ class ExperimentSpec:
     #: repetitions per scenario (for variance analysis)
     repeat: int = 1
     #: target portfolio
-    scope: str = "PORTFOLIO#2026-Q1"
+    scope: str = DEFAULT_SCOPE
     #: ablation: agents to remove and compare (e.g. ["A7"])
     ablate_agents: list[str] = field(default_factory=list)
 

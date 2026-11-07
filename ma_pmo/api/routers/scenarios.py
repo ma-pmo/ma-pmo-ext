@@ -8,6 +8,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 
 from ma_pmo.core.scenarios import list_scenarios, run_scenario, to_paper_markdown
+from ma_pmo.core.scope import DEFAULT_SCOPE
 
 router = APIRouter(tags=["scenarios"])
 
@@ -18,7 +19,7 @@ def get_scenarios() -> list[dict]:
 
 
 @router.post("/scenarios/{scenario_id}/run")
-def run(scenario_id: str, scope: str = "PORTFOLIO#2026-Q1", format: str = "json",
+def run(scenario_id: str, scope: str = DEFAULT_SCOPE, format: str = "json",
         pause_on_gate: bool = False) -> dict:
     """Run a scenario. With format=markdown, also returns paper-ready Markdown.
     With pause_on_gate=true, the run waits at a gate until the approval is resolved."""

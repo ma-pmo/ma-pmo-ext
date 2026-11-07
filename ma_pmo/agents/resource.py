@@ -6,7 +6,9 @@ Flow: mock status + resource master -> greedy allocation (deterministic) -> allo
 """
 from __future__ import annotations
 
-from sqlalchemy import delete, select
+from collections.abc import Callable
+
+from sqlalchemy import ColumnElement, delete, func, or_, select
 
 from ma_pmo.agents.allocation import allocate
 from ma_pmo.agents.base import BaseAgent
@@ -16,12 +18,21 @@ from ma_pmo.core import kpi, protocol
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.allocation_v1 import AllocationLine, AllocationV1
+from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
-from ma_pmo.db.models import Allocation, Resource
+from ma_pmo.db.models import Allocation, Project, Resource
 from ma_pmo.db.session import get_session
 from ma_pmo.integrations.registry import get_tracker
 
 _ROLE = """You are the PMO resource agent. Allocate resources by skill match and flag overloads."""
+
+
+def _in_scope(scope: str, projects: list[dict]) -> ColumnElement[bool]:
+    """Allocations of this portfolio: the tracker's projects and any stored under it."""
+    return or_(
+        Allocation.project_id.in_([p["project_id"] for p in projects]),
+        Allocation.project_id.in_(select(Project.id).where(Project.portfolio_id == scope)),
+    )
 
 
 class ResourceAgent(BaseAgent[AllocationV1]):
@@ -42,8 +53,27 @@ class ResourceAgent(BaseAgent[AllocationV1]):
                 for r in s.scalars(select(Resource)).all()
             ]
 
+    def _busy(self, scope: str, projects: list[dict]) -> Callable[[str, str], float]:
+        """Hours a person cannot give this portfolio: calendar plus other portfolios' plans."""
+        with get_session() as s:
+            booked = {
+                (resource_id, week): hours
+                for resource_id, week, hours in s.execute(
+                    select(Allocation.resource_id, Allocation.week, func.sum(Allocation.hours))
+                    .where(~_in_scope(scope, projects))
+                    .group_by(Allocation.resource_id, Allocation.week)
+                )
+            }
+        calendar = self.calendar
+
+        def busy(resource_id: str, week: str) -> float:
+            held = calendar.busy_hours(resource_id, week) if calendar is not None else 0.0
+            return held + booked.get((resource_id, week), 0.0)
+
+        return busy
+
     def run(self, state: PortfolioState) -> dict:
-        scope = state.get("task_ref", "PORTFOLIO#2026-Q1")
+        scope = state.get("task_ref", DEFAULT_SCOPE)
         alloc, msg = self._allocate(scope)
         return {
             "outputs": [
@@ -52,15 +82,15 @@ class ResourceAgent(BaseAgent[AllocationV1]):
             "messages": [msg.model_dump(by_alias=True, mode="json")],
         }
 
-    def allocate_portfolio(self, scope: str = "PORTFOLIO#2026-Q1") -> dict:
+    def allocate_portfolio(self, scope: str = DEFAULT_SCOPE) -> dict:
         alloc, _ = self._allocate(scope)
         return alloc.model_dump()
 
     def _allocate(self, scope: str) -> tuple[AllocationV1, AgentMessage]:
         status = self.tracker.get_portfolio_status(scope)
         projects = status.get("projects", [])
-        busy = self.calendar.busy_hours if self.calendar is not None else None
-        result = allocate(projects, self._resources(), busy=busy)
+        result = allocate(projects, self._resources(), busy=self._busy(scope, projects),
+                          start=status.get("plan_start"))
 
         alloc = AllocationV1(
             plan=[
@@ -76,9 +106,9 @@ class ResourceAgent(BaseAgent[AllocationV1]):
             utilization_pct=result.utilization_pct,
         )
 
-        # persist allocation (replaces previous allocation -> reflects reallocation)
+        # persist allocation (replaces this portfolio's plan -> reflects reallocation)
         with get_session() as s:
-            s.execute(delete(Allocation))
+            s.execute(delete(Allocation).where(_in_scope(scope, projects)))
             for ln in result.lines:
                 s.add(
                     Allocation(

@@ -8,15 +8,20 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import date, timedelta
 
+from ma_pmo.connectors.calendar import week_days
 from ma_pmo.core.i18n import tr
 
 HORIZON_WEEKS = 12
-_BASE_WEEK = 3  # allocate from 2026-W03
 
 
-def _week_label(i: int) -> str:
-    return f"2026-W{_BASE_WEEK + i:02d}"
+def _week_labels(start: str | None) -> list[str]:
+    """ISO week labels of the horizon, from `start` or else the current week."""
+    today = date.today()
+    monday = week_days(start)[0] if start else today - timedelta(days=today.weekday())
+    weeks = (monday + timedelta(weeks=i) for i in range(HORIZON_WEEKS))
+    return ["{}-W{:02d}".format(*week.isocalendar()[:2]) for week in weeks]
 
 
 @dataclass
@@ -43,10 +48,13 @@ def _remaining_effort(project: dict) -> float:
 
 
 def allocate(projects: list[dict], resources: list[dict],
-             busy: Callable[[str, str], float] | None = None) -> AllocationResult:
+             busy: Callable[[str, str], float] | None = None,
+             start: str | None = None) -> AllocationResult:
     """Greedy allocation per skill. utilization = allocated hours / available hours in the weeks
-    used. `busy(resource_id, week)` (a calendar) takes hours off a person's weekly capacity."""
+    used. `busy(resource_id, week)` (a calendar) takes hours off a person's weekly capacity.
+    `start` is the first ISO week of the horizon; the default is the current week."""
     result = AllocationResult()
+    labels = _week_labels(start)
 
     # skill -> resources
     by_skill: dict[str, list[dict]] = {}
@@ -57,7 +65,7 @@ def allocate(projects: list[dict], resources: list[dict],
     cap: dict[tuple[str, int], float] = {}
     for r in resources:
         for w in range(HORIZON_WEEKS):
-            blocked = busy(r["id"], _week_label(w)) if busy else 0.0
+            blocked = busy(r["id"], labels[w]) if busy else 0.0
             cap[(r["id"], w)] = max(0.0, r.get("capacity", 40.0) - blocked)
     available = dict(cap)  # before allocation, for the utilization denominator
 
@@ -91,7 +99,7 @@ def allocate(projects: list[dict], resources: list[dict],
                 cap[(r["id"], w)] -= take
                 remaining -= take
                 result.lines.append(
-                    AllocLine(proj["project_id"], r["id"], _week_label(w), round(take, 1))
+                    AllocLine(proj["project_id"], r["id"], labels[w], round(take, 1))
                 )
                 max_week_used = max(max_week_used, w + 1)
         if remaining > 0:  # cannot be absorbed within the horizon -> overload

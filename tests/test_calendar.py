@@ -61,10 +61,11 @@ def test_parse_and_busy_rules():
 def test_allocator_takes_busy_hours_off_capacity():
     projects = [{"project_id": "P", "skill": "data", "tasks": [{"effort": 60.0}]}]
     resources = [{"id": "R", "skill": "data", "capacity": 40.0}]
-    free = allocate(projects, resources)
+    free = allocate(projects, resources, start="2026-W03")
     assert [(ln.week, ln.hours) for ln in free.lines] == [("2026-W03", 40.0), ("2026-W04", 20.0)]
     blocked = allocate(projects, resources,
-                       busy=lambda rid, week: 30.0 if week == "2026-W03" else 0.0)
+                       busy=lambda rid, week: 30.0 if week == "2026-W03" else 0.0,
+                       start="2026-W03")
     assert [(ln.week, ln.hours) for ln in blocked.lines] == [("2026-W03", 10.0),
                                                             ("2026-W04", 40.0),
                                                             ("2026-W05", 10.0)]

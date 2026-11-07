@@ -11,16 +11,15 @@ from sqlalchemy import select
 
 from ma_pmo.agents.planning import PlanningAgent
 from ma_pmo.agents.resource import ResourceAgent
-from ma_pmo.db.models import Allocation
+from ma_pmo.core.scope import DEFAULT_SCOPE
+from ma_pmo.db.models import Allocation, Project
 from ma_pmo.db.session import get_session
 
 router = APIRouter(tags=["planning"])
 
-_SCOPE = "PORTFOLIO#2026-Q1"
-
 
 @router.post("/plan")
-def run_plan(scope: str = _SCOPE) -> dict:
+def run_plan(scope: str = DEFAULT_SCOPE) -> dict:
     """A2: CPM critical path and projected finish (records SPI/slippage KPIs)."""
     agent = PlanningAgent()
     status = agent.tracker.get_portfolio_status(scope)
@@ -31,17 +30,21 @@ def run_plan(scope: str = _SCOPE) -> dict:
 
 
 @router.post("/allocate")
-def run_allocate(scope: str = _SCOPE) -> dict:
+def run_allocate(scope: str = DEFAULT_SCOPE) -> dict:
     """A3: run resource allocation (records utilization/idle KPIs)."""
     return ResourceAgent().allocate_portfolio(scope)
 
 
 @router.get("/allocations")
-def list_allocations(project_id: str | None = None, limit: int = 500) -> list[dict]:
+def list_allocations(project_id: str | None = None, scope: str | None = None,
+                     limit: int = 500) -> list[dict]:
     with get_session() as s:
         stmt = select(Allocation).limit(limit)
         if project_id:
             stmt = stmt.where(Allocation.project_id == project_id)
+        if scope:
+            stmt = stmt.where(Allocation.project_id.in_(
+                select(Project.id).where(Project.portfolio_id == scope)))
         rows = s.scalars(stmt).all()
         return [
             {

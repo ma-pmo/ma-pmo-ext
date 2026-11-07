@@ -8,7 +8,7 @@ Files (CSV so they open in any spreadsheet; UTF-8):
 
 | file                | one row per          | columns                                                   |
 |---------------------|----------------------|-----------------------------------------------------------|
-| portfolio.csv       | the portfolio (1 row)| id, name, period                                          |
+| portfolio.csv       | the portfolio (1 row)| id, name, period (optional plan_start: ISO week)          |
 | projects.csv        | project              | id, skill, planned_start, planned_finish, deadline, status|
 | tasks.csv           | task                 | id, project_id, wbs, effort_hours, deps, percent_complete |
 | resources.csv       | person / team        | id, skill, capacity_hours_per_week                        |
@@ -24,6 +24,7 @@ from datetime import date
 from pathlib import Path
 
 from ma_pmo.agents.gates import _has_cycle
+from ma_pmo.connectors.calendar import week_days
 
 COLUMNS: dict[str, list[str]] = {
     "portfolio.csv": ["id", "name", "period"],
@@ -56,7 +57,7 @@ ma-pmo template report --data . --format html --out report.html   # report / 보
 
 | File / 파일 | One row per / 한 줄에 | Notes / 설명 |
 |---|---|---|
-| portfolio.csv | portfolio (1 row) / 포트폴리오(1줄) | `id` is the scope name, e.g. `PORTFOLIO#2027-Q1` |
+| portfolio.csv | portfolio (1 row) / 포트폴리오(1줄) | `id` is the scope name, e.g. `PORTFOLIO#2027-Q1`; optional `plan_start` is the first ISO week to allocate / 선택 열 `plan_start`는 배분을 시작할 ISO 주차 |
 | projects.csv | project / 프로젝트 | dates `YYYY-MM-DD`; status `green`/`amber`/`red` |
 | tasks.csv | task / 태스크 | `effort_hours` = planned hours; `deps` = task ids separated by `;`; `percent_complete` 0–100 |
 | resources.csv | person or team / 사람·팀 | `skill` must match project skills; weekly capacity in hours |
@@ -212,7 +213,13 @@ def load_dataset(data_dir: str | Path) -> tuple[Dataset, list[Issue]]:
         if not row["id"]:
             issues.append(Issue("error", "portfolio.csv", line, "id is empty"))
         ds.portfolio = {"id": row["id"], "name": row["name"] or row["id"],
-                        "period": row["period"]}
+                        "period": row["period"], "plan_start": row.get("plan_start") or None}
+        if ds.portfolio["plan_start"]:
+            try:
+                week_days(ds.portfolio["plan_start"])
+            except ValueError:
+                issues.append(Issue("error", "portfolio.csv", line,
+                                    "plan_start must be an ISO week such as 2027-W03"))
 
     projects: dict[str, dict] = {}
     for line, row in _read_csv(d / "projects.csv", issues):
@@ -339,7 +346,8 @@ def import_dataset(ds: Dataset) -> None:
     ensure_schema()
     with get_session() as s:
         p = ds.portfolio
-        s.merge(Portfolio(id=p["id"], name=p["name"], period=p["period"]))
+        s.merge(Portfolio(id=p["id"], name=p["name"], period=p["period"],
+                          plan_start=p.get("plan_start")))
         for r in ds.resources:
             s.merge(Resource(id=r["id"], skill=r["skill"], capacity=r["capacity"]))
         for proj in ds.projects:

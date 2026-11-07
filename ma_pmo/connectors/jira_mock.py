@@ -51,6 +51,7 @@ class MockJiraConnector(IssueTrackerConnector):
                 "portfolio_id": portfolio.id,
                 "name": portfolio.name,
                 "period": portfolio.period,
+                "plan_start": portfolio.plan_start,
                 "found": True,
                 "projects": proj_out,
             }

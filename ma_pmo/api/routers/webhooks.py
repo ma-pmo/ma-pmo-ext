@@ -10,6 +10,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from ma_pmo.agents.risk import RiskAgent
+from ma_pmo.core.scope import DEFAULT_SCOPE
 
 router = APIRouter(tags=["webhooks"])
 
@@ -19,7 +20,7 @@ _RISK_TRIGGERS = {"issue_updated", "sprint_closed", "burndown_updated"}
 class IssueEvent(BaseModel):
     project_id: str
     event_type: str  # e.g. issue_updated, sprint_closed
-    scope: str = "PORTFOLIO#2026-Q1"
+    scope: str = DEFAULT_SCOPE
     payload: dict = {}
 
 

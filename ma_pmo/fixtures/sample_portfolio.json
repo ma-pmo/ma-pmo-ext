@@ -1,5 +1,5 @@
 {
-  "portfolio": { "id": "PORTFOLIO#2026-Q1", "name": "2026 Q1 Digital Transformation Portfolio", "period": "2026-Q1" },
+  "portfolio": { "id": "PORTFOLIO#2026-Q1", "name": "2026 Q1 Digital Transformation Portfolio", "period": "2026-Q1", "plan_start": "2026-W03" },
   "resources": [
     { "id": "R-01", "skill": "backend", "capacity": 40 },
     { "id": "R-02", "skill": "frontend", "capacity": 40 },
