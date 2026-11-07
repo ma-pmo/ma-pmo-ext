@@ -94,3 +94,46 @@ def test_bad_files_are_reported_and_skipped(tmp_path, restore):
     assert len(problems) == 3
     assert any("acme.ghost" in p for p in problems) and any("already used" in p for p in problems)
     assert len(scenarios.SCENARIOS) == 20
+
+
+def test_levels_put_parallel_steps_side_by_side():
+    spec = WorkflowSpec.model_validate(_spec([
+        {"id": "a", "agent": "A2"}, {"id": "b", "agent": "A4", "needs": []},
+        {"id": "c", "agent": "A5", "needs": ["a", "b"]}, {"id": "d", "agent": "A7"},
+        {"id": "e", "agent": "A6", "needs": ["a"]},
+    ]))
+    assert spec.levels() == {"a": 0, "b": 0, "c": 1, "d": 2, "e": 1}
+
+
+def test_the_workflow_api_shows_steps_order_and_required_gates():
+    from fastapi.testclient import TestClient
+
+    from ma_pmo.api.main import app
+
+    client = TestClient(app)
+    listed = client.get("/workflows").json()
+    assert len(listed["workflows"]) == 20 and listed["problems"] == []
+    assert {w["source"] for w in listed["workflows"]} == {"builtin"}
+    one = client.get("/workflows/knowledge_kickoff", params={"lang": "ko"}).json()
+    assert one["title"] == "지식기반 착수 계획" and one["category"] == "착수"
+    assert [(s["id"], s["needs"], s["level"], s["required"]) for s in one["steps"]] == [
+        ("A7", [], 0, False), ("A2", ["A7"], 1, False), ("A6", ["A2"], 2, True)]
+    assert one["steps"][2]["params"] == {"gate": "G2-planning"}
+    assert one["steps"][0]["agent_name"]
+    missing = client.get("/workflows/nope", params={"lang": "ko"})
+    assert missing.status_code == 404 and "없는 워크플로" in missing.json()["detail"]
+
+
+def test_your_own_workflows_are_listed_as_custom(tmp_path):
+    (tmp_path / "mine.json").write_text(json.dumps(_spec(
+        [{"id": "a", "agent": "A2"}, {"id": "b", "agent": "A4", "needs": []}])), encoding="utf-8")
+    from fastapi.testclient import TestClient
+
+    from ma_pmo.api.main import app
+
+    try:
+        scenarios.reload_workflows(str(tmp_path))
+        mine = TestClient(app).get("/workflows/mine").json()
+        assert mine["source"] == "custom" and [s["level"] for s in mine["steps"]] == [0, 0]
+    finally:
+        scenarios.reload_workflows()

@@ -4,7 +4,7 @@ export type Lang = "en" | "ko";
 const en = {
   appTitle: "MA-PMO Admin",
   nav: {
-    dashboard: "Dashboard", scenarios: "Scenarios", approvals: "Approvals",
+    dashboard: "Dashboard", scenarios: "Scenarios", workflows: "Workflows", approvals: "Approvals",
     evaluation: "Evaluation", integrations: "Integrations",
     groups: { overview: "Overview", operations: "Operations", insights: "Insights", settings: "Settings" },
   },
@@ -22,6 +22,7 @@ const en = {
     approvals: "High-risk decisions and low-confidence outputs wait here for a human.",
     evaluation: "Hypotheses H1–H5 measured on live telemetry, with templates to evaluate your own data.",
     integrations: "Connect Slack, webhooks, Jira, GitHub and Linear, and see which platform features are on.",
+    workflows: "What each workflow runs, in which order, and which steps must stay.",
   },
   common2: { refresh: "Refresh", all: "All", yes: "Yes", no: "No", loading: "Loading…", none: "–" },
   evalp: {
@@ -199,6 +200,20 @@ const en = {
     messagesTitle: "Structured messages between agents (audit log)",
   },
 
+  wf: {
+    list: "Workflows",
+    builtin: "Built-in", custom: "Your file",
+    graph: "Steps", table: "Steps as a table",
+    graphHint: "Steps in the same column can run in parallel; arrows point to the step that waits.",
+    step: "Step", agent: "Agent", waitsFor: "Waits for", params: "Parameters", required: "Required",
+    start: "start", requiredTip: "A required step, such as a governance gate, cannot be removed.",
+    level: (n: number) => `Stage ${n + 1}`,
+    nodeLabel: (id: string, agent: string, needs: string[], required: boolean) =>
+      `${id}, ${agent}${needs.length ? `, waits for ${needs.join(", ")}` : ", starts first"}${required ? ", required" : ""}`,
+    problems: "Files that could not be loaded",
+    version: (v: number) => `version ${v}`,
+  },
+
   appr: {
     title: "Approval queue (Human-in-the-Loop)",
     desc1:
@@ -241,7 +256,7 @@ export type Messages = typeof en;
 const ko: Messages = {
   appTitle: "MA-PMO 관리자",
   nav: {
-    dashboard: "대시보드", scenarios: "시나리오", approvals: "승인 큐",
+    dashboard: "대시보드", scenarios: "시나리오", workflows: "워크플로", approvals: "승인 큐",
     evaluation: "평가", integrations: "연동",
     groups: { overview: "개요", operations: "운영", insights: "분석", settings: "설정" },
   },
@@ -259,6 +274,7 @@ const ko: Messages = {
     approvals: "고위험 결정과 저신뢰 결과가 사람의 승인을 기다립니다.",
     evaluation: "가설 H1~H5를 실측 텔레메트리로 평가하고, 우리 조직 데이터 평가용 템플릿을 받습니다.",
     integrations: "Slack, 웹훅, Jira, GitHub, Linear를 연결하고 플랫폼 기능이 켜져 있는지 확인합니다.",
+    workflows: "각 워크플로가 무엇을 어떤 순서로 실행하는지, 어떤 단계를 뺄 수 없는지 봅니다.",
   },
   common2: { refresh: "새로고침", all: "전체", yes: "예", no: "아니오", loading: "불러오는 중…", none: "–" },
   evalp: {
@@ -432,6 +448,20 @@ const ko: Messages = {
     outputs: (ms: number, n: number) => `${ms} ms · 산출 ${n}건`,
     kpiNew: "KPI 신규 기록",
     messagesTitle: "에이전트 간 구조화 메시지 (감사 로그)",
+  },
+
+  wf: {
+    list: "워크플로",
+    builtin: "기본 제공", custom: "내 파일",
+    graph: "단계", table: "단계 표",
+    graphHint: "같은 열의 단계는 병렬로 실행될 수 있고, 화살표는 기다리는 단계를 가리킵니다.",
+    step: "단계", agent: "에이전트", waitsFor: "선행 단계", params: "매개변수", required: "필수",
+    start: "시작", requiredTip: "거버넌스 게이트 같은 필수 단계는 뺄 수 없습니다.",
+    level: (n: number) => `${n + 1}단계`,
+    nodeLabel: (id: string, agent: string, needs: string[], required: boolean) =>
+      `${id}, ${agent}${needs.length ? `, 선행: ${needs.join(", ")}` : ", 먼저 시작"}${required ? ", 필수" : ""}`,
+    problems: "불러오지 못한 파일",
+    version: (v: number) => `버전 ${v}`,
   },
 
   appr: {

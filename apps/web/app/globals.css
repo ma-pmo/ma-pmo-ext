@@ -262,3 +262,36 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .timeline > div { border-left: 3px solid var(--border); padding: 2px 0 12px 14px; margin-left: 4px; }
 pre.code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow: auto; font-size: 12px; white-space: pre-wrap; margin: 0; }
 details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+
+/* ── workflow view ── */
+.wf-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
+.wf-pick { display: none; }
+@media (max-width: 960px) {
+  .wf-layout { grid-template-columns: 1fr; }
+  .wf-side { display: none; }
+  .wf-pick { display: grid; gap: 4px; }
+}
+.wf-list { position: relative; display: grid; max-height: 640px; overflow-y: auto; border-top: 1px solid var(--border); margin-top: 12px; }
+.wf-list button {
+  display: grid; gap: 2px; justify-items: start; justify-content: stretch; text-align: left; padding: 10px 16px; border: 0; border-radius: 0;
+  border-bottom: 1px solid var(--border); background: transparent; color: var(--text); font: inherit; cursor: pointer;
+}
+.wf-list button:hover { background: var(--surface-2); }
+.wf-list button.on { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.wf-list .muted { font-size: 12px; }
+.wf-graph { overflow-x: auto; padding-bottom: 4px; }
+.wf-graph svg { display: block; }
+.wf-stage { font-size: 11px; fill: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.wf-edge { fill: none; stroke: var(--border); stroke-width: 2; }
+.wf-edge.on { stroke: var(--accent); }
+.wf-arrow { fill: var(--border); }
+.wf-arrow.on { fill: var(--accent); }
+.wf-node { cursor: default; outline: none; }
+.wf-node rect { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
+.wf-node.required rect { stroke: var(--amber); stroke-dasharray: 5 3; }
+.wf-node.on rect, .wf-node:focus-visible rect { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: none; }
+.wf-title { font-size: 13px; font-weight: 600; fill: var(--text); }
+.wf-sub { font-size: 11.5px; fill: var(--muted); }
+.wf-lock { font-size: 10.5px; font-weight: 700; fill: var(--amber); }
+tr.wf-row-on td { background: var(--accent-soft); }
+.wf-table th, .wf-table td { white-space: nowrap; }

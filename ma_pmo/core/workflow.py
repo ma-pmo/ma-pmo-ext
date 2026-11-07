@@ -87,14 +87,36 @@ class WorkflowSpec(BaseModel):
             previous = step.id
         return deps
 
-    def _check_cycles(self) -> None:
+    def levels(self) -> dict[str, int]:
+        """How many steps must finish before each one can start, along the longest chain.
+
+        Steps on the same level can run in parallel; this is how the workflow view lays them out.
+        """
         deps = self.dependencies()
+        level: dict[str, int] = {}
+        for wave, ready in enumerate(self._waves(deps)):
+            level.update(dict.fromkeys(ready, wave))
+        return {s: level[s] for s in deps}
+
+    @staticmethod
+    def _waves(deps: dict[str, list[str]]) -> list[set[str]]:
         done: set[str] = set()
+        waves: list[set[str]] = []
         while len(done) < len(deps):
             ready = {s for s, needs in deps.items() if s not in done and set(needs) <= done}
             if not ready:
                 raise ValueError(f"steps depend on each other: {sorted(set(deps) - done)}")
+            waves.append(ready)
             done |= ready
+        return waves
+
+    def _check_cycles(self) -> None:
+        self._waves(self.dependencies())
+
+
+def builtin_ids() -> set[str]:
+    """The ids of the workflows that ship with MA-PMO."""
+    return {w["id"] for w in json.loads(_BUILTIN.read_text(encoding="utf-8"))}
 
 
 def load_workflows(known_agents: set[str], directory: str | Path | None = None,
