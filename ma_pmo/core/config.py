@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     llm_api_base: str = Field(default="", alias="LLM_API_BASE")
     llm_temperature: float = Field(default=0.2, alias="LLM_TEMPERATURE")
     llm_max_tokens: int = Field(default=4096, alias="LLM_MAX_TOKENS")
+    # mark the system prompt cacheable where the provider supports it (Anthropic)
+    llm_prompt_cache: bool = Field(default=True, alias="LLM_PROMPT_CACHE")
     # your own prices (JSON, see core/costs.py); empty = the table bundled with LiteLLM
     price_table: str = Field(default="", alias="MA_PMO_PRICE_TABLE")
 

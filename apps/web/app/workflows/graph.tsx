@@ -10,6 +10,7 @@ export type StepRun = {
 export type Step = {
   id: string; agent: string; agent_name: string; params: Record<string, unknown>;
   needs: string[]; required: boolean; level: number; run?: StepRun;
+  model_tier?: "standard" | "fast";
 };
 export type RunSummary = {
   run_id: string; kind: string; workflow: string; scope: string; status: string; started_at: string;
@@ -94,7 +95,7 @@ export function Graph({ steps, active, setActive, runStatus }: {
               <rect width={W} height={H} rx="10" />
               <text x="12" y="23" className="wf-title">{s.agent} · {s.agent_name}</text>
               <text x="12" y="44" className="wf-sub">
-                {clip(`${s.id}${Object.keys(s.params).length ? ` · ${params(s.params)}` : ""}`, 28)}
+                {clip(`${s.model_tier === "fast" ? `${w.tierShort.fast} · ` : ""}${s.id}${Object.keys(s.params).length ? ` · ${params(s.params)}` : ""}`, 28)}
               </text>
               {s.run
                 ? <text x={W - 10} y="23" textAnchor="end" className="wf-state">{w.status[stepState(s.run, runStatus)] ?? stepState(s.run, runStatus)}</text>

@@ -1,6 +1,7 @@
 """LLM gateway — provider abstraction (LiteLLM), Anthropic Claude by default.
 
-- swappable model (LLM_MODEL env)
+- swappable model (LLM_MODEL env); a workflow step can ask for the fast tier (LLM_MODEL_FAST)
+- the system prompt is marked cacheable for providers that support prompt caching (Anthropic)
 - token and latency usage reported as KPIs (cost axis)
 - structured output: enforced Pydantic schema (JSON mode) — curbs hallucination/format errors
 - natural-language output follows the active language (core/i18n.py)
@@ -9,7 +10,10 @@ from __future__ import annotations
 
 import json
 import time
-from typing import TypeVar
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
+from typing import Any, TypeVar
 
 import litellm
 from pydantic import BaseModel
@@ -23,6 +27,38 @@ T = TypeVar("T", bound=BaseModel)
 
 # LiteLLM global settings
 litellm.drop_params = True  # drop unsupported params automatically (provider portability)
+
+# the model tier of the workflow step running now (set by core/executor.py)
+_tier: ContextVar[str | None] = ContextVar("ma_pmo_model_tier", default=None)
+
+
+@contextmanager
+def use_tier(tier: str | None) -> Iterator[None]:
+    """Calls inside use the model of `tier`: "fast" is LLM_MODEL_FAST, anything else LLM_MODEL."""
+    token = _tier.set(tier)
+    try:
+        yield
+    finally:
+        _tier.reset(token)
+
+
+def model_for(tier: str | None = None) -> str:
+    tier = tier if tier is not None else _tier.get()
+    if tier == "fast" and _settings.llm_model_fast:
+        return _settings.llm_model_fast
+    return _settings.llm_model
+
+
+def _caches(model: str) -> bool:
+    return _settings.llm_prompt_cache and model.startswith(("anthropic/", "claude"))
+
+
+def _messages(system: str, user: str, model: str) -> list[dict[str, Any]]:
+    if _caches(model):  # the system prompt (role, schema) repeats; the provider reuses it
+        content: Any = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
+    else:
+        content = system
+    return [{"role": "system", "content": content}, {"role": "user", "content": user}]
 
 
 def _provider_kwargs(model: str) -> dict:
@@ -53,7 +89,7 @@ def complete(
     Raises budgets.BudgetExceeded, before calling, once a hard budget is reached; callers fall
     back to their deterministic answer as for any other failed call.
     """
-    model = model or _settings.llm_model
+    model = model or model_for()
     budgets.check(agent)
     language = "Korean" if get_lang() == "ko" else "English"
     system = f"{system}\n\nWrite all natural-language text in {language}."
@@ -62,7 +98,7 @@ def complete(
                                         tracing.AGENT_ID: agent}):
         resp = litellm.completion(
             model=model,
-            messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+            messages=_messages(system, user, model),
             temperature=_settings.llm_temperature if temperature is None else temperature,
             max_tokens=max_tokens or _settings.llm_max_tokens,
             **_provider_kwargs(model),

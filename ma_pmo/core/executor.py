@@ -21,7 +21,7 @@ from langgraph.graph import END, START, StateGraph
 from ma_pmo.agents import registry
 from ma_pmo.agents.orchestrator_rules import _headline
 from ma_pmo.agents.registry import WORKERS
-from ma_pmo.core import runs, tracing
+from ma_pmo.core import llm, runs, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -65,7 +65,7 @@ def _run_step(step: WorkflowStep, seq: int, workflow: str, scope: str, goal: str
     with tracing.span(f"invoke_agent {agent_id}", {
         tracing.OPERATION: "invoke_agent", tracing.AGENT_ID: agent_id,
         tracing.AGENT_NAME: registry.title(agent_id), tracing.SCENARIO: workflow,
-    }), runs.step(agent_id, seq) as handle:
+    }), runs.step(agent_id, seq) as handle, llm.use_tier(step.model_tier):
         outputs = WORKERS[agent_id].run(state).get("outputs", [])
         schemas = [o.get("schema") for o in outputs]
         tracing.set_attributes({tracing.OUTPUT_SCHEMAS: schemas})

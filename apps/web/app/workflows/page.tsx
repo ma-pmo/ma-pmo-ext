@@ -18,6 +18,7 @@ export default function Workflows() {
   const w = t.wf;
   const [list, setList] = useState<Workflow[]>([]);
   const [problems, setProblems] = useState<string[]>([]);
+  const [models, setModels] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState("");
   const [detail, setDetail] = useState<Workflow | null>(null);
   const [active, setActive] = useState("");
@@ -36,6 +37,7 @@ export default function Workflows() {
     api.workflows().then((r) => {
       setList(r.workflows);
       setProblems(r.problems);
+      setModels(r.models ?? {});
       const wanted = asked.current?.id;
       setSelected((cur) => cur || (r.workflows.some((x: Workflow) => x.id === wanted) ? wanted! : r.workflows[0]?.id || ""));
     }).catch((e) => setErr(String(e.message || e)));
@@ -163,7 +165,7 @@ export default function Workflows() {
         {shown?.steps && (
           <div className="stack" style={{ minWidth: 0 }}>
             {editing && detail?.steps && (
-              <Editor spec={editing} steps={detail.steps} onClose={() => setEditing(null)}
+              <Editor spec={editing} steps={detail.steps} models={models} onClose={() => setEditing(null)}
                 onSaved={async (version) => {
                   setEditing(null);
                   setNotice({ text: t.wfEdit.saved(version) });
@@ -227,7 +229,7 @@ export default function Workflows() {
               <div className="table-wrap">
                 <table className="wf-table">
                   <thead>
-                    <tr><th>{w.step}</th><th>{w.agent}</th><th>{w.waitsFor}</th><th>{w.params}</th><th>{w.required}</th>{overlay && <th>{w.state}</th>}</tr>
+                    <tr><th>{w.step}</th><th>{w.agent}</th><th>{w.waitsFor}</th><th>{w.params}</th><th>{w.required}</th><th>{w.tier}</th>{overlay && <th>{w.state}</th>}</tr>
                   </thead>
                   <tbody>
                     {shown.steps.map((s) => (
@@ -239,6 +241,10 @@ export default function Workflows() {
                         <td>{s.required
                           ? <span className="badge amber tip" data-tip={w.requiredTip}>{w.required}</span>
                           : <span className="muted">–</span>}</td>
+                        <td>
+                          <span className={s.model_tier === "fast" ? "badge accent tip" : "muted tip"}
+                            data-tip={models[s.model_tier ?? "standard"] ?? ""}>{w.tierNames[s.model_tier ?? "standard"]}</span>
+                        </td>
                         {overlay && <td>
                           {w.status[stepState(s.run, runStatus)] ?? stepState(s.run, runStatus)}
                           {s.run?.attempts && s.run.attempts > 1 ? ` · ${w.attempts(s.run.attempts)}` : ""}

@@ -49,6 +49,31 @@ ma-pmo budget clear run
 `{"warn_usd": …, "limit_usd": …}` changes them (both `null` removes it) and needs the `admin`
 role.
 
+## Choosing the model per step
+
+A workflow step can ask for a cheaper model with `"model_tier": "fast"`; it then uses
+`LLM_MODEL_FAST` instead of `LLM_MODEL` (left out or `"standard"`, nothing changes). Pick it in
+the workflow editor's **Model** column, or in the JSON:
+
+```json
+{"id": "report", "agent": "A5", "model_tier": "fast"}
+```
+
+Like any change to a workflow it is validated, saved as a draft and published (see
+[docs/PLUGINS.md](PLUGINS.md)). The ledger records the model each call used, so the Costs page
+shows the effect by model. Calls outside a workflow step (routing a goal, `/knowledge/ask`) use
+`LLM_MODEL`. If `LLM_MODEL_FAST` is empty, `fast` falls back to `LLM_MODEL`.
+
+Which steps can safely use the fast model is a question of quality, not only price: the replay
+evaluator (next) measures it before anyone changes a workflow.
+
+## Prompt caching
+
+With an Anthropic model the system prompt (the agent's role and, for structured output, its JSON
+schema) is marked cacheable, so repeated calls read it from the provider's cache at a lower
+price. Prompts shorter than the provider's minimum are simply not cached. Cache reads and writes
+are recorded and priced separately in the ledger. Turn it off with `LLM_PROMPT_CACHE=false`.
+
 ## Prices
 
 Prices come from a versioned table, and each ledger row records which one priced it:

@@ -231,6 +231,8 @@ const en = {
     viewVersion: (v: number) => `View version ${v}`,
     viewing: (v: number) => `Viewing version ${v}, not the one in use`, backToCurrent: "Back to the version in use",
     editedHere: "edited in this workspace",
+    tier: "Model", tierNames: { standard: "Standard", fast: "Fast" } as Record<string, string>,
+    tierShort: { fast: "fast" },
     budgetFallback: (agent: string) => `Budget reached at ${agent}: fallbacks used from there`,
   },
 
@@ -539,6 +541,8 @@ const ko: Messages = {
     viewVersion: (v: number) => `버전 ${v} 보기`,
     viewing: (v: number) => `사용 중이 아닌 버전(v${v})을 보는 중`, backToCurrent: "사용 중인 버전으로",
     editedHere: "이 워크스페이스에서 수정됨",
+    tier: "모델", tierNames: { standard: "표준", fast: "빠른 모델" } as Record<string, string>,
+    tierShort: { fast: "빠름" },
     budgetFallback: (agent: string) => `${agent}에서 예산 도달: 이후 대체 방식으로 실행`,
   },
 
