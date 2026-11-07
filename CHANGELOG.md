@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Changed
+- One executor (`ma_pmo/core/executor.py`): scenarios and goals both compile a `WorkflowSpec` to a LangGraph graph. Steps follow `needs`, so independent steps run in parallel and joins wait. `/orchestrate` gains `pause_on_gate`, a `status` in its response, and resume after a crash. A run keeps the workflow it started with.
 - The 20 lifecycle scenarios are data (`ma_pmo/fixtures/workflows.json`), validated as `WorkflowSpec`: unique steps, known dependencies, no cycles. Golden traces pin their results in both languages.
 - Workers are declared once in `ma_pmo/agents/registry.py` (`AgentSpec`). Routing, the graph, scenarios and the orchestrator prompt read from it, and agents are built on first use.
 
@@ -113,6 +114,7 @@ First public release.
 
 ### [Unreleased]
 
+- 실행기 통합(`ma_pmo/core/executor.py`): 시나리오와 목표 모두 `WorkflowSpec`을 LangGraph 그래프로 컴파일해 실행합니다. `needs`대로 실행되어 독립 단계는 병렬로, 합류 단계는 기다렸다가 돕니다. `/orchestrate`에 `pause_on_gate`, 응답의 `status`, 장애 후 재개가 추가됩니다. 실행은 시작할 때의 워크플로를 유지합니다.
 - 시나리오 20개를 데이터(`ma_pmo/fixtures/workflows.json`)로 옮겨 `WorkflowSpec`으로 검증(단계 중복, 없는 의존, 순환). 두 언어의 golden trace로 결과를 고정합니다. 내 워크플로는 `MA_PMO_WORKFLOWS_DIR`의 JSON으로 추가하며 플러그인 에이전트도 쓸 수 있습니다.
 - 에이전트 플러그인([docs/PLUGINS.ko.md](docs/PLUGINS.ko.md)): 외부 패키지가 `ma_pmo.agents` entry point로 에이전트를 추가하고, 안정 API `ma_pmo.sdk` 위에 만들며, `assert_agent_contract`로 스스로 검사합니다. `ma-pmo agents`, `GET /agents`로 확인하고, 불러오지 못한 플러그인은 알리고 건너뜁니다. 예제 패키지는 `examples/agent-plugin`.
 - 작업자 에이전트를 `ma_pmo/agents/registry.py`(`AgentSpec`) 한 곳에 선언. 라우팅, 그래프, 시나리오, 오케스트레이터 프롬프트가 여기서 읽고, 에이전트는 처음 쓸 때 만들어집니다.

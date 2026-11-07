@@ -5,9 +5,10 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, select, text
 
+from ma_pmo.agents.registry import WORKERS
 from ma_pmo.api.main import app
 from ma_pmo.core import kpi, runs
-from ma_pmo.core.scenarios import WORKERS, run_scenario
+from ma_pmo.core.scenarios import run_scenario
 from ma_pmo.db import migrate
 from ma_pmo.db.models import AgentMessageRow, Approval, KpiEvent
 from ma_pmo.db.session import get_session

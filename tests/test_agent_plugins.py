@@ -12,7 +12,7 @@ from ma_pmo.agents.orchestrator import OrchestratorAgent
 from ma_pmo.agents.orchestrator_rules import keyword_route
 from ma_pmo.api.main import app
 from ma_pmo.core import hitl
-from ma_pmo.core.graph import build_graph
+from ma_pmo.core.goals import run_goal
 from ma_pmo.core.schemas.payloads import PAYLOAD_REGISTRY
 from ma_pmo.sdk import BaseAgent, publish
 from ma_pmo.sdk.testing import assert_agent_contract
@@ -72,12 +72,9 @@ def test_plugin_joins_routing_prompt_and_payload_validation(install):
     assert PAYLOAD_REGISTRY["acme_note.v1"] is NoteV1
 
 
-def test_plugin_runs_in_the_graph(install):
+def test_plugin_runs_for_a_goal(install):
     install(_entry_point("note", _spec()))
-    final = build_graph().invoke(
-        {"goal": "memo-word", "task_ref": "PORTFOLIO#2026-Q1", "outputs": [], "messages": []},
-        config={"configurable": {"thread_id": "plugin-graph"}},
-    )
+    final = run_goal("memo-word", "PORTFOLIO#2026-Q1")
     assert [o["agent"] for o in final["outputs"]] == ["acme.note"]
 
 

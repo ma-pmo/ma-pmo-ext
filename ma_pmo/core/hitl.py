@@ -86,7 +86,7 @@ def _continue_run(run_id: str | None, decision: str, approver: str) -> str | Non
 
     The decision is already recorded, so a failing agent marks the run failed, not the request.
     """
-    from ma_pmo.core.scenarios import resume_scenario
+    from ma_pmo.core.executor import resume_run
 
     run = runs.get_run(run_id) if run_id else None
     if run is None or run["status"] != runs.WAITING:
@@ -95,7 +95,7 @@ def _continue_run(run_id: str | None, decision: str, approver: str) -> str | Non
         runs.cancel(run["run_id"], f"approval rejected by {approver}")
     elif not runs.pending_approvals(run["run_id"]):
         try:
-            return resume_scenario(run["run_id"])["status"]
+            return resume_run(run["run_id"])["status"]
         except Exception as e:
             _log.warning("run_resume_failed", run_id=run["run_id"], error=str(e)[:200])
     return (runs.get_run(run["run_id"]) or {}).get("status")

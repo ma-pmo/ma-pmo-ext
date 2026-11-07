@@ -225,9 +225,8 @@ def claim(run_id: str) -> dict:
         run = s.get(Run, run_id)
         if run is None:
             raise KeyError(run_id)
-        kind = run.kind
-    if kind != "scenario":
-        raise NotResumable("orchestrated runs cannot be resumed yet: start the goal again")
+        if not (run.state or {}).get("spec"):
+            raise NotResumable("this run stopped before its workflow was saved: start it again")
     if pending_approvals(run_id):
         raise NotResumable("approvals are still pending for this run")
     now = _now()

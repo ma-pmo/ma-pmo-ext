@@ -7,6 +7,7 @@ to the SQLite file `CHECKPOINT_DB`.
 from __future__ import annotations
 
 import sqlite3
+from functools import lru_cache
 from typing import Any
 
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -43,3 +44,9 @@ def build_checkpointer() -> Any:
         return _postgres_saver(settings.db_url)
     conn = sqlite3.connect(settings.checkpoint_db, check_same_thread=False)
     return SqliteSaver(conn)
+
+
+@lru_cache(maxsize=1)
+def shared_checkpointer() -> Any:
+    """One checkpointer per process: a Postgres one holds a connection pool."""
+    return build_checkpointer()

@@ -186,7 +186,7 @@ Start here: [docs/learn/README.md](https://github.com/ma-pmo/ma-pmo-ext/blob/mai
 
 ```
 Presentation   Next.js dashboard · scenarios · HITL approval UI (English / Korean)
-Orchestration  A1 Orchestrator (LangGraph supervisor)
+Orchestration  A1 Orchestrator · workflows run by one LangGraph executor
 Workers        A2 Planning · A3 Resources · A4 Risk · A5 Reporting · A6 Governance · A7 Knowledge
 Shared state   Blackboard (PortfolioState) · append-only message log
 Persistence    SQLite by default, Postgres with ma-pmo[postgres] · migrations · run records · LangGraph checkpoints
@@ -237,7 +237,7 @@ See [docs/PAPER_VALIDATION_GUIDE.md](https://github.com/ma-pmo/ma-pmo-ext/blob/m
 | §3.5 Five-axis metrics | `ma_pmo/core/kpi.py`, `kpi_event` table |
 | §4 Simulation → real measurement | `ma_pmo/agents/`, `ma_pmo/core/`, `ma_pmo/eval/` |
 | Hypotheses H1–H5 | `ma_pmo/eval/`, `ma_pmo/harness/` |
-| §8 Governance (HITL) | `ma_pmo/core/hitl.py`, `ma_pmo/core/graph.py` |
+| §8 Governance (HITL) | `ma_pmo/core/hitl.py`, `ma_pmo/core/executor.py` |
 
 ## Project layout
 

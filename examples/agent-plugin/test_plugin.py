@@ -6,7 +6,7 @@ from ma_pmo_budget_agent import SPEC
 from ma_pmo.agents import registry
 from ma_pmo.agents.orchestrator_rules import keyword_route
 from ma_pmo.core import hitl, scenarios
-from ma_pmo.core.graph import build_graph
+from ma_pmo.core.goals import run_goal
 from ma_pmo.sdk.testing import assert_agent_contract
 
 
@@ -20,12 +20,9 @@ def test_found_through_its_entry_point():
     assert registry.specs()["acme.budget"].source == "ma-pmo-budget-agent"
 
 
-def test_routed_and_run_by_the_graph():
+def test_routed_and_run_for_a_goal():
     assert [d.agent for d in keyword_route("남은 예산 알려줘").delegations] == ["acme.budget"]
-    final = build_graph().invoke(
-        {"goal": "budget check", "task_ref": "PORTFOLIO#2026-Q1", "outputs": [], "messages": []},
-        config={"configurable": {"thread_id": "plugin-test"}},
-    )
+    final = run_goal("budget check", "PORTFOLIO#2026-Q1")
     assert {o["schema"] for o in final["outputs"]} == {"acme_budget.v1"}
 
 

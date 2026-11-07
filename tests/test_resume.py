@@ -14,9 +14,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select, update
 
+from ma_pmo.agents.registry import WORKERS
 from ma_pmo.api.main import app
 from ma_pmo.core import hitl, runs
-from ma_pmo.core.scenarios import WORKERS, resume_scenario, run_scenario
+from ma_pmo.core.executor import resume_run
+from ma_pmo.core.scenarios import run_scenario
 from ma_pmo.db.models import AgentMessageRow, Approval, KpiEvent, Run
 from ma_pmo.db.session import get_session
 
@@ -108,12 +110,6 @@ def test_scenario_api_pause_and_unknown_runs():
     assert client.post(f"/runs/{done['run_id']}/resume").status_code == 409
 
 
-def test_orchestrated_runs_say_they_cannot_resume_yet():
-    run_id = client.post("/orchestrate", json={"goal": "status report"}).json()["run_id"]
-    response = client.post(f"/runs/{run_id}/resume")
-    assert response.status_code == 409 and "orchestrated" in response.json()["detail"]
-
-
 def _expire(run_id: str) -> None:
     past = datetime.now(UTC) - timedelta(seconds=5)
     with get_session() as s:
@@ -121,7 +117,7 @@ def _expire(run_id: str) -> None:
 
 
 def test_a_live_lease_blocks_recovery_and_resume():
-    with runs.track("scenario", "weekly_status", "S", state={}) as run_id:
+    with runs.track("scenario", "weekly_status", "S", state={"spec": {"id": "x"}}) as run_id:
         assert run_id not in runs.recover_interrupted()
         with pytest.raises(runs.NotResumable, match="another process"):
             runs.claim(run_id)
@@ -181,7 +177,7 @@ def test_killed_process_resumes_without_duplicates():
     assert [(s["agent"], s["status"]) for s in run["steps"]] == [
         ("A2", "succeeded"), ("A4", "interrupted")]
 
-    trace = resume_scenario(run_id)
+    trace = resume_run(run_id)
     run = runs.get_run(run_id)
     assert trace["status"] == run["status"] == "succeeded"
     assert [(s["agent"], s["attempts"]) for s in run["steps"]] == [("A2", 1), ("A4", 2), ("A5", 1)]

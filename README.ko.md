@@ -188,7 +188,7 @@ ma-pmo learn check 1       # 요구사항별 ✓/✗와 힌트
 
 ```
 Presentation   Next.js 대시보드 · 시나리오 · HITL 승인 UI (영어/한국어)
-Orchestration  A1 Orchestrator (LangGraph supervisor)
+Orchestration  A1 Orchestrator · workflows run by one LangGraph executor
 Workers        A2 계획 · A3 자원 · A4 리스크 · A5 보고 · A6 거버넌스 · A7 지식
 Shared state   Blackboard(PortfolioState) · append-only 메시지 로그
 Persistence    기본 SQLite, ma-pmo[postgres]로 Postgres · 마이그레이션 · 실행 기록 · LangGraph 체크포인트
@@ -239,7 +239,7 @@ Platform       LLM 게이트웨이(LiteLLM: Anthropic/Ollama) · 로컬 RAG · �
 | §3.5 5축 지표 | `ma_pmo/core/kpi.py`, `kpi_event` 테이블 |
 | §4 시뮬레이션 → 실측 | `ma_pmo/agents/`, `ma_pmo/core/`, `ma_pmo/eval/` |
 | 가설 H1~H5 | `ma_pmo/eval/`, `ma_pmo/harness/` |
-| §8 거버넌스(HITL) | `ma_pmo/core/hitl.py`, `ma_pmo/core/graph.py` |
+| §8 거버넌스(HITL) | `ma_pmo/core/hitl.py`, `ma_pmo/core/executor.py` |
 
 ## 디렉토리 구조
 

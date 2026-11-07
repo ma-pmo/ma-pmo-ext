@@ -49,7 +49,7 @@ Pick a use case in the **Scenarios** tab to run four phases — **plan → execu
 ## 2. Capturing each figure
 
 ### Figure A — system architecture (supervisor–worker)
-- Source: the architecture diagram in `README.md` + `ma_pmo/core/graph.py`
+- Source: the architecture diagram in `README.md` + `ma_pmo/core/executor.py`
 - Capture: `http://localhost:8000/docs` (endpoints = function mapping)
 
 ### Figure B — four-phase agent collaboration (main figure)
