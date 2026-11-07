@@ -198,6 +198,7 @@ const en = {
     outputs: (ms: number, n: number) => `${ms} ms · ${n} outputs`,
     kpiNew: "New KPI records",
     messagesTitle: "Structured messages between agents (audit log)",
+    openInWorkflow: "See it on the workflow",
   },
 
   wf: {
@@ -212,6 +213,16 @@ const en = {
       `${id}, ${agent}${needs.length ? `, waits for ${needs.join(", ")}` : ", starts first"}${required ? ", required" : ""}`,
     problems: "Files that could not be loaded",
     version: (v: number) => `version ${v}`,
+    run: "Run", noRun: "Definition only", state: "Status",
+    status: {
+      succeeded: "Done", running: "Running", waiting_approval: "Awaiting approval", failed: "Failed",
+      not_started: "Not started", interrupted: "Interrupted", cancelled: "Cancelled",
+    } as Record<string, string>,
+    badge: { succeeded: "green", running: "accent", waiting_approval: "amber", failed: "red", interrupted: "red", cancelled: "" } as Record<string, string>,
+    toApprovals: "Open the approval queue →",
+    olderVersion: "Ran an earlier version of this workflow",
+    attempts: (n: number) => `${n} attempts`,
+    queued: (n: number) => `${n} approval${n === 1 ? "" : "s"} in the queue`,
   },
 
   appr: {
@@ -448,6 +459,7 @@ const ko: Messages = {
     outputs: (ms: number, n: number) => `${ms} ms · 산출 ${n}건`,
     kpiNew: "KPI 신규 기록",
     messagesTitle: "에이전트 간 구조화 메시지 (감사 로그)",
+    openInWorkflow: "워크플로에서 보기",
   },
 
   wf: {
@@ -462,6 +474,16 @@ const ko: Messages = {
       `${id}, ${agent}${needs.length ? `, 선행: ${needs.join(", ")}` : ", 먼저 시작"}${required ? ", 필수" : ""}`,
     problems: "불러오지 못한 파일",
     version: (v: number) => `버전 ${v}`,
+    run: "실행", noRun: "정의만 보기", state: "상태",
+    status: {
+      succeeded: "완료", running: "실행 중", waiting_approval: "승인 대기", failed: "실패",
+      not_started: "시작 전", interrupted: "중단됨", cancelled: "취소됨",
+    } as Record<string, string>,
+    badge: { succeeded: "green", running: "accent", waiting_approval: "amber", failed: "red", interrupted: "red", cancelled: "" } as Record<string, string>,
+    toApprovals: "승인 큐 열기 →",
+    olderVersion: "이 워크플로의 이전 버전으로 실행됨",
+    attempts: (n: number) => `${n}회 시도`,
+    queued: (n: number) => `승인 대기 ${n}건`,
   },
 
   appr: {
