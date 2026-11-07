@@ -9,8 +9,9 @@ router = APIRouter(tags=["runs"])
 
 
 @router.get("/runs")
-def list_runs(status: str | None = None, limit: int = 50) -> list[dict]:
-    return runs.list_runs(status, max(1, min(limit, 200)))
+def list_runs(status: str | None = None, limit: int = 50,
+              workflow: str | None = None) -> list[dict]:
+    return runs.list_runs(status, max(1, min(limit, 200)), workflow)
 
 
 @router.get("/runs/{run_id}")

@@ -49,6 +49,7 @@ PATH = {
                                   lambda r: r.json()["found"] is False),
     # workflows are shared by every workspace; none carries workspace data
     "/workflows/{workflow_id}": (f"/workflows/{MARK}", lambda r: r.status_code == 404),
+    "/runs/{run_id}/workflow": (f"/runs/run-{MARK}/workflow", lambda r: r.status_code == 404),
 }
 
 

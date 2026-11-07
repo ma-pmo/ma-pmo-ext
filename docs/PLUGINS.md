@@ -79,6 +79,11 @@ can run in parallel, with the same steps as a table and required steps (such as 
 `GET /workflows` and `GET /workflows/{id}` return the same, including each step's resolved
 `needs` and `level`.
 
+Pick a run above the graph (or follow **See it on the workflow** after running a scenario) to see
+where each step of that run stands: done, running, awaiting approval, failed or not started. The
+graph is the workflow exactly as that run saved it, and it updates while the run is going.
+`GET /runs/{id}/workflow` returns the same; `GET /runs?workflow=<id>` lists a workflow's runs.
+
 ## Rules
 
 | Rule | Why |

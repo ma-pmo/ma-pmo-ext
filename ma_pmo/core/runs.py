@@ -32,7 +32,7 @@ from sqlalchemy import func, or_, select, update
 
 from ma_pmo.core import tracing, workspace
 from ma_pmo.core.config import get_settings
-from ma_pmo.db.models import Approval, Run, RunStep
+from ma_pmo.db.models import AgentMessageRow, Approval, Run, RunStep
 from ma_pmo.db.session import get_session
 
 RUNNING, SUCCEEDED, FAILED = "running", "succeeded", "failed"
@@ -291,12 +291,31 @@ def get_state(run_id: str) -> dict:
         return dict(run.state or {}) if run is not None else {}
 
 
-def list_runs(status: str | None = None, limit: int = 50) -> list[dict]:
+def list_runs(status: str | None = None, limit: int = 50,
+              workflow: str | None = None) -> list[dict]:
     with get_session() as s:
         stmt = select(Run).order_by(Run.started_at.desc()).limit(limit)
         if status:
             stmt = stmt.where(Run.status == status)
+        if workflow:
+            stmt = stmt.where(Run.workflow == workflow)
         return [_summary(r) for r in s.scalars(stmt).all()]
+
+
+def step_states(run_id: str) -> dict[int, dict]:
+    """Where each recorded step of a run stands, by position, with its pending approvals."""
+    with get_session() as s:
+        rows = s.scalars(select(RunStep).where(RunStep.run_id == run_id)).all()
+        waiting: dict[int, int] = {}
+        keys = s.scalars(select(AgentMessageRow.dedupe_key).join(
+            Approval, Approval.message_id == AgentMessageRow.message_id).where(
+            Approval.run_id == run_id, Approval.decision == "pending"))
+        for key in keys:  # run_id:seq:message:n, written by the step that published it
+            seq = int(key.rsplit(":", 3)[1]) if key else 0
+            waiting[seq] = waiting.get(seq, 0) + 1
+        return {r.seq: {"status": r.status, "attempts": r.attempts, "error": r.error,
+                        "started_at": _iso(r.started_at), "finished_at": _iso(r.finished_at),
+                        "pending_approvals": waiting.get(r.seq, 0)} for r in rows}
 
 
 def get_run(run_id: str) -> dict | None:

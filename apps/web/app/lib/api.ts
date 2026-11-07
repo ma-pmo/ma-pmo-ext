@@ -37,6 +37,12 @@ export const api = {
   scenarios: () => req(`/scenarios`),
   workflows: () => req(`/workflows`),
   workflow: (id: string) => req(`/workflows/${encodeURIComponent(id)}`),
+  runs: (q: { workflow?: string; status?: string; limit?: number } = {}) => {
+    const params = new URLSearchParams(Object.entries(q).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)]));
+    const query = params.toString();
+    return req(`/runs${query ? `?${query}` : ""}`);
+  },
+  runWorkflow: (runId: string) => req(`/runs/${encodeURIComponent(runId)}/workflow`),
   runScenario: (id: string) =>
     req(`/scenarios/${id}/run?format=markdown`, { method: "POST" }),
   gateReview: (gate = "G2-planning", scope?: string) =>

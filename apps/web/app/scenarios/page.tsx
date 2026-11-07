@@ -89,9 +89,17 @@ export default function Scenarios() {
           <Card
             title={trace.title}
             desc={`${trace.scope} · ${c.hypotheses} ${trace.hypotheses.join(", ")}`}
-            actions={trace.paper_markdown && (
-              <button className="ghost sm" onClick={() => setShowPaper((v) => !v)}>{c.paperToggle(showPaper)}</button>
-            )}
+            actions={
+              <div className="row">
+                <a className="btn ghost sm"
+                  href={`/workflows?id=${encodeURIComponent(trace.scenario_id)}&run=${encodeURIComponent(trace.run_id)}`}>
+                  {c.openInWorkflow}
+                </a>
+                {trace.paper_markdown && (
+                  <button className="ghost sm" onClick={() => setShowPaper((v) => !v)}>{c.paperToggle(showPaper)}</button>
+                )}
+              </div>
+            }
           >
             {showPaper && trace.paper_markdown && (
               <div style={{ marginBottom: 16 }}>
