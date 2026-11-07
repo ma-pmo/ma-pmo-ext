@@ -1,6 +1,11 @@
 """SQLAlchemy data models — paper §6.
 
 Lightweight first (SQLite); the same models work unchanged on Postgres in production.
+
+Every row belongs to a workspace (`Scoped`). Names people choose (portfolio, project, task,
+resource and knowledge ids) are unique within a workspace, so those tables have a composite key
+and composite foreign keys: a row cannot point at another workspace's project. Generated ids
+(runs, messages, risks, reports) stay globally unique.
 """
 from __future__ import annotations
 
@@ -12,12 +17,17 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    ForeignKeyConstraint,
     Integer,
+    PrimaryKeyConstraint,
     String,
     Text,
     UniqueConstraint,
+    event,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+DEFAULT_WORKSPACE = "default"
 
 
 def _utcnow() -> datetime:
@@ -28,9 +38,37 @@ class Base(DeclarativeBase):
     pass
 
 
-class Portfolio(Base):
-    __tablename__ = "portfolio"
+class Workspace(Base):
+    __tablename__ = "workspace"
     id: Mapped[str] = mapped_column(String, primary_key=True)
+    name: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class Scoped:
+    """A row that belongs to one workspace."""
+
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspace.id"), index=True)
+
+
+@event.listens_for(Scoped, "init", propagate=True)
+def _in_default_workspace(target: Scoped, args: tuple, kwargs: dict) -> None:
+    # set on construction, so `merge` looks up the right composite key
+    kwargs.setdefault("workspace_id", DEFAULT_WORKSPACE)
+
+
+def _key() -> PrimaryKeyConstraint:
+    return PrimaryKeyConstraint("workspace_id", "id")
+
+
+def _ref(column: str, table: str) -> ForeignKeyConstraint:
+    return ForeignKeyConstraint(["workspace_id", column], [f"{table}.workspace_id", f"{table}.id"])
+
+
+class Portfolio(Scoped, Base):
+    __tablename__ = "portfolio"
+    __table_args__ = (_key(),)
+    id: Mapped[str] = mapped_column(String)
     name: Mapped[str] = mapped_column(String)
     period: Mapped[str] = mapped_column(String)  # e.g. 2026-Q1
     plan_start: Mapped[str | None] = mapped_column(String, nullable=True)  # ISO week, e.g. 2026-W03
@@ -38,10 +76,11 @@ class Portfolio(Base):
     projects: Mapped[list[Project]] = relationship(back_populates="portfolio")
 
 
-class Project(Base):
+class Project(Scoped, Base):
     __tablename__ = "project"
-    id: Mapped[str] = mapped_column(String, primary_key=True)
-    portfolio_id: Mapped[str] = mapped_column(ForeignKey("portfolio.id"))
+    __table_args__ = (_key(), _ref("portfolio_id", "portfolio"))
+    id: Mapped[str] = mapped_column(String)
+    portfolio_id: Mapped[str] = mapped_column(String)
     skill: Mapped[str] = mapped_column(String, default="")
     planned_start: Mapped[str | None] = mapped_column(String, nullable=True)
     planned_finish: Mapped[str | None] = mapped_column(String, nullable=True)
@@ -52,10 +91,11 @@ class Project(Base):
     tasks: Mapped[list[Task]] = relationship(back_populates="project")
 
 
-class Task(Base):
+class Task(Scoped, Base):
     __tablename__ = "task"
-    id: Mapped[str] = mapped_column(String, primary_key=True)
-    project_id: Mapped[str] = mapped_column(ForeignKey("project.id"))
+    __table_args__ = (_key(), _ref("project_id", "project"))
+    id: Mapped[str] = mapped_column(String)
+    project_id: Mapped[str] = mapped_column(String)
     wbs: Mapped[str] = mapped_column(String, default="")
     effort: Mapped[float] = mapped_column(Float, default=0.0)
     deps: Mapped[list] = mapped_column(JSON, default=list)  # task_id[]
@@ -64,26 +104,29 @@ class Task(Base):
     project: Mapped[Project] = relationship(back_populates="tasks")
 
 
-class Resource(Base):
+class Resource(Scoped, Base):
     __tablename__ = "resource"
-    id: Mapped[str] = mapped_column(String, primary_key=True)
+    __table_args__ = (_key(),)
+    id: Mapped[str] = mapped_column(String)
     skill: Mapped[str] = mapped_column(String, default="")
     capacity: Mapped[float] = mapped_column(Float, default=40.0)  # hours per week
 
 
-class Allocation(Base):
+class Allocation(Scoped, Base):
     __tablename__ = "allocation"
+    __table_args__ = (_ref("project_id", "project"), _ref("resource_id", "resource"))
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    project_id: Mapped[str] = mapped_column(ForeignKey("project.id"))
-    resource_id: Mapped[str] = mapped_column(ForeignKey("resource.id"))
+    project_id: Mapped[str] = mapped_column(String)
+    resource_id: Mapped[str] = mapped_column(String)
     week: Mapped[str] = mapped_column(String)
     hours: Mapped[float] = mapped_column(Float, default=0.0)
 
 
-class Risk(Base):
+class Risk(Scoped, Base):
     __tablename__ = "risk"
+    __table_args__ = (_ref("project_id", "project"),)
     id: Mapped[str] = mapped_column(String, primary_key=True)
-    project_id: Mapped[str] = mapped_column(ForeignKey("project.id"))
+    project_id: Mapped[str] = mapped_column(String)
     signal: Mapped[str] = mapped_column(Text)
     severity: Mapped[str] = mapped_column(String, default="medium")
     detected_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
@@ -91,7 +134,7 @@ class Risk(Base):
     mitigation: Mapped[str] = mapped_column(Text, default="")
 
 
-class Report(Base):
+class Report(Scoped, Base):
     __tablename__ = "report"
     id: Mapped[str] = mapped_column(String, primary_key=True)
     scope: Mapped[str] = mapped_column(String)
@@ -100,7 +143,7 @@ class Report(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
 
 
-class Run(Base):
+class Run(Scoped, Base):
     """One execution of a scenario or an orchestrated goal (see core/runs.py)."""
 
     __tablename__ = "run"
@@ -120,7 +163,7 @@ class Run(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
-class RunStep(Base):
+class RunStep(Scoped, Base):
     """One agent's work inside a run."""
 
     __tablename__ = "run_step"
@@ -138,7 +181,7 @@ class RunStep(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
-class AgentMessageRow(Base):
+class AgentMessageRow(Scoped, Base):
     """Immutable (append-only) log of §4 messages, for audit and reproducibility."""
 
     __tablename__ = "agent_message"
@@ -158,7 +201,7 @@ class AgentMessageRow(Base):
     dedupe_key: Mapped[str | None] = mapped_column(String, nullable=True, unique=True, index=True)
 
 
-class Approval(Base):
+class Approval(Scoped, Base):
     __tablename__ = "approval"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     message_id: Mapped[str] = mapped_column(ForeignKey("agent_message.message_id"))
@@ -171,7 +214,7 @@ class Approval(Base):
     )
 
 
-class KnowledgeDoc(Base):
+class KnowledgeDoc(Scoped, Base):
     """Knowledge / lessons-learned corpus (A7 RAG). Lightweight: for local lexical search.
 
     `title`/`text` are English; `translations` holds other languages, e.g.
@@ -180,7 +223,8 @@ class KnowledgeDoc(Base):
     """
 
     __tablename__ = "knowledge_doc"
-    id: Mapped[str] = mapped_column(String, primary_key=True)
+    __table_args__ = (_key(),)
+    id: Mapped[str] = mapped_column(String)
     project_ref: Mapped[str] = mapped_column(String, default="")  # past project
     title: Mapped[str] = mapped_column(String)
     text: Mapped[str] = mapped_column(Text)
@@ -188,7 +232,7 @@ class KnowledgeDoc(Base):
     translations: Mapped[dict] = mapped_column(JSON, default=dict)
 
 
-class KpiEvent(Base):
+class KpiEvent(Scoped, Base):
     """Five-axis telemetry (§7). axis ∈ {time,resource,delivery,risk,cost}."""
 
     __tablename__ = "kpi_event"

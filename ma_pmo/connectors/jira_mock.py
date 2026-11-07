@@ -14,7 +14,7 @@ from ma_pmo.db.session import get_session
 class MockJiraConnector(IssueTrackerConnector):
     def get_portfolio_status(self, portfolio_id: str) -> dict:
         with get_session() as s:
-            portfolio = s.get(Portfolio, portfolio_id)
+            portfolio = s.scalars(select(Portfolio).where(Portfolio.id == portfolio_id)).first()
             if portfolio is None:
                 return {"portfolio_id": portfolio_id, "found": False, "projects": []}
 

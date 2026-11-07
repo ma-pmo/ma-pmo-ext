@@ -71,6 +71,8 @@ tests must not depend on network access or an LLM.
    a hint. `tests/test_learn.py` must show the solution passes and the starter fails.
 12. **Style.** ruff (line length 100) and mypy must pass. Match the surrounding code; keep
    comments short and about *why*.
+13. **Data belongs to a workspace.** A new table uses the `Scoped` mixin in `ma_pmo/db/models.py`
+   and gets a migration; ids people choose are keyed by `(workspace_id, id)`.
 
 ## Do not
 
