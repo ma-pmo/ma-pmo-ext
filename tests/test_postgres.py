@@ -97,7 +97,8 @@ def test_a_row_cannot_point_into_another_workspace():
 
 
 TENANT_TABLES = ("portfolio", "project", "task", "resource", "allocation", "risk", "report", "run",
-                 "run_step", "agent_message", "approval", "knowledge_doc", "kpi_event")
+                 "run_step", "agent_message", "approval", "knowledge_doc", "kpi_event",
+                 "workflow_version")
 
 
 @needs_postgres

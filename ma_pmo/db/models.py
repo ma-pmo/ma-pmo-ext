@@ -180,6 +180,27 @@ class Run(Scoped, Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
+class WorkflowVersion(Scoped, Base):
+    """One saved version of a workflow in a workspace (see core/workflow_store.py).
+
+    The spec never changes once saved; a draft becomes the workflow in use when it is published.
+    """
+
+    __tablename__ = "workflow_version"
+    __table_args__ = (UniqueConstraint("workspace_id", "workflow_id", "version",
+                                       name="uq_workflow_version"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    workflow_id: Mapped[str] = mapped_column(String, index=True)
+    version: Mapped[int] = mapped_column(Integer)
+    spec: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(String, default="draft")  # draft | published
+    note: Mapped[str] = mapped_column(Text, default="")
+    created_by: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    published_by: Mapped[str | None] = mapped_column(String, nullable=True)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
 class RunStep(Scoped, Base):
     """One agent's work inside a run."""
 

@@ -114,11 +114,12 @@ def create_server() -> Any:
                      lang: str | None = None) -> dict:
         """Run a scenario through the agents (plan → execute → complete → insight).
         Messages are written to the audit log; risky proposals wait in the approval queue."""
-        from ma_pmo.core.scenarios import SCENARIOS
         from ma_pmo.core.scenarios import run_scenario as _run
+        from ma_pmo.core.scenarios import workflows
 
-        if scenario_id not in SCENARIOS:
-            return {"error": f"unknown scenario '{scenario_id}'", "scenarios": list(SCENARIOS)}
+        known = [spec.id for spec in workflows()]  # includes this workspace's own
+        if scenario_id not in known:
+            return {"error": f"unknown scenario '{scenario_id}'", "scenarios": known}
         with _lang(lang):
             trace = _run(scenario_id, portfolio_id)
         trace.pop("paper_markdown", None)  # long; available from the API with ?format=markdown

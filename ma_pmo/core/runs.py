@@ -281,6 +281,8 @@ def _summary(run: Run) -> dict:
         "run_id": run.id, "kind": run.kind, "workflow": run.workflow, "scope": run.scope,
         "status": run.status, "thread_id": run.thread_id, "trace_id": run.trace_id,
         "error": run.error, "started_at": _iso(run.started_at),
+        # the version of the workflow this run used, exactly as it saved it
+        "workflow_version": ((run.state or {}).get("spec") or {}).get("version"),
         "finished_at": _iso(run.finished_at),
     }
 

@@ -223,6 +223,13 @@ const en = {
     olderVersion: "Ran an earlier version of this workflow",
     attempts: (n: number) => `${n} attempts`,
     queued: (n: number) => `${n} approval${n === 1 ? "" : "s"} in the queue`,
+    versions: "Versions", versionsHint: "Every version stays readable; the one in use runs here. Runs keep the version they started with.",
+    versionCol: "Version", by: "By", note: "Note", view: "View", inUse: "in use",
+    versionStatus: { builtin: "Shipped", file: "From file", draft: "Draft", published: "Published" } as Record<string, string>,
+    publishedBy: (who: string) => `published by ${who}`, draftedBy: (who: string) => `drafted by ${who}`,
+    viewVersion: (v: number) => `View version ${v}`,
+    viewing: (v: number) => `Viewing version ${v}, not the one in use`, backToCurrent: "Back to the version in use",
+    editedHere: "edited in this workspace",
   },
 
   appr: {
@@ -484,6 +491,13 @@ const ko: Messages = {
     olderVersion: "이 워크플로의 이전 버전으로 실행됨",
     attempts: (n: number) => `${n}회 시도`,
     queued: (n: number) => `승인 대기 ${n}건`,
+    versions: "버전", versionsHint: "모든 버전을 계속 볼 수 있고, 사용 중인 버전이 여기서 실행됩니다. 실행은 시작할 때의 버전을 유지합니다.",
+    versionCol: "버전", by: "작성", note: "메모", view: "보기", inUse: "사용 중",
+    versionStatus: { builtin: "기본 제공", file: "파일", draft: "초안", published: "게시됨" } as Record<string, string>,
+    publishedBy: (who: string) => `${who} 게시`, draftedBy: (who: string) => `${who} 작성`,
+    viewVersion: (v: number) => `버전 ${v} 보기`,
+    viewing: (v: number) => `사용 중이 아닌 버전 ${v}을 보는 중`, backToCurrent: "사용 중인 버전으로",
+    editedHere: "이 워크스페이스에서 수정됨",
   },
 
   appr: {

@@ -32,6 +32,7 @@ from ma_pmo.db.models import (
     RunStep,
     Scoped,
     Task,
+    WorkflowVersion,
     Workspace,
 )
 from ma_pmo.db.session import get_session
@@ -50,6 +51,13 @@ PATH = {
     # workflows are shared by every workspace; none carries workspace data
     "/workflows/{workflow_id}": (f"/workflows/{MARK}", lambda r: r.status_code == 404),
     "/runs/{run_id}/workflow": (f"/runs/run-{MARK}/workflow", lambda r: r.status_code == 404),
+    # another workspace's version 9 of a shared workflow
+    "/workflows/{workflow_id}/versions": (
+        "/workflows/weekly_status/versions",
+        lambda r: r.status_code == 200 and MARK not in r.text
+        and 9 not in {v["version"] for v in r.json()["versions"]}),
+    "/workflows/{workflow_id}/versions/{version}": ("/workflows/weekly_status/versions/9",
+                                                    lambda r: r.status_code == 404),
 }
 
 
@@ -76,6 +84,12 @@ def _marked_rows() -> list[Base]:
                      text="lesson risk schedule vendor delay", tags=[MARK]),
         KpiEvent(axis="risk", metric=MARK, value=1.0, project_id=f"{MARK}-P",
                  meta={"note": MARK}, run_id=f"run-{MARK}"),
+        WorkflowVersion(workflow_id="weekly_status", version=9, status="published",
+                        created_by=MARK, note=MARK,
+                        spec={"id": "weekly_status", "version": 9, "category": "execution",
+                              "title": {"en": MARK, "ko": MARK}, "goal": {"en": MARK, "ko": MARK},
+                              "description": {"en": MARK, "ko": MARK},
+                              "steps": [{"id": "A5", "agent": "A5"}]}),
     ]
 
 
@@ -99,7 +113,7 @@ def other():
     yield {"approval_id": approval_id}
     with workspace.use(OTHER), get_session() as s:
         for model in (Approval, KpiEvent, AgentMessageRow, RunStep, Run, Risk, Allocation,
-                      Task, Project, Resource, Portfolio, Report, KnowledgeDoc):
+                      Task, Project, Resource, Portfolio, Report, KnowledgeDoc, WorkflowVersion):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Workspace).where(Workspace.id == OTHER))
