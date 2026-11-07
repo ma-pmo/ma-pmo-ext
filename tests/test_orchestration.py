@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from ma_pmo.agents.orchestrator import OrchestratorAgent
 from ma_pmo.agents.orchestrator_rules import keyword_route
-from ma_pmo.core.graph import build_graph
+from ma_pmo.core.goals import run_goal
 
 
 def test_keyword_router_maps_goals():
@@ -33,36 +33,16 @@ def test_route_falls_back_to_rules_without_llm():
     assert any(d["agent"] == "A3" for d in out["routing"]["delegations"])
 
 
-def test_full_graph_runs_offline():
-    graph = build_graph()
-    config = {"configurable": {"thread_id": "test-integration"}}
-    final = graph.invoke(
-        {
-            "goal": "resource allocation and schedule check",
-            "task_ref": "PORTFOLIO#2026-Q1",
-            "outputs": [],
-            "messages": [],
-        },
-        config=config,
-    )
+def test_goal_runs_offline():
+    final = run_goal("resource allocation and schedule check", "PORTFOLIO#2026-Q1")
     # routed to A2 and A3, producing outputs and a synthesis
-    agents = {o["agent"] for o in final.get("outputs", [])}
+    agents = {o["agent"] for o in final["outputs"]}
     assert {"A2", "A3"} & agents
-    assert final.get("synthesis", {}).get("summary")
+    assert final["synthesis"]["summary"]
 
 
-def test_full_graph_report_goal_offline():
-    graph = build_graph()
-    config = {"configurable": {"thread_id": "test-report"}}
-    final = graph.invoke(
-        {
-            "goal": "generate executive report",
-            "task_ref": "PORTFOLIO#2026-Q1",
-            "outputs": [],
-            "messages": [],
-        },
-        config=config,
-    )
+def test_report_goal_offline():
+    final = run_goal("generate executive report", "PORTFOLIO#2026-Q1")
     # an A5 fallback report must be produced
-    reports = [o for o in final.get("outputs", []) if o["agent"] == "A5"]
+    reports = [o for o in final["outputs"] if o["agent"] == "A5"]
     assert reports and reports[0]["data"]["executive_summary"]

@@ -24,10 +24,10 @@ def get_run(run_id: str) -> dict:
 @router.post("/runs/{run_id}/resume")
 def resume_run(run_id: str) -> dict:
     """Continue a paused or interrupted run. 409 if it cannot continue now."""
-    from ma_pmo.core.scenarios import resume_scenario
+    from ma_pmo.core.executor import resume_run
 
     try:
-        return resume_scenario(run_id)
+        return resume_run(run_id)
     except KeyError as e:
         raise HTTPException(status_code=404, detail="run not found") from e
     except runs.NotResumable as e:

@@ -57,7 +57,8 @@ tests must not depend on network access or an LLM.
 7. **Schema changes need a migration** in `ma_pmo/db/migrations/versions/`.
    `tests/test_migrations.py` fails when models and migrations differ. Never call
    `Base.metadata.create_all`; use `ensure_schema()`.
-8. **Workflows are data.** Edit `ma_pmo/fixtures/workflows.json`, not Python.
+8. **Workflows are data, and one executor runs them.** Edit `ma_pmo/fixtures/workflows.json`,
+   not Python, and do not add a second way to run agents: use `ma_pmo/core/executor.py`.
    `tests/golden/` pins what every scenario does; regenerate it only for an intended change.
 9. **Tests with every change.** New behavior gets a test; mark end-to-end checks `smoke`. If a
    pinned result in `tests/test_regression.py` changes on purpose, update it in the same change

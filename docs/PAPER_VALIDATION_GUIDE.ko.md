@@ -57,7 +57,7 @@ make web                 # http://localhost:3000  (대시보드)
 ## 2. 그림별 캡처 절차
 
 ### Figure A — 시스템 아키텍처 (감독자–작업자)
-- 소스: `README.md`(영문) · `README.ko.md`(한글) 아키텍처 다이어그램 + `ma_pmo/core/graph.py`
+- 소스: `README.md`(영문) · `README.ko.md`(한글) 아키텍처 다이어그램 + `ma_pmo/core/executor.py`
 - 캡처: `http://localhost:8000/docs` (엔드포인트 = 기능 매핑) 스크린샷
 
 ### Figure B — 에이전트 협업 4단계 (대표 그림)

@@ -41,7 +41,8 @@ curl -s localhost:8000/approvals | python -m json.tool  # 대기 중
 ## 실행이 정말 기다리나?
 
 기본 동작은 승인을 대기열에 올리고 실행을 계속하는 것으로, 보고나 데모에 맞습니다.
-`POST /scenarios/{id}/run?pause_on_gate=true`로 실행하면 게이트가 걸린 단계 뒤에서 멈춥니다
+`POST /scenarios/{id}/run?pause_on_gate=true`(`/orchestrate`는 `"pause_on_gate": true`)로 실행하면
+게이트가 걸린 단계 뒤에서 멈춥니다
 (`waiting_approval`). 승인하면 다음 단계부터 이어 가고 반려하면 취소됩니다. 상태가 데이터베이스에
 있으므로 API를 재시작해도 대기가 유지됩니다(`ma_pmo/core/runs.py`).
 

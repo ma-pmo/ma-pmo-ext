@@ -11,6 +11,7 @@ A step's `needs` lists the steps it waits for; left out, it follows the step bef
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +32,7 @@ class Text(BaseModel):
 
 
 class WorkflowStep(BaseModel):
-    id: str
+    id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
     agent: str
     params: dict[str, Any] = Field(default_factory=dict)
     needs: list[str] | None = None
@@ -47,10 +48,11 @@ class WorkflowSpec(BaseModel):
     description: Text
     hypotheses: list[str] = Field(default_factory=list)
     steps: list[WorkflowStep]
+    ablated: bool = False  # agents were removed for an experiment; may leave no steps
 
     @model_validator(mode="after")
     def _check_steps(self) -> WorkflowSpec:
-        if not self.steps:
+        if not self.steps and not self.ablated:
             raise ValueError("a workflow needs at least one step")
         ids = [s.id for s in self.steps]
         if len(set(ids)) != len(ids):
@@ -61,6 +63,19 @@ class WorkflowSpec(BaseModel):
                 raise ValueError(f"step {step.id} needs unknown steps: {sorted(unknown)}")
         self._check_cycles()
         return self
+
+    def without_agents(self, agents: Iterable[str]) -> WorkflowSpec:
+        """This workflow minus some agents (ablation). What followed them follows what is left."""
+        dropped = set(agents)
+        if not dropped:
+            return self
+        removed = {s.id for s in self.steps if s.agent in dropped}
+        steps = [
+            s.model_copy(update={"needs": None if s.needs is None
+                                 else [n for n in s.needs if n not in removed]})
+            for s in self.steps if s.id not in removed
+        ]
+        return self.model_copy(update={"steps": steps, "ablated": True})
 
     def dependencies(self) -> dict[str, list[str]]:
         """Each step's prerequisites, with the default of following the step before it."""

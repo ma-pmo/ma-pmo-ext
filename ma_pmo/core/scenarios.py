@@ -11,18 +11,13 @@ User-facing text follows the active language (see `core/i18n.py`).
 """
 from __future__ import annotations
 
-import time
-from typing import cast
-
 from sqlalchemy import select
 
 from ma_pmo.agents import registry
 from ma_pmo.agents.orchestrator_rules import deterministic_synthesis
-from ma_pmo.agents.registry import WORKERS
-from ma_pmo.core import runs, tracing
+from ma_pmo.core import executor, runs, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
-from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.core.workflow import WorkflowSpec, load_workflows
 from ma_pmo.db.models import AgentMessageRow, KpiEvent
 from ma_pmo.db.session import get_session
@@ -157,12 +152,15 @@ def _as_scenario(spec: WorkflowSpec) -> dict:
 
 
 SCENARIOS: dict[str, dict] = {}
+_SPECS: dict[str, WorkflowSpec] = {}
 workflow_problems: list[str] = []  # files in the workflows folder that could not be used
 
 
 def reload_workflows(directory: str | None = None) -> list[str]:
     """Read the workflows again; returns what could not be loaded."""
     specs, problems = load_workflows(set(registry.specs()), directory)
+    _SPECS.clear()
+    _SPECS.update(specs)
     SCENARIOS.clear()
     SCENARIOS.update({sid: _as_scenario(spec) for sid, spec in specs.items()})
     workflow_problems[:] = problems
@@ -202,12 +200,6 @@ def list_scenarios() -> list[dict]:
     ]
 
 
-def _headline(schema: str, data: dict) -> str:
-    from ma_pmo.agents.orchestrator_rules import _headline as h
-
-    return h(schema, data)
-
-
 def run_scenario(
     scenario_id: str,
     scope: str = "PORTFOLIO#2026-Q1",
@@ -223,68 +215,53 @@ def run_scenario(
     One trace per run when tracing is on (see core/tracing.py); every run is recorded
     (see core/runs.py) and its id is returned as `run_id`.
     """
-    state = {"drop_agents": list(drop_agents), "pause_on_gate": pause_on_gate}
+    if scenario_id not in _SPECS:
+        raise KeyError(f"unknown scenario: {scenario_id}")
+    spec = _SPECS[scenario_id].without_agents(drop_agents)
+    state = {"spec": spec.model_dump(), "pause_on_gate": pause_on_gate}
     with tracing.span(f"invoke_workflow {scenario_id}", {
         tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: scenario_id,
         tracing.SCOPE: scope, "ma_pmo.dropped_agents": list(drop_agents),
     }), runs.track("scenario", scenario_id, scope, state=state) as run_id:
-        return _execute(run_id, scenario_id, scope)
+        return finish_scenario(run_id, scope)
 
 
-def resume_scenario(run_id: str) -> dict:
-    """Continue a paused or interrupted run: finished steps are reused, the rest run now.
+def finish_scenario(run_id: str, scope: str) -> dict:
+    """Run what is left of a scenario, then its complete and insight phases. Also how it resumes.
 
-    Raises KeyError for an unknown run and runs.NotResumable if it cannot continue.
+    The run keeps the workflow it started with, even if the file has changed since.
     """
-    run = runs.claim(run_id)
-    with tracing.span(f"invoke_workflow {run['workflow']}", {
-        tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: run["workflow"],
-        tracing.SCOPE: run["scope"], "ma_pmo.resumed": True,
-    }), runs.attach(run_id):
-        return _execute(run_id, run["workflow"], run["scope"])
-
-
-def _execute(run_id: str, scenario_id: str, scope: str) -> dict:
-    if scenario_id not in SCENARIOS:
-        raise KeyError(f"unknown scenario: {scenario_id}")
-    scen = SCENARIOS[scenario_id]
     saved = runs.get_state(run_id)
-    drop_agents = saved.get("drop_agents", [])
-    steps = [(a, p) for a, p in scen["steps"] if a not in drop_agents]
-    title, goal = tr(*scen["title"]), tr(*scen["goal"])
+    spec = WorkflowSpec.model_validate(saved["spec"])
+    title, goal = tr(*spec.title.pair), tr(*spec.goal.pair)
     before = saved.get("kpi_before") or runs.update_state(
         run_id, kpi_before=_kpi_snapshot())["kpi_before"]
-    finished = runs.finished_steps(run_id)
-    phases: list[dict] = []
-    _log.info(
-        "scenario_start",
-        scenario=scenario_id,
-        scope=scope,
-        agents=[a for a, _ in steps],
-        dropped=drop_agents,
-        resumed=bool(finished),
-    )
+    agents = [step.agent for step in spec.steps]
+    _log.info("scenario_start", scenario=spec.id, scope=scope, agents=agents)
 
     # ① plan (A1 delegation plan)
-    planned = [{"agent": a, "function": _fn(a), **p} for a, p in steps]
-    phases.append(
-        {
-            "phase": "plan",
-            "agent": "A1",
-            "title": tr("Plan — orchestrator delegation", "계획 — 오케스트레이터 위임"),
-            "detail": tr(
-                f"Goal '{goal}' -> delegated to workers {[a for a, _ in steps]}",
-                f"목표 '{goal}' → 작업자 {[a for a, _ in steps]} 위임",
-            ),
-            "delegations": planned,
-        }
-    )
+    planned = [{"agent": s.agent, "function": _fn(s.agent), **s.params} for s in spec.steps]
+    plan = {
+        "phase": "plan",
+        "agent": "A1",
+        "title": tr("Plan — orchestrator delegation", "계획 — 오케스트레이터 위임"),
+        "detail": tr(
+            f"Goal '{goal}' -> delegated to workers {agents}",
+            f"목표 '{goal}' → 작업자 {agents} 위임",
+        ),
+        "delegations": planned,
+    }
+
+    # ② execute (the workflow's steps)
+    outcome = executor.execute(run_id, spec, scope, goal,
+                               pause_on_gate=saved.get("pause_on_gate", False))
+    phases = [plan, *outcome.phases]
 
     def trace(status: str) -> dict:
         return {
-            "scenario_id": scenario_id,
+            "scenario_id": spec.id,
             "title": title,
-            "hypotheses": scen["hypotheses"],
+            "hypotheses": spec.hypotheses,
             "scope": scope,
             "phases": phases,
             # structured messages exchanged during the run (§4 audit trail) — the "behavior" log
@@ -293,72 +270,21 @@ def _execute(run_id: str, scenario_id: str, scope: str) -> dict:
             "status": status,
         }
 
-    # ② execute (workers in sequence)
-    all_outputs: list[dict] = []
-    for seq, (agent_id, params) in enumerate(steps, start=1):
-        if seq in finished:  # resumed run: this step already ran
-            all_outputs.extend(finished[seq].get("outputs", []))
-            phases.append(finished[seq]["phase"])
-            continue
-        agent = WORKERS[agent_id]
-        state = cast(PortfolioState, {"task_ref": scope, "goal": goal, **params})
-        _log.info("execute_start", agent=agent_id, function=_fn(agent_id))
-        t0 = time.perf_counter()
-        with tracing.span(f"invoke_agent {agent_id}", {
-            tracing.OPERATION: "invoke_agent", tracing.AGENT_ID: agent_id,
-            tracing.AGENT_NAME: _fn(agent_id), tracing.SCENARIO: scenario_id,
-        }), runs.step(agent_id, seq) as step:
-            result = agent.run(state)
-            outs = result.get("outputs", [])
-            schemas = [o.get("schema") for o in outs]
-            tracing.set_attributes({tracing.OUTPUT_SCHEMAS: schemas})
-            step.output_schemas = schemas
-            elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
-            phase = {
-                "phase": "execute",
-                "agent": agent_id,
-                "function": _fn(agent_id),
-                "title": tr(
-                    f"Execute — {agent_id} {_fn(agent_id)}", f"수행 — {agent_id} {_fn(agent_id)}"
-                ),
-                "elapsed_ms": elapsed_ms,
-                "results": [
-                    {
-                        "schema": o.get("schema"),
-                        "headline": _headline(o.get("schema"), o.get("data") or {}),
-                    }
-                    for o in outs
-                ],
-            }
-            step.result = {"outputs": outs, "phase": phase}
-        all_outputs.extend(outs)
-        _log.info(
-            "execute_done",
-            agent=agent_id,
-            elapsed_ms=elapsed_ms,
-            outputs=[o.get("schema") for o in outs],
-        )
-        phases.append(phase)
-        if saved.get("pause_on_gate") and runs.pending_approvals(run_id):
-            runs.mark_waiting(run_id)
-            _log.info("scenario_waiting", scenario=scenario_id, after=agent_id)
-            return {**trace(runs.WAITING), "pending_approvals": runs.pending_approvals(run_id)}
+    if outcome.paused:
+        return {**trace(runs.WAITING), "pending_approvals": runs.pending_approvals(run_id)}
 
     # ③ complete (A1 synthesis)
-    summary = deterministic_synthesis(goal, all_outputs)
     phases.append(
         {
             "phase": "complete",
             "agent": "A1",
             "title": tr("Complete — synthesis", "완료 — 종합"),
-            "summary": summary,
+            "summary": deterministic_synthesis(goal, outcome.outputs),
         }
     )
 
     # ④ insight (KPI delta + findings -> hypotheses)
-    after = _kpi_snapshot()
-    delta = _delta(before, after)
-    findings = _insight_generic(all_outputs, delta, scen["hypotheses"])
+    delta = _delta(before, _kpi_snapshot())
     phases.append(
         {
             "phase": "insight",
@@ -366,13 +292,13 @@ def _execute(run_id: str, scenario_id: str, scope: str) -> dict:
                 "Insight — five-axis KPIs · hypothesis check", "인사이트 — 5축 KPI · 가설 검증"
             ),
             "kpi_delta": delta,
-            "findings": findings,
-            "hypotheses": scen["hypotheses"],
+            "findings": _insight_generic(outcome.outputs, delta, spec.hypotheses),
+            "hypotheses": spec.hypotheses,
         }
     )
 
     final = trace(runs.SUCCEEDED)
-    _log.info("scenario_done", scenario=scenario_id, messages=len(final["communications"]))
+    _log.info("scenario_done", scenario=spec.id, messages=len(final["communications"]))
     runs.save_result(run_id, final)
     return final
 
