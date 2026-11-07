@@ -6,6 +6,7 @@ GET /runs/{run_id}/workflow  : the workflow a run used, with where each of its s
 
 Versions (see core/workflow_store.py):
 POST /workflows/validate                               : the rules a spec breaks, if any
+POST /workflows/dry-run                                : validate, then run on demo data (operator)
 GET  /workflows/{workflow_id}/versions                 : every version, and which one is in use
 GET  /workflows/{workflow_id}/versions/{version}       : one version, old ones included
 POST /workflows/{workflow_id}/versions                 : save a draft (operator)
@@ -82,6 +83,14 @@ def validate_workflow(body: Check) -> dict:
     """The same rules a draft and a publish must pass. Saves nothing."""
     _, found = workflow_store.problems(body.spec)
     return {"ok": not found, "problems": found}
+
+
+@router.post("/workflows/dry-run")
+def dry_run_workflow(body: Check) -> dict:
+    """Run a spec on the demo data in a throwaway workspace; nothing real is touched."""
+    from ma_pmo.core.dry_run import dry_run
+
+    return dry_run(body.spec)
 
 
 @router.get("/workflows/{workflow_id}/versions")

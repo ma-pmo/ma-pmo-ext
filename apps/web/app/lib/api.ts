@@ -26,6 +26,23 @@ async function req(path: string, init?: RequestInit) {
   return res.json();
 }
 
+// the validator's list from a 422 ({"detail": {"problems": [...]}}), else the error itself
+export function problemsOf(err: unknown): string[] {
+  const text = String((err as Error)?.message ?? err);
+  try {
+    const body = JSON.parse(text.slice(text.indexOf("{")));
+    if (Array.isArray(body?.detail?.problems)) return body.detail.problems;
+    if (typeof body?.detail === "string") return [body.detail];
+  } catch {
+    // not JSON
+  }
+  return [text];
+}
+
+const json = (body: unknown): RequestInit => ({
+  method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+});
+
 export const api = {
   portfolio: (id: string) => req(`/portfolio/${encodeURIComponent(id)}`),
   kpi: (axis?: string) => req(`/kpi${axis ? `?axis=${axis}` : ""}`),
@@ -46,6 +63,13 @@ export const api = {
   workflowVersions: (id: string) => req(`/workflows/${encodeURIComponent(id)}/versions`),
   workflowVersion: (id: string, version: number) =>
     req(`/workflows/${encodeURIComponent(id)}/versions/${version}`),
+  agents: () => req(`/agents`),
+  validateWorkflow: (spec: unknown) => req(`/workflows/validate`, json({ spec })),
+  dryRun: (spec: unknown) => req(`/workflows/dry-run`, json({ spec })),
+  saveDraft: (id: string, spec: unknown, note: string) =>
+    req(`/workflows/${encodeURIComponent(id)}/versions`, json({ spec, note })),
+  publishVersion: (id: string, version: number) =>
+    req(`/workflows/${encodeURIComponent(id)}/versions/${version}/publish`, { method: "POST" }),
   runScenario: (id: string) =>
     req(`/scenarios/${id}/run?format=markdown`, { method: "POST" }),
   gateReview: (gate = "G2-planning", scope?: string) =>

@@ -80,7 +80,14 @@ def test_tracker_falls_back_to_demo_data_until_jira_is_configured():
     full = _settings(MA_PMO_INTEGRATIONS="jira", JIRA_BASE_URL="https://x.atlassian.net",
                      JIRA_EMAIL="a@b.c", JIRA_API_TOKEN="t", JIRA_PROJECT_KEYS="PAY, DATA")
     tracker = registry.get_tracker(full)
-    assert isinstance(tracker, JiraTracker) and tracker.project_keys == ["PAY", "DATA"]
+    assert isinstance(tracker.real, JiraTracker) and tracker.project_keys == ["PAY", "DATA"]
+    # a dry run reads the demo data even with Jira configured, and notifies nobody
+    with registry.demo_only():
+        assert tracker.get_portfolio_status("PORTFOLIO#2026-Q1")["found"] is True
+        hush = Recorder("x")
+        assert dispatch.emit([Event(type=EventType.TEST, title="t", summary="")],
+                             notifiers=[hush]) == []
+        assert hush.events == []
 
 
 def test_plugin_entry_points_are_loaded(monkeypatch):
