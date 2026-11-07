@@ -15,6 +15,40 @@ running without an API key) use their deterministic fallbacks and cost nothing.
 
 Like everything else, the ledger belongs to a workspace (row-level security on Postgres).
 
+## Budgets
+
+Each workspace can set two budgets, each with a **warning** and a **hard limit** in USD:
+
+| Budget | Counts |
+|---|---|
+| `month` | everything the workspace spent this calendar month (UTC) |
+| `run` | what one run has spent |
+
+Before every LLM call the spend so far is checked:
+
+- past a **warning**, people are told once (a log line and a `budget.warning` event to the
+  enabled notifiers: once per month for `month`, once per run for `run`); nothing stops;
+- past a **hard limit**, the call is not made. Every agent already answers a failed call with
+  its deterministic fallback, so **the run carries on and succeeds**. The run records why
+  (`budget_fallback` in `GET /runs`, in the scenario or goal result, and as a badge on the
+  workflow view), and the Costs page lists such runs.
+
+The call that crosses a limit has already been made, so a limit can be passed by at most one
+call. Unpriced calls do not count. A limit of `0` means no LLM call at all.
+
+Set them on the Costs page, or:
+
+```bash
+ma-pmo budget set month --warn 40 --limit 50
+ma-pmo budget set run --limit 0.50
+ma-pmo budget show
+ma-pmo budget clear run
+```
+
+`GET /budgets` shows them with this month's spend; `PUT /budgets/{month|run}` with
+`{"warn_usd": …, "limit_usd": …}` changes them (both `null` removes it) and needs the `admin`
+role.
+
 ## Prices
 
 Prices come from a versioned table, and each ledger row records which one priced it:

@@ -199,6 +199,24 @@ class LlmCall(Scoped, Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, index=True)
 
 
+class Budget(Scoped, Base):
+    """A spending limit in USD for this workspace: per calendar month, or per run.
+
+    Past `warn_usd` people are told; past `limit_usd` agents use their deterministic fallbacks
+    (see core/budgets.py).
+    """
+
+    __tablename__ = "budget"
+    __table_args__ = (UniqueConstraint("workspace_id", "kind", name="uq_budget"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    kind: Mapped[str] = mapped_column(String)  # month | run
+    warn_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
+    limit_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
+    warned_for: Mapped[str | None] = mapped_column(String, nullable=True)  # month already warned
+    updated_by: Mapped[str] = mapped_column(String, default="")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
 class WorkflowVersion(Scoped, Base):
     """One saved version of a workflow in a workspace (see core/workflow_store.py).
 

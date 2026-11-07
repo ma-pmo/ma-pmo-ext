@@ -289,6 +289,8 @@ def _summary(run: Run) -> dict:
         "error": run.error, "started_at": _iso(run.started_at),
         # the version of the workflow this run used, exactly as it saved it
         "workflow_version": ((run.state or {}).get("spec") or {}).get("version"),
+        # set when a budget made the agents use their fallbacks (see core/budgets.py)
+        "budget_fallback": (run.state or {}).get("budget"),
         "finished_at": _iso(run.finished_at),
     }
 

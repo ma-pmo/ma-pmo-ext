@@ -224,6 +224,37 @@ def _cmd_workflow(ns: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_budget(ns: argparse.Namespace) -> int:
+    """Budgets of this workspace (MA_PMO_WORKSPACE); see docs/COSTS.md."""
+    from ma_pmo.core import budgets
+    from ma_pmo.core.i18n import tr
+
+    def money(v: float | None) -> str:
+        return "–" if v is None else f"${v:.2f}"
+
+    try:
+        if ns.action == "set":
+            if ns.warn is None and ns.limit is None:
+                print(tr("✗ give --warn, --limit or both",
+                         "✗ --warn, --limit 중 하나 이상을 주세요"))
+                return 1
+            budgets.set_budget(ns.kind, ns.warn, ns.limit, "cli")
+        elif ns.action == "clear":
+            budgets.set_budget(ns.kind, None, None, "cli")
+    except ValueError as e:
+        print(f"✗ {e}")
+        return 1
+    now = budgets.status()
+    month, run = now["month"], now["run"]
+    print(tr(f"month {now['period']}: spent {money(month['spent_usd'])} · "
+             f"warn {money(month['warn_usd'])} · limit {money(month['limit_usd'])}",
+             f"{now['period']} 월: 사용 {money(month['spent_usd'])} · "
+             f"경고 {money(month['warn_usd'])} · 한도 {money(month['limit_usd'])}"))
+    print(tr(f"per run: warn {money(run['warn_usd'])} · limit {money(run['limit_usd'])}",
+             f"실행 1회: 경고 {money(run['warn_usd'])} · 한도 {money(run['limit_usd'])}"))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="ma-pmo", description="MA-PMO multi-agent PMO orchestration"
@@ -264,6 +295,16 @@ def main(argv: list[str] | None = None) -> int:
     wf_publish = wfsub.add_parser("publish", help="put a draft version in use")
     wf_publish.add_argument("id")
     wf_publish.add_argument("version", type=int)
+
+    bud = sub.add_parser("budget", help="LLM spending limits: show | set | clear")
+    budsub = bud.add_subparsers(dest="action", required=True)
+    budsub.add_parser("show", help="budgets and this month's spend")
+    b_set = budsub.add_parser("set", help="set a warning and/or hard limit in USD")
+    b_set.add_argument("kind", choices=["month", "run"])
+    b_set.add_argument("--warn", type=float, default=None)
+    b_set.add_argument("--limit", type=float, default=None)
+    b_clear = budsub.add_parser("clear", help="remove a budget")
+    b_clear.add_argument("kind", choices=["month", "run"])
 
     serve = sub.add_parser("serve", help="start the FastAPI server")
     serve.add_argument("--host", default="127.0.0.1")
@@ -316,6 +357,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_workspace(ns)
     elif ns.command == "workflow":
         return _cmd_workflow(ns)
+    elif ns.command == "budget":
+        return _cmd_budget(ns)
     elif ns.command == "serve":
         import uvicorn
 

@@ -231,6 +231,7 @@ const en = {
     viewVersion: (v: number) => `View version ${v}`,
     viewing: (v: number) => `Viewing version ${v}, not the one in use`, backToCurrent: "Back to the version in use",
     editedHere: "edited in this workspace",
+    budgetFallback: (agent: string) => `Budget reached at ${agent}: fallbacks used from there`,
   },
 
   cost: {
@@ -241,6 +242,15 @@ const en = {
     by: { model: "By model", agent: "By agent", workflow: "By workflow", run: "By run", day: "By day" } as Record<string, string>,
     key: "Name", none: "No LLM calls yet. Without an API key the agents use their deterministic fallbacks, which cost nothing.",
     noPrice: "unknown", plusUnpriced: (n: number) => `+${n} unpriced`,
+    budgets: "Budgets",
+    budgetsDesc: "Past a warning people are told once; past a hard limit agents stop calling the LLM and use their deterministic fallbacks, so runs still finish. Only admins can change them.",
+    month: (p: string) => `This month (${p})`, perRun: "Each run",
+    warn: "Warning (USD)", limit: "Hard limit (USD)", notSet: "not set",
+    spentOf: (s: string, l: string) => `${s} of ${l}`, noLimit: "No hard limit",
+    save: "Save budgets", saving: "Saving…", saved: "Budgets saved.",
+    fellBack: "Runs that used fallbacks because of a budget",
+    fellBackRow: (kind: string, agent: string, step: number | null) =>
+      `${kind === "month" ? "monthly" : "per-run"} limit reached at ${agent}${step ? ` (step ${step})` : ""}`,
   },
 
   wfEdit: {
@@ -529,6 +539,7 @@ const ko: Messages = {
     viewVersion: (v: number) => `버전 ${v} 보기`,
     viewing: (v: number) => `사용 중이 아닌 버전(v${v})을 보는 중`, backToCurrent: "사용 중인 버전으로",
     editedHere: "이 워크스페이스에서 수정됨",
+    budgetFallback: (agent: string) => `${agent}에서 예산 도달: 이후 대체 방식으로 실행`,
   },
 
   cost: {
@@ -539,6 +550,15 @@ const ko: Messages = {
     by: { model: "모델별", agent: "에이전트별", workflow: "워크플로별", run: "실행별", day: "날짜별" } as Record<string, string>,
     key: "이름", none: "아직 LLM 호출이 없습니다. API 키가 없으면 에이전트는 비용이 들지 않는 결정론적 방식으로 동작합니다.",
     noPrice: "미상", plusUnpriced: (n: number) => `가격 미상 ${n}건 별도`,
+    budgets: "예산",
+    budgetsDesc: "경고 금액을 넘으면 한 번 알리고, 한도를 넘으면 에이전트가 LLM 대신 결정론적 방식으로 동작해 실행은 끝까지 진행됩니다. admin만 바꿀 수 있습니다.",
+    month: (p: string) => `이번 달 (${p})`, perRun: "실행 1회",
+    warn: "경고 금액 (USD)", limit: "한도 (USD)", notSet: "없음",
+    spentOf: (s: string, l: string) => `${l} 중 ${s} 사용`, noLimit: "한도 없음",
+    save: "예산 저장", saving: "저장 중…", saved: "예산을 저장했습니다.",
+    fellBack: "예산 때문에 대체 방식으로 실행된 실행",
+    fellBackRow: (kind: string, agent: string, step: number | null) =>
+      `${kind === "month" ? "월" : "실행 1회"} 한도 도달: ${agent}${step ? ` (${step}단계)` : ""}`,
   },
 
   wfEdit: {

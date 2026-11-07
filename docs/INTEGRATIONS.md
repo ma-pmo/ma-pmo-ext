@@ -43,6 +43,7 @@ curl -X POST localhost:8000/integrations/slack/test   # sends a test message
 | `risk.detected` | A4 rates a risk `high` or `critical` |
 | `gate.failed` | A6 fails a stage gate |
 | `report.generated` | A5 produces an executive report |
+| `budget.warning` | LLM spend passes a budget's warning ([docs/COSTS.md](COSTS.md#budgets)) |
 | `integration.test` | `POST /integrations/{name}/test` |
 
 Limit what is sent with `MA_PMO_NOTIFY_EVENTS=approval.requested,risk.detected`

@@ -14,7 +14,7 @@ from typing import TypeVar
 import litellm
 from pydantic import BaseModel
 
-from ma_pmo.core import costs, kpi, tracing
+from ma_pmo.core import budgets, costs, kpi, tracing
 from ma_pmo.core.config import get_settings
 from ma_pmo.core.i18n import get_lang
 
@@ -48,8 +48,13 @@ def complete(
     temperature: float | None = None,
     max_tokens: int | None = None,
 ) -> str:
-    """Free-form completion. Usage is recorded on the KPI cost axis."""
+    """Free-form completion. Usage is recorded on the KPI cost axis and in the cost ledger.
+
+    Raises budgets.BudgetExceeded, before calling, once a hard budget is reached; callers fall
+    back to their deterministic answer as for any other failed call.
+    """
     model = model or _settings.llm_model
+    budgets.check(agent)
     language = "Korean" if get_lang() == "ko" else "English"
     system = f"{system}\n\nWrite all natural-language text in {language}."
     t0 = time.monotonic()
