@@ -14,6 +14,8 @@ from typing import Any
 from sqlalchemy import delete
 
 from ma_pmo.core import runs, scenarios, workflow_store, workspace
+from ma_pmo.core.i18n import tr
+from ma_pmo.core.obs import get_logger
 from ma_pmo.db import workspaces
 from ma_pmo.db.init import FIXTURE, load_fixtures, load_lessons
 from ma_pmo.db.models import Base, Scoped, Workspace
@@ -21,6 +23,7 @@ from ma_pmo.db.session import get_session
 from ma_pmo.integrations.registry import demo_only
 
 PREFIX = "dry-run-"
+_log = get_logger("dry_run")
 
 
 def demo_scope() -> str:
@@ -43,8 +46,11 @@ def dry_run(data: dict[str, Any]) -> dict:
             try:
                 trace = scenarios.run_spec(spec, demo_scope())
                 run_id = trace["run_id"]
-            except Exception as e:  # report it like any other result of the run
-                error = f"{type(e).__name__}: {e}"
+            except Exception:  # report it like any other result of the run
+                # details go to the log; the failed step's own error is in `steps`, as in a run
+                _log.exception("dry_run_failed", workflow=spec.id)
+                error = tr("the dry run stopped at a failing step",
+                           "시험 실행이 실패한 단계에서 멈췄습니다")
                 trace, run_id = {}, runs.list_runs(limit=1)[0]["run_id"]
             states = runs.step_states(run_id)
             return {

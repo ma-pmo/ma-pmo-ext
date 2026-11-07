@@ -52,9 +52,10 @@ def test_a_failing_agent_is_reported_not_raised(monkeypatch):
     monkeypatch.setattr(WORKERS["A5"], "run", boom)
     before, spaces = _counts(), workspaces.list_all()
     body = dry_run.dry_run(scenarios.loaded("weekly_status").model_dump())
-    assert body["ok"] is False and "tracker is down" in body["error"]
+    assert body["ok"] is False and body["error"] and "tracker" not in body["error"]
     assert body["status"] == "failed"
     assert [s["status"] for s in body["steps"]][-1] == "failed"
+    assert "tracker is down" in body["steps"][-1]["error"]  # as the run views show it
     assert _counts() == before and workspaces.list_all() == spaces
 
 
