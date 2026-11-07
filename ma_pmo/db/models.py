@@ -27,7 +27,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-DEFAULT_WORKSPACE = "default"
+from ma_pmo.core import workspace
+from ma_pmo.core.workspace import DEFAULT_WORKSPACE
+
+__all__ = ["DEFAULT_WORKSPACE"]  # re-exported for callers that only know the models
 
 
 def _utcnow() -> datetime:
@@ -52,9 +55,9 @@ class Scoped:
 
 
 @event.listens_for(Scoped, "init", propagate=True)
-def _in_default_workspace(target: Scoped, args: tuple, kwargs: dict) -> None:
+def _in_current_workspace(target: Scoped, args: tuple, kwargs: dict) -> None:
     # set on construction, so `merge` looks up the right composite key
-    kwargs.setdefault("workspace_id", DEFAULT_WORKSPACE)
+    kwargs.setdefault("workspace_id", workspace.current())
 
 
 def _key() -> PrimaryKeyConstraint:

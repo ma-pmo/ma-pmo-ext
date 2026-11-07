@@ -5,9 +5,11 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import ORMExecuteState, Session, sessionmaker, with_loader_criteria
 
+from ma_pmo.core import workspace
 from ma_pmo.core.config import get_settings
+from ma_pmo.db.models import Scoped
 
 _settings = get_settings()
 
@@ -29,6 +31,21 @@ if engine.dialect.name == "postgresql":
 
 
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False, class_=Session)
+
+
+@event.listens_for(Session, "do_orm_execute")
+def _only_current_workspace(state: ORMExecuteState) -> None:
+    """Every ORM SELECT, UPDATE and DELETE sees only the current workspace's rows, including
+    joins and subqueries. Core statements on a raw connection are not filtered."""
+    if state.is_column_load or state.is_relationship_load:  # their parent query was filtered
+        return
+    if not (state.is_select or state.is_update or state.is_delete):
+        return
+    if state.execution_options.get(workspace.ALL_WORKSPACES):
+        return
+    current = workspace.current()
+    state.statement = state.statement.options(with_loader_criteria(
+        Scoped, lambda cls: cls.workspace_id == current, include_aliases=True))
 
 
 def ensure_schema() -> None:

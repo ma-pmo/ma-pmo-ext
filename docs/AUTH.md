@@ -61,6 +61,14 @@ dashboard, so keep the dashboard on a private network or behind your SSO proxy. 
 the dashboard (HTML report, template downloads) cannot send the header; open them through the
 same proxy.
 
+## Workspaces
+
+Every request runs in one workspace: the `X-Workspace` header, or `MA_PMO_WORKSPACE` (default
+`default`) when it is absent. An unknown workspace is a 404. All data is filtered by it
+automatically, and ids from another workspace are not found. Roles still apply to every
+workspace alike; per-workspace memberships come next (#39), so until then do not give people
+who must not see each other's data keys to the same server.
+
 ## Custom authenticator
 
 ```python

@@ -30,7 +30,7 @@ from typing import Any
 
 from sqlalchemy import func, or_, select, update
 
-from ma_pmo.core import tracing
+from ma_pmo.core import tracing, workspace
 from ma_pmo.core.config import get_settings
 from ma_pmo.db.models import Approval, Run, RunStep
 from ma_pmo.db.session import get_session
@@ -252,19 +252,20 @@ def attach(run_id: str) -> Iterator[str]:
 def recover_interrupted() -> list[str]:
     """Mark runs whose process died (lease expired) so they can be seen and resumed."""
     now = _now()
+    every = {workspace.ALL_WORKSPACES: True}  # a stopped process may have served any workspace
     with get_session() as s:
-        stale = s.scalars(select(Run.id).where(Run.status == RUNNING,
-                                               Run.lease_until < now)).all()
+        stale = s.scalars(select(Run.id).where(Run.status == RUNNING, Run.lease_until < now),
+                          execution_options=every).all()
         recovered = []
         for run_id in stale:
             moved = s.execute(update(Run).where(
                 Run.id == run_id, Run.status == RUNNING, Run.lease_until < now,
             ).values(status=INTERRUPTED, lease_owner=None, lease_until=None,
-                     error="process stopped before the run finished"))
+                     error="process stopped before the run finished"), execution_options=every)
             if moved.rowcount == 1:  # type: ignore[attr-defined]
                 s.execute(update(RunStep).where(
                     RunStep.run_id == run_id, RunStep.status == RUNNING
-                ).values(status=INTERRUPTED))
+                ).values(status=INTERRUPTED), execution_options=every)
                 recovered.append(run_id)
     return recovered
 

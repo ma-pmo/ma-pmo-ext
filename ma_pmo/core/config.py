@@ -38,6 +38,9 @@ class Settings(BaseSettings):
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )
 
+    # the workspace of the CLI, the MCP server and background work (requests send X-Workspace)
+    workspace: str = Field(default="default", alias="MA_PMO_WORKSPACE")
+
     # the portfolio used when a caller does not name one
     default_portfolio: str = Field(default="PORTFOLIO#2026-Q1", alias="MA_PMO_DEFAULT_PORTFOLIO")
 
