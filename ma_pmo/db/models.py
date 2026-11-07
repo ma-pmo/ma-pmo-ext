@@ -197,6 +197,29 @@ class LlmCall(Scoped, Base):
     price_version: Mapped[str | None] = mapped_column(String, nullable=True)
     latency_ms: Mapped[float] = mapped_column(Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, index=True)
+    # set for spend outside real runs, kept after its throwaway workspace is gone: dry_run, replay
+    purpose: Mapped[str | None] = mapped_column(String, nullable=True)
+
+
+class Recommendation(Scoped, Base):
+    """A suggestion to move one workflow step to the fast model, with the replay that backs it.
+
+    Nothing changes until a person approves; approving makes a draft (see core/replay.py).
+    """
+
+    __tablename__ = "recommendation"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    workflow_id: Mapped[str] = mapped_column(String, index=True)
+    step_id: Mapped[str] = mapped_column(String)
+    base_version: Mapped[int] = mapped_column(Integer)
+    verdict: Mapped[str] = mapped_column(String)  # recommended | not_recommended | inconclusive
+    report: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(String, default="proposed")  # proposed|approved|rejected
+    created_by: Mapped[str] = mapped_column(String, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    decided_by: Mapped[str | None] = mapped_column(String, nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    draft_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 class Budget(Scoped, Base):

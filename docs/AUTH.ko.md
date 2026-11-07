@@ -21,7 +21,7 @@ API에 접근할 수 있게 되기 전에, 특히 승인 API를 열기 전에 �
 |---|---|
 | `viewer` | 모든 조회(`GET`) |
 | `operator` | 조회, 에이전트·시나리오 실행, 워크플로 초안 저장, 웹훅 전송(`POST`) |
-| `approver` | 조회, HITL 결정 승인·반려(`POST /approvals/{id}`), 워크플로 버전 게시(`POST /workflows/{id}/versions/{v}/publish`) |
+| `approver` | 조회, HITL 결정 승인·반려(`POST /approvals/{id}`), 워크플로 버전 게시(`POST /workflows/{id}/versions/{v}/publish`), 모델 추천 결정(`POST /recommendations/{id}/approve\|reject`) |
 | `admin` | 연동 테스트 전송, LLM 예산 변경(`PUT /budgets/{kind}`)을 포함한 모든 것 |
 
 모든 역할은 조회할 수 있습니다. 키 하나에 역할을 여러 개 줄 수 있습니다: `operator+approver`.

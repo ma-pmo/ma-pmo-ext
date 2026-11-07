@@ -160,9 +160,9 @@ def test_each_workspace_has_its_own_budget(calls):
         run_scenario("weekly_status")
         assert calls
     finally:
-        from ma_pmo.core.dry_run import _erase
+        from ma_pmo.core.sandbox import erase
 
-        _erase("acme-budget")  # the run there left runs, messages, reports and KPIs
+        erase("acme-budget")  # the run there left runs, messages, reports and KPIs
 
 
 def test_the_cli_shows_and_sets_budgets(capsys):

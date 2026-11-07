@@ -17,8 +17,8 @@ router = APIRouter(tags=["costs"])
 def cost_summary(by: str = "model", days: int | None = None) -> dict:
     if by not in costs.GROUPS or by == "step":
         raise HTTPException(status_code=422, detail=tr(
-            "by must be model, agent, run, workflow or day",
-            "by는 model, agent, run, workflow, day 중 하나여야 합니다"))
+            "by must be model, agent, run, workflow, day or purpose",
+            "by는 model, agent, run, workflow, day, purpose 중 하나여야 합니다"))
     return costs.summary(by, days=days if days and days > 0 else None)
 
 

@@ -83,3 +83,38 @@ def test_trackers_read_demo_data_and_nothing_is_sent_during_a_dry_run(monkeypatc
     assert seen == ["live"]
     body = dry_run.dry_run(scenarios.loaded("risk_escalation").model_dump())
     assert body["ok"] and sent == []
+
+
+def test_a_dry_run_keeps_its_llm_spend_and_obeys_the_budget(monkeypatch):
+    import litellm
+    from sqlalchemy import delete
+
+    from ma_pmo.core import budgets, llm
+    from ma_pmo.db.models import Budget, LlmCall
+
+    made: list[str] = []
+
+    def completion(**kw):
+        made.append(kw["model"])
+        response = litellm.ModelResponse(model=kw["model"], usage=litellm.Usage(
+            prompt_tokens=1000, completion_tokens=100, total_tokens=1100))
+        response.choices[0].message.content = "{}"
+        return response
+
+    monkeypatch.setattr(llm.litellm, "completion", completion)
+    try:
+        dry_run.dry_run(scenarios.loaded("risk_escalation").model_dump())
+        with get_session() as s:
+            kept = s.scalars(select(LlmCall)).all()
+        assert made and len(kept) == len(made)
+        assert {c.purpose for c in kept} == {"dry_run"} and {c.run_id for c in kept} == {None}
+        assert sum(c.usd for c in kept) > 0
+
+        made.clear()
+        budgets.set_budget("month", None, 0, "test")
+        body = dry_run.dry_run(scenarios.loaded("risk_escalation").model_dump())
+        assert made == [] and body["ok"] and body["budget_fallback"]["kind"] == "month"
+    finally:
+        with get_session() as s:
+            s.execute(delete(LlmCall))
+            s.execute(delete(Budget))

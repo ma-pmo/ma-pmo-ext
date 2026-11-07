@@ -42,6 +42,31 @@ def use_tier(tier: str | None) -> Iterator[None]:
         _tier.reset(token)
 
 
+# when set (by core/replay.py), every structured call notes how it went
+_outcomes: ContextVar[list[dict] | None] = ContextVar("ma_pmo_llm_outcomes", default=None)
+VALID, RETRIED, INVALID, UNAVAILABLE = "valid", "valid_after_retry", "invalid", "unavailable"
+
+
+@contextmanager
+def observe() -> Iterator[list[dict]]:
+    """Collect one row per structured call made inside: agent, model, step, run and outcome."""
+    rows: list[dict] = []
+    token = _outcomes.set(rows)
+    try:
+        yield rows
+    finally:
+        _outcomes.reset(token)
+
+
+def _note(agent: str, model: str, outcome: str) -> None:
+    rows = _outcomes.get()
+    if rows is not None:
+        from ma_pmo.core import runs
+
+        rows.append({"agent": agent, "model": model, "outcome": outcome,
+                     "run_id": runs.current_run_id(), "step": runs.current_step_seq()})
+
+
 def model_for(tier: str | None = None) -> str:
     tier = tier if tier is not None else _tier.get()
     if tier == "fast" and _settings.llm_model_fast:
@@ -137,23 +162,30 @@ def complete_structured(
         f"{system}\n\nOutput only a JSON object matching this JSON schema (no explanations):\n"
         f"{json_schema}"
     )
-    raw = complete(sys_full, user, agent=agent, model=model, temperature=0.0)
+    used = model or model_for()
     try:
-        return schema.model_validate_json(_extract_json(raw))
+        raw = complete(sys_full, user, agent=agent, model=model, temperature=0.0)
+    except Exception:  # no key, outage, budget: the agent falls back
+        _note(agent, used, UNAVAILABLE)
+        raise
+    try:
+        answer = schema.model_validate_json(_extract_json(raw))
+        _note(agent, used, VALID)
+        return answer
     except Exception:
         # on schema violation, report the error and retry once (curbs error propagation)
         retry_prompt = (
             "Your previous output failed schema validation. Follow the schema strictly "
             f"and output only JSON.\n\nOriginal request:\n{user}"
         )
-        retry = complete(
-            sys_full,
-            retry_prompt,
-            agent=agent,
-            model=model,
-            temperature=0.0,
-        )
-        return schema.model_validate_json(_extract_json(retry))
+        try:
+            retry = complete(sys_full, retry_prompt, agent=agent, model=model, temperature=0.0)
+            answer = schema.model_validate_json(_extract_json(retry))
+        except Exception:
+            _note(agent, used, INVALID)
+            raise
+        _note(agent, used, RETRIED)
+        return answer
 
 
 def _extract_json(text: str) -> str:

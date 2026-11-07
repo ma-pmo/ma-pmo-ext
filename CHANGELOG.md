@@ -10,11 +10,13 @@ All notable changes to this project are documented here. The format follows [Kee
 - A principal with no roles can no longer read: a custom authenticator that returned `Principal(subject)` without roles had read access to everything, and now has none unless it has a membership.
 
 ### Fixed
+- Dry runs threw away the LLM spend of their throwaway workspace and ignored budgets. Their spend is now kept in the workspace's ledger (`purpose: dry_run`) and the workspace's budgets apply.
 - Allocating one portfolio erased every portfolio's plan. A3 now replaces only its own, and an unknown scope erases nothing.
 - A person shared by two portfolios could be booked twice: hours planned elsewhere now count as busy.
 - Allocation always started at 2026-W03 and could not cross a year. A portfolio can set `plan_start` (ISO week, also an optional `portfolio.csv` column); otherwise it starts from the current week. The sample portfolio keeps 2026-W03.
 
 ### Added
+- Replay evaluator and model recommendations (Roadmap 6 complete, migration `0011_recommendations`): replay a workflow step on the fast model against the demo data, `N` runs a side, and compare step cost, valid-output rate and (for risk steps) risk accuracy with 95% bootstrap intervals; the verdict is recommended, not recommended or inconclusive. An approver's approval saves a draft with the change; nothing is published by itself. `ma-pmo replay`, `ma-pmo recommendation`, `/recommendations`, and a section on the Costs page.
 - Per-step model routing: a workflow step with `"model_tier": "fast"` uses `LLM_MODEL_FAST` (until now configured but never used); everything else stays on `LLM_MODEL`. Chosen in the workflow editor's Model column, shown in the step table and graph; the ledger shows the effect by model. On Anthropic models the system prompt is marked cacheable (`LLM_PROMPT_CACHE`, on by default).
 - Budgets (migration `0010_budgets`): a monthly and a per-run budget per workspace, each with a warning and a hard limit in USD. Past a warning people are told once (`budget.warning` event); past a hard limit agents stop calling the LLM and use their deterministic fallbacks, so the run still succeeds, and it is marked (`budget_fallback` on runs and results, a badge on the workflow view, a list on the Costs page). Set them on the Costs page, with `ma-pmo budget`, or `PUT /budgets/{month|run}` (admin).
 - Cost ledger (Roadmap 6, migration `0009_llm_calls`): every LLM call is recorded with its run, step, agent, model, tokens (cache reads and writes kept apart) and USD, priced from a versioned table: your own (`MA_PMO_PRICE_TABLE`) or the one bundled with the pinned LiteLLM. An unknown price stays null and is counted as unpriced, never guessed. A **Costs** page and `GET /costs?by=model|agent|workflow|run|day` show it; `GET /runs/{id}/costs` per step. See [docs/COSTS.md](docs/COSTS.md).
@@ -140,9 +142,11 @@ First public release.
 
 ### [Unreleased]
 
+- 수정: 시험 실행이 임시 워크스페이스의 LLM 비용을 버리고 예산도 무시하던 문제. 이제 그 비용이 워크스페이스 원장에 남고(`purpose: dry_run`), 워크스페이스 예산이 적용됩니다.
 - 수정: 한 포트폴리오를 배분하면 모든 포트폴리오의 계획이 지워지던 문제. 이제 A3는 자기 계획만 교체하고, 없는 범위는 아무것도 지우지 않습니다.
 - 수정: 두 포트폴리오가 공유하는 사람이 이중 배정될 수 있던 문제. 다른 포트폴리오에 잡힌 시간은 이제 바쁜 시간으로 계산합니다.
 - 수정: 배분이 항상 2026-W03에서 시작하고 연도를 넘지 못하던 문제. 포트폴리오에 `plan_start`(ISO 주차, `portfolio.csv`의 선택 열)를 지정할 수 있고, 없으면 이번 주부터 시작합니다. 샘플 포트폴리오는 2026-W03을 유지합니다.
+- 추가: 재생 평가기와 모델 추천(로드맵 6 완료, 마이그레이션 `0011_recommendations`). 워크플로 단계 하나를 빠른 모델로 데모 데이터에서 쪽당 `N`번 재생해, 단계 비용, 올바른 출력 비율, (리스크 단계는) 리스크 판정 정확도를 95% 부트스트랩 구간과 함께 비교하고 추천·추천 안 함·판단 불가로 판정합니다. approver가 승인하면 변경을 담은 초안이 저장되며, 저절로 게시되는 것은 없습니다. `ma-pmo replay`, `ma-pmo recommendation`, `/recommendations`, 비용 화면의 모델 추천.
 - 추가: 단계별 모델 선택. 워크플로 단계에 `"model_tier": "fast"`를 주면 그동안 설정만 있고 쓰이지 않던 `LLM_MODEL_FAST`를 쓰고, 나머지는 `LLM_MODEL`을 그대로 씁니다. 워크플로 편집기의 모델 칸에서 고르며, 단계 표와 그래프에 표시되고, 원장의 모델별 비용으로 효과를 봅니다. Anthropic 모델에서는 시스템 프롬프트를 캐시 가능으로 표시합니다(`LLM_PROMPT_CACHE`, 기본 켬).
 - 추가: 예산(마이그레이션 `0010_budgets`). 워크스페이스마다 월 예산과 실행 1회 예산을 두고, 각각 경고 금액과 한도(USD)를 정합니다. 경고 금액을 넘으면 한 번 알리고(`budget.warning` 이벤트), 한도를 넘으면 에이전트가 LLM 대신 결정론적 방식으로 동작해 실행은 성공하며, 그 사실이 표시됩니다(실행과 결과의 `budget_fallback`, 워크플로 화면의 표시, 비용 화면의 목록). 비용 화면, `ma-pmo budget`, `PUT /budgets/{month|run}`(admin)으로 정합니다.
 - 추가: 비용 원장(로드맵 6, 마이그레이션 `0009_llm_calls`). 모든 LLM 호출을 실행, 단계, 에이전트, 모델, 토큰(캐시 읽기·쓰기 따로), USD와 함께 기록합니다. 가격은 버전이 있는 가격표(직접 지정한 `MA_PMO_PRICE_TABLE` 또는 고정된 LiteLLM 버전에 포함된 표)로 계산하며, 모르는 가격은 추정하지 않고 null로 두어 "가격 미상"으로 셉니다. **비용** 화면과 `GET /costs?by=model|agent|workflow|run|day`, 실행별 단계 비용 `GET /runs/{id}/costs`로 봅니다. [docs/COSTS.ko.md](docs/COSTS.ko.md) 참고.

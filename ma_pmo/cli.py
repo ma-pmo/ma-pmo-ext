@@ -255,6 +255,54 @@ def _cmd_budget(ns: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_replay(ns: argparse.Namespace) -> int:
+    """Replay a workflow step on the fast model and print the recommendation."""
+    from ma_pmo.core import replay
+    from ma_pmo.core.i18n import tr
+
+    try:
+        rec = replay.replay(ns.workflow, ns.step, repeat=ns.repeat, tolerance=ns.tolerance,
+                            by="cli")
+    except (KeyError, ValueError) as e:
+        print(f"✗ {e}")
+        return 1
+    report = rec["report"]
+    print(f"#{rec['id']} {rec['workflow_id']}/{rec['step_id']}: {rec['verdict']} "
+          f"({report['models']['baseline']} → {report['models']['candidate']}, "
+          f"{report['repeat']}×2 runs)")
+    for name, q in [("cost_usd", report["cost"]), *report["quality"].items()]:
+        if q is None:
+            print(f"  {name:<15} –")
+        else:
+            print(f"  {name:<15} {q['baseline']:.4f} → {q['candidate']:.4f}  "
+                  f"Δ {q['delta']:+.4f}  95% [{q['ci95'][0]:+.4f}, {q['ci95'][1]:+.4f}]")
+    for reason in report["reasons"]:
+        print(f"  · {replay.reason_text(reason)}")
+    if rec["verdict"] == replay.RECOMMENDED:
+        print(tr(f"  approve: ma-pmo recommendation approve {rec['id']}",
+                 f"  승인: ma-pmo recommendation approve {rec['id']}"))
+    return 0
+
+
+def _cmd_recommendation(ns: argparse.Namespace) -> int:
+    from ma_pmo.core import replay
+
+    if ns.action == "list":
+        for r in replay.recommendations():
+            print(f"#{r['id']:<4}{r['workflow_id']}/{r['step_id']:<16}{r['verdict']:<17}"
+                  f"{r['status']:<10}{'v' + str(r['draft_version']) if r['draft_version'] else ''}")
+        return 0
+    try:
+        done = replay.decide(ns.id, replay.APPROVED if ns.action == "approve" else replay.REJECTED,
+                             "cli")
+    except (KeyError, ValueError) as e:
+        print(f"✗ {e}")
+        return 1
+    draft = f" → draft v{done['draft_version']}" if done["draft_version"] else ""
+    print(f"✓ #{done['id']} {done['status']}{draft}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="ma-pmo", description="MA-PMO multi-agent PMO orchestration"
@@ -305,6 +353,19 @@ def main(argv: list[str] | None = None) -> int:
     b_set.add_argument("--limit", type=float, default=None)
     b_clear = budsub.add_parser("clear", help="remove a budget")
     b_clear.add_argument("kind", choices=["month", "run"])
+
+    rp = sub.add_parser("replay", help="replay a workflow step on the fast model (costs money "
+                                       "when an LLM is configured)")
+    rp.add_argument("workflow")
+    rp.add_argument("step")
+    rp.add_argument("--repeat", type=int, default=3, help="runs per side (2-50)")
+    rp.add_argument("--tolerance", type=float, default=0.05,
+                    help="largest quality drop to accept (share, default 0.05)")
+    rec = sub.add_parser("recommendation", help="replay recommendations: list | approve | reject")
+    recsub = rec.add_subparsers(dest="action", required=True)
+    recsub.add_parser("list")
+    for verb in ("approve", "reject"):
+        recsub.add_parser(verb).add_argument("id", type=int)
 
     serve = sub.add_parser("serve", help="start the FastAPI server")
     serve.add_argument("--host", default="127.0.0.1")
@@ -359,6 +420,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_workflow(ns)
     elif ns.command == "budget":
         return _cmd_budget(ns)
+    elif ns.command == "replay":
+        return _cmd_replay(ns)
+    elif ns.command == "recommendation":
+        return _cmd_recommendation(ns)
     elif ns.command == "serve":
         import uvicorn
 

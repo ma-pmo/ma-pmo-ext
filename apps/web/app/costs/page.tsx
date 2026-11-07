@@ -6,6 +6,7 @@ import { api, problemsOf } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 import { Card, PageHeader, Stat } from "../components/shell";
 import { Icon } from "../components/icons";
+import { Recommendations } from "./recommendations";
 
 type Row = {
   key: string | null; calls: number; prompt_tokens: number; completion_tokens: number;
@@ -181,6 +182,7 @@ export default function Costs() {
           </div>
         </Card>
       )}
+      <Recommendations />
       {total && total.calls === 0 && <Card><p className="muted" style={{ margin: 0 }}>{c.none}</p></Card>}
       {total && total.calls > 0 && (
         <div className="grid cols-2">{GROUPS.map(table)}</div>

@@ -65,7 +65,47 @@ shows the effect by model. Calls outside a workflow step (routing a goal, `/know
 `LLM_MODEL`. If `LLM_MODEL_FAST` is empty, `fast` falls back to `LLM_MODEL`.
 
 Which steps can safely use the fast model is a question of quality, not only price: the replay
-evaluator (next) measures it before anyone changes a workflow.
+evaluator below measures it before anyone changes a workflow.
+
+## Should this step use the fast model? Replay it
+
+A replay runs the workflow as it is in use, and again with one step on the fast model, `N` times
+each, alternating, on the demo data in a throwaway workspace. For that step it compares, per run:
+
+| Measure | What it is |
+|---|---|
+| step cost | the step's USD in the ledger |
+| valid output | share of the step's structured LLM calls that gave a schema-valid answer (first try or after the retry) instead of falling back |
+| risk accuracy | risk steps only: share of risk alerts whose severity agrees with the labelled outcome in `ma_pmo/fixtures/risk_ground_truth.json` |
+
+Each comes with the change and a 95% bootstrap confidence interval. The verdict:
+
+- **recommended**: no quality measure can drop by more than the tolerance (default 5%, the
+  interval's lower end) and the step is cheaper (the interval's upper end below zero);
+- **not recommended**: otherwise, with the reason;
+- **inconclusive**: there was no LLM output to compare (no API key, or every call fell back).
+
+Nothing changes on its own. An `approver` approves a recommended change, which saves a **draft**
+of the workflow with that step on the fast model; publishing it is the usual separate step. A
+replay of a workflow that changed since cannot be approved.
+
+```bash
+ma-pmo replay risk_escalation A4 --repeat 5   # prints the table and the verdict
+ma-pmo recommendation list
+ma-pmo recommendation approve 1               # -> draft vN; publish it as usual
+```
+
+Or on the Costs page (**Model recommendations**), or `POST /recommendations/replay`,
+`GET /recommendations`, `POST /recommendations/{id}/approve|reject`.
+
+**What it costs and what it can tell.** With an LLM configured, a replay makes real calls
+(`2 × N` runs); that spend is kept in this workspace's ledger (`purpose: replay`, see
+`GET /costs?by=purpose`) and the workspace's budgets apply. The demo portfolio is small, so a
+few repetitions give wide intervals: read them, and run more repetitions before trusting a
+narrow-looking result. Without an API key every agent uses its deterministic fallback, so a
+replay is always inconclusive; that is the honest answer, not a bug.
+
+Dry runs of drafts work the same way: their spend is kept (`purpose: dry_run`) and budgets apply.
 
 ## Prompt caching
 
