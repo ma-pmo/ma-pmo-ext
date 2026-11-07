@@ -43,6 +43,9 @@ export const api = {
     return req(`/runs${query ? `?${query}` : ""}`);
   },
   runWorkflow: (runId: string) => req(`/runs/${encodeURIComponent(runId)}/workflow`),
+  workflowVersions: (id: string) => req(`/workflows/${encodeURIComponent(id)}/versions`),
+  workflowVersion: (id: string, version: number) =>
+    req(`/workflows/${encodeURIComponent(id)}/versions/${version}`),
   runScenario: (id: string) =>
     req(`/scenarios/${id}/run?format=markdown`, { method: "POST" }),
   gateReview: (gate = "G2-planning", scope?: string) =>

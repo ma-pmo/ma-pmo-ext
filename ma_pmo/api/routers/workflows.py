@@ -3,17 +3,46 @@
 GET /workflows               : every loaded workflow, and the files that could not be loaded
 GET /workflows/{workflow_id} : one workflow's steps, with what each waits for and its level
 GET /runs/{run_id}/workflow  : the workflow a run used, with where each of its steps stands
+
+Versions (see core/workflow_store.py):
+POST /workflows/validate                               : the rules a spec breaks, if any
+GET  /workflows/{workflow_id}/versions                 : every version, and which one is in use
+GET  /workflows/{workflow_id}/versions/{version}       : one version, old ones included
+POST /workflows/{workflow_id}/versions                 : save a draft (operator)
+POST /workflows/{workflow_id}/versions/{version}/publish : put a draft in use (approver, admin)
 """
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 from ma_pmo.agents import registry
-from ma_pmo.core import runs, scenarios
+from ma_pmo.api.auth import CurrentPrincipal
+from ma_pmo.core import runs, scenarios, workflow_store
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.workflow import WorkflowSpec, builtin_ids
 
 router = APIRouter(tags=["workflows"])
+
+
+class Check(BaseModel):
+    spec: dict[str, Any]
+
+
+class Draft(Check):
+    note: str = ""
+
+
+def _invalid(e: workflow_store.Invalid) -> HTTPException:
+    return HTTPException(status_code=422, detail={"problems": e.problems})
+
+
+def _unknown(workflow_id: str, version: int | None = None) -> HTTPException:
+    what = workflow_id if version is None else f"{workflow_id} v{version}"
+    return HTTPException(status_code=404, detail=tr(
+        f"unknown workflow '{what}'", f"없는 워크플로입니다: '{what}'"))
 
 
 def _summary(spec: WorkflowSpec, builtin: set[str]) -> dict:
@@ -33,8 +62,9 @@ def _summary(spec: WorkflowSpec, builtin: set[str]) -> dict:
 
 @router.get("/workflows")
 def list_workflows() -> dict:
-    builtin = builtin_ids()
-    return {"workflows": [_summary(spec, builtin) for spec in scenarios.workflows()],
+    builtin, mine = builtin_ids(), set(workflow_store.published_all())
+    return {"workflows": [{**_summary(spec, builtin), "published_here": spec.id in mine}
+                          for spec in scenarios.workflows()],
             "problems": scenarios.workflow_problems}
 
 
@@ -43,9 +73,50 @@ def get_workflow(workflow_id: str) -> dict:
     try:
         spec = scenarios.workflow(workflow_id)
     except KeyError:
-        raise HTTPException(status_code=404, detail=tr(
-            f"unknown workflow '{workflow_id}'", f"없는 워크플로입니다: '{workflow_id}'")) from None
+        raise _unknown(workflow_id) from None
     return {**_summary(spec, builtin_ids()), "steps": _steps(spec)}
+
+
+@router.post("/workflows/validate")
+def validate_workflow(body: Check) -> dict:
+    """The same rules a draft and a publish must pass. Saves nothing."""
+    _, found = workflow_store.problems(body.spec)
+    return {"ok": not found, "problems": found}
+
+
+@router.get("/workflows/{workflow_id}/versions")
+def list_versions(workflow_id: str) -> dict:
+    found = workflow_store.versions(workflow_id)
+    if not found:
+        raise _unknown(workflow_id)
+    return {"workflow": workflow_id, "versions": found}
+
+
+@router.get("/workflows/{workflow_id}/versions/{version}")
+def get_version(workflow_id: str, version: int) -> dict:
+    try:
+        spec = workflow_store.spec_of(workflow_id, version)
+    except KeyError:
+        raise _unknown(workflow_id, version) from None
+    return {**_summary(spec, builtin_ids()), "steps": _steps(spec), "spec": spec.model_dump()}
+
+
+@router.post("/workflows/{workflow_id}/versions", status_code=201)
+def save_draft(workflow_id: str, body: Draft, principal: CurrentPrincipal) -> dict:
+    try:
+        return workflow_store.save_draft(body.spec, principal.subject, body.note, workflow_id)
+    except workflow_store.Invalid as e:
+        raise _invalid(e) from None
+
+
+@router.post("/workflows/{workflow_id}/versions/{version}/publish")
+def publish_version(workflow_id: str, version: int, principal: CurrentPrincipal) -> dict:
+    try:
+        return workflow_store.publish(workflow_id, version, principal.subject)
+    except KeyError:
+        raise _unknown(workflow_id, version) from None
+    except workflow_store.Invalid as e:
+        raise _invalid(e) from None
 
 
 def _steps(spec: WorkflowSpec) -> list[dict]:

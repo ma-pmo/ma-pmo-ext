@@ -186,27 +186,41 @@ CATEGORIES: dict[str, tuple[str, str]] = {
 _fn = registry.title
 
 
-def workflow(workflow_id: str) -> WorkflowSpec:
-    """A loaded workflow; KeyError if there is none with that id."""
+def loaded(workflow_id: str) -> WorkflowSpec:
+    """A workflow as shipped or read from the workflows folder; KeyError if there is none."""
     return _SPECS[workflow_id]
 
 
+def workflow(workflow_id: str) -> WorkflowSpec:
+    """The workflow in use in this workspace: its latest published version, else the loaded one.
+
+    KeyError if there is neither.
+    """
+    from ma_pmo.core import workflow_store
+
+    return workflow_store.published(workflow_id) or _SPECS[workflow_id]
+
+
 def workflows() -> list[WorkflowSpec]:
-    return list(_SPECS.values())
+    """Every workflow in use in this workspace (see `workflow`), loaded ones first."""
+    from ma_pmo.core import workflow_store
+
+    mine = workflow_store.published_all()
+    return [mine.pop(sid, spec) for sid, spec in _SPECS.items()] + list(mine.values())
 
 
 def list_scenarios() -> list[dict]:
     return [
         {
-            "id": sid,
-            "title": tr(*s["title"]),
-            "category_id": s["category"],
-            "category": tr(*CATEGORIES[s["category"]]),
-            "description": tr(*s["description"]),
-            "hypotheses": s["hypotheses"],
-            "agents": [a for a, _ in s["steps"]],
+            "id": spec.id,
+            "title": tr(*spec.title.pair),
+            "category_id": spec.category,
+            "category": tr(*CATEGORIES[spec.category]),
+            "description": tr(*spec.description.pair),
+            "hypotheses": spec.hypotheses,
+            "agents": [step.agent for step in spec.steps],
         }
-        for sid, s in SCENARIOS.items()
+        for spec in workflows()
     ]
 
 
@@ -225,9 +239,10 @@ def run_scenario(
     One trace per run when tracing is on (see core/tracing.py); every run is recorded
     (see core/runs.py) and its id is returned as `run_id`.
     """
-    if scenario_id not in _SPECS:
-        raise KeyError(f"unknown scenario: {scenario_id}")
-    spec = _SPECS[scenario_id].without_agents(drop_agents)
+    try:
+        spec = workflow(scenario_id).without_agents(drop_agents)
+    except KeyError:
+        raise KeyError(f"unknown scenario: {scenario_id}") from None
     state = {"spec": spec.model_dump(), "pause_on_gate": pause_on_gate}
     with tracing.span(f"invoke_workflow {scenario_id}", {
         tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: scenario_id,

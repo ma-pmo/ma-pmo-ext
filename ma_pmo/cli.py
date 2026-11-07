@@ -184,6 +184,46 @@ def _cmd_retrieval() -> int:
     return 0
 
 
+def _cmd_workflow(ns: argparse.Namespace) -> int:
+    """Workflow versions in this workspace (MA_PMO_WORKSPACE), with the API's validator."""
+    import json
+    from pathlib import Path
+
+    from ma_pmo.core import workflow_store
+    from ma_pmo.core.i18n import tr
+
+    try:
+        if ns.action in ("validate", "draft"):
+            data = json.loads(Path(ns.file).read_text(encoding="utf-8"))
+            if ns.action == "validate":
+                _, found = workflow_store.problems(data)
+                for problem in found:
+                    print(f"✗ {problem}")
+                if not found:
+                    print(tr("✓ valid", "✓ 문제 없음"))
+                return 1 if found else 0
+            saved = workflow_store.save_draft(data, "cli", ns.note)
+            print(tr(f"✓ draft v{saved['version']} of '{data.get('id')}' saved",
+                     f"✓ '{data.get('id')}' 초안 v{saved['version']} 저장"))
+        elif ns.action == "versions":
+            for v in workflow_store.versions(ns.id):
+                mark = "*" if v["in_use"] else " "
+                print(f"{mark} v{v['version']:<4}{v['status']:<11}{v['created_by'] or '':<16}"
+                      f"{v['note']}")
+        elif ns.action == "publish":
+            workflow_store.publish(ns.id, ns.version, "cli")
+            print(tr(f"✓ '{ns.id}' v{ns.version} is now in use",
+                     f"✓ '{ns.id}' v{ns.version}을 사용합니다"))
+    except workflow_store.Invalid as e:
+        for problem in e.problems:
+            print(f"✗ {problem}")
+        return 1
+    except (KeyError, OSError, ValueError) as e:
+        print(f"✗ {e}")
+        return 1
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="ma-pmo", description="MA-PMO multi-agent PMO orchestration"
@@ -211,6 +251,19 @@ def main(argv: list[str] | None = None) -> int:
         w_verb.add_argument("id")
         w_verb.add_argument("principal", help="an API key name or an authenticator subject")
         w_verb.add_argument("role")
+
+    wf = sub.add_parser("workflow", help="workflow versions: validate | draft | versions | publish")
+    wfsub = wf.add_subparsers(dest="action", required=True)
+    wf_validate = wfsub.add_parser("validate", help="check a workflow JSON file; saves nothing")
+    wf_validate.add_argument("file")
+    wf_draft = wfsub.add_parser("draft", help="save a workflow JSON file as a new draft version")
+    wf_draft.add_argument("file")
+    wf_draft.add_argument("--note", default="")
+    wf_versions = wfsub.add_parser("versions", help="list a workflow's versions (* = in use)")
+    wf_versions.add_argument("id")
+    wf_publish = wfsub.add_parser("publish", help="put a draft version in use")
+    wf_publish.add_argument("id")
+    wf_publish.add_argument("version", type=int)
 
     serve = sub.add_parser("serve", help="start the FastAPI server")
     serve.add_argument("--host", default="127.0.0.1")
@@ -261,6 +314,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_agents()
     elif ns.command == "workspace":
         return _cmd_workspace(ns)
+    elif ns.command == "workflow":
+        return _cmd_workflow(ns)
     elif ns.command == "serve":
         import uvicorn
 

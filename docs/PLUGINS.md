@@ -84,6 +84,29 @@ where each step of that run stands: done, running, awaiting approval, failed or 
 graph is the workflow exactly as that run saved it, and it updates while the run is going.
 `GET /runs/{id}/workflow` returns the same; `GET /runs?workflow=<id>` lists a workflow's runs.
 
+### Versions: draft, then publish
+
+A workspace can change a workflow without touching files. Saving creates a new **draft version**
+(its spec never changes again); an `approver` or `admin` **publishes** it, and from then on it is
+the version that runs in that workspace. Every version stays readable, and every run keeps the
+version it started with (shown in the run menu and `workflow_version` in `GET /runs`).
+
+One validator runs for the API, the CLI and the dashboard. Beyond the spec's own rules (unique
+steps, known `needs`, no cycles) it rejects unknown agents and categories, a gate step that is
+not `required`, and **removing or changing a required step** of the version in use. Publishing
+checks again, in case another version was published in between.
+
+```bash
+ma-pmo workflow validate my_flow.json          # the problems, if any; saves nothing
+ma-pmo workflow draft my_flow.json --note "why" # a new draft version
+ma-pmo workflow versions knowledge_kickoff      # * marks the version in use
+ma-pmo workflow publish knowledge_kickoff 2
+```
+
+The API is the same: `POST /workflows/validate`, `POST /workflows/{id}/versions`,
+`POST /workflows/{id}/versions/{v}/publish`, `GET /workflows/{id}/versions[/{v}]`. A rejected
+draft answers 422 with `detail.problems`.
+
 ## Rules
 
 | Rule | Why |

@@ -82,6 +82,28 @@ ma-pmo agents        # id, 이름, 버전, 출처. 불러오지 못한 플러그
 그대로이며, 실행 중에는 자동으로 갱신됩니다. `GET /runs/{id}/workflow`도 같은 내용을 돌려주고,
 `GET /runs?workflow=<id>`는 한 워크플로의 실행 목록입니다.
 
+### 버전: 초안을 만들고 게시하기
+
+워크스페이스는 파일을 고치지 않고도 워크플로를 바꿀 수 있습니다. 저장하면 새 **초안 버전**이 생기고(그
+내용은 다시 바뀌지 않습니다), `approver`나 `admin`이 **게시**하면 그때부터 그 워크스페이스에서 실행되는
+버전이 됩니다. 모든 버전을 계속 볼 수 있고, 각 실행은 시작할 때의 버전을 유지합니다(실행 메뉴와
+`GET /runs`의 `workflow_version`에 표시).
+
+API, CLI, 대시보드가 같은 검증기를 씁니다. 명세 자체의 규칙(단계 id 중복 없음, 있는 `needs`, 순환 없음)에
+더해 없는 에이전트·분류, `required`가 아닌 게이트 단계, 그리고 **사용 중인 버전의 필수 단계를 빼거나
+바꾸는 것**을 거부합니다. 그 사이 다른 버전이 게시되었을 수 있으므로 게시할 때 다시 검사합니다.
+
+```bash
+ma-pmo workflow validate my_flow.json          # 문제 목록만 보여 주고 저장하지 않음
+ma-pmo workflow draft my_flow.json --note "이유" # 새 초안 버전
+ma-pmo workflow versions knowledge_kickoff      # *가 사용 중인 버전
+ma-pmo workflow publish knowledge_kickoff 2
+```
+
+API도 같습니다: `POST /workflows/validate`, `POST /workflows/{id}/versions`,
+`POST /workflows/{id}/versions/{v}/publish`, `GET /workflows/{id}/versions[/{v}]`. 거부된 초안은
+422와 `detail.problems`를 돌려줍니다.
+
 ## 규칙
 
 | 규칙 | 이유 |

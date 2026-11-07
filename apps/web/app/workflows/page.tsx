@@ -16,10 +16,18 @@ type Step = {
   id: string; agent: string; agent_name: string; params: Record<string, unknown>;
   needs: string[]; required: boolean; level: number; run?: StepRun;
 };
-type RunSummary = { run_id: string; kind: string; workflow: string; scope: string; status: string; started_at: string };
+type RunSummary = {
+  run_id: string; kind: string; workflow: string; scope: string; status: string; started_at: string;
+  workflow_version?: number | null;
+};
+type Version = {
+  version: number; status: "builtin" | "file" | "draft" | "published"; note: string; in_use: boolean;
+  created_by: string | null; created_at: string | null; published_by: string | null; published_at: string | null;
+};
 type Workflow = {
   id: string; version: number; title: string; category: string; description: string;
   hypotheses: string[]; source: "builtin" | "custom"; agents: string[]; steps?: Step[];
+  published_here?: boolean;
   run?: RunSummary; same_as_current?: boolean;
 };
 
@@ -174,7 +182,21 @@ export default function Workflows() {
     return () => { alive = false; clearTimeout(timer); };
   }, [runId, lang]);
 
-  const shown = overlay ?? detail;
+  const [versions, setVersions] = useState<Version[]>([]);
+  const [viewed, setViewed] = useState<Workflow | null>(null);  // an older (or draft) version
+
+  useEffect(() => {
+    setViewed(null);
+    if (!selected) return;
+    api.workflowVersions(selected).then((r) => setVersions(r.versions)).catch(() => setVersions([]));
+  }, [selected, lang]);
+
+  const view = async (v: Version) => {
+    setRunId("");
+    setViewed(v.in_use ? null : await api.workflowVersion(selected, v.version));
+  };
+
+  const shown = overlay ?? viewed ?? detail;
   const runStatus = overlay?.run?.status;
 
   return (
@@ -200,7 +222,9 @@ export default function Workflows() {
               <button key={x.id} role="option" aria-selected={selected === x.id}
                 className={selected === x.id ? "on" : ""} onClick={() => setSelected(x.id)}>
                 <b>{x.title}</b>
-                <span className="muted">{x.category} · {x.source === "builtin" ? w.builtin : w.custom}</span>
+                <span className="muted">
+                  {x.category} · {x.source === "builtin" ? w.builtin : w.custom}{x.published_here ? ` · ${w.editedHere}` : ""}
+                </span>
               </button>
             ))}
           </div>
@@ -213,16 +237,22 @@ export default function Workflows() {
               actions={runs.length > 0 && (
                 <label className="row" style={{ gap: 6 }}>
                   <span className="muted">{w.run}</span>
-                  <select className="input" value={runId} onChange={(e) => setRunId(e.target.value)}>
+                  <select className="input" value={runId} onChange={(e) => { setViewed(null); setRunId(e.target.value); }}>
                     <option value="">{w.noRun}</option>
                     {runs.map((r) => (
                       <option key={r.run_id} value={r.run_id}>
-                        {when(r.started_at)} · {w.status[r.status] ?? r.status}
+                        {when(r.started_at)}{r.workflow_version ? ` · v${r.workflow_version}` : ""} · {w.status[r.status] ?? r.status}
                       </option>
                     ))}
                   </select>
                 </label>
               )}>
+              {viewed && !overlay && (
+                <div className="wf-runbar">
+                  <span className="badge amber">{w.viewing(viewed.version)}</span>
+                  <button className="ghost sm" onClick={() => setViewed(null)}>{w.backToCurrent}</button>
+                </div>
+              )}
               {overlay?.run && (
                 <div className="wf-runbar" aria-live="polite">
                   <span className={`badge ${w.badge[overlay.run.status] ?? ""}`}>{w.status[overlay.run.status] ?? overlay.run.status}</span>
@@ -270,6 +300,31 @@ export default function Workflows() {
                 </table>
               </div>
             </Card>
+            {versions.length > 0 && (
+              <Card title={w.versions} desc={w.versionsHint} flush>
+                <div className="table-wrap">
+                  <table className="wf-table">
+                    <thead>
+                      <tr><th>{w.versionCol}</th><th>{w.state}</th><th>{w.by}</th><th>{w.note}</th><th /></tr>
+                    </thead>
+                    <tbody>
+                      {[...versions].reverse().map((v) => (
+                        <tr key={v.version} className={shown.version === v.version && !overlay ? "wf-row-on" : ""}>
+                          <td>v{v.version}{v.in_use && <span className="badge green" style={{ marginLeft: 6 }}>{w.inUse}</span>}</td>
+                          <td>{w.versionStatus[v.status] ?? v.status}</td>
+                          <td>{v.published_by
+                            ? `${w.publishedBy(v.published_by)} · ${when(v.published_at ?? undefined)}`
+                            : v.created_by ? `${w.draftedBy(v.created_by)} · ${when(v.created_at ?? undefined)}` : "–"}</td>
+                          <td style={{ whiteSpace: "normal" }}>{v.note || <span className="muted">–</span>}</td>
+                          <td><button className="ghost sm" onClick={() => view(v)}
+                            aria-label={w.viewVersion(v.version)}>{w.view}</button></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
           </div>
         )}
       </div>
