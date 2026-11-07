@@ -9,6 +9,9 @@ Third-party packages register more by exposing an `IntegrationSpec` under the
 """
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from importlib.metadata import entry_points
 
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -146,6 +149,45 @@ def build_notifiers(settings: Settings | None = None) -> list[Notifier]:
     return [spec.factory(settings) for spec in _active("notifier", settings)]
 
 
+_demo_only: ContextVar[bool] = ContextVar("ma_pmo_demo_only", default=False)
+
+
+@contextmanager
+def demo_only() -> Iterator[None]:
+    """Inside, trackers read the demo data in the database and no notification is sent.
+
+    For dry runs: a draft must not read a real Jira or post to Slack.
+    """
+    token = _demo_only.set(True)
+    try:
+        yield
+    finally:
+        _demo_only.reset(token)
+
+
+def is_demo_only() -> bool:
+    return _demo_only.get()
+
+
+class _DemoWhenAsked:
+    """A real tracker that reads the demo data instead while `demo_only` is on.
+
+    Agents keep their tracker for their whole life, so the choice is made per call.
+    """
+
+    def __init__(self, real: IssueTrackerConnector) -> None:
+        self.real = real
+
+    def __getattr__(self, name: str) -> object:  # the real tracker's settings, e.g. project_keys
+        return getattr(self.real, name)
+
+    def get_portfolio_status(self, portfolio_id: str) -> dict:
+        from ma_pmo.connectors.jira_mock import MockJiraConnector
+
+        source = MockJiraConnector() if is_demo_only() else self.real
+        return source.get_portfolio_status(portfolio_id)
+
+
 def get_tracker(settings: Settings | None = None) -> IssueTrackerConnector:
     """The enabled tracker integration, or the bundled demo-data connector."""
     settings = settings or get_settings()
@@ -153,8 +195,7 @@ def get_tracker(settings: Settings | None = None) -> IssueTrackerConnector:
     if trackers:
         if len(trackers) > 1:
             _log.warning("integration_multiple_trackers", using=trackers[0].name)
-        tracker: IssueTrackerConnector = trackers[0].factory(settings)
-        return tracker
+        return _DemoWhenAsked(trackers[0].factory(settings))
     from ma_pmo.connectors.jira_mock import MockJiraConnector
 
     return MockJiraConnector()

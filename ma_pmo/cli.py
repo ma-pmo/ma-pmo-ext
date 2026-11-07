@@ -204,7 +204,7 @@ def _cmd_workflow(ns: argparse.Namespace) -> int:
                 return 1 if found else 0
             saved = workflow_store.save_draft(data, "cli", ns.note)
             print(tr(f"✓ draft v{saved['version']} of '{data.get('id')}' saved",
-                     f"✓ '{data.get('id')}' 초안 v{saved['version']} 저장"))
+                     f"✓ '{data.get('id')}' 초안(v{saved['version']}) 저장"))
         elif ns.action == "versions":
             for v in workflow_store.versions(ns.id):
                 mark = "*" if v["in_use"] else " "
@@ -213,7 +213,7 @@ def _cmd_workflow(ns: argparse.Namespace) -> int:
         elif ns.action == "publish":
             workflow_store.publish(ns.id, ns.version, "cli")
             print(tr(f"✓ '{ns.id}' v{ns.version} is now in use",
-                     f"✓ '{ns.id}' v{ns.version}을 사용합니다"))
+                     f"✓ 이제 '{ns.id}'의 v{ns.version} 버전을 사용합니다"))
     except workflow_store.Invalid as e:
         for problem in e.problems:
             print(f"✗ {problem}")

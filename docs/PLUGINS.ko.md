@@ -84,7 +84,14 @@ ma-pmo agents        # id, 이름, 버전, 출처. 불러오지 못한 플러그
 
 ### 버전: 초안을 만들고 게시하기
 
-워크스페이스는 파일을 고치지 않고도 워크플로를 바꿀 수 있습니다. 저장하면 새 **초안 버전**이 생기고(그
+워크스페이스는 파일을 고치지 않고도 워크플로를 바꿀 수 있습니다. 대시보드에서 워크플로의 **편집**을 누르면
+입력 양식이 열립니다. 단계를 추가·삭제하고 순서를 바꾸며, 각 단계가 기다릴 단계를 체크하고 매개변수
+(`키=값, 키=값`)를 정합니다. 입력하는 동안 서버가 검사하고, 결과 그래프가 바로 보입니다. 사용 중인 버전의
+필수 단계는 잠겨 있습니다. **데모 데이터로 시험 실행**은 초안을 임시 워크스페이스에서 샘플 포트폴리오로
+실행합니다. 실제 데이터, 승인, 알림은 건드리지 않고(Jira가 설정되어 있어도 데모 데이터를 읽음), 끝나면 그
+워크스페이스를 지웁니다. LLM이 설정되어 있으면 에이전트는 LLM을 호출합니다. 편집은 넓은 화면에서 할 수
+있고, 휴대폰에서는 읽기 전용입니다.
+ 저장하면 새 **초안 버전**이 생기고(그
 내용은 다시 바뀌지 않습니다), `approver`나 `admin`이 **게시**하면 그때부터 그 워크스페이스에서 실행되는
 버전이 됩니다. 모든 버전을 계속 볼 수 있고, 각 실행은 시작할 때의 버전을 유지합니다(실행 메뉴와
 `GET /runs`의 `workflow_version`에 표시).
@@ -100,7 +107,8 @@ ma-pmo workflow versions knowledge_kickoff      # *가 사용 중인 버전
 ma-pmo workflow publish knowledge_kickoff 2
 ```
 
-API도 같습니다: `POST /workflows/validate`, `POST /workflows/{id}/versions`,
+API도 같습니다: `POST /workflows/validate`, `POST /workflows/dry-run`,
+`POST /workflows/{id}/versions`,
 `POST /workflows/{id}/versions/{v}/publish`, `GET /workflows/{id}/versions[/{v}]`. 거부된 초안은
 422와 `detail.problems`를 돌려줍니다.
 

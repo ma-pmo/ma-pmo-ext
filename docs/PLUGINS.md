@@ -86,7 +86,15 @@ graph is the workflow exactly as that run saved it, and it updates while the run
 
 ### Versions: draft, then publish
 
-A workspace can change a workflow without touching files. Saving creates a new **draft version**
+A workspace can change a workflow without touching files. In the dashboard, **Edit** on a
+workflow opens a form: add, remove and reorder steps, tick what each step waits for, and set its
+parameters (`key=value, key=value`). Every change is checked by the server as you type, and a
+live graph shows the result. Required steps of the version in use are locked. **Dry run on demo
+data** runs the draft in a throwaway workspace on the sample portfolio: no real data, approval or
+notification is touched (trackers read the demo data even if Jira is configured), and the
+workspace is erased afterwards; agents still call the LLM if one is configured. Editing needs a
+wide screen; on a phone workflows are read-only.
+ Saving creates a new **draft version**
 (its spec never changes again); an `approver` or `admin` **publishes** it, and from then on it is
 the version that runs in that workspace. Every version stays readable, and every run keeps the
 version it started with (shown in the run menu and `workflow_version` in `GET /runs`).
@@ -103,7 +111,8 @@ ma-pmo workflow versions knowledge_kickoff      # * marks the version in use
 ma-pmo workflow publish knowledge_kickoff 2
 ```
 
-The API is the same: `POST /workflows/validate`, `POST /workflows/{id}/versions`,
+The API is the same: `POST /workflows/validate`, `POST /workflows/dry-run`,
+`POST /workflows/{id}/versions`,
 `POST /workflows/{id}/versions/{v}/publish`, `GET /workflows/{id}/versions[/{v}]`. A rejected
 draft answers 422 with `detail.problems`.
 

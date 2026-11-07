@@ -4,112 +4,14 @@
 // Picking a run draws the workflow that run saved, with where each step stands, and keeps it
 // current while the run is going.
 import { useEffect, useRef, useState } from "react";
-import { api } from "../lib/api";
+import { api, problemsOf } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 import { Card, PageHeader } from "../components/shell";
-
-type StepRun = {
-  status: string; attempts?: number; error?: string | null; pending_approvals: number;
-  started_at?: string | null; finished_at?: string | null;
-};
-type Step = {
-  id: string; agent: string; agent_name: string; params: Record<string, unknown>;
-  needs: string[]; required: boolean; level: number; run?: StepRun;
-};
-type RunSummary = {
-  run_id: string; kind: string; workflow: string; scope: string; status: string; started_at: string;
-  workflow_version?: number | null;
-};
-type Version = {
-  version: number; status: "builtin" | "file" | "draft" | "published"; note: string; in_use: boolean;
-  created_by: string | null; created_at: string | null; published_by: string | null; published_at: string | null;
-};
-type Workflow = {
-  id: string; version: number; title: string; category: string; description: string;
-  hypotheses: string[]; source: "builtin" | "custom"; agents: string[]; steps?: Step[];
-  published_here?: boolean;
-  run?: RunSummary; same_as_current?: boolean;
-};
-
-const POLL_MS = 2000;
-// In a paused run, a step that queued an approval is what the run waits on. A run that did not
-// pause has finished that step; its approvals are only waiting in the queue.
-const stepState = (r: StepRun | undefined, run: string | undefined) =>
-  (!r ? "" : r.pending_approvals > 0 && run === "waiting_approval" ? "waiting_approval" : r.status);
-const when = (iso?: string) => (iso ? new Date(iso).toLocaleString() : "");
-
-const W = 188, H = 60, GAP_X = 64, GAP_Y = 16, PAD = 10;
-
-function layout(steps: Step[]) {
-  const rows: Record<number, number> = {};
-  const pos: Record<string, { x: number; y: number }> = {};
-  for (const s of steps) {
-    const row = (rows[s.level] = (rows[s.level] ?? -1) + 1);
-    pos[s.id] = { x: PAD + s.level * (W + GAP_X), y: PAD + 22 + row * (H + GAP_Y) };
-  }
-  const levels = Math.max(0, ...steps.map((s) => s.level)) + 1;
-  const height = PAD * 2 + 22 + Math.max(...Object.values(rows), 0) * (H + GAP_Y) + H;
-  return { pos, levels, width: PAD * 2 + levels * W + (levels - 1) * GAP_X, height };
-}
-
-const params = (p: Record<string, unknown>) =>
-  Object.entries(p).map(([k, v]) => `${k}=${typeof v === "string" ? v : JSON.stringify(v)}`).join(", ");
-
-// the table shows the full text; a node keeps one line
-const clip = (text: string, n: number) => (text.length > n ? `${text.slice(0, n - 1)}…` : text);
-
-function Graph({ steps, active, setActive, runStatus }: {
-  steps: Step[]; active: string; setActive: (id: string) => void; runStatus?: string;
-}) {
-  const { t } = useI18n();
-  const w = t.wf;
-  const { pos, levels, width, height } = layout(steps);
-  const lit = (from: string, to: string) => active === from || active === to;
-  return (
-    <div className="wf-graph">
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="list" aria-label={w.graph}>
-        <defs>
-          <marker id="wf-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-            <path d="M0 0L10 5L0 10z" className="wf-arrow" />
-          </marker>
-          <marker id="wf-arrow-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-            <path d="M0 0L10 5L0 10z" className="wf-arrow on" />
-          </marker>
-        </defs>
-        {Array.from({ length: levels }, (_, i) => (
-          <text key={i} x={PAD + i * (W + GAP_X)} y={PAD + 10} className="wf-stage">{w.level(i)}</text>
-        ))}
-        {steps.flatMap((s) => s.needs.map((n) => {
-          const a = pos[n], b = pos[s.id];
-          const x1 = a.x + W, y1 = a.y + H / 2, x2 = b.x - 2, y2 = b.y + H / 2, mid = (x1 + x2) / 2;
-          const on = lit(n, s.id);
-          return (
-            <path key={`${n}-${s.id}`} d={`M${x1} ${y1}C${mid} ${y1} ${mid} ${y2} ${x2} ${y2}`}
-              className={`wf-edge ${on ? "on" : ""}`} markerEnd={`url(#wf-arrow${on ? "-on" : ""})`} />
-          );
-        }))}
-        {steps.map((s) => {
-          const { x, y } = pos[s.id];
-          return (
-            <g key={s.id} role="listitem" tabIndex={0} transform={`translate(${x} ${y})`}
-              className={`wf-node ${s.required ? "required" : ""} ${active === s.id ? "on" : ""} ${s.run ? `st-${stepState(s.run, runStatus)}` : ""}`}
-              aria-label={`${w.nodeLabel(s.id, s.agent_name, s.needs, s.required)}${s.run ? `, ${w.status[stepState(s.run, runStatus)] ?? stepState(s.run, runStatus)}` : ""}`}
-              onFocus={() => setActive(s.id)} onMouseEnter={() => setActive(s.id)} onClick={() => setActive(s.id)}>
-              <rect width={W} height={H} rx="10" />
-              <text x="12" y="23" className="wf-title">{s.agent} · {s.agent_name}</text>
-              <text x="12" y="44" className="wf-sub">
-                {clip(`${s.id}${Object.keys(s.params).length ? ` · ${params(s.params)}` : ""}`, 28)}
-              </text>
-              {s.run
-                ? <text x={W - 10} y="23" textAnchor="end" className="wf-state">{w.status[stepState(s.run, runStatus)] ?? stepState(s.run, runStatus)}</text>
-                : s.required && <text x={W - 10} y="23" textAnchor="end" className="wf-lock">{w.required}</text>}
-            </g>
-          );
-        })}
-      </svg>
-    </div>
-  );
-}
+import {
+  Graph, POLL_MS, params, stepState, when,
+  type RunSummary, type Version, type Workflow,
+} from "./graph";
+import { Editor } from "./editor";
 
 export default function Workflows() {
   const { lang, t } = useI18n();
@@ -196,6 +98,34 @@ export default function Workflows() {
     setViewed(v.in_use ? null : await api.workflowVersion(selected, v.version));
   };
 
+  const [editing, setEditing] = useState<Record<string, any> | null>(null);
+  const [notice, setNotice] = useState<{ text: string; bad?: boolean } | null>(null);
+  const [publishing, setPublishing] = useState(0);
+  useEffect(() => { setEditing(null); setNotice(null); }, [selected]);
+
+  const reload = async () => {
+    const [d, v, l] = await Promise.all([api.workflow(selected), api.workflowVersions(selected), api.workflows()]);
+    setDetail(d);
+    setVersions(v.versions);
+    setList(l.workflows);
+  };
+  const edit = async () => {
+    if (!detail) return;
+    setNotice(null);
+    setEditing((await api.workflowVersion(selected, detail.version)).spec);
+  };
+  const publish = async (v: Version) => {
+    setPublishing(v.version);
+    try {
+      await api.publishVersion(selected, v.version);
+      setNotice({ text: t.wfEdit.published(v.version) });
+      setViewed(null);
+      await reload();
+    } catch (e) {
+      setNotice({ text: problemsOf(e).join(" · "), bad: true });
+    } finally { setPublishing(0); }
+  };
+
   const shown = overlay ?? viewed ?? detail;
   const runStatus = overlay?.run?.status;
 
@@ -232,10 +162,22 @@ export default function Workflows() {
 
         {shown?.steps && (
           <div className="stack" style={{ minWidth: 0 }}>
+            {editing && detail?.steps && (
+              <Editor spec={editing} steps={detail.steps} onClose={() => setEditing(null)}
+                onSaved={async (version) => {
+                  setEditing(null);
+                  setNotice({ text: t.wfEdit.saved(version) });
+                  await reload();
+                }} />
+            )}
             <Card title={shown.title}
               desc={`${shown.description} · ${w.version(shown.version)} · ${shown.hypotheses.join(", ")}`}
-              actions={runs.length > 0 && (
-                <label className="row" style={{ gap: 6 }}>
+              actions={(runs.length > 0 || (!overlay && !viewed && !editing)) && (
+                <div className="row">
+                {!overlay && !viewed && !editing && (
+                  <button className="ghost sm wf-edit-btn" onClick={edit}>{t.wfEdit.edit}</button>
+                )}
+                {runs.length > 0 && <label className="row" style={{ gap: 6 }}>
                   <span className="muted">{w.run}</span>
                   <select className="input" value={runId} onChange={(e) => { setViewed(null); setRunId(e.target.value); }}>
                     <option value="">{w.noRun}</option>
@@ -245,8 +187,14 @@ export default function Workflows() {
                       </option>
                     ))}
                   </select>
-                </label>
+                </label>}
+                </div>
               )}>
+              {notice && (
+                <div className="wf-runbar" role="status">
+                  <span className={`badge ${notice.bad ? "red" : "green"}`} style={{ whiteSpace: "normal" }}>{notice.text}</span>
+                </div>
+              )}
               {viewed && !overlay && (
                 <div className="wf-runbar">
                   <span className="badge amber">{w.viewing(viewed.version)}</span>
@@ -262,6 +210,7 @@ export default function Workflows() {
                 </div>
               )}
               <p className="muted" style={{ margin: "0 0 10px" }}>{w.graphHint}</p>
+              <p className="muted wf-phone-note" style={{ margin: "0 0 10px" }}>{t.wfEdit.phoneReadOnly}</p>
               <Graph steps={shown.steps} active={active} setActive={setActive} runStatus={runStatus} />
               {overlay && (
                 <div className="wf-legend">
@@ -316,8 +265,15 @@ export default function Workflows() {
                             ? `${w.publishedBy(v.published_by)} · ${when(v.published_at ?? undefined)}`
                             : v.created_by ? `${w.draftedBy(v.created_by)} · ${when(v.created_at ?? undefined)}` : "–"}</td>
                           <td style={{ whiteSpace: "normal" }}>{v.note || <span className="muted">–</span>}</td>
-                          <td><button className="ghost sm" onClick={() => view(v)}
-                            aria-label={w.viewVersion(v.version)}>{w.view}</button></td>
+                          <td><div className="row" style={{ flexWrap: "nowrap" }}>
+                            <button className="ghost sm" onClick={() => view(v)}
+                              aria-label={w.viewVersion(v.version)}>{w.view}</button>
+                            {v.status === "draft" && (
+                              <button className="sm wf-edit-btn" onClick={() => publish(v)} disabled={publishing !== 0}>
+                                {publishing === v.version ? t.wfEdit.publishing : `${t.wfEdit.publish} v${v.version}`}
+                              </button>
+                            )}
+                          </div></td>
                         </tr>
                       ))}
                     </tbody>

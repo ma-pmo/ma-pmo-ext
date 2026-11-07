@@ -232,6 +232,25 @@ const en = {
     editedHere: "edited in this workspace",
   },
 
+  wfEdit: {
+    edit: "Edit", title: (id: string) => `Edit ${id}`,
+    desc: "Changes are checked as you type by the same rules the server applies. Saving makes a draft; an approver publishes it.",
+    cancel: "Close", addStep: "+ Add step", removeShort: "Remove",
+    remove: (id: string) => `Remove step ${id}`, moveUp: (id: string) => `Move ${id} up`, moveDown: (id: string) => `Move ${id} down`,
+    paramsHint: "key=value, key=value", locked: "Locked",
+    lockedTip: "A required step of the version in use: it cannot be removed or changed, only what it waits for.",
+    checking: "Checking…", valid: "✓ Passes every rule",
+    note: "Note for this version", notePlaceholder: "Why this change?",
+    dryRun: "Dry run on demo data", dryRunning: "Running…", saveDraft: "Save draft", saving: "Saving…",
+    publishLater: "Publish it from Versions below (approver or admin).",
+    dryTitle: "Dry run",
+    dryNote: (scope: string) => `Ran on the demo portfolio ${scope} in a throwaway workspace: no real data, approval or notification was touched.`,
+    dryCounts: (m: number, a: number) => `${m} messages · ${a} approvals would wait`,
+    saved: (v: number) => `Saved draft v${v}. An approver can publish it below.`,
+    publish: "Publish", publishing: "Publishing…", published: (v: number) => `v${v} is now in use.`,
+    phoneReadOnly: "Editing needs a wider screen; on a phone workflows are read-only.",
+  },
+
   appr: {
     title: "Approval queue (Human-in-the-Loop)",
     desc1:
@@ -496,8 +515,27 @@ const ko: Messages = {
     versionStatus: { builtin: "기본 제공", file: "파일", draft: "초안", published: "게시됨" } as Record<string, string>,
     publishedBy: (who: string) => `${who} 게시`, draftedBy: (who: string) => `${who} 작성`,
     viewVersion: (v: number) => `버전 ${v} 보기`,
-    viewing: (v: number) => `사용 중이 아닌 버전 ${v}을 보는 중`, backToCurrent: "사용 중인 버전으로",
+    viewing: (v: number) => `사용 중이 아닌 버전(v${v})을 보는 중`, backToCurrent: "사용 중인 버전으로",
     editedHere: "이 워크스페이스에서 수정됨",
+  },
+
+  wfEdit: {
+    edit: "편집", title: (id: string) => `${id} 편집`,
+    desc: "입력하는 동안 서버와 같은 규칙으로 검사합니다. 저장하면 초안이 되고, approver가 게시합니다.",
+    cancel: "닫기", addStep: "+ 단계 추가", removeShort: "삭제",
+    remove: (id: string) => `${id} 단계 삭제`, moveUp: (id: string) => `${id} 위로`, moveDown: (id: string) => `${id} 아래로`,
+    paramsHint: "키=값, 키=값", locked: "잠김",
+    lockedTip: "사용 중인 버전의 필수 단계입니다. 빼거나 바꿀 수 없고, 선행 단계만 바꿀 수 있습니다.",
+    checking: "검사 중…", valid: "✓ 모든 규칙 통과",
+    note: "이 버전의 메모", notePlaceholder: "왜 바꾸나요?",
+    dryRun: "데모 데이터로 시험 실행", dryRunning: "실행 중…", saveDraft: "초안 저장", saving: "저장 중…",
+    publishLater: "아래 버전 표에서 게시합니다(approver 또는 admin).",
+    dryTitle: "시험 실행",
+    dryNote: (scope: string) => `임시 워크스페이스에서 데모 포트폴리오 ${scope}로 실행했습니다. 실제 데이터, 승인, 알림은 건드리지 않았습니다.`,
+    dryCounts: (m: number, a: number) => `메시지 ${m}건 · 승인 대기 예정 ${a}건`,
+    saved: (v: number) => `초안(v${v})을 저장했습니다. approver가 아래에서 게시할 수 있습니다.`,
+    publish: "게시", publishing: "게시 중…", published: (v: number) => `이제 v${v} 버전을 사용합니다.`,
+    phoneReadOnly: "편집은 넓은 화면에서 할 수 있습니다. 휴대폰에서는 읽기 전용입니다.",
   },
 
   appr: {

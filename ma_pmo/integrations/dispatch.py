@@ -10,7 +10,7 @@ from collections.abc import Iterable, Sequence
 from ma_pmo.core.config import Settings, get_settings
 from ma_pmo.core.obs import get_logger
 from ma_pmo.integrations.base import Event, EventType, Notifier
-from ma_pmo.integrations.registry import build_notifiers
+from ma_pmo.integrations.registry import build_notifiers, is_demo_only
 
 _log = get_logger("integrations")
 
@@ -23,7 +23,7 @@ def emit(events: Iterable[Event], *, notifiers: Sequence[Notifier] | None = None
          settings: Settings | None = None) -> list[dict]:
     """Send each event to each notifier. Returns one result row per delivery attempt."""
     events = list(events)
-    if not events:
+    if not events or is_demo_only():  # a dry run tells nobody
         return []
     settings = settings or get_settings()
     try:

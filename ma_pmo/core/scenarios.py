@@ -240,14 +240,21 @@ def run_scenario(
     (see core/runs.py) and its id is returned as `run_id`.
     """
     try:
-        spec = workflow(scenario_id).without_agents(drop_agents)
+        spec = workflow(scenario_id)
     except KeyError:
         raise KeyError(f"unknown scenario: {scenario_id}") from None
+    return run_spec(spec, scope, drop_agents, pause_on_gate=pause_on_gate)
+
+
+def run_spec(spec: WorkflowSpec, scope: str = DEFAULT_SCOPE, drop_agents: tuple[str, ...] = (),
+             *, pause_on_gate: bool = False) -> dict:
+    """Run a workflow given as a spec, as `run_scenario` does (also how a draft is dry-run)."""
+    spec = spec.without_agents(drop_agents)
     state = {"spec": spec.model_dump(), "pause_on_gate": pause_on_gate}
-    with tracing.span(f"invoke_workflow {scenario_id}", {
-        tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: scenario_id,
+    with tracing.span(f"invoke_workflow {spec.id}", {
+        tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: spec.id,
         tracing.SCOPE: scope, "ma_pmo.dropped_agents": list(drop_agents),
-    }), runs.track("scenario", scenario_id, scope, state=state) as run_id:
+    }), runs.track("scenario", spec.id, scope, state=state) as run_id:
         return finish_scenario(run_id, scope)
 
 

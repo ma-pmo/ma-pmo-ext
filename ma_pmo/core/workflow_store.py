@@ -129,7 +129,7 @@ def save_draft(data: dict[str, Any], author: str, note: str = "",
         except IntegrityError:  # someone saved the same version a moment ago
             raise Invalid([tr(
                 f"version {version} of '{spec.id}' was just saved: try again",
-                f"'{spec.id}' 버전 {version}이 방금 저장되었습니다. 다시 시도하세요")]) from None
+                f"'{spec.id}'의 v{version} 버전이 방금 저장되었습니다. 다시 시도하세요")]) from None
         return _row(row)
 
 
@@ -142,7 +142,7 @@ def publish(workflow_id: str, version: int, by: str) -> dict:
             raise KeyError(f"{workflow_id} v{version}")
         if row.status != DRAFT:
             raise Invalid([tr(f"version {version} is already {row.status}",
-                              f"버전 {version}은 이미 {row.status} 상태입니다")])
+                              f"v{version} 버전은 이미 {row.status} 상태입니다")])
         spec = dict(row.spec)
     _, found = problems(spec, workflow_id)  # the version in use may have changed since
     if found:
