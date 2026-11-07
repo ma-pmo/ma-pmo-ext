@@ -12,6 +12,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Allocation always started at 2026-W03 and could not cross a year. A portfolio can set `plan_start` (ISO week, also an optional `portfolio.csv` column); otherwise it starts from the current week. The sample portfolio keeps 2026-W03.
 
 ### Added
+- Workspaces in the schema (migration `0005_workspaces`): every row has a `workspace_id`, and portfolio, project, task, resource and knowledge ids are unique per workspace, with composite foreign keys so a row cannot point into another workspace. Existing data moves into the `default` workspace; nothing changes for a single workspace. Queries are not filtered by workspace yet.
 - `MA_PMO_DEFAULT_PORTFOLIO` names the portfolio used when a caller gives none; `GET /allocations` takes `scope`.
 
 ## [0.5.0] - 2026-11-07
@@ -128,6 +129,7 @@ First public release.
 - 수정: 한 포트폴리오를 배분하면 모든 포트폴리오의 계획이 지워지던 문제. 이제 A3는 자기 계획만 교체하고, 없는 범위는 아무것도 지우지 않습니다.
 - 수정: 두 포트폴리오가 공유하는 사람이 이중 배정될 수 있던 문제. 다른 포트폴리오에 잡힌 시간은 이제 바쁜 시간으로 계산합니다.
 - 수정: 배분이 항상 2026-W03에서 시작하고 연도를 넘지 못하던 문제. 포트폴리오에 `plan_start`(ISO 주차, `portfolio.csv`의 선택 열)를 지정할 수 있고, 없으면 이번 주부터 시작합니다. 샘플 포트폴리오는 2026-W03을 유지합니다.
+- 추가: 스키마에 워크스페이스(마이그레이션 `0005_workspaces`). 모든 행에 `workspace_id`가 있고, 포트폴리오·프로젝트·태스크·자원·지식 id는 워크스페이스 안에서만 고유합니다. 복합 외래 키로 다른 워크스페이스의 행을 가리킬 수 없습니다. 기존 데이터는 `default` 워크스페이스로 옮겨지며, 워크스페이스 하나만 쓰면 달라지는 것이 없습니다. 아직 조회를 워크스페이스로 거르지는 않습니다.
 - 추가: `MA_PMO_DEFAULT_PORTFOLIO`로 호출자가 지정하지 않을 때 쓸 포트폴리오를 정합니다. `GET /allocations`는 `scope`를 받습니다.
 
 ### [0.5.0] - 2026-11-07

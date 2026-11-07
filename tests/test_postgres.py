@@ -73,3 +73,21 @@ def test_concurrent_upgrades_take_turns():
     assert results == [migrate.head()] * 4
     with admin.connect() as conn:
         conn.execute(text(f'DROP DATABASE "{name}" WITH (FORCE)'))
+
+
+@needs_postgres
+def test_a_row_cannot_point_into_another_workspace():
+    from sqlalchemy.exc import IntegrityError
+
+    engine = create_engine(URL)
+    with engine.begin() as conn:
+        conn.execute(text("INSERT INTO workspace (id, name, created_at) "
+                          "VALUES ('fk-test', 'T', now())"))
+    try:
+        with pytest.raises(IntegrityError), engine.begin() as conn:
+            # PORTFOLIO#2026-Q1 exists, but only in `default`
+            conn.execute(text("INSERT INTO project (workspace_id, id, portfolio_id, skill, status) "
+                              "VALUES ('fk-test', 'X', 'PORTFOLIO#2026-Q1', 'x', 'green')"))
+    finally:
+        with engine.begin() as conn:
+            conn.execute(text("DELETE FROM workspace WHERE id = 'fk-test'"))
