@@ -27,5 +27,7 @@ def resolve_approval(approval_id: int, body: ApprovalDecision, principal: Curren
     approver = principal.subject if principal is not ANONYMOUS else (body.approver or "anonymous")
     try:
         return hitl.resolve(approval_id, approver=approver, decision=body.decision)
-    except (KeyError, ValueError) as e:
+    except KeyError as e:  # also an approval in another workspace
+        raise HTTPException(status_code=404, detail=str(e.args[0])) from e
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e

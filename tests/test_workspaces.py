@@ -5,6 +5,7 @@ import pytest
 from alembic import command
 from sqlalchemy import create_engine, delete, inspect, select, text
 
+from ma_pmo.core import workspace
 from ma_pmo.db import migrate
 from ma_pmo.db.models import (
     DEFAULT_WORKSPACE,
@@ -36,9 +37,10 @@ def second_workspace():
     with get_session() as s:
         s.merge(Workspace(id="b", name="B"))
     yield "b"
-    with get_session() as s:
+    with workspace.use("b"), get_session() as s:
         for model in (Task, Project, Resource, Portfolio):
-            s.execute(delete(model).where(model.workspace_id == "b"))
+            s.execute(delete(model))
+    with get_session() as s:
         s.execute(delete(Workspace).where(Workspace.id == "b"))
 
 
@@ -51,7 +53,8 @@ def test_the_same_ids_can_live_in_two_workspaces(second_workspace):
     with get_session() as s:
         names = s.execute(select(Portfolio.workspace_id, Portfolio.name)
                           .where(Portfolio.id == "PORTFOLIO#2026-Q1")
-                          .order_by(Portfolio.workspace_id)).all()
+                          .order_by(Portfolio.workspace_id),
+                          execution_options={workspace.ALL_WORKSPACES: True}).all()
     assert [w for w, _ in names] == ["b", DEFAULT_WORKSPACE]
     assert dict(names)["b"] == "B's"
 

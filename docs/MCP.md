@@ -63,7 +63,8 @@ Then ask, for example: *"Which projects are red, and what is on PROJ-31's critic
 
 The stdio server runs as the local user who starts it, with that user's database access; it
 does not pass through the HTTP API's authentication. Only add it to clients you trust with
-that data. Integrations still apply: a scenario run can notify Slack or a webhook if you
+that data. It works in the workspace named by `MA_PMO_WORKSPACE` (default `default`).
+Integrations still apply: a scenario run can notify Slack or a webhook if you
 enabled them.
 
 ## In code
