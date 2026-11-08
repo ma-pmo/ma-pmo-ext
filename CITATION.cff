@@ -18,3 +18,32 @@ keywords:
   - large language models
   - project management office
   - langgraph
+references:
+  - type: article
+    title: "ArcticSwarm: Deferring Early Consensus in Long-Horizon Multi-Agent Research"
+    year: 2026
+    url: "https://arxiv.org/abs/2609.01870"
+    identifiers:
+      - type: other
+        value: "arXiv:2609.01870"
+        description: "arXiv preprint arXiv:2609.01870 [cs.MA]"
+    notes: "MA-PMO's review of agent decisions (docs/REVIEW.md) implements ideas from this work."
+    authors:
+      - family-names: "Yoon"
+        given-names: "Soyoung"
+      - family-names: "Liu"
+        given-names: "Boyi"
+      - family-names: "Wang"
+        given-names: "Yite"
+      - family-names: "Wu"
+        given-names: "Ruofan"
+      - family-names: "Xu"
+        given-names: "Canwen"
+      - family-names: "Kuang"
+        given-names: "Nikki Lijing"
+      - family-names: "Hwang"
+        given-names: "Seung-won"
+      - family-names: "He"
+        given-names: "Yuxiong"
+      - family-names: "Yao"
+        given-names: "Zhewei"

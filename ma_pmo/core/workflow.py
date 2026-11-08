@@ -12,9 +12,10 @@ A step's `needs` lists the steps it waits for; left out, it follows the step bef
 `reads` says which earlier posts the step's agent may read (core/board.py): `isolated` (the
 default: none, only its own data), `upstream` (what the steps it waits for, directly or not,
 published) or `board` (what every step of an earlier stage published).
-`review: true` has each run of the workflow reviewed (`with_review`): the decision steps of A5
-and A6 read what they wait for and review their own output, and a dedicated reviewer (A8) runs
-last and reviews every decision on the board. See docs/REVIEW.md.
+Every run is reviewed unless the workflow says `"review": false` (`with_review`): the decision
+steps of A5 and A6 read what they wait for and review their own output, and a dedicated reviewer
+(A8) runs last and reviews every decision on the board. See docs/REVIEW.md; the evaluation that
+turned it on by default is docs/REVIEW-EVAL.md.
 """
 from __future__ import annotations
 
@@ -61,7 +62,7 @@ class WorkflowSpec(BaseModel):
     hypotheses: list[str] = Field(default_factory=list)
     steps: list[WorkflowStep]
     ablated: bool = False  # agents were removed for an experiment; may leave no steps
-    review: bool = False  # review every run: see with_review()
+    review: bool = True  # review every run (with_review); "review": false opts a workflow out
 
     @model_validator(mode="after")
     def _check_steps(self) -> WorkflowSpec:

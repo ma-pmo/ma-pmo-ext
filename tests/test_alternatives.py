@@ -5,6 +5,7 @@ import pytest
 
 from ma_pmo.agents import cross_checks
 from ma_pmo.core import commit
+from ma_pmo.core.config import get_settings
 from tests.spike import VARIANTS, portfolio, reviews, run_full, spec
 
 PLAIN = [
@@ -17,6 +18,12 @@ PLAIN = [
 OFFERED = {"gate.no_open_high_risk": {"conditional_on_mitigation"},
            "gate.staffed": {"add_capacity"},
            "gate.allocation_by_deadline": {"move_deadline", "add_capacity"}}
+
+
+@pytest.fixture(autouse=True)
+def alternatives_on(monkeypatch):
+    """Alternatives are opt-in (MA_PMO_REVIEW_ALTERNATIVES); these tests turn them on."""
+    monkeypatch.setattr(get_settings(), "review_alternatives", True)
 
 
 def _held(result: dict) -> dict:
@@ -64,6 +71,12 @@ def test_the_numbers_follow_the_plan(monkeypatch):
     unstaffed = _held(run_full(monkeypatch, portfolio("no_skill"), spec(PLAIN, review=True)))
     [add] = unstaffed["review"]["alternatives"]
     assert add["alternative"]["skill"] == "ml" and add["alternative"]["hours_per_week"] > 0
+
+
+def test_alternatives_are_off_by_default(monkeypatch):
+    monkeypatch.setattr(get_settings(), "review_alternatives", False)
+    item = _held(run_full(monkeypatch, portfolio("red_but_on_spi"), spec(PLAIN, review=True)))
+    assert item["review"]["alternatives"] == [] and item["review"]["missing"] == []
 
 
 def test_a_challenge_without_an_alternative_is_reported(monkeypatch):

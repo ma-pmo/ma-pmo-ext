@@ -81,7 +81,18 @@ def test_your_own_workflow_runs_like_a_scenario(tmp_path, restore):
                for s in scenarios.list_scenarios())
     trace = scenarios.run_scenario("mine")
     assert trace["status"] == "succeeded"
+    assert [p["agent"] for p in trace["phases"] if p["phase"] == "execute"] == ["A2", "A5", "A8"]
+    assert trace["commit"] is not None  # your own workflows are reviewed like built-in ones
+
+
+def test_a_workflow_can_opt_out_of_review(tmp_path, restore):
+    spec = {**_spec([{"id": "plan", "agent": "A2"}, {"id": "report", "agent": "A5"}]),
+            "review": False}
+    (tmp_path / "mine.json").write_text(json.dumps(spec), encoding="utf-8")
+    assert scenarios.reload_workflows(str(tmp_path)) == []
+    trace = scenarios.run_scenario("mine")
     assert [p["agent"] for p in trace["phases"] if p["phase"] == "execute"] == ["A2", "A5"]
+    assert trace["commit"] is None
 
 
 def test_bad_files_are_reported_and_skipped(tmp_path, restore):

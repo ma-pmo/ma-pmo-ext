@@ -41,7 +41,8 @@ def test_scenario_run_is_one_trace(spans):
     by_name = {s.name: s for s in finished}
     root = by_name["invoke_workflow quarterly_review"]
     agents = [s for s in finished if s.name.startswith("invoke_agent ")]
-    assert {s.name for s in agents} == {"invoke_agent A2", "invoke_agent A4", "invoke_agent A5"}
+    assert {s.name for s in agents} == {"invoke_agent A2", "invoke_agent A4", "invoke_agent A5",
+                                        "invoke_agent A8"}
     assert all(s.context.trace_id == root.context.trace_id for s in finished)
     assert all(s.parent is not None and s.parent.span_id == root.context.span_id for s in agents)
     a2 = by_name["invoke_agent A2"]

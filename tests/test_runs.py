@@ -24,7 +24,8 @@ def test_scenario_run_is_recorded_with_its_steps():
         "scenario", "quarterly_review", "succeeded")
     assert run["finished_at"] and run["error"] is None
     assert [(s["seq"], s["agent"], s["status"]) for s in run["steps"]] == [
-        (1, "A2", "succeeded"), (2, "A4", "succeeded"), (3, "A5", "succeeded")]
+        (1, "A2", "succeeded"), (2, "A4", "succeeded"), (3, "A5", "succeeded"),
+        (4, "A8", "succeeded")]  # every run is reviewed by default
     assert "schedule.v1" in run["steps"][0]["output_schemas"]
 
 

@@ -24,13 +24,13 @@ def test_a_paused_run_shows_the_waiting_step_and_what_has_not_started():
     assert body["id"] == GATED and "steps" not in body["run"]
     pending = len(runs.pending_approvals(run_id))
     assert _states(run_id) == [("A4", "succeeded", pending), ("A6", "not_started", 0),
-                               ("A5", "not_started", 0)]
+                               ("A5", "not_started", 0), ("A8", "not_started", 0)]  # reviewed
     assert pending > 0
 
     while runs.get_run(run_id)["status"] == runs.WAITING:
         for approval_id in runs.pending_approvals(run_id):
             hitl.resolve(approval_id, approver="pm", decision="approve")
-    assert [s for _, s, _ in _states(run_id)] == ["succeeded"] * 3
+    assert [s for _, s, _ in _states(run_id)] == ["succeeded"] * 4
     assert all(n == 0 for _, _, n in _states(run_id))
 
 

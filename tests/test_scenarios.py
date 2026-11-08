@@ -32,9 +32,10 @@ def test_scenario_runs_four_phases(sid):
     assert phases[-2] == "complete"
     assert phases[-1] == "insight"
     assert "execute" in phases
-    # number of execute phases = number of scenario steps
+    # number of execute phases = number of scenario steps, plus the reviewer A8 at the end
     n_exec = sum(1 for p in phases if p == "execute")
-    assert n_exec == len(SCENARIOS[sid]["steps"])
+    assert n_exec == len(SCENARIOS[sid]["steps"]) + 1
+    assert trace["phases"][n_exec]["agent"] == "A8"
 
 
 def test_insight_maps_to_hypotheses():

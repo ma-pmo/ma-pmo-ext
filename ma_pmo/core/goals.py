@@ -21,7 +21,9 @@ def workflow_for(goal: str, routing: dict) -> WorkflowSpec:
             steps.append(WorkflowStep(id=agent, agent=agent, needs=[],
                                       params={"task": delegation.get("task", "")}))
     text = Text(en=goal or "-", ko=goal or "-")
-    return WorkflowSpec(id="goal", title=text, goal=text, description=text, steps=steps)
+    # goals are not reviewed yet: their steps run side by side, with no decision to commit
+    return WorkflowSpec(id="goal", title=text, goal=text, description=text, steps=steps,
+                        review=False)
 
 
 def run_goal(goal: str, task_ref: str, *, thread_id: str | None = None,

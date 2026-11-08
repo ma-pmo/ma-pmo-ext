@@ -24,10 +24,11 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 
 ## Highlights
 
-- **Seven cooperating agents** — A1 orchestrator routes goals to A2 Planning (CPM), A3 Resources, A4 Risk, A5 Reporting, A6 Governance and A7 Knowledge (RAG with mandatory citations); in a reviewed workflow, A8 Auditor checks their decisions against each other ([docs/REVIEW.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/REVIEW.md)).
+- **Seven cooperating agents** — A1 orchestrator routes goals to A2 Planning (CPM), A3 Resources, A4 Risk, A5 Reporting, A6 Governance and A7 Knowledge (RAG with mandatory citations); A8 Auditor then checks their decisions against each other ([docs/REVIEW.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/REVIEW.md)).
 - **Runs offline** — with no API key, every agent falls back to deterministic logic, so the whole pipeline works end to end. Add an Anthropic key or a local **Ollama** model to switch on the LLM path.
 - **Structured, auditable communication** — Pydantic `.v1` message schemas instead of free-form chat, stored in an append-only log.
 - **Human-in-the-loop** — high-severity risks, failed gates and low-confidence messages wait in an approval queue.
+- **Decisions checked against each other** — a gate the risk agent contradicts, or a report that leaves out a risk, does not quietly go through: builder and dedicated reviews post per-constraint verdicts with evidence, and a commit gate sends challenged decisions to a person with both sides attached ([evaluation](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/REVIEW-EVAL.md)).
 - **Measurable** — five-axis KPIs (time, resource, delivery, risk, cost), 20 lifecycle scenarios and an experiment harness that exports paper-ready Markdown.
 - **Bilingual** — dashboard, API responses, reports and LLM output in English or Korean (`?lang=ko`, `Accept-Language`, or `MA_PMO_LANG`).
 - **Pluggable integrations** — Slack and webhook notifications; Jira Cloud, GitHub or Linear as the data source; .ics resource calendars; and a plugin entry point for your own.
@@ -299,6 +300,10 @@ Copyright © 2026 myeongjin.ji. See [NOTICE](https://github.com/ma-pmo/ma-pmo-ex
 - **General questions** — anything not suited to a public issue
 
 For bugs and feature requests, please use [GitHub Issues](https://github.com/ma-pmo/ma-pmo-ext/issues) so others can benefit. For security vulnerabilities, follow [SECURITY.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/SECURITY.md) and **do not** open a public issue.
+
+## Acknowledgements
+
+The review of agent decisions follows *ArcticSwarm: Deferring Early Consensus in Long-Horizon Multi-Agent Research* (Yoon, Liu, Wang, Wu, Xu, Kuang, Hwang, He and Yao, 2026, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870), CC BY 4.0), implemented independently for project management; no code from its repository is included. See [docs/REVIEW.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/REVIEW.md#acknowledgement).
 
 ## Citation
 

@@ -22,7 +22,7 @@ from pydantic import BaseModel
 
 from ma_pmo.agents import registry
 from ma_pmo.api.auth import CurrentPrincipal
-from ma_pmo.core import board, llm, runs, scenarios, workflow_store
+from ma_pmo.core import board, commit, llm, runs, scenarios, workflow_store
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.workflow import WorkflowSpec, builtin_ids
 
@@ -158,7 +158,8 @@ def run_workflow(run_id: str) -> dict:
     steps = [{**step, "run": states.get(seq, {"status": "not_started", "pending_approvals": 0})}
              for seq, step in enumerate(_steps(spec), start=1)]
     try:
-        same = scenarios.workflow(spec.id).model_dump() == spec.model_dump()
+        # compare like with like: a run saves the workflow as review extended it
+        same = scenarios.workflow(spec.id).with_review().model_dump() == spec.model_dump()
     except KeyError:  # an orchestrated goal, or a workflow file removed since
         same = False
     summary = {k: v for k, v in run.items() if k not in ("steps", "result")}
@@ -172,5 +173,5 @@ def run_board(run_id: str) -> dict:
     _run, spec = _saved_spec(run_id)
     steps = [{"id": s.id, "agent": s.agent, "reads": s.reads,
               "can_read": sorted(board.readable(spec, s.id) or [])} for s in spec.steps]
-    return {"run_id": run_id, "workflow": spec.id, "review": spec.review, "steps": steps,
+    return {"run_id": run_id, "workflow": spec.id, "review": commit.gated(spec), "steps": steps,
             "posts": board.posts(run_id, spec), "commit": runs.get_state(run_id).get("commit")}

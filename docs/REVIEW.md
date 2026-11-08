@@ -52,8 +52,8 @@ does not change. A5 checks itself before publishing: a missing risk is added to 
 then the verdict is posted. A constraint whose source step is not readable is not checked, and no
 verdict is posted for it: not checked is not the same as verified.
 
-Built-in workflows keep every step isolated for now, so nothing changes unless a workflow sets
-`reads`. Example:
+A step reads only what its workflow grants. Every reviewed workflow (the default, below) grants
+A5 and A6 their `upstream`; any step can be given a mode explicitly:
 
 ```json
 {"id": "A6", "agent": "A6", "needs": ["A3", "A4"], "reads": "upstream",
@@ -62,8 +62,9 @@ Built-in workflows keep every step isolated for now, so nothing changes unless a
 
 ## Dedicated review: A8 Auditor
 
-`"review": true` on a workflow has every run reviewed. When the run starts, the workflow is
-extended (`WorkflowSpec.with_review`, saved with the run, so its graph shows it):
+Every run is reviewed unless its workflow says `"review": false` (on by default since the
+[evaluation](REVIEW-EVAL.md)). When the run starts, the workflow is extended
+(`WorkflowSpec.with_review`, saved with the run, so its graph shows it):
 
 - isolated A5 and A6 steps read `upstream`, so they review their own decisions as above;
 - an **A8 Auditor** step waits for every last step and reads the whole `board`.
@@ -75,7 +76,7 @@ not wait for A3). It reads decisions and their sources only, never the builders'
 where the two differ both stay on the board. A1 never routes a goal to A8.
 
 ```json
-{"id": "risk_review", "review": true, "steps": [...]}
+{"id": "quick_status", "review": false, "steps": [...]}
 ```
 
 ## Commit gate
@@ -97,7 +98,9 @@ that was required anyway.
 
 ## Alternatives
 
-For every gate decision A8 challenges, it also posts what a person could decide instead
+Off by default (`MA_PMO_REVIEW_ALTERNATIVES=true` turns them on): the [evaluation](REVIEW-EVAL.md)
+found they change nothing about what commits. When on, for every gate decision A8 challenges, it
+also posts what a person could decide instead
 (`ALTERNATIVE` verdicts with an `alternative` describing it), worked out from the posts behind the
 challenge:
 
@@ -107,8 +110,8 @@ challenge:
 | `gate.staffed` | add N hours a week of the missing skill until the deadline | unstaffed hours, weeks to the deadline |
 | `gate.allocation_by_deadline` | move the deadline to the week A3's plan ends, or add N hours a week | the plan's late hours, weeks to the deadline |
 
-A challenged decision needs at least one alternative before it can be decided; without one, the
-held item lists `alternative` as missing. The approval item shows the alternatives next to the
+When they are on, a challenged decision needs at least one alternative before it can be decided;
+without one, the held item lists `alternative` as missing. The approval item shows the alternatives next to the
 challenges. They are offers for the person who decides, not decisions: nothing is changed by them.
 
 The outcome per decision is saved with the run (`commit` in its state and in the scenario result).
@@ -136,13 +139,22 @@ names and labels follow the reader's language.
   reading is granted per step, publishing is always allowed.
 - Checks are rules over posted data, not LLM judgements, so a verdict cannot claim support that
   is not on the board.
-- ArcticSwarm opens an alternative or contrarian search before any answer commits; MA-PMO offers
-  alternatives for challenged decisions only, worked out from the board without an LLM. An LLM
-  contrarian is left to the evaluation, which has to show it changes decisions for its cost.
+- ArcticSwarm opens an alternative or contrarian search before any answer commits; MA-PMO can
+  offer alternatives for challenged decisions, worked out from the board without an LLM, and
+  leaves them off by default because the evaluation found they change no commit. No LLM
+  contrarian is built: the same evaluation would have to show it changes decisions for its cost.
 - When the commit gate's conditions are not met, ArcticSwarm spawns the missing reviews and, at a
   deadline, lets the conditions become advisory. MA-PMO sends the decision to a person instead and
   reports what is missing, so a run stays the static, resumable workflow it started as and a
   high-stakes decision never commits by timeout.
 
-Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): an evaluation of
-each part.
+The evaluation of each part, and the decisions it led to, is in [REVIEW-EVAL.md](REVIEW-EVAL.md).
+
+## Acknowledgement
+
+The gated board, the builder and dedicated reviews with per-constraint verdicts, the commit gate
+and the alternatives follow *ArcticSwarm: Deferring Early Consensus in Long-Horizon Multi-Agent
+Research* by Soyoung Yoon, Boyi Liu, Yite Wang, Ruofan Wu, Canwen Xu, Nikki Lijing Kuang,
+Seung-won Hwang, Yuxiong He and Zhewei Yao (2026), [arXiv:2609.01870](https://arxiv.org/abs/2609.01870),
+licensed CC BY 4.0. MA-PMO implements these ideas independently for project management; it
+contains no code from the ArcticSwarm repository.

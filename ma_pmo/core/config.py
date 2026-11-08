@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     )
 
     # HITL / governance
+    # reviewed runs: A8 also offers alternatives for the decisions it challenges. Off by default:
+    # the evaluation found no change in what commits (docs/REVIEW-EVAL.md)
+    review_alternatives: bool = Field(default=False, alias="MA_PMO_REVIEW_ALTERNATIVES")
     hitl_confidence_threshold: float = Field(
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )

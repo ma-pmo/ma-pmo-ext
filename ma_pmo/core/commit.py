@@ -9,8 +9,9 @@ gate_review.v1 and report.v1) is checked:
   and allocation). A builder that could not read that agent posts no verdict for it; a builder
   that could and challenged it blocks the commit like any other challenge.
 
-A challenged decision also needs at least one ALTERNATIVE on the board, so the person deciding
-sees another course next to the challenge; without one, `alternative` is reported missing.
+With `MA_PMO_REVIEW_ALTERNATIVES` on, a challenged decision also needs at least one ALTERNATIVE
+on the board, so the person deciding sees another course next to the challenge; without one,
+`alternative` is reported missing.
 
 A decision that meets both is `committed`. Any other is `review_pending`: it goes to the approval
 queue, with the challenges, their evidence and what was not checked attached, so the person who
@@ -29,6 +30,7 @@ from typing import Any
 from sqlalchemy import select
 
 from ma_pmo.core import board, runs
+from ma_pmo.core.config import get_settings
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.workflow import AUDITOR, WorkflowSpec
 from ma_pmo.db.models import Approval
@@ -43,6 +45,15 @@ SOURCES = {"gate.no_open_high_risk": "A4", "gate.staffed": "A3",
 APPLIES_TO = {"gate_review.v1": ("gate.no_open_high_risk", "gate.staffed",
                                  "gate.allocation_by_deadline"),
               "report.v1": ("report.covers_risks",)}
+
+
+def gated(spec: WorkflowSpec) -> bool:
+    """Whether a run's saved workflow was reviewed: it says so and review added its A8 step.
+
+    A run saved before review was the default has no `review` and reads as reviewed, but it never
+    had a reviewer, so its decisions are left as they were rather than all held.
+    """
+    return spec.review and any(s.agent == AUDITOR for s in spec.steps)
 
 
 def check(run_id: str, spec: WorkflowSpec) -> list[dict[str, Any]]:
@@ -64,7 +75,7 @@ def check(run_id: str, spec: WorkflowSpec) -> list[dict[str, Any]]:
         offered = [r for r in mine if r["data"]["verdict"] == "ALTERNATIVE"]
         judged = verified | {r["data"]["constraint"] for r in challenges}
         missing = [c for c in applies if c not in judged] if audited else ["review.dedicated"]
-        if challenges and not offered:
+        if challenges and not offered and get_settings().review_alternatives:
             missing.append("alternative")
         status = COMMITTED if not challenges and not missing else REVIEW_PENDING
         outcome.append({
