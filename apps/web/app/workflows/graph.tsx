@@ -11,6 +11,7 @@ export type Step = {
   id: string; agent: string; agent_name: string; params: Record<string, unknown>;
   needs: string[]; required: boolean; level: number; run?: StepRun;
   model_tier?: "standard" | "fast";
+  reads?: "isolated" | "upstream" | "board";
 };
 export type RunSummary = {
   run_id: string; kind: string; workflow: string; scope: string; status: string; started_at: string;

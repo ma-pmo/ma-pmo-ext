@@ -74,6 +74,29 @@ A step follows the one before it unless it lists `needs`, and takes optional `pa
 read at startup. An invalid file, an unknown agent or an id already in use is reported under
 `workflow_problems` in `GET /agents`, and the file is skipped.
 
+### What a step may read
+
+A step's agent works from its own data and does not see what other steps published, unless the
+workflow allows it with `reads`:
+
+| `reads` | The step sees |
+|---|---|
+| `isolated` (default) | nothing from other steps; its state has no `board` |
+| `upstream` | the posts of every step it waits for, directly or through others |
+| `board` | the posts of every step in an earlier stage |
+
+```json
+{"id": "report", "agent": "A5", "needs": ["risk"], "reads": "upstream"}
+```
+
+The agent reads them with `ma_pmo.sdk.board_posts(state, schema=None)`. Each post carries the
+`message_id`, `step`, `agent`, `schema`, `data`, `confidence` and `evidence` of a published
+message. When an output rests on posts or data, say so with
+`publish(..., evidence=[EvidenceRef(kind="message", ref=post["message_id"])])`; the other kinds
+are `tracker` (with `field`) and `knowledge`. `GET /runs/{id}/board` shows every post of a run
+and what each step could read. The modes follow the gated bulletin board of ArcticSwarm (Yoon et
+al., 2026, arXiv:2609.01870): publishing is always allowed, reading is granted per step.
+
 To check the result, open **Workflows** in the dashboard: each workflow is drawn as stages that
 can run in parallel, with the same steps as a table and required steps (such as gates) marked.
 `GET /workflows` and `GET /workflows/{id}` return the same, including each step's resolved

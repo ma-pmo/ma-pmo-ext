@@ -8,6 +8,9 @@ several prerequisites waits for all of them.
 step already finished is skipped, and its saved outputs are read back in workflow order. With
 `pause_on_gate`, once a step has queued an approval the steps after it do nothing, and the run
 is left `waiting_approval`; steps already running in parallel finish first.
+
+A step reads only what its `reads` mode allows (core/board.py): an isolated step gets no `board`
+in its state at all, the others get the posts of steps that finished before it could start.
 """
 from __future__ import annotations
 
@@ -21,7 +24,7 @@ from langgraph.graph import END, START, StateGraph
 from ma_pmo.agents import registry
 from ma_pmo.agents.orchestrator_rules import _headline
 from ma_pmo.agents.registry import WORKERS
-from ma_pmo.core import llm, runs, tracing
+from ma_pmo.core import board, llm, runs, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -57,9 +60,13 @@ def _phase(agent_id: str, elapsed_ms: float, outputs: list[dict]) -> dict:
     }
 
 
-def _run_step(step: WorkflowStep, seq: int, workflow: str, scope: str, goal: str) -> None:
-    agent_id = step.agent
+def _run_step(spec: WorkflowSpec, step: WorkflowStep, seq: int, run_id: str, scope: str,
+              goal: str) -> None:
+    agent_id, workflow = step.agent, spec.id
     state = cast(PortfolioState, {"task_ref": scope, "goal": goal, **step.params})
+    posts = board.view(run_id, spec, step.id)
+    if posts is not None:  # isolated steps get no board at all
+        state["board"] = posts
     _log.info("execute_start", agent=agent_id, function=registry.title(agent_id))
     started = time.perf_counter()
     with tracing.span(f"invoke_agent {agent_id}", {
@@ -81,7 +88,7 @@ def _compile(spec: WorkflowSpec, run_id: str, scope: str, goal: str, finished: s
         def run(_state: _GraphState) -> dict:
             waiting = pause_on_gate and bool(runs.pending_approvals(run_id))
             if seq not in finished and not waiting:
-                _run_step(step, seq, spec.id, scope, goal)
+                _run_step(spec, step, seq, run_id, scope, goal)
             return {"visited": [step.id]}
 
         return run

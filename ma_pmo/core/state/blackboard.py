@@ -28,5 +28,9 @@ class PortfolioState(TypedDict, total=False):
     # final synthesis (A1)
     synthesis: dict[str, Any]
 
+    # posts of earlier steps this step may read (WorkflowStep.reads, core/board.py); absent when
+    # the step is isolated
+    board: list[dict[str, Any]]
+
     # HITL: message_ids awaiting approval
     pending_approvals: Annotated[list[str], operator.add]

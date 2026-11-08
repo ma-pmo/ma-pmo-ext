@@ -9,6 +9,9 @@ A step's `needs` lists the steps it waits for; left out, it follows the step bef
 `required` marks a step that must stay in the workflow, such as a governance gate.
 `model_tier` picks the LLM for the step's agent: `standard` (`LLM_MODEL`, the default) or `fast`
 (`LLM_MODEL_FAST`), see core/llm.py.
+`reads` says which earlier posts the step's agent may read (core/board.py): `isolated` (the
+default: none, only its own data), `upstream` (what the steps it waits for, directly or not,
+published) or `board` (what every step of an earlier stage published).
 """
 from __future__ import annotations
 
@@ -40,6 +43,7 @@ class WorkflowStep(BaseModel):
     needs: list[str] | None = None
     required: bool = False
     model_tier: Literal["standard", "fast"] | None = None  # None: standard
+    reads: Literal["isolated", "upstream", "board"] = "isolated"
 
 
 class WorkflowSpec(BaseModel):
@@ -89,6 +93,17 @@ class WorkflowSpec(BaseModel):
             deps[step.id] = step.needs if step.needs is not None else default
             previous = step.id
         return deps
+
+    def upstream(self, step_id: str) -> set[str]:
+        """Every step `step_id` waits for, directly or through others."""
+        deps, found = self.dependencies(), set()
+        todo = list(deps[step_id])
+        while todo:
+            step = todo.pop()
+            if step not in found:
+                found.add(step)
+                todo += deps[step]
+        return found
 
     def levels(self) -> dict[str, int]:
         """How many steps must finish before each one can start, along the longest chain.

@@ -50,6 +50,7 @@ def publish(message: AgentMessage) -> AgentMessage:
                 payload=message.payload.model_dump(by_alias=True),
                 confidence=message.confidence,
                 human_gate_required=message.human_gate_required,
+                evidence=[e.model_dump(exclude_none=True) for e in message.evidence],
                 timestamp=message.timestamp,
                 run_id=current_run_id(),
                 dedupe_key=key,
