@@ -8,6 +8,7 @@ Examples:
     ma-pmo agents                           # worker agents, including installed plugins
     ma-pmo eval                             # run the H1–H5 evaluation on the demo data
     ma-pmo eval --retrieval                 # A7 retrieval quality: lexical vs. vector search
+    ma-pmo eval --review                    # what each part of the review stack adds (ablation)
     ma-pmo template data ./my-org           # write the evaluation data template
     ma-pmo template validate ./my-org       # check the filled-in data
     ma-pmo eval --data ./my-org             # evaluate H1–H5 on your own data
@@ -376,6 +377,8 @@ def main(argv: list[str] | None = None) -> int:
     ev.add_argument("--data", help="folder made with `ma-pmo template data` (default: demo data)")
     ev.add_argument("--retrieval", action="store_true",
                     help="A7 retrieval quality (recall@k, MRR): lexical vs. vector search")
+    ev.add_argument("--review", action="store_true",
+                    help="review ablation on labelled conflict cases, and the demo workload")
 
     tpl = sub.add_parser("template", help="evaluation templates: data | validate | report")
     tsub = tpl.add_subparsers(dest="kind", required=True)
@@ -430,6 +433,11 @@ def main(argv: list[str] | None = None) -> int:
         uvicorn.run("ma_pmo.api.main:app", host=ns.host, port=ns.port, reload=ns.reload)
     elif ns.command == "eval" and ns.retrieval:
         return _cmd_retrieval()
+    elif ns.command == "eval" and ns.review:
+        from ma_pmo.eval import review
+
+        print(review.to_markdown(review.evaluate(), review.demo_workload()))
+        return 0
     elif ns.command == "eval":
         if ns.data:
             from ma_pmo.eval.workflow import use_isolated_db

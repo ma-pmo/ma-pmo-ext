@@ -8,8 +8,8 @@ review.v1 verdict with `role: dedicated` on every decision it can check:
   from the tracker;
 - each report.v1: whether it covers the risks A4 raised;
 - for each gate decision it challenges, the alternatives a person could take instead
-  (`ALTERNATIVE` verdicts, see `cross_checks.alternatives`): at least one alternative for every
-  challenged decision, as ArcticSwarm requires before a commit.
+  (`ALTERNATIVE` verdicts, see `cross_checks.alternatives`), when `MA_PMO_REVIEW_ALTERNATIVES`
+  is on.
 
 It uses the same rules as the builders but comes to them without having made the decision, and
 it reads only decisions and their sources, never the builders' verdicts, so the two reviews stay
@@ -22,6 +22,7 @@ from __future__ import annotations
 from ma_pmo.agents import cross_checks
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.base import IssueTrackerConnector
+from ma_pmo.core.config import get_settings
 from ma_pmo.core.schemas.payloads.review_v1 import ReviewV1
 from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -52,8 +53,9 @@ class AuditorAgent(BaseAgent[ReviewV1]):
             if post["schema"] == "gate_review.v1":
                 project = projects.get(post["data"].get("project_id"))
                 verdicts = cross_checks.gate_checks(project, board, steps) if project else []
-                verdicts += [alt for v in verdicts if v.verdict == "CHALLENGE"
-                             for alt in cross_checks.alternatives(v, project or {}, board, steps)]
+                if get_settings().review_alternatives:
+                    verdicts += [alt for v in verdicts if v.verdict == "CHALLENGE" for alt in
+                                 cross_checks.alternatives(v, project or {}, board, steps)]
             elif post["schema"] == "report.v1":
                 check = cross_checks.covers_risks(post["data"].get("key_risks", []), board, steps)
                 verdicts = [check] if check else []

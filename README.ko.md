@@ -24,10 +24,11 @@
 
 ## 주요 특징
 
-- **7개 협업 에이전트** — A1 오케스트레이터가 목표를 A2 계획(CPM), A3 자원, A4 리스크, A5 보고, A6 거버넌스, A7 지식(출처 인용을 강제하는 RAG)에 위임합니다. 검토를 켠 워크플로에서는 A8 감사가 이들의 결정을 서로 대조합니다([docs/REVIEW.ko.md](docs/REVIEW.ko.md)).
+- **7개 협업 에이전트** — A1 오케스트레이터가 목표를 A2 계획(CPM), A3 자원, A4 리스크, A5 보고, A6 거버넌스, A7 지식(출처 인용을 강제하는 RAG)에 위임합니다. 그다음 A8 감사가 이들의 결정을 서로 대조합니다([docs/REVIEW.ko.md](docs/REVIEW.ko.md)).
 - **오프라인 동작** — API 키가 없어도 모든 에이전트가 결정론적 로직으로 폴백해 전체 파이프라인이 end-to-end로 동작합니다. Anthropic 키나 로컬 **Ollama** 모델을 연결하면 LLM 경로로 자동 승급합니다.
 - **구조화·감사 가능한 통신** — 자유형 대화 대신 Pydantic `.v1` 메시지 스키마를 쓰고, append-only 로그로 저장합니다.
 - **Human-in-the-loop** — 고심각도 리스크, 게이트 실패, 저신뢰 메시지는 승인 큐에서 대기합니다.
+- **결정끼리 서로 대조** — 리스크 에이전트와 어긋나는 게이트 통과나 리스크를 빠뜨린 보고서가 조용히 넘어가지 않습니다. builder·전담 검토가 근거와 함께 제약별 판정을 남기고, 확정 게이트가 이의가 있는 결정을 양쪽 근거와 함께 사람에게 보냅니다([평가](docs/REVIEW-EVAL.ko.md)).
 - **측정 가능** — 5축 KPI(시간·자원·전달·리스크·비용), 20개 생애주기 시나리오, 논문용 Markdown을 내보내는 실험 하네스를 제공합니다.
 - **영어/한국어 지원** — 대시보드, API 응답, 보고서, LLM 출력을 영어 또는 한국어로 제공합니다(`?lang=ko`, `Accept-Language`, `MA_PMO_LANG`).
 - **플러그인 연동** — Slack·웹훅 알림, Jira Cloud·GitHub·Linear 데이터 연결, .ics 자원 캘린더, 직접 만든 연동을 꽂는 플러그인 구조를 지원합니다.
@@ -301,6 +302,10 @@ Copyright © 2026 myeongjin.ji. [NOTICE](NOTICE) 참고.
 - **기타 문의** — 공개 이슈로 다루기 어려운 모든 질문
 
 버그·기능 제안은 다른 사용자도 볼 수 있도록 [GitHub Issues](https://github.com/ma-pmo/ma-pmo-ext/issues)에 남겨주세요. 보안 취약점은 공개 이슈 대신 [SECURITY.md](SECURITY.md) 절차를 따라 비공개로 신고해주세요.
+
+## 참고 연구
+
+에이전트 결정 검토는 *ArcticSwarm: Deferring Early Consensus in Long-Horizon Multi-Agent Research*(Yoon, Liu, Wang, Wu, Xu, Kuang, Hwang, He, Yao, 2026, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870), CC BY 4.0)를 따르며, 프로젝트 관리에 맞게 독립적으로 구현했습니다. 이 논문 저장소의 코드는 포함하지 않습니다. [docs/REVIEW.ko.md](docs/REVIEW.ko.md#참고-연구)를 참고하세요.
 
 ## 인용
 

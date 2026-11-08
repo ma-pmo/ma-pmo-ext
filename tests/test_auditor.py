@@ -99,4 +99,4 @@ def test_a_reviewed_scenario_runs_end_to_end_on_the_demo_data():
     graph = client.get(f"/runs/{trace['run_id']}/workflow").json()
     assert graph["steps"][-1]["agent"] == "A8"
     assert graph["steps"][-1]["run"]["status"] == "succeeded" and graph["review"] is True
-    assert client.get("/workflows/risk_escalation").json()["review"] is False
+    assert client.get("/workflows/risk_escalation").json()["review"] is True  # the default

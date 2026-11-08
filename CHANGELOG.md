@@ -13,8 +13,14 @@ All notable changes to this project are documented here. The format follows [Kee
 - Commit gate ([docs/REVIEW.md](docs/REVIEW.md#commit-gate), migration `0013_approval_reason`): at the end of a reviewed run each gate review and report commits only if no reviewer challenges it and A8 verified every constraint that applies; otherwise it goes to the approval queue as `review_pending`, and `GET /approvals` shows the challenges with rationale and evidence and what nobody could check. A decision already queued keeps one approval. The outcome is saved with the run (`commit`). All nine gate conflicts of the 0.6.0 spike now reach a person; its controls ask nobody.
 - Alternatives ([docs/REVIEW.md](docs/REVIEW.md#alternatives)): for every gate decision it challenges, A8 posts what a person could decide instead, worked out from the board without an LLM: pass on condition of A4's mitigation, add hours a week of a missing skill, or move the deadline to when A3's plan ends. A challenged decision needs at least one (`alternative` is reported missing otherwise), and the approval item shows them next to the challenges.
 - Review in the dashboard ([docs/REVIEW.md](docs/REVIEW.md#in-the-dashboard)): held approvals show **Review pending** with the challenges, the posts they cite, the alternatives and what was not checked; the workflow page has a **Reads** column and, for a finished run, a **Board** card with each step's read mode, posts and verdicts and every decision committed or held; the editor sets **Reads** per step and **Review every run**. `GET /runs/{id}/board` adds `review` and `commit`; evidence in approval items names the agent and schema of each cited post.
+- Review evaluation ([docs/REVIEW-EVAL.md](docs/REVIEW-EVAL.md), `ma-pmo eval --review`): 35 labelled cases (23 conflicts, 12 controls) under cumulative conditions after ArcticSwarm's Table 3, and the workload on the 20 demo scenarios. With the commit gate every gate conflict reaches a person with both sides attached, no control is held, and no LLM call is added; on the demo data review queues nothing new. Attribution of ArcticSwarm (arXiv:2609.01870, CC BY 4.0) in NOTICE, README, CITATION.cff `references` and docs/REVIEW.md.
+
+### Changed
+- **Every run is reviewed by default** (pre-registered criteria met, see the evaluation): `WorkflowSpec.review` defaults to true, so A5 and A6 read their upstream, an A8 step runs last and the commit gate decides what commits. `"review": false` opts a workflow out. Golden traces gain the A8 step and its review messages; nothing else in them changes.
+- Alternatives are off by default (`MA_PMO_REVIEW_ALTERNATIVES=true` turns them on): the evaluation found they change nothing about what commits.
 
 ### Fixed
+- A run's graph was marked as an earlier version of its workflow whenever review had extended it; runs are now compared with the reviewed form of the current workflow.
 - The audit-log times on the approvals and scenario pages were the UTC clock time; they are now local time in the UI language.
 - The commit gate listed challenged constraints among those `missing` (nobody could check); it now lists only unchecked ones.
 - A retried step that had already published a message got a new, unstored `message_id` back from `publish`; it now gets the stored one.
@@ -168,6 +174,10 @@ First public release.
 - 추가: 대안([docs/REVIEW.ko.md](docs/REVIEW.ko.md#대안)). A8이 이의를 제기한 게이트 결정마다 사람이 대신 택할 수 있는 결정을 LLM 없이 게시판에서 계산해 게시합니다. A4 완화 조치를 조건으로 통과, 부족한 스킬 주당 시간 추가, 마감을 A3 계획이 끝나는 주로 조정 등입니다. 이의가 있는 결정은 대안이 하나 이상 필요하며(없으면 `alternative`가 빠진 것으로 표시), 승인 항목에 이의와 함께 보입니다.
 - 수정: 확정 게이트가 이의가 제기된 제약까지 `missing`(아무도 확인하지 못함)에 넣던 문제. 이제 확인되지 않은 것만 넣습니다.
 - 추가: 대시보드의 검토 화면([docs/REVIEW.ko.md](docs/REVIEW.ko.md#대시보드에서)). 보류된 승인에 **검토 대기**와 함께 이의, 인용한 게시물, 대안, 확인되지 않은 항목이 나옵니다. 워크플로 화면에 **읽기** 열과, 끝난 실행의 **게시판** 카드(단계별 읽기 범위, 게시물과 판정, 확정·보류된 결정)가 생기고, 편집기에서 단계별 **읽기**와 **모든 실행 검토**를 정합니다. `GET /runs/{id}/board`에 `review`와 `commit`이 추가되고, 승인 항목의 근거에 인용한 게시물의 에이전트와 스키마가 나옵니다.
+- 추가: 검토 평가([docs/REVIEW-EVAL.ko.md](docs/REVIEW-EVAL.ko.md), `ma-pmo eval --review`). 라벨이 붙은 사례 35개(충돌 23, 대조군 12)를 ArcticSwarm 표 3처럼 누적 조건에서 실행하고, 데모 시나리오 20개의 업무량을 잽니다. 확정 게이트가 있으면 게이트 충돌이 모두 양쪽 근거와 함께 사람에게 전달되고, 대조군은 보류되지 않으며, LLM 호출은 늘지 않습니다. 데모 데이터에서 검토는 새로 승인을 요청하지 않습니다. ArcticSwarm(arXiv:2609.01870, CC BY 4.0) 출처를 NOTICE, README, CITATION.cff `references`, docs/REVIEW.ko.md에 표기했습니다.
+- 변경: **모든 실행을 기본으로 검토합니다**(미리 정한 기준 충족, 평가 참고). `WorkflowSpec.review` 기본값이 true가 되어 A5·A6가 앞 단계를 읽고, 마지막에 A8 단계가 돌며, 확정 게이트가 확정 여부를 정합니다. `"review": false`로 끌 수 있습니다. 골든 트레이스에는 A8 단계와 검토 메시지가 추가되며, 그 밖에는 바뀌지 않습니다.
+- 변경: 대안은 기본으로 끕니다(`MA_PMO_REVIEW_ALTERNATIVES=true`로 켬). 평가에서 확정 결과를 바꾸지 않는 것으로 나왔습니다.
+- 수정: 검토로 확장된 실행의 그래프가 항상 이전 버전으로 표시되던 문제. 이제 현재 워크플로의 검토 형태와 비교합니다.
 - 수정: 승인 큐와 시나리오 화면의 감사 로그 시각이 UTC 시계 시각이던 문제. 이제 UI 언어 형식의 현지 시각입니다.
 - 수정: 이미 메시지를 게시한 단계를 재시도하면 `publish`가 저장되지 않은 새 `message_id`를 돌려주던 문제. 이제 저장된 id를 돌려줍니다.
 

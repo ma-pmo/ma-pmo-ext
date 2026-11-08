@@ -307,7 +307,7 @@ def finish_scenario(run_id: str, scope: str) -> dict:
         return {**trace(runs.WAITING), "pending_approvals": runs.pending_approvals(run_id)}
 
     # a reviewed run commits only the decisions its reviews hold up; the rest go to a person
-    committed = commit.check(run_id, spec) if spec.review else None
+    committed = commit.check(run_id, spec) if commit.gated(spec) else None
 
     # ③ complete (A1 synthesis)
     phases.append(

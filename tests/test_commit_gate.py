@@ -111,7 +111,8 @@ def test_a_constraint_nobody_could_check_holds_the_decision(monkeypatch):
 
 
 def test_an_unreviewed_run_is_not_gated():
-    trace = scenarios.run_scenario("risk_escalation")
+    flow = scenarios.loaded("risk_escalation").model_copy(update={"review": False})
+    trace = scenarios.run_spec(flow)
     assert trace["commit"] is None
     with get_session() as s:
         assert s.scalar(select(func.count()).select_from(Approval).where(
@@ -136,3 +137,24 @@ def test_a_reviewed_scenario_on_the_demo_data():
     done = hitl.resolve(held["approval_id"], approver="pm", decision="approve")
     assert done["decision"] == "approve" and runs.get_run(trace["run_id"])["status"] == \
         "succeeded"
+
+
+def test_a_run_saved_before_review_was_the_default_is_left_alone():
+    """Its saved workflow has no `review` (reads as true) and no A8: nothing is held on resume."""
+    flow = scenarios.loaded("risk_escalation").model_copy(update={"review": False})
+    trace = scenarios.run_spec(flow)
+    saved = runs.get_state(trace["run_id"])["spec"]
+    saved.pop("review")  # as 0.6.0 saved it
+    assert not commit.gated(scenarios.WorkflowSpec.model_validate(saved))
+    runs.update_state(trace["run_id"], spec=saved)
+    again = scenarios.finish_scenario(trace["run_id"], trace["scope"])
+    assert again["commit"] is None
+    assert client.get(f"/runs/{trace['run_id']}/board").json()["review"] is False
+
+
+def test_goals_are_not_reviewed():
+    from ma_pmo.core.goals import run_goal
+
+    final = run_goal("risk review and report", "PORTFOLIO#2026-Q1")
+    saved = runs.get_state(final["run_id"])["spec"]
+    assert saved["review"] is False and "A8" not in [s["agent"] for s in saved["steps"]]

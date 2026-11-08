@@ -55,7 +55,8 @@ def test_run_waits_at_a_gate_and_approval_finishes_it():
     assert _approve_all(run_id) == "succeeded"
     run = runs.get_run(run_id)
     assert run["status"] == "succeeded" and run["finished_at"]
-    assert [(s["agent"], s["attempts"]) for s in run["steps"]] == [("A4", 1), ("A6", 1), ("A5", 1)]
+    assert [(s["agent"], s["attempts"]) for s in run["steps"]] == [
+        ("A4", 1), ("A6", 1), ("A5", 1), ("A8", 1)]
     assert [p["phase"] for p in run["result"]["phases"]][-2:] == ["complete", "insight"]
     assert run["result"]["phases"][1]["agent"] == "A4"  # the first step's saved work is kept
 
@@ -180,5 +181,6 @@ def test_killed_process_resumes_without_duplicates():
     trace = resume_run(run_id)
     run = runs.get_run(run_id)
     assert trace["status"] == run["status"] == "succeeded"
-    assert [(s["agent"], s["attempts"]) for s in run["steps"]] == [("A2", 1), ("A4", 2), ("A5", 1)]
+    assert [(s["agent"], s["attempts"]) for s in run["steps"]] == [
+        ("A2", 1), ("A4", 2), ("A5", 1), ("A8", 1)]
     assert _rows(run_id) == _rows(clean["run_id"])  # same rows as a run that never crashed
