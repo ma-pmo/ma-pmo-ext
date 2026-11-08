@@ -35,4 +35,6 @@ def test_over_limit_goes_to_a_person(monkeypatch):
 def test_runs_in_a_workflow_file():
     assert scenarios.reload_workflows(str(Path(__file__).parent / "workflows")) == []
     trace = scenarios.run_scenario("budget_review")
-    assert [p["agent"] for p in trace["phases"] if p["phase"] == "execute"] == ["acme.budget", "A5"]
+    # workflows are reviewed by default, so the auditor A8 runs last (docs/REVIEW.md)
+    assert [p["agent"] for p in trace["phases"] if p["phase"] == "execute"] == [
+        "acme.budget", "A5", "A8"]
