@@ -15,7 +15,7 @@ from sqlalchemy import select
 
 from ma_pmo.agents import registry
 from ma_pmo.agents.orchestrator_rules import deterministic_synthesis
-from ma_pmo.core import executor, runs, tracing
+from ma_pmo.core import commit, executor, runs, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.scope import DEFAULT_SCOPE
@@ -306,6 +306,9 @@ def finish_scenario(run_id: str, scope: str) -> dict:
     if outcome.paused:
         return {**trace(runs.WAITING), "pending_approvals": runs.pending_approvals(run_id)}
 
+    # a reviewed run commits only the decisions its reviews hold up; the rest go to a person
+    committed = commit.check(run_id, spec) if spec.review else None
+
     # ③ complete (A1 synthesis)
     phases.append(
         {
@@ -330,7 +333,7 @@ def finish_scenario(run_id: str, scope: str) -> dict:
         }
     )
 
-    final = trace(runs.SUCCEEDED)
+    final = {**trace(runs.SUCCEEDED), "commit": committed}
     _log.info("scenario_done", scenario=spec.id, messages=len(final["communications"]))
     runs.save_result(run_id, final)
     return final

@@ -23,7 +23,11 @@ _log = get_logger("hitl")
 
 
 def list_pending() -> list[dict]:
-    """Pending approval items + a summary of the original message."""
+    """Pending approval items + a summary of the original message.
+
+    An item a commit gate held (`review`) carries the challenges behind it, with their rationale
+    and evidence, and the constraints nobody could check.
+    """
     with get_session() as s:
         rows = s.execute(
             select(Approval, AgentMessageRow)
@@ -40,9 +44,21 @@ def list_pending() -> list[dict]:
                 "confidence": m.confidence,
                 "payload": m.payload,
                 "requested_at": m.timestamp.isoformat(),
+                "review": _review(a),
             }
             for a, m in rows
         ]
+
+
+def _review(approval: Approval) -> dict | None:
+    from ma_pmo.core.commit import held_detail
+    from ma_pmo.core.workflow import WorkflowSpec
+
+    if not approval.reason:
+        return None
+    saved = runs.get_state(approval.run_id).get("spec") if approval.run_id else None
+    return held_detail(approval.reason, approval.run_id,
+                       WorkflowSpec.model_validate(saved) if saved else None)
 
 
 def resolve(approval_id: int, *, approver: str, decision: str) -> dict:
