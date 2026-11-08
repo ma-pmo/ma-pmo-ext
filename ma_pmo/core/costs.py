@@ -134,7 +134,7 @@ def record(model: str, agent: str, usage: Usage, latency_ms: float) -> float | N
 
 GROUPS = {"model": LlmCall.model, "agent": LlmCall.agent, "run": LlmCall.run_id,
           "workflow": Run.workflow, "day": func.date(LlmCall.created_at),
-          "step": LlmCall.step_seq}
+          "step": LlmCall.step_seq, "purpose": func.coalesce(LlmCall.purpose, "run")}
 
 
 def summary(by: str = "model", *, run_id: str | None = None, days: int | None = None) -> dict:

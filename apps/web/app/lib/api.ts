@@ -66,6 +66,11 @@ export const api = {
   agents: () => req(`/agents`),
   costs: (by: string, days?: number) => req(`/costs?by=${by}${days ? `&days=${days}` : ""}`),
   budgets: () => req(`/budgets`),
+  recommendations: () => req(`/recommendations`),
+  replay: (workflow_id: string, step_id: string, repeat: number) =>
+    req(`/recommendations/replay`, json({ workflow_id, step_id, repeat })),
+  decide: (id: number, action: "approve" | "reject") =>
+    req(`/recommendations/${id}/${action}`, { method: "POST" }),
   setBudget: (kind: string, warn_usd: number | null, limit_usd: number | null) =>
     req(`/budgets/${kind}`, { method: "PUT", headers: { "content-type": "application/json" },
       body: JSON.stringify({ warn_usd, limit_usd }) }),

@@ -251,6 +251,24 @@ const en = {
     spentOf: (s: string, l: string) => `${s} of ${l}`, noLimit: "No hard limit",
     save: "Save budgets", saving: "Saving…", saved: "Budgets saved.",
     fellBack: "Runs that used fallbacks because of a budget",
+    recs: "Model recommendations",
+    recsDesc: "Replay a step on the fast model against the demo data, then compare cost and quality with 95% confidence intervals. Nothing changes until an approver approves, which makes a draft to publish.",
+    recsCost: "A replay runs the workflow 2 × N times and spends real money when an LLM is configured (budgets apply).",
+    workflow: "Workflow", step: "Step", repeat: "Runs per side", replay: "Replay", replaying: "Replaying…",
+    verdict: { recommended: "Recommended", not_recommended: "Not recommended", inconclusive: "Inconclusive" } as Record<string, string>,
+    status: { proposed: "Waiting for a decision", approved: "Approved", rejected: "Rejected" } as Record<string, string>,
+    metric: { cost: "Step cost (USD per run)", valid_output: "Valid output", risk_accuracy: "Risk accuracy" } as Record<string, string>,
+    baseline: "Now", candidate: "Fast", delta: "Change", ci: "95% interval",
+    approve: "Approve → draft", reject: "Reject",
+    draftMade: (v: number) => `Draft v${v} made: publish it on the workflow page.`,
+    noRecs: "No replay yet.",
+    cheaper: (p: number) => `${p}% cheaper`,
+    reason: (code: string, metric: string, tol: number) =>
+      code === "no_output" ? "No LLM output to compare: the step made no LLM call, or every call fell back (is an API key set?)."
+        : code === "quality_drop" ? `${metric} may drop by more than ${tol}%.`
+          : code === "no_saving" ? "No saving that the data can show."
+            : `Quality holds within ${tol}% and the step costs less.`,
+    stoppedByBudget: "A budget stopped some LLM calls during the replay.",
     fellBackRow: (kind: string, agent: string, step: number | null) =>
       `${kind === "month" ? "monthly" : "per-run"} limit reached at ${agent}${step ? ` (step ${step})` : ""}`,
   },
@@ -561,6 +579,24 @@ const ko: Messages = {
     spentOf: (s: string, l: string) => `${l} 중 ${s} 사용`, noLimit: "한도 없음",
     save: "예산 저장", saving: "저장 중…", saved: "예산을 저장했습니다.",
     fellBack: "예산 때문에 대체 방식으로 실행된 실행",
+    recs: "모델 추천",
+    recsDesc: "단계 하나를 빠른 모델로 데모 데이터에서 다시 실행해 비용과 품질을 95% 신뢰구간으로 비교합니다. approver가 승인하기 전에는 아무것도 바뀌지 않고, 승인하면 게시할 초안이 만들어집니다.",
+    recsCost: "재생은 워크플로를 2 × N번 실행하며, LLM이 설정되어 있으면 실제 비용이 듭니다(예산 적용).",
+    workflow: "워크플로", step: "단계", repeat: "쪽당 실행 수", replay: "재생", replaying: "재생 중…",
+    verdict: { recommended: "추천", not_recommended: "추천 안 함", inconclusive: "판단 불가" } as Record<string, string>,
+    status: { proposed: "결정 대기", approved: "승인됨", rejected: "거절됨" } as Record<string, string>,
+    metric: { cost: "단계 비용 (실행당 USD)", valid_output: "올바른 출력 비율", risk_accuracy: "리스크 판정 정확도" } as Record<string, string>,
+    baseline: "현재", candidate: "빠른 모델", delta: "변화", ci: "95% 구간",
+    approve: "승인 → 초안", reject: "거절",
+    draftMade: (v: number) => `초안 v${v}을(를) 만들었습니다. 워크플로 화면에서 게시하세요.`,
+    noRecs: "아직 재생한 적이 없습니다.",
+    cheaper: (p: number) => `${p}% 저렴`,
+    reason: (code: string, metric: string, tol: number) =>
+      code === "no_output" ? "비교할 LLM 출력이 없습니다. 이 단계가 LLM을 호출하지 않았거나 모든 호출이 대체 방식으로 처리되었습니다(API 키가 있나요?)."
+        : code === "quality_drop" ? `${metric}이(가) ${tol}%보다 더 떨어질 수 있습니다.`
+          : code === "no_saving" ? "데이터로 확인되는 절감이 없습니다."
+            : `품질이 ${tol}% 안에서 유지되고 이 단계의 비용이 줄어듭니다.`,
+    stoppedByBudget: "재생 중 예산 때문에 일부 LLM 호출이 멈췄습니다.",
     fellBackRow: (kind: string, agent: string, step: number | null) =>
       `${kind === "month" ? "월" : "실행 1회"} 한도 도달: ${agent}${step ? ` (${step}단계)` : ""}`,
   },
