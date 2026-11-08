@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import { useI18n } from "../lib/i18n";
+import { clock } from "../lib/time";
 import { Card, PageHeader } from "../components/shell";
 
 const PHASE_META: Record<string, { num: string; icon: string; color: string }> = {
@@ -169,7 +170,7 @@ export default function Scenarios() {
                     <tbody>
                       {trace.communications.map((m: any) => (
                         <tr key={m.message_id}>
-                          <td className="muted">{m.timestamp?.slice(11, 19)}</td>
+                          <td className="muted" style={{ whiteSpace: "nowrap" }}>{clock(m.timestamp, lang)}</td>
                           <td><span className="badge accent">{m.sender} → {m.receiver}</span></td>
                           <td>{m.intent}</td>
                           <td><code>{m.schema}</code></td>

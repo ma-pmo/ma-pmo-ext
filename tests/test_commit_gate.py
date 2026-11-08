@@ -8,13 +8,16 @@ from __future__ import annotations
 from collections import Counter
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 
+from ma_pmo.api.main import app
 from ma_pmo.core import commit, hitl, runs, scenarios
 from ma_pmo.db.models import Approval
 from ma_pmo.db.session import get_session
 from tests.spike import VARIANTS, portfolio, run_full, spec
 
+client = TestClient(app)
 PLAIN = [
     {"id": "A3", "agent": "A3"},
     {"id": "A4", "agent": "A4", "needs": []},
@@ -125,6 +128,10 @@ def test_a_reviewed_scenario_on_the_demo_data():
     pending = {p["message_id"]: p for p in hitl.list_pending()}
     held = pending[by_project["PROJ-31"]["message_id"]]
     assert {c["constraint"] for c in held["review"]["challenges"]} == {"gate.no_open_high_risk"}
+    cited = [e for c in held["review"]["challenges"] for e in c["evidence"]]
+    assert {(e["agent"], e["schema"]) for e in cited} == {("A4", "risk_alert.v1")}
+    board_view = client.get(f"/runs/{trace['run_id']}/board").json()
+    assert board_view["review"] is True and board_view["commit"] == trace["commit"]
     # resolving it is an ordinary approval; the finished run stays finished
     done = hitl.resolve(held["approval_id"], approver="pm", decision="approve")
     assert done["decision"] == "approve" and runs.get_run(trace["run_id"])["status"] == \

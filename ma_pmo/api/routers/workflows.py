@@ -3,7 +3,7 @@
 GET /workflows               : every loaded workflow, and the files that could not be loaded
 GET /workflows/{workflow_id} : one workflow's steps, with what each waits for and its level
 GET /runs/{run_id}/workflow  : the workflow a run used, with where each of its steps stands
-GET /runs/{run_id}/board     : what each step of a run published, and what each step could read
+GET /runs/{run_id}/board     : a run's posts, what each step could read, and what it committed
 
 Versions (see core/workflow_store.py):
 POST /workflows/validate                               : the rules a spec breaks, if any
@@ -172,5 +172,5 @@ def run_board(run_id: str) -> dict:
     _run, spec = _saved_spec(run_id)
     steps = [{"id": s.id, "agent": s.agent, "reads": s.reads,
               "can_read": sorted(board.readable(spec, s.id) or [])} for s in spec.steps]
-    return {"run_id": run_id, "workflow": spec.id, "steps": steps,
-            "posts": board.posts(run_id, spec)}
+    return {"run_id": run_id, "workflow": spec.id, "review": spec.review, "steps": steps,
+            "posts": board.posts(run_id, spec), "commit": runs.get_state(run_id).get("commit")}

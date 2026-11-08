@@ -2,10 +2,11 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useI18n } from "../lib/i18n";
-import { when } from "../lib/time";
+import { clock, when } from "../lib/time";
 import type { Messages } from "../lib/messages";
 import { Card, PageHeader, Stat } from "../components/shell";
 import { Icon } from "../components/icons";
+import { ReviewDetail } from "../components/review";
 
 const APPROVER = "demo-approver@example.com";
 const PAGE = 50;
@@ -98,7 +99,12 @@ export default function Approvals() {
                             {raw[it.approval_id] ? a.hideRaw : a.showRaw}
                           </button>
                         </td>
-                        <td><span className={`badge ${it.confidence < 0.6 ? "amber" : "purple"}`}>{reason(it)}</span><div className="muted">{it.task_ref}</div></td>
+                        <td>
+                          {it.review
+                            ? <span className="badge amber tip" data-tip={t.rv.pendingTip}>{t.rv.pending}</span>
+                            : <span className={`badge ${it.confidence < 0.6 ? "amber" : "purple"}`}>{reason(it)}</span>}
+                          <div className="muted">{it.task_ref}</div>
+                        </td>
                         <td className="num">{it.confidence}</td>
                         <td>
                           <div className="row" style={{ flexWrap: "nowrap" }}>
@@ -107,6 +113,9 @@ export default function Approvals() {
                           </div>
                         </td>
                       </tr>
+                      {it.review && (
+                        <tr className="rv-row"><td /><td colSpan={5}><ReviewDetail review={it.review} /></td></tr>
+                      )}
                       {raw[it.approval_id] && (
                         <tr><td colSpan={6}><pre className="code">{JSON.stringify(it.payload, null, 2)}</pre></td></tr>
                       )}
@@ -127,7 +136,7 @@ export default function Approvals() {
             <tbody>
               {messages.map((m) => (
                 <tr key={m.message_id}>
-                  <td className="muted">{m.timestamp?.slice(11, 19)}</td>
+                  <td className="muted" style={{ whiteSpace: "nowrap" }}>{clock(m.timestamp, lang)}</td>
                   <td><span className="badge accent">{m.sender}→{m.receiver}</span></td>
                   <td>{m.intent}</td>
                   <td><code>{m.schema}</code></td>

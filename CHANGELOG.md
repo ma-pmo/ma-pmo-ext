@@ -12,8 +12,10 @@ All notable changes to this project are documented here. The format follows [Kee
 - A8 Auditor and reviewed workflows ([docs/REVIEW.md](docs/REVIEW.md#dedicated-review-a8-auditor)): `"review": true` on a workflow makes each run open its A5 and A6 steps to `upstream` and add an A8 step at the end that reads the whole board and posts `dedicated` verdicts on every gate decision and report, with the builders' rules but without reading their verdicts. A8 is never routed by A1 (`AgentSpec.routable=False`, also open to plugins). `GET /workflows` shows `review`.
 - Commit gate ([docs/REVIEW.md](docs/REVIEW.md#commit-gate), migration `0013_approval_reason`): at the end of a reviewed run each gate review and report commits only if no reviewer challenges it and A8 verified every constraint that applies; otherwise it goes to the approval queue as `review_pending`, and `GET /approvals` shows the challenges with rationale and evidence and what nobody could check. A decision already queued keeps one approval. The outcome is saved with the run (`commit`). All nine gate conflicts of the 0.6.0 spike now reach a person; its controls ask nobody.
 - Alternatives ([docs/REVIEW.md](docs/REVIEW.md#alternatives)): for every gate decision it challenges, A8 posts what a person could decide instead, worked out from the board without an LLM: pass on condition of A4's mitigation, add hours a week of a missing skill, or move the deadline to when A3's plan ends. A challenged decision needs at least one (`alternative` is reported missing otherwise), and the approval item shows them next to the challenges.
+- Review in the dashboard ([docs/REVIEW.md](docs/REVIEW.md#in-the-dashboard)): held approvals show **Review pending** with the challenges, the posts they cite, the alternatives and what was not checked; the workflow page has a **Reads** column and, for a finished run, a **Board** card with each step's read mode, posts and verdicts and every decision committed or held; the editor sets **Reads** per step and **Review every run**. `GET /runs/{id}/board` adds `review` and `commit`; evidence in approval items names the agent and schema of each cited post.
 
 ### Fixed
+- The audit-log times on the approvals and scenario pages were the UTC clock time; they are now local time in the UI language.
 - The commit gate listed challenged constraints among those `missing` (nobody could check); it now lists only unchecked ones.
 - A retried step that had already published a message got a new, unstored `message_id` back from `publish`; it now gets the stored one.
 
@@ -165,6 +167,8 @@ First public release.
 - 추가: 확정 게이트([docs/REVIEW.ko.md](docs/REVIEW.ko.md#확정-게이트), 마이그레이션 `0013_approval_reason`). 검토를 켠 실행이 끝나면 게이트 심사와 보고서는 어떤 검토자도 이의를 제기하지 않고 A8이 해당 제약을 모두 확인한 경우에만 확정되고, 나머지는 `review_pending`으로 승인 큐에 들어갑니다. `GET /approvals`가 이의 내용과 이유·근거, 아무도 확인하지 못한 항목을 보여 줍니다. 이미 승인 대기인 결정은 승인 하나를 유지합니다. 결과는 실행과 함께 저장됩니다(`commit`). 0.6.0 스파이크의 게이트 충돌 9건이 이제 모두 사람에게 전달되고, 대조군은 아무에게도 묻지 않습니다.
 - 추가: 대안([docs/REVIEW.ko.md](docs/REVIEW.ko.md#대안)). A8이 이의를 제기한 게이트 결정마다 사람이 대신 택할 수 있는 결정을 LLM 없이 게시판에서 계산해 게시합니다. A4 완화 조치를 조건으로 통과, 부족한 스킬 주당 시간 추가, 마감을 A3 계획이 끝나는 주로 조정 등입니다. 이의가 있는 결정은 대안이 하나 이상 필요하며(없으면 `alternative`가 빠진 것으로 표시), 승인 항목에 이의와 함께 보입니다.
 - 수정: 확정 게이트가 이의가 제기된 제약까지 `missing`(아무도 확인하지 못함)에 넣던 문제. 이제 확인되지 않은 것만 넣습니다.
+- 추가: 대시보드의 검토 화면([docs/REVIEW.ko.md](docs/REVIEW.ko.md#대시보드에서)). 보류된 승인에 **검토 대기**와 함께 이의, 인용한 게시물, 대안, 확인되지 않은 항목이 나옵니다. 워크플로 화면에 **읽기** 열과, 끝난 실행의 **게시판** 카드(단계별 읽기 범위, 게시물과 판정, 확정·보류된 결정)가 생기고, 편집기에서 단계별 **읽기**와 **모든 실행 검토**를 정합니다. `GET /runs/{id}/board`에 `review`와 `commit`이 추가되고, 승인 항목의 근거에 인용한 게시물의 에이전트와 스키마가 나옵니다.
+- 수정: 승인 큐와 시나리오 화면의 감사 로그 시각이 UTC 시계 시각이던 문제. 이제 UI 언어 형식의 현지 시각입니다.
 - 수정: 이미 메시지를 게시한 단계를 재시도하면 `publish`가 저장되지 않은 새 `message_id`를 돌려주던 문제. 이제 저장된 id를 돌려줍니다.
 
 ### [0.6.0] - 2026-11-08

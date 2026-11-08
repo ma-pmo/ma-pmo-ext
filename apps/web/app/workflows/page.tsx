@@ -13,6 +13,7 @@ import {
   type RunSummary, type Version, type Workflow,
 } from "./graph";
 import { Editor } from "./editor";
+import { BoardCard, type Board } from "./board";
 
 export default function Workflows() {
   const { lang, t } = useI18n();
@@ -27,6 +28,7 @@ export default function Workflows() {
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [runId, setRunId] = useState("");
   const [overlay, setOverlay] = useState<Workflow | null>(null);
+  const [board, setBoard] = useState<Board | null>(null);
   // what the URL asked for, read once before this page rewrites the URL
   const asked = useRef<{ id: string | null; run: string | null } | null>(null);
   if (asked.current === null && typeof window !== "undefined") {
@@ -70,6 +72,7 @@ export default function Workflows() {
 
   useEffect(() => {
     setOverlay(null);
+    setBoard(null);
     if (!runId) return;
     let alive = true;
     let timer: ReturnType<typeof setTimeout>;
@@ -81,6 +84,7 @@ export default function Workflows() {
         const now = o.run;
         if (now) setRuns((rs) => rs.map((r) => (r.run_id === now.run_id ? { ...r, status: now.status } : r)));
         if (o.run?.status === "running") timer = setTimeout(load, POLL_MS);
+        else api.runBoard(runId).then((b: Board) => { if (alive) setBoard(b); }).catch(() => {});
       } catch (e: any) { if (alive) setErr(String(e.message || e)); }
     };
     load();
@@ -174,7 +178,7 @@ export default function Workflows() {
                 }} />
             )}
             <Card title={shown.title}
-              desc={`${shown.description} · ${w.version(shown.version)} · ${shown.hypotheses.join(", ")}`}
+              desc={`${shown.description} · ${w.version(shown.version)} · ${shown.hypotheses.join(", ")}${shown.review ? ` · ${t.rv.reviewed}` : ""}`}
               actions={(runs.length > 0 || (!overlay && !viewed && !editing)) && (
                 <div className="row">
                 {!overlay && !viewed && !editing && (
@@ -230,7 +234,7 @@ export default function Workflows() {
               <div className="table-wrap">
                 <table className="wf-table">
                   <thead>
-                    <tr><th>{w.step}</th><th>{w.agent}</th><th>{w.waitsFor}</th><th>{w.params}</th><th>{w.required}</th><th>{w.tier}</th>{overlay && <th>{w.state}</th>}</tr>
+                    <tr><th>{w.step}</th><th>{w.agent}</th><th>{w.waitsFor}</th><th>{w.params}</th><th>{w.required}</th><th>{w.tier}</th><th><span className="tip" data-tip={t.rv.readsTip}>{t.rv.reads}</span></th>{overlay && <th>{w.state}</th>}</tr>
                   </thead>
                   <tbody>
                     {shown.steps.map((s) => (
@@ -246,6 +250,9 @@ export default function Workflows() {
                           <span className={s.model_tier === "fast" ? "badge accent tip" : "muted tip"}
                             data-tip={models[s.model_tier ?? "standard"] ?? ""}>{w.tierNames[s.model_tier ?? "standard"]}</span>
                         </td>
+                        <td>{(s.reads ?? "isolated") === "isolated"
+                          ? <span className="muted">{t.rv.readsNames.isolated}</span>
+                          : <span className="badge accent">{t.rv.readsNames[s.reads!]}</span>}</td>
                         {overlay && <td>
                           {w.status[stepState(s.run, runStatus)] ?? stepState(s.run, runStatus)}
                           {s.run?.attempts && s.run.attempts > 1 ? ` · ${w.attempts(s.run.attempts)}` : ""}
@@ -259,6 +266,7 @@ export default function Workflows() {
                 </table>
               </div>
             </Card>
+            {overlay && board && <BoardCard board={board} />}
             {versions.length > 0 && (
               <Card title={w.versions} desc={w.versionsHint} flush>
                 <div className="table-wrap">
