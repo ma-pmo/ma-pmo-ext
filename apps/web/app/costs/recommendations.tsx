@@ -28,7 +28,7 @@ export function Recommendations() {
   const [recs, setRecs] = useState<Rec[]>([]);
   const [flows, setFlows] = useState<Flow[]>([]);
   const [flow, setFlow] = useState("");
-  const [steps, setSteps] = useState<{ id: string; agent: string; model_tier: string }[]>([]);
+  const [steps, setSteps] = useState<{ id: string; agent: string; agent_name: string; model_tier: string }[]>([]);
   const [step, setStep] = useState("");
   const [repeat, setRepeat] = useState(3);
   const [busy, setBusy] = useState("");
@@ -74,7 +74,7 @@ export function Recommendations() {
         </label>
         <label><span>{c.step}</span>
           <select className="input" value={step} onChange={(e) => setStep(e.target.value)}>
-            {steps.map((s) => <option key={s.id} value={s.id}>{s.id} · {s.agent}</option>)}
+            {steps.map((s) => <option key={s.id} value={s.id}>{s.id === s.agent ? s.id : `${s.id} (${s.agent})`} · {s.agent_name}</option>)}
           </select>
         </label>
         <label><span>{c.repeat}</span>

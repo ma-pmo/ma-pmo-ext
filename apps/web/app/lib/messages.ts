@@ -588,12 +588,12 @@ const ko: Messages = {
     metric: { cost: "단계 비용 (실행당 USD)", valid_output: "올바른 출력 비율", risk_accuracy: "리스크 판정 정확도" } as Record<string, string>,
     baseline: "현재", candidate: "빠른 모델", delta: "변화", ci: "95% 구간",
     approve: "승인 → 초안", reject: "거절",
-    draftMade: (v: number) => `초안 v${v}을(를) 만들었습니다. 워크플로 화면에서 게시하세요.`,
+    draftMade: (v: number) => `새 초안(v${v})을 만들었습니다. 워크플로 화면에서 게시하세요.`,
     noRecs: "아직 재생한 적이 없습니다.",
     cheaper: (p: number) => `${p}% 저렴`,
     reason: (code: string, metric: string, tol: number) =>
       code === "no_output" ? "비교할 LLM 출력이 없습니다. 이 단계가 LLM을 호출하지 않았거나 모든 호출이 대체 방식으로 처리되었습니다(API 키가 있나요?)."
-        : code === "quality_drop" ? `${metric}이(가) ${tol}%보다 더 떨어질 수 있습니다.`
+        : code === "quality_drop" ? `${metric}: ${tol}%보다 더 떨어질 수 있습니다.`
           : code === "no_saving" ? "데이터로 확인되는 절감이 없습니다."
             : `품질이 ${tol}% 안에서 유지되고 이 단계의 비용이 줄어듭니다.`,
     stoppedByBudget: "재생 중 예산 때문에 일부 LLM 호출이 멈췄습니다.",

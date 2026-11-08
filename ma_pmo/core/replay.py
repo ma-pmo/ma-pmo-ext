@@ -125,7 +125,7 @@ def reason_text(reason: dict) -> str:
                   "대체 방식으로 처리되었습니다(API 키가 있나요?)")
     if code == "quality_drop":
         return tr(f"{reason['metric']} may drop by more than {tol:.0%}",
-                  f"{reason['metric']}이(가) {tol:.0%}보다 더 떨어질 수 있습니다")
+                  f"{reason['metric']}: {tol:.0%}보다 더 떨어질 수 있습니다")
     if code == "no_saving":
         return tr("no saving that the data can show", "데이터로 확인되는 절감이 없습니다")
     return tr(f"quality holds within {tol:.0%} and the step costs less",

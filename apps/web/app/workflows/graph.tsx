@@ -33,7 +33,6 @@ export const POLL_MS = 2000;
 // pause has finished that step; its approvals are only waiting in the queue.
 export const stepState = (r: StepRun | undefined, run: string | undefined) =>
   (!r ? "" : r.pending_approvals > 0 && run === "waiting_approval" ? "waiting_approval" : r.status);
-export const when = (iso?: string) => (iso ? new Date(iso).toLocaleString() : "");
 
 const W = 188, H = 60, GAP_X = 64, GAP_Y = 16, PAD = 10;
 

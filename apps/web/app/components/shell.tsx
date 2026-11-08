@@ -125,8 +125,9 @@ export function Shell({ children }: { children: ReactNode }) {
           {me && (me.auth_enabled
             ? <span className="badge accent">{me.subject}</span>
             : <span className="badge amber tip" data-tip={t.shell.authOffTip}>{t.shell.authOff}</span>)}
-          <span className={`status ${apiUp === null ? "" : apiUp ? "up" : "down"}`}>
-            <i />{apiUp === false ? t.shell.apiDown : t.shell.apiUp}
+          <span className={`status ${apiUp === null ? "" : apiUp ? "up" : "down"}`}
+            title={apiUp === false ? t.shell.apiDown : t.shell.apiUp}>
+            <i /><span className="status-label">{apiUp === false ? t.shell.apiDown : t.shell.apiUp}</span>
           </span>
           <div className="row" role="group" aria-label={t.langLabel}>
             {LANGS.map((l) => (

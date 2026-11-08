@@ -104,7 +104,8 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
 }
-.topbar .crumb { font-weight: 600; }
+.topbar .crumb { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar > :not(.crumb):not(.spacer) { flex: none; }
 .topbar .spacer { flex: 1; }
 .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
 .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
@@ -126,6 +127,13 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1
   .backdrop { display: block; }
   .topbar { padding: 0 16px; }
   .content { padding: 16px; }
+}
+@media (max-width: 560px) {
+  /* a phone has room for the page name, the dot and the language: the rest stays readable */
+  .topbar { gap: 8px; }
+  .status .status-label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
 }
 
 /* ── page header ── */

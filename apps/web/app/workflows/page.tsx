@@ -6,9 +6,10 @@
 import { useEffect, useRef, useState } from "react";
 import { api, problemsOf } from "../lib/api";
 import { useI18n } from "../lib/i18n";
+import { when } from "../lib/time";
 import { Card, PageHeader } from "../components/shell";
 import {
-  Graph, POLL_MS, params, stepState, when,
+  Graph, POLL_MS, params, stepState,
   type RunSummary, type Version, type Workflow,
 } from "./graph";
 import { Editor } from "./editor";
@@ -185,7 +186,7 @@ export default function Workflows() {
                     <option value="">{w.noRun}</option>
                     {runs.map((r) => (
                       <option key={r.run_id} value={r.run_id}>
-                        {when(r.started_at)}{r.workflow_version ? ` · v${r.workflow_version}` : ""} · {w.status[r.status] ?? r.status}
+                        {when(r.started_at, lang)}{r.workflow_version ? ` · v${r.workflow_version}` : ""} · {w.status[r.status] ?? r.status}
                       </option>
                     ))}
                   </select>
@@ -206,7 +207,7 @@ export default function Workflows() {
               {overlay?.run && (
                 <div className="wf-runbar" aria-live="polite">
                   <span className={`badge ${w.badge[overlay.run.status] ?? ""}`}>{w.status[overlay.run.status] ?? overlay.run.status}</span>
-                  <span className="muted">{overlay.run.scope} · {when(overlay.run.started_at)} · <code>{overlay.run.run_id}</code></span>
+                  <span className="muted">{overlay.run.scope} · {when(overlay.run.started_at, lang)} · <code>{overlay.run.run_id}</code></span>
                   {overlay.run.status === "waiting_approval" && <a href="/approvals">{w.toApprovals}</a>}
                   {overlay.run.budget_fallback && (
                     <a className="badge amber" href="/costs">{w.budgetFallback(overlay.run.budget_fallback.agent)}</a>
@@ -271,8 +272,8 @@ export default function Workflows() {
                           <td>v{v.version}{v.in_use && <span className="badge green" style={{ marginLeft: 6 }}>{w.inUse}</span>}</td>
                           <td>{w.versionStatus[v.status] ?? v.status}</td>
                           <td>{v.published_by
-                            ? `${w.publishedBy(v.published_by)} · ${when(v.published_at ?? undefined)}`
-                            : v.created_by ? `${w.draftedBy(v.created_by)} · ${when(v.created_at ?? undefined)}` : "–"}</td>
+                            ? `${w.publishedBy(v.published_by)} · ${when(v.published_at, lang)}`
+                            : v.created_by ? `${w.draftedBy(v.created_by)} · ${when(v.created_at, lang)}` : "–"}</td>
                           <td style={{ whiteSpace: "normal" }}>{v.note || <span className="muted">–</span>}</td>
                           <td><div className="row" style={{ flexWrap: "nowrap" }}>
                             <button className="ghost sm" onClick={() => view(v)}

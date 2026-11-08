@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { api, problemsOf } from "../lib/api";
 import { useI18n } from "../lib/i18n";
+import { when } from "../lib/time";
 import { Card, PageHeader, Stat } from "../components/shell";
 import { Icon } from "../components/icons";
 import { Recommendations } from "./recommendations";
@@ -172,7 +173,7 @@ export default function Costs() {
               <tbody>
                 {fellBack.slice(0, 20).map((r) => (
                   <tr key={r.run_id}>
-                    <td>{new Date(r.started_at).toLocaleString()}</td>
+                    <td>{when(r.started_at, lang)}</td>
                     <td><a href={`/workflows?id=${encodeURIComponent(r.workflow)}&run=${encodeURIComponent(r.run_id)}`}>{r.workflow}</a></td>
                     <td style={{ whiteSpace: "normal" }}>{c.fellBackRow(r.budget_fallback!.kind, r.budget_fallback!.agent, r.budget_fallback!.step)}</td>
                   </tr>
