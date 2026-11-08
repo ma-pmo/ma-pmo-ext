@@ -60,6 +60,24 @@ Built-in workflows keep every step isolated for now, so nothing changes unless a
  "params": {"gate": "G3-execution"}}
 ```
 
+## Dedicated review: A8 Auditor
+
+`"review": true` on a workflow has every run reviewed. When the run starts, the workflow is
+extended (`WorkflowSpec.with_review`, saved with the run, so its graph shows it):
+
+- isolated A5 and A6 steps read `upstream`, so they review their own decisions as above;
+- an **A8 Auditor** step waits for every last step and reads the whole `board`.
+
+A8 has no task of its own and decides nothing. It posts `role: dedicated` verdicts on every gate
+decision and report on the board, using the same constraints as the builders but reading every
+earlier stage, so it can check what a builder could not reach (for example a gate step that does
+not wait for A3). It reads decisions and their sources only, never the builders' verdicts, and
+where the two differ both stay on the board. A1 never routes a goal to A8.
+
+```json
+{"id": "risk_review", "review": true, "steps": [...]}
+```
+
 ## Where MA-PMO differs
 
 - Agents are mostly deterministic and already isolated, so the read side is what MA-PMO adds:
@@ -67,6 +85,6 @@ Built-in workflows keep every step isolated for now, so nothing changes unless a
 - Checks are rules over posted data, not LLM judgements, so a verdict cannot claim support that
   is not on the board.
 
-Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): a dedicated
-reviewer, a commit gate that sends unreviewed or challenged decisions to a person, and
-alternatives for high-risk decisions.
+Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): a commit gate
+that sends unreviewed or challenged decisions to a person, and alternatives for high-risk
+decisions.

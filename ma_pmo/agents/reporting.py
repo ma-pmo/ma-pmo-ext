@@ -155,5 +155,6 @@ class ReportingAgent(BaseAgent[ReportV1]):
             verdict = cross_checks.covers_risks(report.key_risks, state["board"],
                                                 state.get("board_steps", []))
             if verdict is not None:
-                outputs.append(cross_checks.publish_review(self.agent_id, verdict, msg))
+                outputs.append(cross_checks.publish_review(
+                    self.agent_id, verdict, msg.message_id, msg.task_ref))
         return {"outputs": outputs, "messages": [msg.model_dump(by_alias=True, mode="json")]}

@@ -143,14 +143,16 @@ draft answers 422 with `detail.problems`.
 
 | Rule | Why |
 |---|---|
-| Id is `vendor.name`, lowercase | Plugins cannot collide with or replace `A1`–`A7` |
+| Id is `vendor.name`, lowercase | Plugins cannot collide with or replace `A1`–`A8` |
 | Declare `payload`, and a versioned `output_schema` of your own | Output is validated like any built-in agent's |
 | Publish with `ma_pmo.sdk.publish` | Output reaches the audit log and the approval gate |
 | Set `needs_approval=True` for high-impact results | A person decides; low confidence also goes to the queue |
 | Import only from `ma_pmo.sdk` | It is the only stable surface; breaking it raises `SDK_VERSION` |
 
 `capability` is the line the orchestrator's LLM reads and `keywords` drive routing without an
-LLM, so write both for the goals you want to catch. A plugin that fails to load is reported by
+LLM, so write both for the goals you want to catch. An agent that should run only where a
+workflow puts it (a reviewer, say) sets `routable=False`: A1 then never delegates a goal to it.
+A plugin that fails to load is reported by
 `ma-pmo agents` and skipped; MA-PMO keeps running.
 
 ## Test it

@@ -149,15 +149,15 @@ def covers_risks(key_risks: list[str], board: list[dict], steps: list[dict]) -> 
                       "A4가 medium 이상으로 본 리스크가 모두 핵심 리스크에 있음"))
 
 
-def publish_review(agent_id: str, verdict: Verdict, target: AgentMessage,
+def publish_review(agent_id: str, verdict: Verdict, target_id: str, task_ref: str,
                    role: str = "builder") -> dict:
-    """Post one verdict on `target` to the message log; returns the entry for `outputs`."""
-    review = ReviewV1(target=target.message_id, constraint=verdict.constraint,
+    """Post one verdict on message `target_id` to the log; returns the entry for `outputs`."""
+    review = ReviewV1(target=target_id, constraint=verdict.constraint,
                       project_id=verdict.project_id, verdict=verdict.verdict, role=role,
                       evidence=verdict.evidence, rationale=verdict.rationale)
     data = review.model_dump(mode="json", exclude_none=True)
     protocol.publish(AgentMessage(
-        sender=agent_id, receiver="A1", intent=Intent.INFORM, task_ref=target.task_ref,
+        sender=agent_id, receiver="A1", intent=Intent.INFORM, task_ref=task_ref,
         payload=MessagePayload(schema_="review.v1", data=data), confidence=0.95,
         evidence=verdict.evidence))
     return {"agent": agent_id, "schema": "review.v1", "data": data}

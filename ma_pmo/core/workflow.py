@@ -12,6 +12,9 @@ A step's `needs` lists the steps it waits for; left out, it follows the step bef
 `reads` says which earlier posts the step's agent may read (core/board.py): `isolated` (the
 default: none, only its own data), `upstream` (what the steps it waits for, directly or not,
 published) or `board` (what every step of an earlier stage published).
+`review: true` has each run of the workflow reviewed (`with_review`): the decision steps of A5
+and A6 read what they wait for and review their own output, and a dedicated reviewer (A8) runs
+last and reviews every decision on the board. See docs/REVIEW.md.
 """
 from __future__ import annotations
 
@@ -25,6 +28,8 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 from ma_pmo.core.config import get_settings
 
 _BUILTIN = Path(__file__).resolve().parent.parent / "fixtures" / "workflows.json"
+BUILDERS = {"A5", "A6"}  # agents that review their own decisions when they may read
+AUDITOR = "A8"
 
 
 class Text(BaseModel):
@@ -56,6 +61,7 @@ class WorkflowSpec(BaseModel):
     hypotheses: list[str] = Field(default_factory=list)
     steps: list[WorkflowStep]
     ablated: bool = False  # agents were removed for an experiment; may leave no steps
+    review: bool = False  # review every run: see with_review()
 
     @model_validator(mode="after")
     def _check_steps(self) -> WorkflowSpec:
@@ -83,6 +89,26 @@ class WorkflowSpec(BaseModel):
             for s in self.steps if s.id not in removed
         ]
         return self.model_copy(update={"steps": steps, "ablated": True})
+
+    def with_review(self) -> WorkflowSpec:
+        """The workflow as a reviewed run executes it; itself when `review` is off.
+
+        Isolated A5 and A6 steps read `upstream`, so they review their own decisions, and an A8
+        step that waits for every last step and reads the whole `board` is added at the end.
+        A spec that already has an A8 step is left as it is, so applying this twice is safe.
+        """
+        if not self.review or any(s.agent == AUDITOR for s in self.steps) or not self.steps:
+            return self
+        deps = self.dependencies()
+        waited_for = {n for needs in deps.values() for n in needs}
+        steps = [s.model_copy(update={"reads": "upstream"})
+                 if s.agent in BUILDERS and s.reads == "isolated" else s for s in self.steps]
+        step_id, n = "review", 2
+        while step_id in deps:
+            step_id, n = f"review_{n}", n + 1
+        steps.append(WorkflowStep(id=step_id, agent=AUDITOR, reads="board",
+                                  needs=[s for s in deps if s not in waited_for]))
+        return self.model_copy(update={"steps": steps})
 
     def dependencies(self) -> dict[str, list[str]]:
         """Each step's prerequisites, with the default of following the step before it."""

@@ -66,7 +66,8 @@ def test_plugin_joins_routing_prompt_and_payload_validation(install):
     install(_entry_point("note", _spec()))
     spec = registry.specs()["acme.note"]
     assert spec.source == "pkg-note" and registry.problems() == []
-    assert list(registry.specs())[:6] == [b.id for b in registry.BUILTINS]  # built-ins first
+    builtins = [b.id for b in registry.BUILTINS]
+    assert list(registry.specs())[:len(builtins)] == builtins  # built-ins first
     assert [d.agent for d in keyword_route("a memo-word please").delegations] == ["acme.note"]
     assert "acme.note Note (test agent)" in OrchestratorAgent().role_prompt
     assert PAYLOAD_REGISTRY["acme_note.v1"] is NoteV1
@@ -89,7 +90,8 @@ def test_plugin_runs_for_a_goal(install):
 ])
 def test_bad_plugin_is_reported_and_skipped(install, value, reason):
     install(_entry_point("bad", value), _entry_point("good", _spec()))
-    assert "acme.note" in registry.specs() and len(registry.specs()) == 7
+    assert "acme.note" in registry.specs()
+    assert len(registry.specs()) == len(registry.BUILTINS) + 1
     (problem,) = registry.problems()
     assert problem.startswith("bad:") and reason in problem
 

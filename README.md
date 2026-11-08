@@ -24,7 +24,7 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 
 ## Highlights
 
-- **Seven cooperating agents** — A1 orchestrator routes goals to A2 Planning (CPM), A3 Resources, A4 Risk, A5 Reporting, A6 Governance and A7 Knowledge (RAG with mandatory citations).
+- **Seven cooperating agents** — A1 orchestrator routes goals to A2 Planning (CPM), A3 Resources, A4 Risk, A5 Reporting, A6 Governance and A7 Knowledge (RAG with mandatory citations); in a reviewed workflow, A8 Auditor checks their decisions against each other ([docs/REVIEW.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/REVIEW.md)).
 - **Runs offline** — with no API key, every agent falls back to deterministic logic, so the whole pipeline works end to end. Add an Anthropic key or a local **Ollama** model to switch on the LLM path.
 - **Structured, auditable communication** — Pydantic `.v1` message schemas instead of free-form chat, stored in an append-only log.
 - **Human-in-the-loop** — high-severity risks, failed gates and low-confidence messages wait in an approval queue.
