@@ -38,14 +38,16 @@ class MessagePayload(BaseModel):
 
 
 class EvidenceRef(BaseModel):
-    """What a message rests on: another message, a tracker field or a knowledge entry.
+    """What a message rests on: another message, a tracker field, a knowledge entry or a step.
 
     `{"kind": "message", "ref": "<message_id>"}`, `{"kind": "tracker", "ref": "PROJ-14",
-    "field": "planned_finish"}`, `{"kind": "knowledge", "ref": "<lesson id>"}`. Reviews cite
-    these instead of restating them, so a person can follow a verdict back to its source.
+    "field": "planned_finish"}`, `{"kind": "knowledge", "ref": "<lesson id>"}`, and
+    `{"kind": "step", "ref": "<step id>", "field": "PROJ-14"}` for a step that ran and published
+    nothing about PROJ-14 (an absence is evidence too). Reviews cite these instead of restating
+    them, so a person can follow a verdict back to its source.
     """
 
-    kind: Literal["message", "tracker", "knowledge"]
+    kind: Literal["message", "tracker", "knowledge", "step"]
     ref: str = Field(min_length=1)
     field: str | None = None
 

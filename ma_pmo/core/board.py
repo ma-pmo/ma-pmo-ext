@@ -52,6 +52,16 @@ def posts(run_id: str, spec: WorkflowSpec, steps: set[str] | None = None) -> lis
     return [post for _key, post in sorted(found, key=lambda f: f[0])]
 
 
+def sources(spec: WorkflowSpec, step_id: str) -> list[dict[str, str]]:
+    """The steps `step_id` may read, with their agents, in workflow order.
+
+    A step that ran and published nothing still appears here, which is how a reader tells
+    "A4 found no risk" from "A4 did not run".
+    """
+    steps = readable(spec, step_id) or set()
+    return [{"step": s.id, "agent": s.agent} for s in spec.steps if s.id in steps]
+
+
 def view(run_id: str, spec: WorkflowSpec, step_id: str) -> list[dict[str, Any]] | None:
     """What `step_id` may read now, or None when it is isolated."""
     steps = readable(spec, step_id)

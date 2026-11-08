@@ -93,7 +93,7 @@ The agent reads them with `ma_pmo.sdk.board_posts(state, schema=None)`. Each pos
 `message_id`, `step`, `agent`, `schema`, `data`, `confidence` and `evidence` of a published
 message. When an output rests on posts or data, say so with
 `publish(..., evidence=[EvidenceRef(kind="message", ref=post["message_id"])])`; the other kinds
-are `tracker` (with `field`) and `knowledge`. `GET /runs/{id}/board` shows every post of a run
+are `tracker` (with `field`), `knowledge`, and `step` for a step that ran and published nothing about it. How built-in agents use this to review decisions: [REVIEW.md](REVIEW.md). `GET /runs/{id}/board` shows every post of a run
 and what each step could read. The modes follow the gated bulletin board of ArcticSwarm (Yoon et
 al., 2026, arXiv:2609.01870): publishing is always allowed, reading is granted per step.
 

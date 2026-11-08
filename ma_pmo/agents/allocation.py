@@ -36,6 +36,7 @@ class AllocLine:
 class AllocationResult:
     lines: list[AllocLine] = field(default_factory=list)
     overload_alerts: list[str] = field(default_factory=list)
+    unstaffed: list[dict] = field(default_factory=list)  # project_id, skill, hours, reason
     utilization_pct: float = 0.0
     idle_pct: float = 0.0
 
@@ -76,6 +77,9 @@ def allocate(projects: list[dict], resources: list[dict],
         remaining = _remaining_effort(proj)
         res_pool = by_skill.get(skill, [])
         if remaining > 0 and not res_pool:
+            result.unstaffed.append({"project_id": proj["project_id"], "skill": skill,
+                                     "remaining_hours": round(remaining, 1),
+                                     "reason": "no_skill"})
             result.overload_alerts.append(
                 tr(
                     f"{proj['project_id']}: no resource with skill '{skill}' "
@@ -103,6 +107,9 @@ def allocate(projects: list[dict], resources: list[dict],
                 )
                 max_week_used = max(max_week_used, w + 1)
         if remaining > 0:  # cannot be absorbed within the horizon -> overload
+            result.unstaffed.append({"project_id": proj["project_id"], "skill": skill,
+                                     "remaining_hours": round(remaining, 1),
+                                     "reason": "capacity"})
             result.overload_alerts.append(
                 tr(
                     f"{proj['project_id']}: '{skill}' capacity exceeded within "

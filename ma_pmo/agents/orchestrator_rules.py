@@ -79,6 +79,8 @@ def _headline(schema: str | None, data: dict) -> str:
         )
     if schema == "gate_review.v1":
         return f"{data.get('project_id')} {data.get('gate')} → {data.get('decision')}"
+    if schema == "review.v1":
+        return f"{data.get('verdict')} {data.get('constraint')} · {data.get('project_id') or ''}"
     if schema == "knowledge.v1":
         n = len(data.get("citations", []))
         answer = data.get("answer", "")[:80]

@@ -3,6 +3,10 @@
 Flow: collect mock issue-tracker status -> generate executive report with the LLM
       (validated as report.v1) -> store report -> record RCT (report cycle time) KPI
       -> publish inform message to A1.
+
+When the workflow lets this step read earlier posts (`reads`), A5 checks its report before
+publishing it: a project A4 rated medium or above but missing from the key risks is added
+(self-check), and A5 posts a review.v1 verdict on the report citing A4's alerts.
 """
 from __future__ import annotations
 
@@ -10,6 +14,7 @@ import json
 import time
 import uuid
 
+from ma_pmo.agents import cross_checks
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, protocol, tracing
@@ -75,6 +80,21 @@ report for executives. Stay factual, surface delays and risks clearly, and give 
 recommendations. Rate status as green/amber/red."""
 
 
+def _with_upstream_risks(report: ReportV1, board: list[dict], steps: list[dict]) -> ReportV1:
+    """The report with every A4 alert of medium or above among its key risks."""
+    alerts = cross_checks.risks_to_report(board, steps) or []
+    check = cross_checks.covers_risks(report.key_risks, board, steps)
+    if check is None or check.verdict == "VERIFIED":
+        return report
+    cited = {e.ref for e in check.evidence}
+    added = [tr(f"{a['data']['project_id']} risk {a['data']['severity']} (A4): "
+                f"{a['data'].get('signal', '')}",
+                f"{a['data']['project_id']} 리스크 {a['data']['severity']}(A4): "
+                f"{a['data'].get('signal', '')}").strip()
+             for a in alerts if a["message_id"] in cited]
+    return report.model_copy(update={"key_risks": [*report.key_risks, *added]})
+
+
 class ReportingAgent(BaseAgent[ReportV1]):
     agent_id = "A5"
     function = "Reporting (stakeholder communication)"
@@ -101,6 +121,8 @@ class ReportingAgent(BaseAgent[ReportV1]):
         except Exception as e:  # no LLM / outage -> deterministic report fallback
             tracing.mark_fallback("A5 report", e)
             report = _fallback_report(status, scope)
+        if "board" in state:  # self-check: every risk A4 raised belongs in the key risks
+            report = _with_upstream_risks(report, state["board"], state.get("board_steps", []))
 
         # persist output
         report_id = f"RPT-{uuid.uuid4().hex[:8]}"
@@ -127,11 +149,11 @@ class ReportingAgent(BaseAgent[ReportV1]):
             payload=MessagePayload(schema_="report.v1", data=report.model_dump()),
             confidence=0.9,
         )
-        protocol.publish(msg)
-
-        return {
-            "outputs": [
-                {"agent": self.agent_id, "schema": "report.v1", "data": report.model_dump()}
-            ],
-            "messages": [msg.model_dump(by_alias=True, mode="json")],
-        }
+        msg = protocol.publish(msg)
+        outputs = [{"agent": self.agent_id, "schema": "report.v1", "data": report.model_dump()}]
+        if "board" in state:
+            verdict = cross_checks.covers_risks(report.key_risks, state["board"],
+                                                state.get("board_steps", []))
+            if verdict is not None:
+                outputs.append(cross_checks.publish_review(self.agent_id, verdict, msg))
+        return {"outputs": outputs, "messages": [msg.model_dump(by_alias=True, mode="json")]}

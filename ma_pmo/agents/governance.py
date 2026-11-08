@@ -2,9 +2,15 @@
 
 Flow: collect mock status -> deterministic gate review (fact check, no LLM) -> gate_review.v1
       -> gate KPI (delivery axis) -> conditional/fail sets human_gate_required (approval).
+
+When the workflow lets this step read earlier posts (`reads`), A6 also reviews each decision as
+its builder: it checks the project against A4's risks and A3's allocation (agents/cross_checks.py)
+and posts one review.v1 verdict per constraint, with the evidence. The decision itself does not
+change here; a commit gate decides what a challenged decision needs.
 """
 from __future__ import annotations
 
+from ma_pmo.agents import cross_checks
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.gates import evaluate_gate, normalize_gate
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -43,6 +49,10 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
                 {"agent": self.agent_id, "schema": "gate_review.v1", "data": review.model_dump()}
             )
             messages.append(msg.model_dump(by_alias=True, mode="json"))
+            if "board" in state:  # builder review, only where the workflow grants reading
+                for verdict in cross_checks.gate_checks(proj, state["board"],
+                                                        state.get("board_steps", [])):
+                    outputs.append(cross_checks.publish_review(self.agent_id, verdict, msg))
         return {"outputs": outputs, "messages": messages}
 
     def review_project(
@@ -87,5 +97,4 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
             confidence=0.95,  # deterministic
             human_gate_required=gate_required,
         )
-        protocol.publish(msg)
-        return review, msg
+        return review, protocol.publish(msg)
