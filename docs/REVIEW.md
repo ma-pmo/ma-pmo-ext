@@ -95,6 +95,22 @@ a failing gate, keeps its one approval, which gains the same detail. Approving o
 an ordinary decision; the finished run stays as it is. Passing review never replaces an approval
 that was required anyway.
 
+## Alternatives
+
+For every gate decision A8 challenges, it also posts what a person could decide instead
+(`ALTERNATIVE` verdicts with an `alternative` describing it), worked out from the posts behind the
+challenge:
+
+| Challenge | Alternative | Worked out from |
+|---|---|---|
+| `gate.no_open_high_risk` | pass on condition of A4's mitigation | the risk alert |
+| `gate.staffed` | add N hours a week of the missing skill until the deadline | unstaffed hours, weeks to the deadline |
+| `gate.allocation_by_deadline` | move the deadline to the week A3's plan ends, or add N hours a week | the plan's late hours, weeks to the deadline |
+
+A challenged decision needs at least one alternative before it can be decided; without one, the
+held item lists `alternative` as missing. The approval item shows the alternatives next to the
+challenges. They are offers for the person who decides, not decisions: nothing is changed by them.
+
 The outcome per decision is saved with the run (`commit` in its state and in the scenario result).
 In the 0.6.0 spike's ten portfolio variants, all nine gate conflicts are held with both reviewers'
 challenges attached, the two report conflicts are fixed by A5 before the report commits, and the
@@ -106,10 +122,13 @@ controls are committed without asking anyone.
   reading is granted per step, publishing is always allowed.
 - Checks are rules over posted data, not LLM judgements, so a verdict cannot claim support that
   is not on the board.
+- ArcticSwarm opens an alternative or contrarian search before any answer commits; MA-PMO offers
+  alternatives for challenged decisions only, worked out from the board without an LLM. An LLM
+  contrarian is left to the evaluation, which has to show it changes decisions for its cost.
 - When the commit gate's conditions are not met, ArcticSwarm spawns the missing reviews and, at a
   deadline, lets the conditions become advisory. MA-PMO sends the decision to a person instead and
   reports what is missing, so a run stays the static, resumable workflow it started as and a
   high-stakes decision never commits by timeout.
 
-Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): alternatives
-for high-risk decisions, and the review shown in the dashboard.
+Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): the review shown
+in the dashboard, and an evaluation of each part.

@@ -20,7 +20,7 @@ from datetime import date
 from ma_pmo.core import protocol
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.message import AgentMessage, EvidenceRef, Intent, MessagePayload
-from ma_pmo.core.schemas.payloads.review_v1 import CHALLENGE, VERIFIED, ReviewV1
+from ma_pmo.core.schemas.payloads.review_v1 import ALTERNATIVE, CHALLENGE, VERIFIED, ReviewV1
 
 HIGH = {"high", "critical"}
 RISKY = {"medium", "high", "critical"}
@@ -34,6 +34,7 @@ class Verdict:
     verdict: str
     evidence: list[EvidenceRef] = field(default_factory=list)
     rationale: str = ""
+    alternative: dict | None = None
 
 
 def _steps_of(steps: list[dict], agent: str) -> list[str]:
@@ -149,12 +150,94 @@ def covers_risks(key_risks: list[str], board: list[dict], steps: list[dict]) -> 
                       "A4가 medium 이상으로 본 리스크가 모두 핵심 리스크에 있음"))
 
 
+# ── alternatives: what else could be decided, for a challenged decision ──────────────────
+
+def _week_start(label: str) -> date:
+    year, week = label.split("-W")
+    return date.fromisocalendar(int(year), int(week), 1)
+
+
+def _weeks_until(deadline: str, plan: list[dict]) -> int:
+    """Weeks from the start of the plan through the deadline week (at least one)."""
+    if not plan:
+        return 1
+    start = min(_week_start(ln["week"]) for ln in plan)
+    return max(1, (_week_start(deadline) - start).days // 7 + 1)
+
+
+def alternatives(challenge: Verdict, project: dict, board: list[dict],
+                 steps: list[dict]) -> list[Verdict]:
+    """Decisions a person could take instead of the challenged one, each with what it rests on.
+
+    Deterministic, from the posts behind the challenge:
+    - an open high risk: pass only on condition of A4's mitigation;
+    - unstaffed work: the hours a week of that skill it would take to finish by the deadline;
+    - a plan past the deadline: move the deadline to the plan's last week, or add the hours a
+      week that would bring the late work forward.
+    """
+    pid = project["project_id"]
+    found: list[Verdict] = []
+
+    def offer(kind: str, decision: str, summary: str, evidence: list[EvidenceRef],
+              **detail: object) -> None:
+        found.append(Verdict(f"alternative.{kind}", pid, ALTERNATIVE, evidence, summary,
+                             {"kind": kind, "decision": decision, "summary": summary, **detail}))
+
+    if challenge.constraint == "gate.no_open_high_risk":
+        for alert in _posts(board, "risk_alert.v1"):
+            data = alert["data"]
+            if data.get("project_id") == pid and data.get("severity") in HIGH:
+                offer("conditional_on_mitigation", "conditional",
+                      tr(f"pass {pid} on condition: {data.get('mitigation', '')}",
+                         f"조건부 통과({pid}): {data.get('mitigation', '')}"),
+                      [_msg(alert, "mitigation")], condition=data.get("mitigation", ""))
+    post = _allocation(board, steps)
+    deadline = _iso_week(project.get("deadline") or "")
+    if post is None or deadline is None:
+        return found
+    plan = post["data"].get("plan", [])
+    weeks = _weeks_until(deadline, plan)
+    if challenge.constraint == "gate.staffed":
+        for short in post["data"].get("unstaffed", []):
+            if short.get("project_id") == pid:
+                hours = short.get("remaining_hours", 0.0)
+                offer("add_capacity", "conditional",
+                      tr(f"add {hours / weeks:.0f} h/week of {short['skill']} to {pid} until "
+                         f"{deadline} ({hours:.0f} h unstaffed)",
+                         f"{deadline}까지 {pid}에 {short['skill']} 주 {hours / weeks:.0f}시간 추가"
+                         f"(미배정 {hours:.0f}시간)"),
+                      [_msg(post, "unstaffed"), EvidenceRef(kind="tracker", ref=pid,
+                                                            field="deadline")],
+                      skill=short["skill"], hours_per_week=round(hours / weeks, 1),
+                      until=deadline)
+    if challenge.constraint == "gate.allocation_by_deadline":
+        mine = [ln for ln in plan if ln.get("project_id") == pid]
+        late = [ln for ln in mine if ln["week"] > deadline]
+        if late:
+            last = max(ln["week"] for ln in mine)
+            hours = sum(ln["hours"] for ln in late)
+            evidence = [_msg(post, "plan"), EvidenceRef(kind="tracker", ref=pid,
+                                                        field="deadline")]
+            offer("move_deadline", "conditional",
+                  tr(f"move {pid}'s deadline to {last}, when A3's plan ends",
+                     f"{pid} 마감을 A3 계획이 끝나는 {last}로 조정"),
+                  evidence, new_deadline_week=last)
+            offer("add_capacity", "conditional",
+                  tr(f"add {hours / weeks:.0f} h/week to {pid} until {deadline} to bring "
+                     f"{hours:.0f} late hours forward",
+                     f"{deadline}까지 {pid}에 주 {hours / weeks:.0f}시간을 더해 늦은 "
+                     f"{hours:.0f}시간을 앞당김"),
+                  evidence, hours_per_week=round(hours / weeks, 1), until=deadline)
+    return found
+
+
 def publish_review(agent_id: str, verdict: Verdict, target_id: str, task_ref: str,
                    role: str = "builder") -> dict:
     """Post one verdict on message `target_id` to the log; returns the entry for `outputs`."""
     review = ReviewV1(target=target_id, constraint=verdict.constraint,
                       project_id=verdict.project_id, verdict=verdict.verdict, role=role,
-                      evidence=verdict.evidence, rationale=verdict.rationale)
+                      evidence=verdict.evidence, rationale=verdict.rationale,
+                      alternative=verdict.alternative)
     data = review.model_dump(mode="json", exclude_none=True)
     protocol.publish(AgentMessage(
         sender=agent_id, receiver="A1", intent=Intent.INFORM, task_ref=task_ref,

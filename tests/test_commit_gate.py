@@ -50,6 +50,7 @@ def test_every_spike_conflict_reaches_a_person_with_both_sides(name, monkeypatch
     assert all(n == 2 for n in challenged.values())  # the builder and the dedicated reviewer
     for c in item["review"]["challenges"]:  # linked: the other side, with its evidence
         assert c["verdict"] == "CHALLENGE" and c["rationale"] and c["evidence"]
+    assert item["review"]["missing"] == []  # challenged is not the same as unchecked
     report = next(c for c in result["commit"] if c["schema"] == "report.v1")
     assert report["status"] == commit.COMMITTED  # A5 already added what was missing
 
