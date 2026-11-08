@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - What a step may read (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): a workflow step's `reads` is `isolated` (the default, today's behaviour: its state has no `board`), `upstream` (posts of every step it waits for) or `board` (posts of every earlier stage). The executor enforces it; agents read with `ma_pmo.sdk.board_posts`. Messages carry `evidence` (references to messages, tracker fields or lessons; migration `0012_message_evidence`), set with `publish(..., evidence=...)`. `GET /runs/{id}/board` shows a run's posts and what each step could read. Built-in workflows stay isolated. After ArcticSwarm's gated bulletin board (Yoon et al., 2026, arXiv:2609.01870), implemented independently.
+- Builder review ([docs/REVIEW.md](docs/REVIEW.md)): where a workflow lets them read, A6 posts a `review.v1` verdict (`VERIFIED` or `CHALLENGE`, with evidence) per project for `gate.no_open_high_risk` (A4), `gate.staffed` and `gate.allocation_by_deadline` (A3), and A5 adds risks A4 raised to its key risks before posting `report.covers_risks`. A constraint whose source step is not readable is not checked. `allocation.v1` gains `unstaffed` (the overload alerts as data); evidence can point at a `step` that published nothing. All conflicts of the 0.6.0 spike are challenged, its controls verified.
+
+### Fixed
+- A retried step that had already published a message got a new, unstored `message_id` back from `publish`; it now gets the stored one.
 
 ## [0.6.0] - 2026-11-08
 
@@ -152,6 +156,8 @@ First public release.
 ### [Unreleased]
 
 - 추가: 단계가 읽을 수 있는 범위(로드맵 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)). 워크플로 단계의 `reads`는 `isolated`(기본, 지금과 같은 동작으로 상태에 `board`가 없음), `upstream`(기다리는 모든 단계의 게시물), `board`(앞선 모든 열의 게시물) 중 하나이며, 실행기가 강제합니다. 에이전트는 `ma_pmo.sdk.board_posts`로 읽습니다. 메시지에 `evidence`(메시지, 트래커 필드, 교훈에 대한 참조, 마이그레이션 `0012_message_evidence`)가 생기고 `publish(..., evidence=...)`로 남깁니다. `GET /runs/{id}/board`는 한 실행의 게시물과 각 단계가 읽을 수 있던 범위를 보여 줍니다. 기본 워크플로는 격리된 그대로입니다. ArcticSwarm(Yoon et al., 2026, arXiv:2609.01870)의 게이트 게시판을 참고해 독립적으로 구현했습니다.
+- 추가: builder 검토([docs/REVIEW.ko.md](docs/REVIEW.ko.md)). 워크플로가 읽기를 허락하면 A6가 프로젝트마다 `gate.no_open_high_risk`(A4), `gate.staffed`, `gate.allocation_by_deadline`(A3)에 대한 `review.v1` 판정(`VERIFIED` 또는 `CHALLENGE`, 근거 포함)을 게시하고, A5는 A4가 제기한 리스크를 핵심 리스크에 넣은 뒤 `report.covers_risks`를 게시합니다. 근거 단계를 읽을 수 없는 제약은 확인하지 않습니다. `allocation.v1`에 `unstaffed`(과부하 경보의 데이터 형태)가 생기고, 근거가 아무것도 게시하지 않은 `step`을 가리킬 수 있습니다. 0.6.0 스파이크의 충돌은 모두 CHALLENGE, 대조군은 VERIFIED로 판정됩니다.
+- 수정: 이미 메시지를 게시한 단계를 재시도하면 `publish`가 저장되지 않은 새 `message_id`를 돌려주던 문제. 이제 저장된 id를 돌려줍니다.
 
 ### [0.6.0] - 2026-11-08
 

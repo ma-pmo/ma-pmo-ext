@@ -104,6 +104,7 @@ class ResourceAgent(BaseAgent[AllocationV1]):
             ],
             overload_alerts=result.overload_alerts,
             utilization_pct=result.utilization_pct,
+            unstaffed=result.unstaffed,
         )
 
         # persist allocation (replaces this portfolio's plan -> reflects reallocation)

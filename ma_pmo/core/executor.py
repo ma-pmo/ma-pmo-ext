@@ -67,6 +67,7 @@ def _run_step(spec: WorkflowSpec, step: WorkflowStep, seq: int, run_id: str, sco
     posts = board.view(run_id, spec, step.id)
     if posts is not None:  # isolated steps get no board at all
         state["board"] = posts
+        state["board_steps"] = board.sources(spec, step.id)
     _log.info("execute_start", agent=agent_id, function=registry.title(agent_id))
     started = time.perf_counter()
     with tracing.span(f"invoke_agent {agent_id}", {

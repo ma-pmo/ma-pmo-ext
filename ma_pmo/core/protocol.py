@@ -37,9 +37,10 @@ def publish(message: AgentMessage) -> AgentMessage:
     validate_payload(message)
     key = dedupe_key("message")
     with get_session() as s:
-        if key and s.scalar(select(AgentMessageRow.message_id).where(
-                AgentMessageRow.dedupe_key == key)):
-            return message  # a retried step already published this
+        stored = s.scalar(select(AgentMessageRow.message_id).where(
+            AgentMessageRow.dedupe_key == key)) if key else None
+        if stored:  # a retried step already published this: answer with the stored id
+            return message.model_copy(update={"message_id": stored})
         s.add(
             AgentMessageRow(
                 message_id=message.message_id,

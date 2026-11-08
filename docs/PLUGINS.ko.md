@@ -91,7 +91,7 @@ ma-pmo agents        # id, 이름, 버전, 출처. 불러오지 못한 플러그
 에이전트는 `ma_pmo.sdk.board_posts(state, schema=None)`로 읽습니다. 게시물마다 게시된 메시지의
 `message_id`, `step`, `agent`, `schema`, `data`, `confidence`, `evidence`가 있습니다. 결과가 어떤 게시물이나
 데이터에 근거한다면 `publish(..., evidence=[EvidenceRef(kind="message", ref=post["message_id"])])`로
-밝히세요. 다른 종류로 `tracker`(`field`와 함께)와 `knowledge`가 있습니다. `GET /runs/{id}/board`는 한 실행의
+밝히세요. 다른 종류로 `tracker`(`field`와 함께), `knowledge`, 그리고 실행됐지만 그것에 대해 아무것도 게시하지 않은 단계를 가리키는 `step`이 있습니다. 기본 에이전트가 이를 이용해 결정을 검토하는 방법은 [REVIEW.ko.md](REVIEW.ko.md)를 보세요. `GET /runs/{id}/board`는 한 실행의
 모든 게시물과 각 단계가 읽을 수 있던 범위를 보여 줍니다. 이 방식은 ArcticSwarm(Yoon et al., 2026,
 arXiv:2609.01870)의 게이트 게시판을 따릅니다. 게시는 언제나 허용하고, 읽기는 단계마다 허락합니다.
 
