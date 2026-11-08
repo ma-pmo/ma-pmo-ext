@@ -54,7 +54,7 @@ def test_the_auditor_challenges_what_the_builders_challenge(name, monkeypatch):
     _change, expected, _fixed = VARIANTS[name]
     outputs = run_on(monkeypatch, portfolio(name), spec(PLAIN, review=True))
     dedicated = {r["constraint"]: r for r in reviews(outputs, "A8")
-                 if r.get("project_id") == "PROJ-X"}
+                 if r.get("project_id") == "PROJ-X" and r["constraint"] in GATE}
     builder = {r["constraint"]: r for r in reviews(outputs, "A6")
                if r.get("project_id") == "PROJ-X"}
     assert set(dedicated) == set(builder) == set(GATE)

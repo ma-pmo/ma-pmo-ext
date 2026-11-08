@@ -9,6 +9,9 @@ gate_review.v1 and report.v1) is checked:
   and allocation). A builder that could not read that agent posts no verdict for it; a builder
   that could and challenged it blocks the commit like any other challenge.
 
+A challenged decision also needs at least one ALTERNATIVE on the board, so the person deciding
+sees another course next to the challenge; without one, `alternative` is reported missing.
+
 A decision that meets both is `committed`. Any other is `review_pending`: it goes to the approval
 queue, with the challenges, their evidence and what was not checked attached, so the person who
 decides sees both sides. A decision that already needed approval keeps its one approval, which
@@ -58,12 +61,17 @@ def check(run_id: str, spec: WorkflowSpec) -> list[dict[str, Any]]:
         verified = {r["data"]["constraint"] for r in mine
                     if r["data"]["role"] == "dedicated" and r["data"]["verdict"] == "VERIFIED"}
         challenges = [r for r in mine if r["data"]["verdict"] == "CHALLENGE"]
-        missing = [c for c in applies if c not in verified] if audited else ["review.dedicated"]
+        offered = [r for r in mine if r["data"]["verdict"] == "ALTERNATIVE"]
+        judged = verified | {r["data"]["constraint"] for r in challenges}
+        missing = [c for c in applies if c not in judged] if audited else ["review.dedicated"]
+        if challenges and not offered:
+            missing.append("alternative")
         status = COMMITTED if not challenges and not missing else REVIEW_PENDING
         outcome.append({
             "message_id": post["message_id"], "schema": post["schema"], "step": post["step"],
             "project_id": post["data"].get("project_id"), "status": status,
-            "challenges": [r["message_id"] for r in challenges], "missing": missing})
+            "challenges": [r["message_id"] for r in challenges],
+            "alternatives": [r["message_id"] for r in offered], "missing": missing})
     held = [o for o in outcome if o["status"] == REVIEW_PENDING]
     _queue(run_id, held)
     runs.update_state(run_id, commit=outcome)
@@ -76,7 +84,7 @@ def _queue(run_id: str, held: list[dict]) -> None:
     with get_session() as s:
         for item in held:
             reason = {"kind": REVIEW_PENDING, "challenges": item["challenges"],
-                      "missing": item["missing"]}
+                      "alternatives": item["alternatives"], "missing": item["missing"]}
             approval = s.scalar(select(Approval).where(Approval.message_id == item["message_id"]))
             if approval is None:
                 s.add(Approval(message_id=item["message_id"], decision="pending", run_id=run_id,
@@ -87,14 +95,21 @@ def _queue(run_id: str, held: list[dict]) -> None:
 
 def held_detail(reason: dict | None, run_id: str | None, spec: WorkflowSpec | None,
                 ) -> dict[str, Any] | None:
-    """The challenges behind a held decision, with rationale and evidence, for the approver."""
+    """Why a decision is held, for the approver: challenges with rationale and evidence, the
+    alternatives offered, and what nobody could check."""
     if not reason or reason.get("kind") != REVIEW_PENDING:
         return None
-    challenges = []
-    if run_id and spec is not None and reason.get("challenges"):
-        wanted = set(reason["challenges"])
-        challenges = [{"agent": p["agent"], **{k: p["data"].get(k) for k in (
-                          "constraint", "verdict", "role", "rationale", "evidence")}}
-                      for p in board.posts(run_id, spec) if p["message_id"] in wanted]
-    return {"kind": REVIEW_PENDING, "challenges": challenges,
+    by_id: dict[str, dict] = {}
+    if run_id and spec is not None:
+        by_id = {p["message_id"]: p for p in board.posts(run_id, spec)}
+
+    def entries(ids: list[str], keys: tuple[str, ...]) -> list[dict]:
+        return [{"agent": by_id[i]["agent"], **{k: by_id[i]["data"].get(k) for k in keys}}
+                for i in ids if i in by_id]
+
+    return {"kind": REVIEW_PENDING,
+            "challenges": entries(reason.get("challenges", []),
+                                  ("constraint", "verdict", "role", "rationale", "evidence")),
+            "alternatives": entries(reason.get("alternatives", []),
+                                    ("constraint", "alternative", "evidence")),
             "missing": reason.get("missing", [])}
