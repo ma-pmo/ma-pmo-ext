@@ -291,6 +291,8 @@ class AgentMessageRow(Scoped, Base):
     payload: Mapped[dict] = mapped_column(JSON)
     confidence: Mapped[float] = mapped_column(Float, default=1.0)
     human_gate_required: Mapped[bool] = mapped_column(Boolean, default=False)
+    # EvidenceRef dicts the message rests on; None for messages written before 0.7
+    evidence: Mapped[list | None] = mapped_column(JSON, nullable=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     run_id: Mapped[str | None] = mapped_column(
         ForeignKey("run.id", name="fk_agent_message_run_id"), nullable=True, index=True

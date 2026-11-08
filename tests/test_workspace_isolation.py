@@ -55,6 +55,7 @@ PATH = {
     "/workflows/{workflow_id}": (f"/workflows/{MARK}", lambda r: r.status_code == 404),
     "/runs/{run_id}/workflow": (f"/runs/run-{MARK}/workflow", lambda r: r.status_code == 404),
     "/runs/{run_id}/costs": (f"/runs/run-{MARK}/costs", lambda r: r.status_code == 404),
+    "/runs/{run_id}/board": (f"/runs/run-{MARK}/board", lambda r: r.status_code == 404),
     # another workspace's version 9 of a shared workflow
     "/workflows/{workflow_id}/versions": (
         "/workflows/weekly_status/versions",

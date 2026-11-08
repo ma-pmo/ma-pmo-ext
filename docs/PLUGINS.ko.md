@@ -73,6 +73,28 @@ ma-pmo agents        # id, 이름, 버전, 출처. 불러오지 못한 플러그
 틀리거나, 없는 에이전트를 쓰거나, 이미 있는 id면 `GET /agents`의 `workflow_problems`에 나오고 그 파일은
 건너뜁니다.
 
+### 단계가 읽을 수 있는 것
+
+단계의 에이전트는 자기 데이터로 일하며, 워크플로가 `reads`로 허락하지 않으면 다른 단계가 게시한 것을 보지
+못합니다.
+
+| `reads` | 단계가 보는 것 |
+|---|---|
+| `isolated` (기본) | 다른 단계의 것은 없음. 상태에 `board`가 아예 없음 |
+| `upstream` | 직접 또는 다른 단계를 거쳐 기다리는 모든 단계의 게시물 |
+| `board` | 앞선 열(stage)에 있는 모든 단계의 게시물 |
+
+```json
+{"id": "report", "agent": "A5", "needs": ["risk"], "reads": "upstream"}
+```
+
+에이전트는 `ma_pmo.sdk.board_posts(state, schema=None)`로 읽습니다. 게시물마다 게시된 메시지의
+`message_id`, `step`, `agent`, `schema`, `data`, `confidence`, `evidence`가 있습니다. 결과가 어떤 게시물이나
+데이터에 근거한다면 `publish(..., evidence=[EvidenceRef(kind="message", ref=post["message_id"])])`로
+밝히세요. 다른 종류로 `tracker`(`field`와 함께)와 `knowledge`가 있습니다. `GET /runs/{id}/board`는 한 실행의
+모든 게시물과 각 단계가 읽을 수 있던 범위를 보여 줍니다. 이 방식은 ArcticSwarm(Yoon et al., 2026,
+arXiv:2609.01870)의 게이트 게시판을 따릅니다. 게시는 언제나 허용하고, 읽기는 단계마다 허락합니다.
+
 결과는 대시보드의 **워크플로** 화면에서 확인하세요. 각 워크플로를 병렬로 실행될 수 있는 단계별 열로
 그리고, 같은 단계를 표로도 보여 주며, 게이트 같은 필수 단계를 표시합니다. `GET /workflows`와
 `GET /workflows/{id}`도 같은 내용을 돌려주며, 각 단계의 실제 `needs`와 `level`을 포함합니다.

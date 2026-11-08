@@ -3,6 +3,7 @@
 GET /workflows               : every loaded workflow, and the files that could not be loaded
 GET /workflows/{workflow_id} : one workflow's steps, with what each waits for and its level
 GET /runs/{run_id}/workflow  : the workflow a run used, with where each of its steps stands
+GET /runs/{run_id}/board     : what each step of a run published, and what each step could read
 
 Versions (see core/workflow_store.py):
 POST /workflows/validate                               : the rules a spec breaks, if any
@@ -21,7 +22,7 @@ from pydantic import BaseModel
 
 from ma_pmo.agents import registry
 from ma_pmo.api.auth import CurrentPrincipal
-from ma_pmo.core import llm, runs, scenarios, workflow_store
+from ma_pmo.core import board, llm, runs, scenarios, workflow_store
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.workflow import WorkflowSpec, builtin_ids
 
@@ -134,20 +135,24 @@ def _steps(spec: WorkflowSpec) -> list[dict]:
     needs, levels = spec.dependencies(), spec.levels()
     return [{"id": s.id, "agent": s.agent, "agent_name": registry.title(s.agent),
              "params": s.params, "needs": needs[s.id], "required": s.required,
-             "model_tier": s.model_tier or "standard", "level": levels[s.id]}
+             "model_tier": s.model_tier or "standard", "reads": s.reads, "level": levels[s.id]}
             for s in spec.steps]
 
 
-@router.get("/runs/{run_id}/workflow")
-def run_workflow(run_id: str) -> dict:
-    """The workflow exactly as this run saved it, which may differ from today's file."""
+def _saved_spec(run_id: str) -> tuple[dict, WorkflowSpec]:
     run = runs.get_run(run_id)
     saved = runs.get_state(run_id).get("spec") if run else None
     if run is None or not saved:
         raise HTTPException(status_code=404, detail=tr(
             f"no workflow saved for run '{run_id}'",
             f"이 실행에 저장된 워크플로가 없습니다: '{run_id}'"))
-    spec = WorkflowSpec.model_validate(saved)
+    return run, WorkflowSpec.model_validate(saved)
+
+
+@router.get("/runs/{run_id}/workflow")
+def run_workflow(run_id: str) -> dict:
+    """The workflow exactly as this run saved it, which may differ from today's file."""
+    run, spec = _saved_spec(run_id)
     states = runs.step_states(run_id)
     steps = [{**step, "run": states.get(seq, {"status": "not_started", "pending_approvals": 0})}
              for seq, step in enumerate(_steps(spec), start=1)]
@@ -158,3 +163,13 @@ def run_workflow(run_id: str) -> dict:
     summary = {k: v for k, v in run.items() if k not in ("steps", "result")}
     return {**_summary(spec, builtin_ids()), "steps": steps, "run": summary,
             "same_as_current": same}
+
+
+@router.get("/runs/{run_id}/board")
+def run_board(run_id: str) -> dict:
+    """Every post of the run, and per step its read mode and the steps it could read."""
+    _run, spec = _saved_spec(run_id)
+    steps = [{"id": s.id, "agent": s.agent, "reads": s.reads,
+              "can_read": sorted(board.readable(spec, s.id) or [])} for s in spec.steps]
+    return {"run_id": run_id, "workflow": spec.id, "steps": steps,
+            "posts": board.posts(run_id, spec)}

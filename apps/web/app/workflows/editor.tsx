@@ -12,6 +12,7 @@ import { Graph, params as paramsText, type Step } from "./graph";
 type Row = {
   key: number; id: string; agent: string; needs: string[]; params: string; required: boolean;
   tier: "standard" | "fast";
+  reads: NonNullable<Step["reads"]>;  // kept as it was; chosen in the editor in a later release
 };
 type Agent = { id: string; name: string };
 type DryRun = {
@@ -56,7 +57,7 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
   const locked = useMemo(() => new Set(steps.filter((s) => s.required).map((s) => s.id)), [steps]);
   const [rows, setRows] = useState<Row[]>(() => steps.map((s) => ({
     key: nextKey++, id: s.id, agent: s.agent, needs: s.needs, params: paramsText(s.params), required: s.required,
-    tier: s.model_tier ?? "standard",
+    tier: s.model_tier ?? "standard", reads: s.reads ?? "isolated",
   })));
   const [agents, setAgents] = useState<Agent[]>([]);
   const [note, setNote] = useState("");
@@ -72,7 +73,7 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
     ...spec,
     steps: rows.map((r) => ({
       id: r.id, agent: r.agent, needs: r.needs, params: parseParams(r.params), required: r.required,
-      model_tier: r.tier === "fast" ? "fast" : null,
+      model_tier: r.tier === "fast" ? "fast" : null, reads: r.reads,
     })),
   }), [spec, rows]);
 
@@ -92,7 +93,7 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
     const names = Object.fromEntries(agents.map((a) => [a.id, a.name]));
     return rows.map((r) => ({
       id: r.id, agent: r.agent, agent_name: names[r.agent] ?? r.agent, params: parseParams(r.params),
-      needs: r.needs, required: r.required, level: lv[r.id], model_tier: r.tier,
+      needs: r.needs, required: r.required, level: lv[r.id], model_tier: r.tier, reads: r.reads,
     }));
   }, [rows, agents]);
 
@@ -119,7 +120,7 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
     let n = rs.length + 1;
     while (rs.some((r) => r.id === `step${n}`)) n += 1;
     const last = rs[rs.length - 1];
-    return [...rs, { key: nextKey++, id: `step${n}`, agent: agents[0]?.id ?? "A2", needs: last ? [last.id] : [], params: "", required: false, tier: "standard" }];
+    return [...rs, { key: nextKey++, id: `step${n}`, agent: agents[0]?.id ?? "A2", needs: last ? [last.id] : [], params: "", required: false, tier: "standard", reads: "isolated" }];
   });
   const toggleNeed = (key: number, id: string) => setRows((rs) => rs.map((r) => (r.key !== key ? r
     : { ...r, needs: r.needs.includes(id) ? r.needs.filter((n) => n !== id) : [...r.needs, id] })));

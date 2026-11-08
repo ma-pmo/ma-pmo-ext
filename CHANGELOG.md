@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- What a step may read (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): a workflow step's `reads` is `isolated` (the default, today's behaviour: its state has no `board`), `upstream` (posts of every step it waits for) or `board` (posts of every earlier stage). The executor enforces it; agents read with `ma_pmo.sdk.board_posts`. Messages carry `evidence` (references to messages, tracker fields or lessons; migration `0012_message_evidence`), set with `publish(..., evidence=...)`. `GET /runs/{id}/board` shows a run's posts and what each step could read. Built-in workflows stay isolated. After ArcticSwarm's gated bulletin board (Yoon et al., 2026, arXiv:2609.01870), implemented independently.
+
 ## [0.6.0] - 2026-11-08
 
 ### Changed
@@ -147,6 +150,8 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+- 추가: 단계가 읽을 수 있는 범위(로드맵 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)). 워크플로 단계의 `reads`는 `isolated`(기본, 지금과 같은 동작으로 상태에 `board`가 없음), `upstream`(기다리는 모든 단계의 게시물), `board`(앞선 모든 열의 게시물) 중 하나이며, 실행기가 강제합니다. 에이전트는 `ma_pmo.sdk.board_posts`로 읽습니다. 메시지에 `evidence`(메시지, 트래커 필드, 교훈에 대한 참조, 마이그레이션 `0012_message_evidence`)가 생기고 `publish(..., evidence=...)`로 남깁니다. `GET /runs/{id}/board`는 한 실행의 게시물과 각 단계가 읽을 수 있던 범위를 보여 줍니다. 기본 워크플로는 격리된 그대로입니다. ArcticSwarm(Yoon et al., 2026, arXiv:2609.01870)의 게이트 게시판을 참고해 독립적으로 구현했습니다.
 
 ### [0.6.0] - 2026-11-08
 

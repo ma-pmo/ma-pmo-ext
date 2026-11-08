@@ -9,7 +9,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -37,6 +37,19 @@ class MessagePayload(BaseModel):
         return v
 
 
+class EvidenceRef(BaseModel):
+    """What a message rests on: another message, a tracker field or a knowledge entry.
+
+    `{"kind": "message", "ref": "<message_id>"}`, `{"kind": "tracker", "ref": "PROJ-14",
+    "field": "planned_finish"}`, `{"kind": "knowledge", "ref": "<lesson id>"}`. Reviews cite
+    these instead of restating them, so a person can follow a verdict back to its source.
+    """
+
+    kind: Literal["message", "tracker", "knowledge"]
+    ref: str = Field(min_length=1)
+    field: str | None = None
+
+
 def _now() -> datetime:
     return datetime.now(UTC)
 
@@ -52,6 +65,7 @@ class AgentMessage(BaseModel):
     payload: MessagePayload
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     human_gate_required: bool = False
+    evidence: list[EvidenceRef] = Field(default_factory=list)
     timestamp: datetime = Field(default_factory=_now)
 
     def needs_human_gate(self, confidence_threshold: float) -> bool:
