@@ -312,6 +312,9 @@ class Approval(Scoped, Base):
     run_id: Mapped[str | None] = mapped_column(
         ForeignKey("run.id", name="fk_approval_run_id"), nullable=True, index=True
     )
+    # why a person is asked beyond the message's own gate, e.g. a commit gate holding a decision
+    # its reviews challenged: {"kind": "review_pending", "challenges": [...], "missing": [...]}
+    reason: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
 class KnowledgeDoc(Scoped, Base):

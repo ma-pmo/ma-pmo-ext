@@ -16,7 +16,7 @@ from ma_pmo.agents.governance import GovernanceAgent
 from ma_pmo.agents.reporting import ReportingAgent
 from ma_pmo.agents.resource import ResourceAgent
 from ma_pmo.agents.risk import RiskAgent
-from ma_pmo.core import executor, llm, runs
+from ma_pmo.core import commit, executor, hitl, llm, runs
 from ma_pmo.core.sandbox import sandbox
 from ma_pmo.core.workflow import WorkflowSpec
 from ma_pmo.db.models import Project
@@ -90,6 +90,12 @@ def spec(steps: list[dict], review: bool = False) -> WorkflowSpec:
 
 def run_on(monkeypatch, status: dict, workflow: WorkflowSpec) -> list[dict]:
     """Run `workflow` with A3, A4, A5, A6 and A8 reading `status`; returns the outputs."""
+    return run_full(monkeypatch, status, workflow)["outputs"]
+
+
+def run_full(monkeypatch, status: dict, workflow: WorkflowSpec, gate: bool = False) -> dict:
+    """As `run_on`, plus the commit gate of a reviewed run (or any run, with `gate`) and the
+    approval queue after it."""
     def down(**kw):
         raise RuntimeError("deterministic path")
 
@@ -105,7 +111,10 @@ def run_on(monkeypatch, status: dict, workflow: WorkflowSpec) -> list[dict]:
             s.add(Project(id="PROJ-X", portfolio_id=SCOPE, skill=x["skill"],
                           status=x["status"], deadline=x.get("deadline")))
         with runs.track("scenario", "t", SCOPE, state={"spec": workflow.model_dump()}) as rid:
-            return executor.execute(rid, workflow, SCOPE, "goal").outputs
+            outputs = executor.execute(rid, workflow, SCOPE, "goal").outputs
+            decided = commit.check(rid, workflow) if workflow.review or gate else None
+        return {"run_id": rid, "outputs": outputs, "commit": decided,
+                "pending": hitl.list_pending(), "spec": workflow}
 
 
 def reviews(outputs: list[dict], agent: str | None = None) -> list[dict]:

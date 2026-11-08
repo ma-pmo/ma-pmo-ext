@@ -78,13 +78,38 @@ where the two differ both stay on the board. A1 never routes a goal to A8.
 {"id": "risk_review", "review": true, "steps": [...]}
 ```
 
+## Commit gate
+
+At the end of a reviewed run, every decision on the board (each gate review and report) is
+checked before it takes effect:
+
+1. no reviewer, builder or dedicated, CHALLENGEs it;
+2. every constraint that applies has a VERIFIED verdict from A8. A constraint applies when the
+   agent it rests on ran in this run (A4 for risks, A3 for staffing and allocation).
+
+A decision that meets both is **committed**. Any other is **review pending**: it goes to the
+approval queue (`GET /approvals`), and the item's `review` lists the challenges with their
+rationale and evidence, and the constraints nobody could check (`missing`; for example the
+allocation check of a project with no deadline). A decision that already needed approval, such as
+a failing gate, keeps its one approval, which gains the same detail. Approving or rejecting it is
+an ordinary decision; the finished run stays as it is. Passing review never replaces an approval
+that was required anyway.
+
+The outcome per decision is saved with the run (`commit` in its state and in the scenario result).
+In the 0.6.0 spike's ten portfolio variants, all nine gate conflicts are held with both reviewers'
+challenges attached, the two report conflicts are fixed by A5 before the report commits, and the
+controls are committed without asking anyone.
+
 ## Where MA-PMO differs
 
 - Agents are mostly deterministic and already isolated, so the read side is what MA-PMO adds:
   reading is granted per step, publishing is always allowed.
 - Checks are rules over posted data, not LLM judgements, so a verdict cannot claim support that
   is not on the board.
+- When the commit gate's conditions are not met, ArcticSwarm spawns the missing reviews and, at a
+  deadline, lets the conditions become advisory. MA-PMO sends the decision to a person instead and
+  reports what is missing, so a run stays the static, resumable workflow it started as and a
+  high-stakes decision never commits by timeout.
 
-Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): a commit gate
-that sends unreviewed or challenged decisions to a person, and alternatives for high-risk
-decisions.
+Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): alternatives
+for high-risk decisions, and the review shown in the dashboard.
