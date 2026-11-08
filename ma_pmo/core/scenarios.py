@@ -249,7 +249,7 @@ def run_scenario(
 def run_spec(spec: WorkflowSpec, scope: str = DEFAULT_SCOPE, drop_agents: tuple[str, ...] = (),
              *, pause_on_gate: bool = False) -> dict:
     """Run a workflow given as a spec, as `run_scenario` does (also how a draft is dry-run)."""
-    spec = spec.without_agents(drop_agents)
+    spec = spec.without_agents(drop_agents).with_review()
     state = {"spec": spec.model_dump(), "pause_on_gate": pause_on_gate}
     with tracing.span(f"invoke_workflow {spec.id}", {
         tracing.OPERATION: "invoke_workflow", tracing.SCENARIO: spec.id,

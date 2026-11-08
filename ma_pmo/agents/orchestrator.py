@@ -21,7 +21,7 @@ from ma_pmo.core.state.blackboard import PortfolioState
 _log = structlog.get_logger()
 
 def _role_prompt() -> str:
-    specs = registry.specs()
+    specs = registry.routable()
     workers = "\n".join(f"- {spec.id} {spec.capability}" for spec in specs.values())
     return f"""You are the PMO orchestrator (supervisor). Given the user's goal, decide which
 specialist workers to delegate what to. Available workers, with what each one is for:
@@ -56,7 +56,7 @@ class OrchestratorAgent(BaseAgent[RoutingV1]):
             decision = keyword_route(goal)
             mode = "rule"
         # keep only valid workers (guards against hallucinated routing)
-        decision.delegations = [d for d in decision.delegations if d.agent in registry.specs()]
+        decision.delegations = [d for d in decision.delegations if d.agent in registry.routable()]
         if not decision.delegations:  # backfill with rules if the LLM returned no delegations
             decision = keyword_route(goal)
             mode = "rule"

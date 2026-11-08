@@ -44,6 +44,7 @@ class AgentSpec:
     factory: Callable[[], BaseAgent[Any]]
     payload: type[BaseModel] | None = None  # plugins: model that validates `output_schema`
     source: str = "builtin"  # set to the distribution name for plugins
+    routable: bool = True  # False: runs only where a workflow puts it, never chosen by A1
 
     @property
     def title(self) -> str:
@@ -112,6 +113,15 @@ BUILTINS: tuple[AgentSpec, ...] = (
         output_schema="knowledge.v1",
         factory=_lazy("ma_pmo.agents.knowledge", "KnowledgeAgent"),
     ),
+    AgentSpec(
+        id="A8", name=("Auditor", "감사"), version="1",
+        capability="Auditor (dedicated review): checks other agents' decisions against the board",
+        keywords=(),
+        default_task=("Review decisions against the board", "게시판 근거로 결정 검토"),
+        output_schema="review.v1",
+        factory=_lazy("ma_pmo.agents.auditor", "AuditorAgent"),
+        routable=False,
+    ),
 )
 
 _instances: dict[str, BaseAgent[Any]] = {}
@@ -175,6 +185,11 @@ def specs() -> dict[str, AgentSpec]:
 
 def worker_ids() -> list[str]:
     return list(specs())
+
+
+def routable() -> dict[str, AgentSpec]:
+    """The workers A1 may delegate a goal to (an auditor only runs where a workflow puts it)."""
+    return {i: spec for i, spec in specs().items() if spec.routable}
 
 
 def get(agent_id: str) -> BaseAgent[Any]:

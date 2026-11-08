@@ -14,7 +14,8 @@ from ma_pmo.core.schemas.payloads import PAYLOAD_REGISTRY
 @pytest.mark.smoke
 def test_builtin_workers_are_complete_and_valid():
     specs = registry.specs()
-    assert set(specs) == {"A2", "A3", "A4", "A5", "A6", "A7"}
+    assert set(specs) == {"A2", "A3", "A4", "A5", "A6", "A7", "A8"}
+    assert set(registry.routable()) == set(specs) - {"A8"}  # the auditor is never routed
     for agent_id, spec in specs.items():
         assert spec.output_schema in PAYLOAD_REGISTRY, agent_id
         agent = registry.get(agent_id)
@@ -64,5 +65,5 @@ def test_names_and_prompt_come_from_the_registry():
     with use_lang("en"):
         assert registry.title("A2") == "Planning"
     prompt = OrchestratorAgent().role_prompt
-    for agent_id, spec in registry.specs().items():
+    for agent_id, spec in registry.routable().items():
         assert f"- {agent_id} {spec.capability}" in prompt

@@ -138,14 +138,15 @@ API도 같습니다: `POST /workflows/validate`, `POST /workflows/dry-run`,
 
 | 규칙 | 이유 |
 |---|---|
-| id는 소문자 `vendor.name` 형식 | 플러그인이 `A1`~`A7`과 겹치거나 대체할 수 없음 |
+| id는 소문자 `vendor.name` 형식 | 플러그인이 `A1`~`A8`과 겹치거나 대체할 수 없음 |
 | `payload`와 고유한 버전 있는 `output_schema` 선언 | 출력이 기본 에이전트처럼 검증됨 |
 | `ma_pmo.sdk.publish`로 발행 | 출력이 감사 로그와 승인 게이트를 거침 |
 | 영향이 큰 결과는 `needs_approval=True` | 사람이 결정함. 확신도가 낮아도 대기열로 감 |
 | `ma_pmo.sdk`에서만 import | 유일한 안정 API. 깨지는 변경은 `SDK_VERSION`을 올림 |
 
 `capability`는 오케스트레이터 LLM이 읽는 문장이고 `keywords`는 LLM 없이 라우팅할 때 쓰이므로, 잡고 싶은
-목표에 맞게 둘 다 작성하세요. 불러오지 못한 플러그인은 `ma-pmo agents`가 알려 주고 건너뛰며, MA-PMO는 계속
+목표에 맞게 둘 다 작성하세요. 검토자처럼 워크플로가 넣은 곳에서만 실행되어야 하는 에이전트는
+`routable=False`로 두면 A1이 목표를 위임하지 않습니다. 불러오지 못한 플러그인은 `ma-pmo agents`가 알려 주고 건너뛰며, MA-PMO는 계속
 동작합니다.
 
 ## 테스트

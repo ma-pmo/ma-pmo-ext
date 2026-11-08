@@ -59,6 +59,7 @@ def _summary(spec: WorkflowSpec, builtin: set[str]) -> dict:
         "hypotheses": spec.hypotheses,
         "source": "builtin" if spec.id in builtin else "custom",
         "agents": [s.agent for s in spec.steps],
+        "review": spec.review,
     }
 
 

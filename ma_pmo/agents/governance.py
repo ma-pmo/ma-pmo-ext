@@ -52,7 +52,8 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
             if "board" in state:  # builder review, only where the workflow grants reading
                 for verdict in cross_checks.gate_checks(proj, state["board"],
                                                         state.get("board_steps", [])):
-                    outputs.append(cross_checks.publish_review(self.agent_id, verdict, msg))
+                    outputs.append(cross_checks.publish_review(
+                        self.agent_id, verdict, msg.message_id, msg.task_ref))
         return {"outputs": outputs, "messages": messages}
 
     def review_project(

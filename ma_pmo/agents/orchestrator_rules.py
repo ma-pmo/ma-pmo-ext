@@ -15,7 +15,7 @@ def keyword_route(goal: str) -> RoutingV1:
     g = (goal or "").lower()
     dels: list[RoutingDecision] = []
     seen: set[str] = set()
-    for spec in registry.specs().values():
+    for spec in registry.routable().values():
         if any(k.lower() in g for k in spec.keywords) and spec.id not in seen:
             dels.append(RoutingDecision(agent=spec.id, task=tr(*spec.default_task)))
             seen.add(spec.id)
