@@ -20,7 +20,7 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 
 > 🇰🇷 **한국어 요약** — LLM 기반 감독자–작업자 멀티 에이전트(A1~A7)로 PMO 업무(일정·자원·리스크·게이트·지식·보고)를 자동화하는 오픈소스입니다. 대시보드와 생성 결과는 **영어/한국어를 모두 지원**합니다(화면 우측 상단 `EN | 한국어`). 오픈소스(AGPL-3.0)로 무료 사용 가능하며, **상업적 사용(소스 비공개 SaaS·자사 제품 탑재 등)과 각종 문의는 [mjinttt@gmail.com](mailto:mjinttt@gmail.com)** 으로 연락주세요. 전체 한국어 문서: [README.ko.md](https://github.com/ma-pmo/ma-pmo-ext/blob/main/README.ko.md)
 
-![MA-PMO demo — dashboard, a four-phase agent scenario, language switch and the HITL approval queue](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/demo.gif)
+![MA-PMO demo — dashboard, a four-phase agent scenario, its run on the workflow graph, the HITL approval queue, costs and the language switch](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/demo.gif)
 
 ## Highlights
 
@@ -34,7 +34,10 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 - **Evaluate on your own data** — fill-in data templates with line-by-line validation, H1–H5 reports with verdicts (Markdown/HTML), and an experiment scaffold (`ma-pmo harness new`).
 - **MCP server** — `ma-pmo mcp` gives AI assistants eight tools over the Model Context Protocol; approvals stay human.
 - **Learn harness engineering** — a [hands-on course](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.md): eight lectures and six labs with automatic checks (`ma-pmo learn`).
-- **Admin dashboard** — sidebar navigation with a pending-approvals badge, Evaluation and Integrations pages, light/dark themes and a mobile layout.
+- **Workspaces** — teams or clients kept apart down to the database (Postgres row-level security), roles per workspace, and a workspace and portfolio switcher in the dashboard.
+- **Workflows you can see and change** — each workflow drawn as parallel stages with a live run overlay; an editor checked as you type, a dry run on demo data, and versions: a draft runs only after an approver publishes it.
+- **LLM cost control** — a ledger of every call priced from a versioned table, monthly and per-run budgets that fall back to deterministic logic instead of failing, a fast model per step, and replay-based recommendations (95% intervals) that a person approves.
+- **Admin dashboard** — sidebar navigation with a pending-approvals badge, Workflows, Evaluation, Costs and Integrations pages, light/dark themes and a mobile layout.
 
 ## Screenshots
 
@@ -45,8 +48,12 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 | ![Evaluation page with hypothesis verdicts, confidence calibration and A7 search quality](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-en.png) | ![Approval queue for high-risk decisions](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-en.png) |
 | **20 lifecycle scenarios** | **Integrations and platform status** |
 | ![Scenario catalog with category tabs](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-en.png) | ![Integrations and platform status (auth, tracing, search, calendars, MCP)](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-en.png) |
+| **Workflow with a run on it, and its versions** | **Workflow editor (checked as you type)** |
+| ![Workflow graph coloured by a finished run, step table and versions with a draft to publish](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/workflows-en.png) | ![Workflow editor with steps, model tiers, locked required step and live graph](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/workflow-editor-en.png) |
+| **Costs and budgets** | **Model recommendations from replays** |
+| ![Costs page with spend, calls, tokens and monthly and per-run budgets](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/costs-en.png) | ![Replay results comparing the standard and fast model with 95% intervals, approve or reject](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/recommendations-en.png) |
 
-Korean UI: [dashboard](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/dashboard-ko.png) · [scenario trace](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenario-trace-ko.png) · [evaluation](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-ko.png) · [approvals](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-ko.png) · [scenarios](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-ko.png) · [integrations](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-ko.png). Light and dark themes follow the OS setting.
+Korean UI: [dashboard](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/dashboard-ko.png) · [scenario trace](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenario-trace-ko.png) · [evaluation](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/evaluation-ko.png) · [approvals](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/approvals-ko.png) · [scenarios](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/scenarios-ko.png) · [integrations](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/integrations-ko.png) · [workflows](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/workflows-ko.png) · [workflow editor](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/workflow-editor-ko.png) · [costs](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/costs-ko.png) · [recommendations](https://raw.githubusercontent.com/ma-pmo/ma-pmo-ext/main/docs/assets/recommendations-ko.png). The spend on the Costs screenshots is sample data from [docs/capture_seed.py](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/capture_seed.py). Light and dark themes follow the OS setting.
 
 ## Quick start
 

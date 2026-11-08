@@ -6,10 +6,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-08
+
 ### Changed
+- README screenshots and demo GIF cover the new Workflows and Costs pages; `docs/capture_seed.py` makes the sample spend, budgets and recommendations they show, without calling any provider.
 - A principal with no roles can no longer read: a custom authenticator that returned `Principal(subject)` without roles had read access to everything, and now has none unless it has a membership.
 
 ### Fixed
+- The dashboard showed run, version and approval times as if UTC were local time (nine hours early in Asia/Seoul), in the browser's date format rather than the UI language's. Times are now read as UTC and shown in local time in the UI language.
+- On phones the top bar was crowded: the page name now shortens when space runs out and the API status keeps its dot (the text stays for screen readers and as a tooltip).
 - Dry runs threw away the LLM spend of their throwaway workspace and ignored budgets. Their spend is now kept in the workspace's ledger (`purpose: dry_run`) and the workspace's budgets apply.
 - Allocating one portfolio erased every portfolio's plan. A3 now replaces only its own, and an unknown scope erases nothing.
 - A person shared by two portfolios could be booked twice: hours planned elsewhere now count as busy.
@@ -129,7 +134,8 @@ First public release.
 ### Fixed
 - Progress bars on the dashboard did not render their fill.
 
-[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.2.0...v0.3.0
@@ -142,6 +148,11 @@ First public release.
 
 ### [Unreleased]
 
+### [0.6.0] - 2026-11-08
+
+- 변경: README 스크린샷과 데모 GIF에 새 워크플로·비용 화면을 넣었습니다. 화면에 보이는 예시 비용, 예산, 추천은 `docs/capture_seed.py`로 만들며, 어떤 제공자도 호출하지 않습니다.
+- 수정: 대시보드가 실행·버전·승인 시각을 UTC가 아니라 현지 시각인 것처럼 보여 주던 문제(Asia/Seoul에서 9시간 이르게 표시). 날짜 형식도 UI 언어가 아니라 브라우저 설정을 따랐습니다. 이제 UTC로 읽어 현지 시각으로, UI 언어 형식에 맞춰 보여 줍니다.
+- 수정: 휴대폰에서 상단 바가 비좁던 문제. 공간이 모자라면 화면 이름을 줄이고, API 상태는 점만 보여 줍니다(글자는 화면 낭독기와 툴팁으로 남습니다).
 - 수정: 시험 실행이 임시 워크스페이스의 LLM 비용을 버리고 예산도 무시하던 문제. 이제 그 비용이 워크스페이스 원장에 남고(`purpose: dry_run`), 워크스페이스 예산이 적용됩니다.
 - 수정: 한 포트폴리오를 배분하면 모든 포트폴리오의 계획이 지워지던 문제. 이제 A3는 자기 계획만 교체하고, 없는 범위는 아무것도 지우지 않습니다.
 - 수정: 두 포트폴리오가 공유하는 사람이 이중 배정될 수 있던 문제. 다른 포트폴리오에 잡힌 시간은 이제 바쁜 시간으로 계산합니다.

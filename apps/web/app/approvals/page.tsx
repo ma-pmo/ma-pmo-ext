@@ -2,6 +2,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useI18n } from "../lib/i18n";
+import { when } from "../lib/time";
 import type { Messages } from "../lib/messages";
 import { Card, PageHeader, Stat } from "../components/shell";
 import { Icon } from "../components/icons";
@@ -88,7 +89,7 @@ export default function Approvals() {
                     <Fragment key={it.approval_id}>
                       <tr>
                         <td className="muted">{it.approval_id}</td>
-                        <td><span className="badge accent">{it.sender} → A1</span><div className="muted">{it.requested_at?.slice(0, 16).replace("T", " ")}</div></td>
+                        <td><span className="badge accent">{it.sender} → A1</span><div className="muted" style={{ whiteSpace: "nowrap" }}>{when(it.requested_at, lang)}</div></td>
                         <td>
                           <b>{s.title}</b>
                           <div className="muted">{s.lines.filter(Boolean).join(" · ")}</div>

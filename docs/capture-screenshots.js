@@ -1,11 +1,13 @@
 // Capture README screenshots and demo-GIF frames from a locally running dashboard.
 //
-// Prerequisites: API and dashboard running with demo data (`make db-init`, `make api`, `make web`),
+// Prerequisites: API and dashboard running with demo data (`make db-init`, then
+// `python docs/capture_seed.py` for sample spend and recommendations, `make api`, `make web`),
 // Google Chrome, and `npm install playwright-core` in a scratch folder.
-// usage: node capture-screenshots.js <outDir> [--gif] [--base http://localhost:3000]
-// Writes <page>-<en|ko>.png for dashboard, scenarios, scenario-trace, approvals, evaluation and
-// integrations (1440x900 @2x, light theme). With --gif, frames go to <outDir>/frames named
-// NNN_<hold>.png, where <hold> is the frame duration in ticks.
+// usage: node capture-screenshots.js <outDir> [--gif] [--base http://localhost:3000] [--api http://localhost:8000]
+// Writes <page>-<en|ko>.png for dashboard, scenarios, scenario-trace, approvals, evaluation,
+// integrations, workflows (with a run), workflow-editor, costs and recommendations
+// (1440x900 @2x, light theme). With --gif, frames go to <outDir>/frames named NNN_<hold>.png,
+// where <hold> is the frame duration in ticks.
 const { chromium } = require("playwright-core");
 const fs = require("fs");
 const path = require("path");
@@ -14,6 +16,7 @@ const args = process.argv.slice(2);
 const outDir = args[0];
 const gif = args.includes("--gif");
 const BASE = args.includes("--base") ? args[args.indexOf("--base") + 1] : "http://localhost:3000";
+const API = args.includes("--api") ? args[args.indexOf("--api") + 1] : "http://localhost:8000";
 if (!outDir) {
   console.error("usage: node capture-screenshots.js <outDir> [--gif] [--base URL]");
   process.exit(2);
@@ -27,11 +30,17 @@ fs.mkdirSync(outDir, { recursive: true });
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2, colorScheme: "light" });
   const page = await ctx.newPage();
   const go = async (route, lang) => {
-    await page.goto(`${BASE}${route}?lang=${lang}`);
+    await page.goto(`${BASE}${route}${route.includes("?") ? "&" : "?"}lang=${lang}`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(600);
   };
   const shot = (name) => page.screenshot({ path: path.join(outDir, name) });
+  const top = async (locator) => {  // put a section at the top of the screen
+    await locator.first().evaluate((el) => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 72));
+    await page.waitForTimeout(400);
+  };
+  const latest = await (await fetch(`${API}/runs?workflow=risk_escalation&limit=1`)).json();
+  const run = (Array.isArray(latest) ? latest : latest.runs)[0].run_id;
 
   for (const lang of ["en", "ko"]) {
     await go("/", lang); await shot(`dashboard-${lang}.png`);
@@ -43,10 +52,18 @@ fs.mkdirSync(outDir, { recursive: true });
     await go("/approvals", lang); await shot(`approvals-${lang}.png`);
     await go("/evaluation", lang); await shot(`evaluation-${lang}.png`);
     await go("/integrations", lang); await shot(`integrations-${lang}.png`);
+    await go(`/workflows?id=risk_escalation&run=${run}`, lang); await shot(`workflows-${lang}.png`);
+    await go("/workflows?id=risk_escalation", lang);
+    await page.locator(".wf-edit-btn", { hasText: lang === "ko" ? "편집" : "Edit" }).first().click();
+    await page.waitForTimeout(500); await top(page.locator(".wf-edit-only")); await shot(`workflow-editor-${lang}.png`);
+    await go("/costs", lang); await shot(`costs-${lang}.png`);
+    await top(page.locator(".card", { hasText: lang === "ko" ? "모델 추천" : "Model recommendations" }));
+    await shot(`recommendations-${lang}.png`);
   }
   await ctx.close();
 
-  // 2) GIF frames (1x scale, smaller viewport): dashboard → scenario run → approve → evaluation → Korean
+  // 2) GIF frames (1x scale, smaller viewport): dashboard → scenario run → its workflow → approve →
+  //    costs → evaluation → Korean
   if (gif) {
     const framesDir = path.join(outDir, "frames");
     fs.mkdirSync(framesDir, { recursive: true });
@@ -73,9 +90,13 @@ fs.mkdirSync(outDir, { recursive: true });
     await p.locator(".card", { hasText: "Risk early warning" }).locator("button").click();
     await p.waitForSelector("text=Insight —"); await p.waitForTimeout(900);
     await snap(10); await scroll(await p.evaluate(() => window.scrollY + 480), 4);
+    const ran = await (await fetch(`${API}/runs?workflow=risk_rebalance&limit=1`)).json();
+    await p.goto(`${BASE}/workflows?id=risk_rebalance&run=${(Array.isArray(ran) ? ran : ran.runs)[0].run_id}&lang=en`);
+    await p.waitForLoadState("networkidle"); await p.waitForTimeout(800); await snap(12);
     await nav("Approvals"); await snap(10);
     await p.locator("tbody tr").first().locator("button", { hasText: "Approve" }).click(); await p.waitForTimeout(700);
     await snap(8);
+    await nav("Costs", 700); await snap(12);
     await nav("Evaluation", 700); await snap(14);
     await p.locator(".topbar button", { hasText: "한국어" }).click();
     await p.waitForLoadState("networkidle"); await p.waitForTimeout(900);
