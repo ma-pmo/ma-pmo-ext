@@ -116,6 +116,20 @@ In the 0.6.0 spike's ten portfolio variants, all nine gate conflicts are held wi
 challenges attached, the two report conflicts are fixed by A5 before the report commits, and the
 controls are committed without asking anyone.
 
+## In the dashboard
+
+- **Approvals:** a held decision shows **Review pending**, and under it the challenges (constraint,
+  reviewer, rationale and the posts they cite), the alternatives offered, and what was not
+  checked.
+- **Workflows:** the step table has a **Reads** column; pick a finished run to see its **Board**:
+  each step's read mode, what it could read, how many posts and verdicts it made, and every
+  decision committed or held (held ones link to the approval queue). A reviewed workflow says so
+  next to its version.
+- **Editor:** each step has a **Reads** menu, and **Review every run** turns `review` on.
+
+Rationales and alternative summaries are written in the language the run ran in; constraint
+names and labels follow the reader's language.
+
 ## Where MA-PMO differs
 
 - Agents are mostly deterministic and already isolated, so the read side is what MA-PMO adds:
@@ -130,5 +144,5 @@ controls are committed without asking anyone.
   reports what is missing, so a run stays the static, resumable workflow it started as and a
   high-stakes decision never commits by timeout.
 
-Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): the review shown
-in the dashboard, and an evaluation of each part.
+Coming next (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): an evaluation of
+each part.

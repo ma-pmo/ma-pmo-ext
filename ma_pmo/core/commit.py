@@ -103,9 +103,14 @@ def held_detail(reason: dict | None, run_id: str | None, spec: WorkflowSpec | No
     if run_id and spec is not None:
         by_id = {p["message_id"]: p for p in board.posts(run_id, spec)}
 
+    def cited(refs: list[dict]) -> list[dict]:  # say whose post each message reference is
+        return [{**r, "agent": by_id[r["ref"]]["agent"], "schema": by_id[r["ref"]]["schema"]}
+                if r.get("kind") == "message" and r.get("ref") in by_id else r for r in refs]
+
     def entries(ids: list[str], keys: tuple[str, ...]) -> list[dict]:
-        return [{"agent": by_id[i]["agent"], **{k: by_id[i]["data"].get(k) for k in keys}}
-                for i in ids if i in by_id]
+        found = [{"agent": by_id[i]["agent"], **{k: by_id[i]["data"].get(k) for k in keys}}
+                 for i in ids if i in by_id]
+        return [{**f, "evidence": cited(f.get("evidence") or [])} for f in found]
 
     return {"kind": REVIEW_PENDING,
             "challenges": entries(reason.get("challenges", []),

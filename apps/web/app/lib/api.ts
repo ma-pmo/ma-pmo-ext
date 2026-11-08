@@ -60,6 +60,7 @@ export const api = {
     return req(`/runs${query ? `?${query}` : ""}`);
   },
   runWorkflow: (runId: string) => req(`/runs/${encodeURIComponent(runId)}/workflow`),
+  runBoard: (runId: string) => req(`/runs/${encodeURIComponent(runId)}/board`),
   workflowVersions: (id: string) => req(`/workflows/${encodeURIComponent(id)}/versions`),
   workflowVersion: (id: string, version: number) =>
     req(`/workflows/${encodeURIComponent(id)}/versions/${version}`),

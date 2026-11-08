@@ -292,6 +292,32 @@ const en = {
     phoneReadOnly: "Editing needs a wider screen; on a phone workflows are read-only.",
   },
 
+  rv: {
+    pending: "Review pending",
+    pendingTip: "Held by the commit gate: a reviewer challenged this decision, or something it rests on could not be checked.",
+    challenged: "Challenged", alternatives: "Alternatives", missing: "Not checked", evidence: "Evidence",
+    constraint: {
+      "gate.no_open_high_risk": "No open high risk", "gate.staffed": "All work staffed",
+      "gate.allocation_by_deadline": "Plan ends by the deadline", "report.covers_risks": "Report covers the risks",
+      "review.dedicated": "No dedicated review ran", alternative: "No alternative offered",
+    } as Record<string, string>,
+    role: { builder: "builder", dedicated: "dedicated reviewer" } as Record<string, string>,
+    altKinds: { conditional_on_mitigation: "Conditional on mitigation", add_capacity: "Add capacity", move_deadline: "Move the deadline" } as Record<string, string>,
+    ev: (e: { kind: string; ref: string; field?: string; agent?: string; schema?: string }) =>
+      e.kind === "message" ? `${e.agent ?? "?"} · ${e.schema ?? "message"}${e.field ? ` · ${e.field}` : ""}`
+        : e.kind === "tracker" ? `tracker · ${e.ref}${e.field ? `.${e.field}` : ""}`
+          : e.kind === "step" ? `${e.ref} found nothing${e.field ? ` on ${e.field}` : ""}` : `${e.kind} · ${e.ref}`,
+    board: "Board",
+    boardDesc: "What each step published and what it was allowed to read. Isolated steps read nothing.",
+    reads: "Reads", readsNames: { isolated: "Isolated", upstream: "Upstream", board: "Board" } as Record<string, string>,
+    readsTip: "Isolated: reads nothing from other steps. Upstream: what the steps it waits for published. Board: every earlier stage.",
+    canRead: "Can read", posts: "Posts", verdicts: "Verdicts",
+    decisions: "Decisions", status: { committed: "Committed", review_pending: "Review pending" } as Record<string, string>,
+    review: "Review every run",
+    reviewTip: "Decision steps check their output against what they read, A8 reviews every decision at the end, and challenged decisions wait for a person.",
+    reviewed: "reviewed",
+  },
+
   appr: {
     title: "Approval queue (Human-in-the-Loop)",
     desc1:
@@ -618,6 +644,32 @@ const ko: Messages = {
     saved: (v: number) => `초안(v${v})을 저장했습니다. approver가 아래에서 게시할 수 있습니다.`,
     publish: "게시", publishing: "게시 중…", published: (v: number) => `이제 v${v} 버전을 사용합니다.`,
     phoneReadOnly: "편집은 넓은 화면에서 할 수 있습니다. 휴대폰에서는 읽기 전용입니다.",
+  },
+
+  rv: {
+    pending: "검토 대기",
+    pendingTip: "확정 게이트가 보류한 결정입니다. 검토자가 이의를 제기했거나, 근거 중 확인하지 못한 것이 있습니다.",
+    challenged: "이의", alternatives: "대안", missing: "확인 안 됨", evidence: "근거",
+    constraint: {
+      "gate.no_open_high_risk": "열린 high 리스크 없음", "gate.staffed": "작업 모두 배정됨",
+      "gate.allocation_by_deadline": "계획이 마감 안에 끝남", "report.covers_risks": "보고서가 리스크를 모두 다룸",
+      "review.dedicated": "전담 검토가 실행되지 않음", alternative: "제시된 대안 없음",
+    } as Record<string, string>,
+    role: { builder: "담당 에이전트", dedicated: "전담 검토자" } as Record<string, string>,
+    altKinds: { conditional_on_mitigation: "완화 조치 조건부", add_capacity: "인력 추가", move_deadline: "마감 조정" } as Record<string, string>,
+    ev: (e: { kind: string; ref: string; field?: string; agent?: string; schema?: string }) =>
+      e.kind === "message" ? `${e.agent ?? "?"} · ${e.schema ?? "메시지"}${e.field ? ` · ${e.field}` : ""}`
+        : e.kind === "tracker" ? `트래커 · ${e.ref}${e.field ? `.${e.field}` : ""}`
+          : e.kind === "step" ? `${e.ref}: ${e.field ? `${e.field}에 대해 ` : ""}찾은 것 없음` : `${e.kind} · ${e.ref}`,
+    board: "게시판",
+    boardDesc: "각 단계가 게시한 것과 읽을 수 있던 범위입니다. 격리된 단계는 아무것도 읽지 않습니다.",
+    reads: "읽기", readsNames: { isolated: "격리", upstream: "앞 단계", board: "게시판" } as Record<string, string>,
+    readsTip: "격리: 다른 단계의 것을 읽지 않음. 앞 단계: 기다리는 단계들이 게시한 것. 게시판: 앞선 모든 열.",
+    canRead: "읽을 수 있는 단계", posts: "게시물", verdicts: "판정",
+    decisions: "결정", status: { committed: "확정", review_pending: "검토 대기" } as Record<string, string>,
+    review: "모든 실행 검토",
+    reviewTip: "결정 단계가 읽은 내용과 자기 결과를 대조하고, 마지막에 A8이 모든 결정을 검토하며, 이의가 있는 결정은 사람을 기다립니다.",
+    reviewed: "검토",
   },
 
   appr: {

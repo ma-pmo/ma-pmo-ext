@@ -25,7 +25,7 @@ export type Version = {
 export type Workflow = {
   id: string; version: number; title: string; category: string; description: string;
   hypotheses: string[]; source: "builtin" | "custom"; agents: string[]; steps?: Step[];
-  published_here?: boolean;
+  published_here?: boolean; review?: boolean;
   run?: RunSummary; same_as_current?: boolean;
 };
 

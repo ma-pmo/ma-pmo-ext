@@ -12,7 +12,7 @@ import { Graph, params as paramsText, type Step } from "./graph";
 type Row = {
   key: number; id: string; agent: string; needs: string[]; params: string; required: boolean;
   tier: "standard" | "fast";
-  reads: NonNullable<Step["reads"]>;  // kept as it was; chosen in the editor in a later release
+  reads: NonNullable<Step["reads"]>;
 };
 type Agent = { id: string; name: string };
 type DryRun = {
@@ -60,6 +60,7 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
     tier: s.model_tier ?? "standard", reads: s.reads ?? "isolated",
   })));
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [review, setReview] = useState<boolean>(Boolean(spec.review));
   const [note, setNote] = useState("");
   const [problems, setProblems] = useState<string[] | null>(null);
   const [dry, setDry] = useState<DryRun | null>(null);
@@ -71,11 +72,12 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
 
   const draft = useMemo(() => ({
     ...spec,
+    review,
     steps: rows.map((r) => ({
       id: r.id, agent: r.agent, needs: r.needs, params: parseParams(r.params), required: r.required,
       model_tier: r.tier === "fast" ? "fast" : null, reads: r.reads,
     })),
-  }), [spec, rows]);
+  }), [spec, rows, review]);
 
   // ask the server's validator a moment after the last change
   useEffect(() => {
@@ -142,6 +144,10 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
   return (
     <Card title={e.title(spec.id)} desc={e.desc} className="wf-edit-only"
       actions={<button className="ghost sm" onClick={onClose}>{e.cancel}</button>}>
+      <label className="check wf-review">
+        <input type="checkbox" checked={review} onChange={(ev) => setReview(ev.target.checked)} />{" "}
+        <span className="tip" data-tip={t.rv.reviewTip}>{t.rv.review}</span>
+      </label>
       <div className="wf-rows" role="list" aria-label={w.graph}>
         {rows.map((r, i) => {
           const lock = locked.has(r.id) && steps.some((s) => s.id === r.id && s.agent === r.agent);
@@ -169,6 +175,14 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
                     onChange={(ev) => update(r.key, { tier: ev.target.value as Row["tier"] })}>
                     {(["standard", "fast"] as const).map((t) => (
                       <option key={t} value={t}>{w.tierNames[t]}{models[t] ? ` · ${models[t]}` : ""}</option>
+                    ))}
+                  </select>
+                </label>
+                <label><span className="tip" data-tip={t.rv.readsTip}>{t.rv.reads}</span>
+                  <select className="input" value={r.reads} aria-label={`${t.rv.reads} ${r.id}`}
+                    onChange={(ev) => update(r.key, { reads: ev.target.value as Row["reads"] })}>
+                    {(["isolated", "upstream", "board"] as const).map((m) => (
+                      <option key={m} value={m}>{t.rv.readsNames[m]}</option>
                     ))}
                   </select>
                 </label>
