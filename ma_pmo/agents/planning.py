@@ -5,6 +5,7 @@ Flow: collect mock status -> CPM critical path (deterministic, no LLM) -> schedu
 """
 from __future__ import annotations
 
+from ma_pmo.agents import common
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.cpm import CpmResult, compute_cpm
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -17,19 +18,6 @@ from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.integrations.registry import get_tracker
 
 _ROLE = """You are the PMO planning agent. Compute the CPM critical path."""
-
-
-def _spi(project: dict) -> float | None:
-    """SPI = EV/PV (schedule performance index).
-
-    PV = total effort, EV = completion-weighted effort.
-    """
-    tasks = project.get("tasks", [])
-    pv = sum(t.get("effort", 0.0) for t in tasks)
-    if pv <= 0:
-        return None
-    ev = sum(t.get("effort", 0.0) * (t.get("percent_complete", 0.0) / 100.0) for t in tasks)
-    return round(ev / pv, 3)
 
 
 def _slippage_days(project: dict, cpm: CpmResult) -> int | None:
@@ -63,17 +51,12 @@ class PlanningAgent(BaseAgent[ScheduleV1]):
         outputs, messages = [], []
         for proj in status.get("projects", []):
             sched, msg = self._plan(proj, scope)
-            outputs.append(
-                {"agent": self.agent_id, "schema": "schedule.v1", "data": sched.model_dump()}
-            )
-            messages.append(msg.model_dump(by_alias=True, mode="json"))
+            outputs.append(common.entry(self.agent_id, "schedule.v1", sched))
+            messages.append(common.wire(msg))
         return {"outputs": outputs, "messages": messages}
 
     def plan_project(self, project_id: str, scope: str = DEFAULT_SCOPE) -> dict | None:
-        status = self.tracker.get_portfolio_status(scope)
-        proj = next(
-            (p for p in status.get("projects", []) if p["project_id"] == project_id), None
-        )
+        proj = common.find_project(self.tracker, scope, project_id)
         if proj is None:
             return None
         sched, _ = self._plan(proj, scope)
@@ -100,7 +83,7 @@ class PlanningAgent(BaseAgent[ScheduleV1]):
         )
 
         # delivery KPIs (§7): SPI, projected slippage
-        spi = _spi(proj)
+        spi = common.spi(proj)
         if spi is not None:
             kpi.record(Axis.DELIVERY, "spi", spi, project_id=proj["project_id"])
         slip = _slippage_days(proj, cpm)

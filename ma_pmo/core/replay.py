@@ -33,6 +33,7 @@ from ma_pmo.core import llm, runs, scenarios, workflow_store
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.sandbox import demo_scope, sandbox
+from ma_pmo.core.times import iso
 from ma_pmo.core.workflow import WorkflowSpec
 from ma_pmo.db.init import LESSONS
 from ma_pmo.db.models import AgentMessageRow, LlmCall, Recommendation
@@ -222,7 +223,7 @@ def _row(r: Recommendation) -> dict[str, Any]:
     return {"id": r.id, "workflow_id": r.workflow_id, "step_id": r.step_id,
             "base_version": r.base_version, "verdict": r.verdict, "status": r.status,
             "report": r.report, "created_by": r.created_by,
-            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "created_at": iso(r.created_at),
             "decided_by": r.decided_by,
-            "decided_at": r.decided_at.isoformat() if r.decided_at else None,
+            "decided_at": iso(r.decided_at),
             "draft_version": r.draft_version}

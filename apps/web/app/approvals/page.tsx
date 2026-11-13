@@ -1,10 +1,10 @@
 "use client";
 import { Fragment, useEffect, useState } from "react";
-import { api } from "../lib/api";
+import { api, errorText } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 import { clock, when } from "../lib/time";
 import type { Messages } from "../lib/messages";
-import { Card, PageHeader, Stat } from "../components/shell";
+import { Card, PageHeader, Stat, ErrorCard } from "../components/shell";
 import { Icon } from "../components/icons";
 import { ReviewDetail } from "../components/review";
 
@@ -41,14 +41,14 @@ export default function Approvals() {
       setItems(await api.approvals());
       setMessages(await api.messages(15));
       setErr("");
-    } catch (e: any) { setErr(String(e.message || e)); }
+    } catch (e: any) { setErr(errorText(e)); }
   }
   useEffect(() => { load(); }, [lang]);
 
   async function decide(id: number, decision: "approve" | "reject") {
     setBusy(id); setErr("");
     try { await api.resolveApproval(id, APPROVER, decision); await load(); }
-    catch (e: any) { setErr(String(e.message || e)); }
+    catch (e: any) { setErr(errorText(e)); }
     finally { setBusy(null); }
   }
 
@@ -65,7 +65,7 @@ export default function Approvals() {
         desc={t.pages.approvals}
         actions={<button className="ghost" onClick={load}><Icon.refresh />{t.common2.refresh}</button>}
       />
-      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.apiError}: {err}</div>}
+      {err && <ErrorCard label={t.common.apiError}>{err}</ErrorCard>}
 
       <div className="grid cols-4">
         <Stat icon={<Icon.approvals />} label={a.awaiting} value={items.length} sub={a.pending} />

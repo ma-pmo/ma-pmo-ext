@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ma_pmo.agents import common
 from ma_pmo.agents.cpm import compute_cpm
 from ma_pmo.agents.risk_signals import compute_signals
 from ma_pmo.core.i18n import tr
@@ -43,15 +44,6 @@ class Criterion:
     passed: bool
     critical: bool
     note: str = ""
-
-
-def _spi(project: dict) -> float | None:
-    tasks = project.get("tasks", [])
-    pv = sum(t.get("effort", 0.0) for t in tasks)
-    if pv <= 0:
-        return None
-    ev = sum(t.get("effort", 0.0) * (t.get("percent_complete", 0.0) / 100.0) for t in tasks)
-    return round(ev / pv, 3)
 
 
 def _has_cycle(tasks: list[dict]) -> bool:
@@ -113,7 +105,7 @@ def _criteria(project: dict, gate: str) -> list[Criterion]:
             ),
         ]
     if gate == "G3-execution":
-        spi = _spi(project)
+        spi = common.spi(project)
         sig = compute_signals(project)
         return [
             Criterion(

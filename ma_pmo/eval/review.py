@@ -136,7 +136,9 @@ def cases() -> list[Case]:
     ]
 
 
-class _Tracker:
+class StandInTracker:
+    """A tracker that answers with a fixed portfolio status."""
+
     def __init__(self, status: dict) -> None:
         self.status = status
 
@@ -144,17 +146,23 @@ class _Tracker:
         return copy.deepcopy(self.status)
 
 
-def portfolio(case: Case) -> dict:
-    """The demo portfolio with PROJ-X as the case describes it."""
-    status = copy.deepcopy(get_tracker().get_portfolio_status(SCOPE))
+def with_project_x(base: dict, tasks: Any = None, **change: Any) -> dict:
+    """`base` plus PROJ-X: a copy of PROJ-22 (green, SPI 0.85, slack 7 days) with `change`."""
+    status = copy.deepcopy(base)
     x = copy.deepcopy(next(p for p in status["projects"] if p["project_id"] == "PROJ-22"))
-    change = dict(case.change)
-    tasks = change.pop("tasks", None)
     x.update({"project_id": "PROJ-X", "percent_complete": 85.0, **change})
-    x["tasks"] = [{**t, "task_id": "X-" + t["task_id"], "deps": ["X-" + d for d in t["deps"]]}
+    x["tasks"] = [{**t, "task_id": "X-" + t["task_id"],
+                   "deps": ["X-" + d for d in t.get("deps", [])]}
                   for t in (tasks(x["tasks"]) if tasks else x["tasks"])]
     status["projects"].append(x)
     return status
+
+
+def portfolio(case: Case) -> dict:
+    """The demo portfolio with PROJ-X as the case describes it."""
+    change = dict(case.change)
+    tasks = change.pop("tasks", None)
+    return with_project_x(get_tracker().get_portfolio_status(SCOPE), tasks, **change)
 
 
 def workflow(condition: str) -> WorkflowSpec:
@@ -171,8 +179,9 @@ def workflow(condition: str) -> WorkflowSpec:
 
 
 @contextlib.contextmanager
-def _agents(status: dict, alternatives: bool) -> Iterator[None]:
-    """Real agents reading `status`, no LLM, alternatives on or off; everything restored after."""
+def stand_in(status: dict, alternatives: bool | None = None) -> Iterator[None]:
+    """Real A3, A4, A5, A6 and A8 reading `status`, no LLM, alternatives on or off (None: as
+    configured); everything is restored afterwards."""
     from ma_pmo.agents.auditor import AuditorAgent
     from ma_pmo.agents.governance import GovernanceAgent
     from ma_pmo.agents.reporting import ReportingAgent
@@ -182,14 +191,15 @@ def _agents(status: dict, alternatives: bool) -> Iterator[None]:
     def down(**kw: Any) -> Any:
         raise RuntimeError("the review evaluation runs the deterministic path")
 
-    tracker = _Tracker(status)
+    tracker = StandInTracker(status)
     settings = get_settings()
     saved = (dict(registry._instances), llm.litellm.completion, settings.review_alternatives)
     registry._instances.update({
         "A3": ResourceAgent(tracker), "A4": RiskAgent(tracker), "A5": ReportingAgent(tracker),
         "A6": GovernanceAgent(tracker), "A8": AuditorAgent(tracker)})
     llm.litellm.completion = down
-    settings.review_alternatives = alternatives
+    if alternatives is not None:
+        settings.review_alternatives = alternatives
     try:
         yield
     finally:
@@ -199,11 +209,16 @@ def _agents(status: dict, alternatives: bool) -> Iterator[None]:
         settings.review_alternatives = saved[2]
 
 
-def run_case(case: Case, condition: str) -> dict[str, Any]:
-    """One case under one condition: what the agents found, and what reached a person."""
-    status = portfolio(case)
-    spec = workflow(condition)
-    with _agents(status, alternatives=condition == "+alternatives"), sandbox("review-eval"):
+def run_with(status: dict, spec: WorkflowSpec, *, alternatives: bool | None = None,
+             gate: bool = False, inspect: Any = None) -> dict[str, Any]:
+    """Run `spec` (reviewed if it says so) on `status` in a throwaway workspace.
+
+    Returns the outputs, the commit gate's outcome (for a reviewed run, or any run with `gate`),
+    the approval queue after the run, the run time, and what `inspect()` returns when it is
+    called inside the workspace, before it is erased.
+    """
+    spec = spec.with_review()
+    with stand_in(status, alternatives), sandbox("review-eval"):
         x = next(p for p in status["projects"] if p["project_id"] == "PROJ-X")
         with get_session() as s:  # risks and allocations point at a real project
             s.add(Project(id="PROJ-X", portfolio_id=SCOPE, skill=x["skill"], status=x["status"],
@@ -211,17 +226,31 @@ def run_case(case: Case, condition: str) -> dict[str, Any]:
         started = time.perf_counter()
         with runs.track("scenario", spec.id, SCOPE, state={"spec": spec.model_dump()}) as rid:
             outputs = executor.execute(rid, spec, SCOPE, "evaluate").outputs
-            decided = commit.check(rid, spec) if spec.review else []
+            decided = commit.check(rid, spec) if spec.review or gate else None
         elapsed = (time.perf_counter() - started) * 1000
-        pending = hitl.list_pending()
-        with get_session() as s:
-            calls = s.scalar(select(func.count()).select_from(LlmCall)) or 0
-            # approvals the review created, not those it only annotated (already asked for)
-            added = s.scalar(select(func.count()).select_from(Approval).join(
-                AgentMessageRow, AgentMessageRow.message_id == Approval.message_id).where(
-                Approval.reason.is_not(None), AgentMessageRow.human_gate_required.is_(False),
-                AgentMessageRow.confidence >= get_settings().hitl_confidence_threshold)) or 0
-    return _measure(case, outputs, decided, pending, calls, added, elapsed)
+        return {"run_id": rid, "outputs": outputs, "commit": decided,
+                "pending": hitl.list_pending(), "spec": spec, "ms": elapsed,
+                "inspected": inspect() if inspect else None}
+
+
+def _counts() -> tuple[int, int]:
+    """LLM calls made, and approvals the review created (not those it only annotated)."""
+    with get_session() as s:
+        calls = s.scalar(select(func.count()).select_from(LlmCall)) or 0
+        added = s.scalar(select(func.count()).select_from(Approval).join(
+            AgentMessageRow, AgentMessageRow.message_id == Approval.message_id).where(
+            Approval.reason.is_not(None), AgentMessageRow.human_gate_required.is_(False),
+            AgentMessageRow.confidence >= get_settings().hitl_confidence_threshold)) or 0
+    return calls, added
+
+
+def run_case(case: Case, condition: str) -> dict[str, Any]:
+    """One case under one condition: what the agents found, and what reached a person."""
+    result = run_with(portfolio(case), workflow(condition),
+                      alternatives=condition == "+alternatives", inspect=_counts)
+    calls, added = result["inspected"]
+    return _measure(case, result["outputs"], result["commit"] or [], result["pending"], calls,
+                    added, result["ms"])
 
 
 def _measure(case: Case, outputs: list[dict], decided: list[dict], pending: list[dict],

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useI18n } from "../lib/i18n";
-import { Card, PageHeader, Stat } from "../components/shell";
+import { Card, PageHeader, Stat, ErrorCard } from "../components/shell";
 import { Icon } from "../components/icons";
 
 const ENV_EXAMPLE = `MA_PMO_INTEGRATIONS=slack,github      # trackers: jira | github | linear
@@ -52,7 +52,7 @@ export default function Integrations() {
         desc={t.pages.integrations}
         actions={<button className="ghost" onClick={load}><Icon.refresh />{t.common2.refresh}</button>}
       />
-      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.apiError}: {err}</div>}
+      {err && <ErrorCard label={t.common.apiError}>{err}</ErrorCard>}
 
       <div className="grid cols-3">
         <Stat icon={<Icon.integrations />} label={g.table} value={rows.length} />
