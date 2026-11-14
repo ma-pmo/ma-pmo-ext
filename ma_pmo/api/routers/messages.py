@@ -8,6 +8,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from sqlalchemy import select
 
+from ma_pmo.core.protocol import message_dict
 from ma_pmo.db.models import AgentMessageRow
 from ma_pmo.db.session import get_session
 
@@ -25,18 +26,4 @@ def list_messages(
         if sender:
             stmt = stmt.where(AgentMessageRow.sender == sender)
         rows = s.scalars(stmt).all()
-        return [
-            {
-                "message_id": r.message_id,
-                "sender": r.sender,
-                "receiver": r.receiver,
-                "intent": r.intent,
-                "schema": r.payload.get("schema") if isinstance(r.payload, dict) else None,
-                "task_ref": r.task_ref,
-                "confidence": r.confidence,
-                "human_gate_required": r.human_gate_required,
-                "payload": r.payload,
-                "timestamp": r.timestamp.isoformat() if r.timestamp else None,
-            }
-            for r in rows
-        ]
+        return [message_dict(r) for r in rows]

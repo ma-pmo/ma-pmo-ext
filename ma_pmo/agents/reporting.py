@@ -14,7 +14,7 @@ import json
 import time
 import uuid
 
-from ma_pmo.agents import cross_checks
+from ma_pmo.agents import common, cross_checks
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, protocol, tracing
@@ -150,11 +150,11 @@ class ReportingAgent(BaseAgent[ReportV1]):
             confidence=0.9,
         )
         msg = protocol.publish(msg)
-        outputs = [{"agent": self.agent_id, "schema": "report.v1", "data": report.model_dump()}]
+        outputs = [common.entry(self.agent_id, "report.v1", report)]
         if "board" in state:
             verdict = cross_checks.covers_risks(report.key_risks, state["board"],
                                                 state.get("board_steps", []))
             if verdict is not None:
                 outputs.append(cross_checks.publish_review(
                     self.agent_id, verdict, msg.message_id, msg.task_ref))
-        return {"outputs": outputs, "messages": [msg.model_dump(by_alias=True, mode="json")]}
+        return {"outputs": outputs, "messages": [common.wire(msg)]}

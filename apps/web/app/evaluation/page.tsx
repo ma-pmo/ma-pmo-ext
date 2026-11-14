@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { api, links } from "../lib/api";
 import { useI18n } from "../lib/i18n";
-import { Card, PageHeader } from "../components/shell";
+import { Card, PageHeader, ErrorCard } from "../components/shell";
 import { Icon } from "../components/icons";
 
 const VERDICT_CLASS: Record<string, string> = {
@@ -57,7 +57,7 @@ export default function Evaluation() {
           <a className="btn" href={links.reportHtml()} target="_blank" rel="noreferrer"><Icon.external />{e.openHtml}</a>
         </>}
       />
-      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.apiError}: {err}</div>}
+      {err && <ErrorCard label={t.common.apiError}>{err}</ErrorCard>}
 
       <Card flush title={e.verdicts} desc={e.verdictsDesc}>
         {!data ? <div className="empty">{t.common2.loading}</div> : (

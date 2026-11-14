@@ -12,6 +12,7 @@ from ma_pmo.core.obs import get_logger
 from ma_pmo.core.runs import current_run_id, dedupe_key
 from ma_pmo.core.schemas.message import AgentMessage
 from ma_pmo.core.schemas.payloads import PAYLOAD_REGISTRY
+from ma_pmo.core.times import iso
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
 from ma_pmo.integrations.dispatch import emit
@@ -75,3 +76,21 @@ def publish(message: AgentMessage) -> AgentMessage:
     # notify integrations (Slack, webhooks, ...); best effort, never raises
     emit(events_from_message(message, gated))
     return message
+
+
+def message_dict(row: AgentMessageRow, *, payload: bool = True) -> dict:
+    """A logged message as the API lists it; `payload=False` leaves the payload out."""
+    item = {
+        "message_id": row.message_id,
+        "sender": row.sender,
+        "receiver": row.receiver,
+        "intent": row.intent,
+        "schema": row.payload.get("schema") if isinstance(row.payload, dict) else None,
+        "task_ref": row.task_ref,
+        "confidence": row.confidence,
+        "human_gate_required": row.human_gate_required,
+    }
+    if payload:
+        item["payload"] = row.payload
+    item["timestamp"] = iso(row.timestamp)
+    return item

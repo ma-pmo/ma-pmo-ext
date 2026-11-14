@@ -32,6 +32,7 @@ from sqlalchemy import func, or_, select, update
 
 from ma_pmo.core import tracing, workspace
 from ma_pmo.core.config import get_settings
+from ma_pmo.core.times import iso
 from ma_pmo.db.models import AgentMessageRow, Approval, Run, RunStep
 from ma_pmo.db.session import get_session
 
@@ -278,20 +279,16 @@ def recover_interrupted() -> list[str]:
 
 # ── reading ───────────────────────────────────────────────────────────────────
 
-def _iso(value: datetime | None) -> str | None:
-    return value.isoformat() if value else None
-
-
 def _summary(run: Run) -> dict:
     return {
         "run_id": run.id, "kind": run.kind, "workflow": run.workflow, "scope": run.scope,
         "status": run.status, "thread_id": run.thread_id, "trace_id": run.trace_id,
-        "error": run.error, "started_at": _iso(run.started_at),
+        "error": run.error, "started_at": iso(run.started_at),
         # the version of the workflow this run used, exactly as it saved it
         "workflow_version": ((run.state or {}).get("spec") or {}).get("version"),
         # set when a budget made the agents use their fallbacks (see core/budgets.py)
         "budget_fallback": (run.state or {}).get("budget"),
-        "finished_at": _iso(run.finished_at),
+        "finished_at": iso(run.finished_at),
     }
 
 
@@ -324,7 +321,7 @@ def step_states(run_id: str) -> dict[int, dict]:
             seq = int(key.rsplit(":", 3)[1]) if key else 0
             waiting[seq] = waiting.get(seq, 0) + 1
         return {r.seq: {"status": r.status, "attempts": r.attempts, "error": r.error,
-                        "started_at": _iso(r.started_at), "finished_at": _iso(r.finished_at),
+                        "started_at": iso(r.started_at), "finished_at": iso(r.finished_at),
                         "pending_approvals": waiting.get(r.seq, 0)} for r in rows}
 
 
@@ -338,6 +335,6 @@ def get_run(run_id: str) -> dict | None:
         return {**_summary(run), "result": run.result, "steps": [
             {"seq": st.seq, "agent": st.agent, "status": st.status, "attempts": st.attempts,
              "output_schemas": st.output_schemas, "error": st.error,
-             "started_at": _iso(st.started_at), "finished_at": _iso(st.finished_at)}
+             "started_at": iso(st.started_at), "finished_at": iso(st.finished_at)}
             for st in steps
         ]}

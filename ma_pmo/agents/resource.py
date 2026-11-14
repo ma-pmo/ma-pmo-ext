@@ -10,6 +10,7 @@ from collections.abc import Callable
 
 from sqlalchemy import ColumnElement, delete, func, or_, select
 
+from ma_pmo.agents import common
 from ma_pmo.agents.allocation import allocate
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -76,10 +77,8 @@ class ResourceAgent(BaseAgent[AllocationV1]):
         scope = state.get("task_ref", DEFAULT_SCOPE)
         alloc, msg = self._allocate(scope)
         return {
-            "outputs": [
-                {"agent": self.agent_id, "schema": "allocation.v1", "data": alloc.model_dump()}
-            ],
-            "messages": [msg.model_dump(by_alias=True, mode="json")],
+            "outputs": [common.entry(self.agent_id, "allocation.v1", alloc)],
+            "messages": [common.wire(msg)],
         }
 
     def allocate_portfolio(self, scope: str = DEFAULT_SCOPE) -> dict:

@@ -4,10 +4,10 @@
 // Picking a run draws the workflow that run saved, with where each step stands, and keeps it
 // current while the run is going.
 import { useEffect, useRef, useState } from "react";
-import { api, problemsOf } from "../lib/api";
+import { api, problemsOf, errorText } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 import { when } from "../lib/time";
-import { Card, PageHeader } from "../components/shell";
+import { Card, PageHeader, ErrorCard } from "../components/shell";
 import {
   Graph, POLL_MS, params, stepState,
   type RunSummary, type Version, type Workflow,
@@ -43,13 +43,13 @@ export default function Workflows() {
       setModels(r.models ?? {});
       const wanted = asked.current?.id;
       setSelected((cur) => cur || (r.workflows.some((x: Workflow) => x.id === wanted) ? wanted! : r.workflows[0]?.id || ""));
-    }).catch((e) => setErr(String(e.message || e)));
+    }).catch((e) => setErr(errorText(e)));
   }, [lang]);
 
   useEffect(() => {
     if (!selected) return;
     setActive("");
-    api.workflow(selected).then(setDetail).catch((e) => setErr(String(e.message || e)));
+    api.workflow(selected).then(setDetail).catch((e) => setErr(errorText(e)));
     api.runs({ workflow: selected, limit: 20 }).then((r: RunSummary[]) => {
       setRuns(r);
       const wanted = asked.current?.run;
@@ -85,7 +85,7 @@ export default function Workflows() {
         if (now) setRuns((rs) => rs.map((r) => (r.run_id === now.run_id ? { ...r, status: now.status } : r)));
         if (o.run?.status === "running") timer = setTimeout(load, POLL_MS);
         else api.runBoard(runId).then((b: Board) => { if (alive) setBoard(b); }).catch(() => {});
-      } catch (e: any) { if (alive) setErr(String(e.message || e)); }
+      } catch (e: any) { if (alive) setErr(errorText(e)); }
     };
     load();
     return () => { alive = false; clearTimeout(timer); };
@@ -139,7 +139,7 @@ export default function Workflows() {
   return (
     <div className="stack">
       <PageHeader title={t.nav.workflows} desc={t.pages.workflows} />
-      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.error}: {err}</div>}
+      {err && <ErrorCard label={t.common.error}>{err}</ErrorCard>}
       {problems.length > 0 && (
         <Card title={w.problems}>
           <ul className="muted" style={{ margin: 0 }}>{problems.map((p) => <li key={p}><code>{p}</code></li>)}</ul>

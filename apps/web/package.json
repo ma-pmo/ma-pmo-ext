@@ -17,6 +17,7 @@
   "devDependencies": {
     "@types/node": "20.19.43",
     "@types/react": "18.3.3",
+    "playwright-core": "1.47.2",
     "typescript": "5.9.3"
   }
 }
