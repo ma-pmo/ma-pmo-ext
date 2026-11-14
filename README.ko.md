@@ -53,6 +53,8 @@
 | ![끝난 실행으로 색칠한 워크플로 그래프, 단계 표, 게시할 초안이 있는 버전 표](docs/assets/workflows-ko.png) | ![단계, 모델 등급, 잠긴 필수 단계, 바로 바뀌는 그래프가 있는 워크플로 편집기](docs/assets/workflow-editor-ko.png) |
 | **비용과 예산** | **재생으로 만든 모델 추천** |
 | ![비용, 호출 수, 토큰, 월·실행 예산이 있는 비용 화면](docs/assets/costs-ko.png) | ![표준 모델과 빠른 모델을 95% 구간으로 비교하고 승인·거절하는 재생 결과](docs/assets/recommendations-ko.png) |
+| **사람을 기다리는 이의 제기된 결정** | **실행 게시판: 읽기 범위, 판정, 확정** |
+| ![검토 대기로 보류된 게이트와 담당 에이전트·전담 검토자의 이의, A4 리스크 경보 인용](docs/assets/review-ko.png) | ![단계별 읽기 범위·게시물·판정과 확정·보류된 결정이 보이는 실행 게시판](docs/assets/run-board-ko.png) |
 
 비용 화면 스크린샷의 금액은 [docs/capture_seed.py](docs/capture_seed.py)로 만든 예시 데이터입니다. 라이트·다크 테마는 OS 설정을 따릅니다.
 

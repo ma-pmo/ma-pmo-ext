@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-09
+
+Roadmap 7: agents' decisions are checked against each other before they commit, after ArcticSwarm ([docs/REVIEW.md](docs/REVIEW.md), [evaluation](docs/REVIEW-EVAL.md)).
+
 ### Added
 - What a step may read (Roadmap 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)): a workflow step's `reads` is `isolated` (the default, today's behaviour: its state has no `board`), `upstream` (posts of every step it waits for) or `board` (posts of every earlier stage). The executor enforces it; agents read with `ma_pmo.sdk.board_posts`. Messages carry `evidence` (references to messages, tracker fields or lessons; migration `0012_message_evidence`), set with `publish(..., evidence=...)`. `GET /runs/{id}/board` shows a run's posts and what each step could read. Built-in workflows stay isolated. After ArcticSwarm's gated bulletin board (Yoon et al., 2026, arXiv:2609.01870), implemented independently.
 - Builder review ([docs/REVIEW.md](docs/REVIEW.md)): where a workflow lets them read, A6 posts a `review.v1` verdict (`VERIFIED` or `CHALLENGE`, with evidence) per project for `gate.no_open_high_risk` (A4), `gate.staffed` and `gate.allocation_by_deadline` (A3), and A5 adds risks A4 raised to its key risks before posting `report.covers_risks`. A constraint whose source step is not readable is not checked. `allocation.v1` gains `unstaffed` (the overload alerts as data); evidence can point at a `step` that published nothing. All conflicts of the 0.6.0 spike are challenged, its controls verified.
@@ -18,6 +22,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 - **Every run is reviewed by default** (pre-registered criteria met, see the evaluation): `WorkflowSpec.review` defaults to true, so A5 and A6 read their upstream, an A8 step runs last and the commit gate decides what commits. `"review": false` opts a workflow out. Golden traces gain the A8 step and its review messages; nothing else in them changes.
 - Alternatives are off by default (`MA_PMO_REVIEW_ALTERNATIVES=true` turns them on): the evaluation found they change nothing about what commits.
+- README screenshots and demo GIF retaken; new ones show a decision held for review in the approval queue and a run's board.
 
 ### Fixed
 - A run's graph was marked as an earlier version of its workflow whenever review had extended it; runs are now compared with the reviewed form of the current workflow.
@@ -153,7 +158,8 @@ First public release.
 ### Fixed
 - Progress bars on the dashboard did not render their fill.
 
-[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.3.0...v0.4.0
@@ -167,6 +173,11 @@ First public release.
 
 ### [Unreleased]
 
+### [0.7.0] - 2026-11-09
+
+로드맵 7: 에이전트의 결정을 확정 전에 서로 대조합니다. ArcticSwarm을 따랐습니다([docs/REVIEW.ko.md](docs/REVIEW.ko.md), [평가](docs/REVIEW-EVAL.ko.md)).
+
+- 변경: README 스크린샷과 데모 GIF를 다시 찍었습니다. 승인 큐에서 검토 대기로 보류된 결정과 실행 게시판 화면을 새로 넣었습니다.
 - 추가: 단계가 읽을 수 있는 범위(로드맵 7, [#71](https://github.com/ma-pmo/ma-pmo-ext/issues/71)). 워크플로 단계의 `reads`는 `isolated`(기본, 지금과 같은 동작으로 상태에 `board`가 없음), `upstream`(기다리는 모든 단계의 게시물), `board`(앞선 모든 열의 게시물) 중 하나이며, 실행기가 강제합니다. 에이전트는 `ma_pmo.sdk.board_posts`로 읽습니다. 메시지에 `evidence`(메시지, 트래커 필드, 교훈에 대한 참조, 마이그레이션 `0012_message_evidence`)가 생기고 `publish(..., evidence=...)`로 남깁니다. `GET /runs/{id}/board`는 한 실행의 게시물과 각 단계가 읽을 수 있던 범위를 보여 줍니다. 기본 워크플로는 격리된 그대로입니다. ArcticSwarm(Yoon et al., 2026, arXiv:2609.01870)의 게이트 게시판을 참고해 독립적으로 구현했습니다.
 - 추가: builder 검토([docs/REVIEW.ko.md](docs/REVIEW.ko.md)). 워크플로가 읽기를 허락하면 A6가 프로젝트마다 `gate.no_open_high_risk`(A4), `gate.staffed`, `gate.allocation_by_deadline`(A3)에 대한 `review.v1` 판정(`VERIFIED` 또는 `CHALLENGE`, 근거 포함)을 게시하고, A5는 A4가 제기한 리스크를 핵심 리스크에 넣은 뒤 `report.covers_risks`를 게시합니다. 근거 단계를 읽을 수 없는 제약은 확인하지 않습니다. `allocation.v1`에 `unstaffed`(과부하 경보의 데이터 형태)가 생기고, 근거가 아무것도 게시하지 않은 `step`을 가리킬 수 있습니다. 0.6.0 스파이크의 충돌은 모두 CHALLENGE, 대조군은 VERIFIED로 판정됩니다.
 - 추가: A8 감사와 검토 워크플로([docs/REVIEW.ko.md](docs/REVIEW.ko.md#전담-검토-a8-감사)). 워크플로에 `"review": true`를 주면 실행마다 A5·A6 단계가 `upstream`을 읽고, 마지막에 게시판 전체를 읽는 A8 단계가 추가되어 모든 게이트 결정과 보고서에 `dedicated` 판정을 남깁니다. builder와 같은 규칙을 쓰지만 builder의 판정은 읽지 않습니다. A1은 A8에 위임하지 않습니다(`AgentSpec.routable=False`, 플러그인도 사용 가능). `GET /workflows`에 `review`가 나옵니다.
