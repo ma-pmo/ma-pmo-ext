@@ -47,3 +47,9 @@ apps/web/next-env.d.ts
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# layout check (CI)
+layout.db
+apps/web/layout-report.json
+api.log
+web.log

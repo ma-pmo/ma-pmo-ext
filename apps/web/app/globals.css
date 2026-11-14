@@ -163,7 +163,9 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   box-shadow: var(--shadow); padding: 16px; min-width: 0;
 }
-.card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+/* actions wrap under the title when the card is narrow, instead of pushing out of it */
+.card-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.card-header > * { min-width: 0; max-width: 100%; }
 .card-header p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
 .card.flush { padding: 0; }
 .card.flush .card-header { padding: 14px 16px 0; }
@@ -196,8 +198,10 @@ button.danger, .btn.danger { background: var(--red); }
 button.sm, .btn.sm { padding: 4px 9px; font-size: 12.5px; }
 .input, select.input, input.input {
   background: var(--surface); color: var(--text); border: 1px solid var(--border);
-  border-radius: 8px; padding: 7px 10px; font: inherit; min-width: 0;
+  border-radius: 8px; padding: 7px 10px; font: inherit; min-width: 0; max-width: 100%;
 }
+/* a link styled as a button can carry a long label: let it wrap rather than leave its box */
+a.btn { white-space: normal; text-align: center; }
 .input:focus, button:focus-visible, .btn:focus-visible, a:focus-visible {
   outline: 2px solid var(--accent); outline-offset: 1px;
 }
@@ -215,6 +219,8 @@ button.sm, .btn.sm { padding: 4px 9px; font-size: 12.5px; }
   font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--muted);
   white-space: nowrap;
 }
+a.badge { min-height: 24px; }  /* a badge that links is a control: big enough to tap (WCAG 2.5.8) */
+.tap-link { display: inline-block; padding: 4px 0; }  /* a link standing on its own line gets a 24px tall target */
 .badge.green { background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); }
 .badge.amber { background: color-mix(in srgb, var(--amber) 16%, transparent); color: var(--amber); }
 .badge.red { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
@@ -298,6 +304,7 @@ details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 .wf-list { position: relative; display: grid; max-height: 640px; overflow-y: auto; border-top: 1px solid var(--border); margin-top: 12px; }
 .wf-list button {
   display: grid; gap: 2px; justify-items: start; justify-content: stretch; text-align: left; padding: 10px 16px; border: 0; border-radius: 0;
+  width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere;  /* long titles wrap, the list never scrolls sideways */
   border-bottom: 1px solid var(--border); background: transparent; color: var(--text); font: inherit; cursor: pointer;
 }
 .wf-list button:hover { background: var(--surface-2); }
@@ -316,11 +323,11 @@ details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 .wf-node.on rect, .wf-node:focus-visible rect { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: none; }
 .wf-title { font-size: 13px; font-weight: 600; fill: var(--text); }
 .wf-sub { font-size: 11.5px; fill: var(--muted); }
-.wf-lock { font-size: 10.5px; font-weight: 700; fill: var(--amber); }
+.wf-lock { font-size: 11px; font-weight: 700; fill: var(--amber); }
 tr.wf-row-on td { background: var(--accent-soft); }
 .wf-table th, .wf-table td { white-space: nowrap; }
 .wf-runbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; }
-.wf-state { font-size: 10.5px; font-weight: 700; fill: var(--muted); }
+.wf-state { font-size: 11px; font-weight: 700; fill: var(--muted); }
 .wf-node.st-succeeded rect { stroke: var(--green); fill: color-mix(in srgb, var(--green) 8%, var(--surface)); }
 .wf-node.st-running rect { stroke: var(--accent); fill: var(--accent-soft); }
 .wf-node.st-waiting_approval rect { stroke: var(--amber); fill: color-mix(in srgb, var(--amber) 10%, var(--surface)); }

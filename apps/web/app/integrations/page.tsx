@@ -110,7 +110,7 @@ export default function Integrations() {
       <Card title={g.howTo} desc={g.howToDesc}>
         <pre className="code">{ENV_EXAMPLE}</pre>
         <div className="muted" style={{ marginTop: 8 }}>
-          <a href={`https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/INTEGRATIONS${lang === "ko" ? ".ko" : ""}.md`} target="_blank" rel="noreferrer">{g.guide}</a>
+          <a href={`https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/INTEGRATIONS${lang === "ko" ? ".ko" : ""}.md`} target="_blank" rel="noreferrer" className="tap-link">{g.guide}</a>
         </div>
       </Card>
     </div>
