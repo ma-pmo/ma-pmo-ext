@@ -12,7 +12,7 @@
 //
 // Needs the API with demo data and the dashboard running, and Google Chrome:
 //   node tests/layout.mjs [--base http://localhost:3000] [--api http://localhost:8000]
-//                         [--out report.json] [--quick]
+//                         [--out report.json] [--quick] [--stretch 0.03]
 // Exits 1 when it finds anything. --quick checks one language and the light theme only.
 import { writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
@@ -25,6 +25,9 @@ const BASE = arg("--base", "http://localhost:3000");
 const API = arg("--api", "http://localhost:8000");
 const OUT = arg("--out", "");
 const QUICK = process.argv.includes("--quick");
+// fonts differ between systems (Linux renders wider than macOS): --stretch 0.03 adds that much
+// letter spacing (em) to try a layout with wider text than this machine has
+const STRETCH = Number(arg("--stretch", "0"));
 
 const SIZES = [
   { name: "phone", width: 375, height: 812, touch: true },
@@ -104,8 +107,15 @@ function inspect({ touch }) {
     }
     return false;
   };
-  // an open phone menu covers the page on purpose
-  const overlay = (el) => Boolean(el.closest(".sidebar.open, .backdrop"));
+  // an open phone menu covers the page on purpose, and the page scrolls under a sticky header
+  const layer = (el) => {
+    if (el.closest(".sidebar.open, .backdrop")) return "overlay";
+    for (let e = el; e && e !== document.body; e = e.parentElement) {
+      const pos = getComputedStyle(e).position;
+      if (pos === "fixed" || pos === "sticky") return "pinned";
+    }
+    return "page";
+  };
 
   if (document.documentElement.scrollWidth > W + 1) {
     found.push({ kind: "page-overflow", where: "document", detail: `${document.documentElement.scrollWidth}px wide in a ${W}px screen` });
@@ -160,7 +170,7 @@ function inspect({ touch }) {
     const a = visible(controls[i]);
     for (let j = i + 1; j < controls.length; j++) {
       if (controls[i].contains(controls[j]) || controls[j].contains(controls[i])) continue;
-      if (overlay(controls[i]) !== overlay(controls[j])) continue;
+      if (layer(controls[i]) !== layer(controls[j])) continue;
       const b = visible(controls[j]);
       const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
       const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
@@ -235,6 +245,7 @@ for (const size of SIZES) {
         page.on("pageerror", (e) => errors.push(String(e).slice(0, 160)));
         await page.goto(`${BASE}${p.path}${p.path.includes("?") ? "&" : "?"}lang=${lang}`);
         await page.waitForLoadState("networkidle");
+        if (STRETCH) await page.addStyleTag({ content: `body { letter-spacing: ${STRETCH}em; }` });
         await page.waitForTimeout(500);
         if (!(await open(page, p.open, lang))) { await page.close(); continue; }
         const found = await page.evaluate(inspect, { touch: size.touch });

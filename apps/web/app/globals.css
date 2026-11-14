@@ -166,6 +166,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1
 /* actions wrap under the title when the card is narrow, instead of pushing out of it */
 .card-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .card-header > * { min-width: 0; max-width: 100%; }
+.card-header button, .card-header .btn { white-space: normal; text-align: center; }  /* a long label wraps in a narrow card */
 .card-header p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
 .card.flush { padding: 0; }
 .card.flush .card-header { padding: 14px 16px 0; }
