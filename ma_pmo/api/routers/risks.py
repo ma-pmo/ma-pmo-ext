@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from sqlalchemy import select
 
+from ma_pmo.core.times import iso
 from ma_pmo.db.models import Project, Risk
 from ma_pmo.db.session import get_session
 
@@ -27,8 +28,8 @@ def list_risks(project_id: str | None = None, scope: str | None = None,
                 "project_id": r.project_id,
                 "signal": r.signal,
                 "severity": r.severity,
-                "detected_at": r.detected_at.isoformat() if r.detected_at else None,
-                "materialized_at": r.materialized_at.isoformat() if r.materialized_at else None,
+                "detected_at": iso(r.detected_at),
+                "materialized_at": iso(r.materialized_at),
                 "mitigation": r.mitigation,
             }
             for r in rows

@@ -11,6 +11,7 @@ import json
 import uuid
 from datetime import UTC, datetime
 
+from ma_pmo.agents import common
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.risk_signals import ProjectSignals, analyze_portfolio, baseline_severity
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -52,18 +53,13 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
         outputs, messages = [], []
         for sig in signals:
             alert, msg = self._assess(sig, scope)
-            outputs.append(
-                {"agent": self.agent_id, "schema": "risk_alert.v1", "data": alert.model_dump()}
-            )
-            messages.append(msg.model_dump(by_alias=True, mode="json"))
+            outputs.append(common.entry(self.agent_id, "risk_alert.v1", alert))
+            messages.append(common.wire(msg))
         return {"outputs": outputs, "messages": messages}
 
     # ── single-project assessment (also reused by webhooks) ──────
     def assess_project(self, project_id: str, scope: str = DEFAULT_SCOPE) -> dict | None:
-        status = self.tracker.get_portfolio_status(scope)
-        proj = next(
-            (p for p in status.get("projects", []) if p["project_id"] == project_id), None
-        )
+        proj = common.find_project(self.tracker, scope, project_id)
         if proj is None:
             return None
         from ma_pmo.agents.risk_signals import compute_signals

@@ -18,6 +18,7 @@ from ma_pmo.agents.orchestrator_rules import deterministic_synthesis
 from ma_pmo.core import commit, executor, runs, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
+from ma_pmo.core.protocol import message_dict
 from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.workflow import WorkflowSpec, load_workflows
 from ma_pmo.db.models import AgentMessageRow, KpiEvent
@@ -441,17 +442,4 @@ def _run_messages(run_id: str) -> list[dict]:
             select(AgentMessageRow).where(AgentMessageRow.run_id == run_id)
             .order_by(AgentMessageRow.timestamp)
         ).all()
-        return [
-            {
-                "message_id": r.message_id,
-                "sender": r.sender,
-                "receiver": r.receiver,
-                "intent": r.intent,
-                "schema": r.payload.get("schema") if isinstance(r.payload, dict) else None,
-                "task_ref": r.task_ref,
-                "confidence": r.confidence,
-                "human_gate_required": r.human_gate_required,
-                "timestamp": r.timestamp.isoformat() if r.timestamp else None,
-            }
-            for r in rows
-        ]
+        return [message_dict(r, payload=False) for r in rows]

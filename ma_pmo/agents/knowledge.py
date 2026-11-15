@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 
+from ma_pmo.agents import common
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.vectordb import Retriever, get_store
 from ma_pmo.core import protocol, tracing
@@ -91,8 +92,6 @@ class KnowledgeAgent(BaseAgent[KnowledgeV1]):
         )
         protocol.publish(msg)
         return {
-            "outputs": [
-                {"agent": self.agent_id, "schema": "knowledge.v1", "data": result.model_dump()}
-            ],
-            "messages": [msg.model_dump(by_alias=True, mode="json")],
+            "outputs": [common.entry(self.agent_id, "knowledge.v1", result)],
+            "messages": [common.wire(msg)],
         }

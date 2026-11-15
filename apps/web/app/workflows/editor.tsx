@@ -4,7 +4,7 @@
 // same one a save and a publish pass; required steps of the version in use are locked here and
 // refused by the server. A dry run tries the draft on the demo data before it is saved.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, problemsOf } from "../lib/api";
+import { api, problemsOf, errorText } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 import { Card } from "../components/shell";
 import { Graph, params as paramsText, type Step } from "./graph";
@@ -84,7 +84,7 @@ export function Editor({ spec, steps, models, onSaved, onClose }: {
     setProblems(null);
     setDry(null);
     const timer = setTimeout(() => {
-      api.validateWorkflow(draft).then((r) => setProblems(r.problems)).catch((err) => setProblems([String(err.message || err)]));
+      api.validateWorkflow(draft).then((r) => setProblems(r.problems)).catch((err) => setProblems([errorText(err)]));
     }, 350);
     return () => clearTimeout(timer);
   }, [draft]);

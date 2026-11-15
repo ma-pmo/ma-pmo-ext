@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { api } from "../lib/api";
+import { api, errorText } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 import { clock } from "../lib/time";
-import { Card, PageHeader } from "../components/shell";
+import { Card, PageHeader, ErrorCard } from "../components/shell";
 
 const PHASE_META: Record<string, { num: string; icon: string; color: string }> = {
   plan: { num: "①", icon: "🧭", color: "var(--accent)" },
@@ -27,7 +27,7 @@ export default function Scenarios() {
 
   useEffect(() => {
     setTrace(null);
-    api.scenarios().then(setScenarios).catch((e) => setErr(String(e.message || e)));
+    api.scenarios().then(setScenarios).catch((e) => setErr(errorText(e)));
   }, [lang]);
 
   async function run(id: string) {
@@ -39,7 +39,7 @@ export default function Scenarios() {
       setTrace(await api.runScenario(id));
       setTimeout(() => traceRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     } catch (e: any) {
-      setErr(String(e.message || e));
+      setErr(errorText(e));
     } finally {
       setRunning(false);
     }
@@ -51,7 +51,7 @@ export default function Scenarios() {
   return (
     <div className="stack">
       <PageHeader title={c.title} desc={t.pages.scenarios} />
-      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.error}: {err}</div>}
+      {err && <ErrorCard label={t.common.error}>{err}</ErrorCard>}
 
       <div>
         <div className="tabs" role="tablist">
