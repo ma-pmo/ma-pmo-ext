@@ -162,10 +162,10 @@ def _warn_once(budget: Budget, spent: float, run_id: str | None) -> None:
 
 def _notify(budget: Budget, spent: float, run_id: str | None) -> None:
     from ma_pmo.integrations.base import Event, EventType
-    from ma_pmo.integrations.dispatch import emit
+    from ma_pmo.integrations.dispatch import emit_later
 
     what = tr("this month", "이번 달") if budget.kind == MONTH else tr("one run", "실행 1회")
-    emit([Event(type=EventType.BUDGET_WARNING, severity="warning",
+    emit_later([Event(type=EventType.BUDGET_WARNING, severity="warning",
                 title=tr(f"LLM spend passed the warning for {what}",
                          f"LLM 비용이 {what} 경고 금액을 넘었습니다"),
                 summary=f"${spent:.2f} / ${budget.warn_usd:.2f}"

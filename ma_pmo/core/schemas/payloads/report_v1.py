@@ -1,13 +1,15 @@
 """A5 reporting output — report.v1."""
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
 class ProjectStatusLine(BaseModel):
     project_id: str
     name: str
-    status: str  # green | amber | red
+    status: Literal["green", "amber", "red"]
     percent_complete: float = Field(ge=0.0, le=100.0)
     headline: str
 

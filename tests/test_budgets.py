@@ -18,7 +18,7 @@ from ma_pmo.core.scenarios import run_scenario
 from ma_pmo.db import workspaces
 from ma_pmo.db.models import Budget, LlmCall
 from ma_pmo.db.session import get_session
-from ma_pmo.integrations import registry
+from ma_pmo.integrations import dispatch, registry
 
 client = TestClient(app)
 MODEL = "anthropic/claude-sonnet-5"
@@ -120,10 +120,12 @@ def test_warnings_are_sent_once(calls, notices):
     budgets.set_budget("month", 0.001, None, "test")
     run_scenario("risk_escalation")
     run_scenario("weekly_status")
+    assert dispatch.flush(timeout=10)  # notifications are delivered in the background
     month = [e for e in notices if e.type.value == "budget.warning" and e.data["kind"] == "month"]
     assert len(month) == 1 and len(calls) > 2  # a warning does not stop anything
     budgets.set_budget("run", 0.001, None, "test")
     first, second = run_scenario("risk_escalation"), run_scenario("weekly_status")
+    assert dispatch.flush(timeout=10)
     per_run = [e.task_ref for e in notices if e.data.get("kind") == "run"]
     assert sorted(per_run) == sorted([first["run_id"], second["run_id"]])
 
@@ -174,3 +176,12 @@ def test_the_cli_shows_and_sets_budgets(capsys):
     out = capsys.readouterr().out
     assert "limit $50.00" in out and "warning must not be above" in out
     assert budgets.status()["month"]["limit_usd"] is None
+
+
+def test_the_cli_shows_small_run_budgets_without_rounding(capsys):
+    """$0.005 used to print as $0.01, the same as a $0.01 limit."""
+    assert cli(["budget", "set", "run", "--warn", "0.005", "--limit", "0.01"]) == 0
+    assert cli(["budget", "show"]) == 0
+    out = capsys.readouterr().out
+    assert "$0.005" in out and "$0.01" in out
+    assert cli(["budget", "clear", "run"]) == 0

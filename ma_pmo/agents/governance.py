@@ -10,11 +10,12 @@ change here; a commit gate decides what a challenged decision needs.
 """
 from __future__ import annotations
 
-from ma_pmo.agents import cross_checks
+from ma_pmo.agents import cross_checks, lessons
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.gates import evaluate_gate, normalize_gate
 from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, protocol
+from ma_pmo.core.i18n import tr
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.gate_review_v1 import ChecklistItem, GateReviewV1
@@ -43,15 +44,17 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
         gate = normalize_gate(state.get("gate", "G2-planning"))
         status = self.tracker.get_portfolio_status(scope)
         outputs, messages = [], []
+        found = lessons.on_board(state)  # empty unless the workflow lets it read
         for proj in status.get("projects", []):
-            review, msg = self._review(proj, gate, scope)
+            review, msg = self._review(proj, gate, scope, found)
             outputs.append(
                 {"agent": self.agent_id, "schema": "gate_review.v1", "data": review.model_dump()}
             )
             messages.append(msg.model_dump(by_alias=True, mode="json"))
             if "board" in state:  # builder review, only where the workflow grants reading
                 for verdict in cross_checks.gate_checks(proj, state["board"],
-                                                        state.get("board_steps", [])):
+                                                        state.get("board_steps", []),
+                                                        review.decision):
                     outputs.append(cross_checks.publish_review(
                         self.agent_id, verdict, msg.message_id, msg.task_ref))
         return {"outputs": outputs, "messages": messages}
@@ -68,15 +71,22 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
         review, _ = self._review(proj, gate, scope)
         return review.model_dump()
 
-    def _review(self, proj: dict, gate: str, scope: str) -> tuple[GateReviewV1, AgentMessage]:
+    def _review(self, proj: dict, gate: str, scope: str,
+                found: list[dict] | None = None) -> tuple[GateReviewV1, AgentMessage]:
         decision, criteria, conditions = evaluate_gate(proj, gate)
+        checklist = [ChecklistItem(criterion=c.name, passed=c.passed, note=c.note)
+                     for c in criteria]
+        cited = lessons.lesson_ids(found or [])
+        if cited:  # recorded with the decision, which the lessons do not change
+            checklist.append(ChecklistItem(
+                criterion="lessons_reviewed", passed=True,
+                note=tr(f"lessons learned considered: {', '.join(cited)}",
+                        f"검토한 과거 교훈: {', '.join(cited)}")))
         review = GateReviewV1(
             project_id=proj["project_id"],
             gate=gate,
             decision=decision,
-            checklist=[
-                ChecklistItem(criterion=c.name, passed=c.passed, note=c.note) for c in criteria
-            ],
+            checklist=checklist,
             conditions=conditions,
         )
 
@@ -97,5 +107,6 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
             payload=MessagePayload(schema_="gate_review.v1", data=review.model_dump()),
             confidence=0.95,  # deterministic
             human_gate_required=gate_required,
+            evidence=lessons.evidence(found or []),
         )
         return review, protocol.publish(msg)

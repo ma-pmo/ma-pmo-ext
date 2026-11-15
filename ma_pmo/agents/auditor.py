@@ -52,7 +52,8 @@ class AuditorAgent(BaseAgent[ReviewV1]):
         for post in board:
             if post["schema"] == "gate_review.v1":
                 project = projects.get(post["data"].get("project_id"))
-                verdicts = cross_checks.gate_checks(project, board, steps) if project else []
+                verdicts = cross_checks.gate_checks(project, board, steps,
+                                                    post["data"].get("decision")) if project else []
                 if get_settings().review_alternatives:
                     verdicts += [alt for v in verdicts if v.verdict == "CHALLENGE" for alt in
                                  cross_checks.alternatives(v, project or {}, board, steps)]

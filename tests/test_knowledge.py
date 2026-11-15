@@ -48,3 +48,35 @@ def test_a6_governance_records_gate_kpi():
     with get_session() as s:
         kpis = s.scalars(select(KpiEvent).where(KpiEvent.metric == "gate_review")).all()
         assert kpis, "gate KPI (delivery axis) recorded"
+
+
+def test_a7_drops_citations_it_did_not_retrieve(monkeypatch):
+    """A made-up source is not published as a citation, and an answer that names one is
+    replaced by the extractive answer from the retrieved lessons."""
+    def _fake(system, user, schema, *, agent="?", model=None):
+        return KnowledgeV1(query="", answer="Migrations always slip two weeks [LL-999].",
+                           similar_cases=["LL-999"],
+                           citations=[Citation(source_id="LL-999", excerpt="always two weeks")])
+
+    monkeypatch.setattr("ma_pmo.core.llm.complete_structured", _fake)
+    agent = KnowledgeAgent()
+    retrieved = {h["source_id"] for h in agent.retrieve("data migration delay", k=3)}
+    result = agent.ask("data migration delay", k=3)
+    assert retrieved and {c.source_id for c in result.citations} <= retrieved
+    assert "LL-999" not in result.answer and set(result.similar_cases) <= retrieved
+
+
+def test_a7_keeps_retrieved_citations_with_their_own_text(monkeypatch):
+    agent = KnowledgeAgent()
+    top = agent.retrieve("data migration delay", k=3)[0]
+
+    def _fake(system, user, schema, *, agent="?", model=None):
+        return KnowledgeV1(query="", answer=f"See [{top['source_id']}].",
+                           similar_cases=[top["source_id"]],
+                           citations=[Citation(source_id=top["source_id"], excerpt="paraphrase")])
+
+    monkeypatch.setattr("ma_pmo.core.llm.complete_structured", _fake)
+    result = agent.ask("data migration delay", k=3)
+    assert [c.source_id for c in result.citations] == [top["source_id"]]
+    assert result.citations[0].excerpt == top["excerpt"]
+    assert result.answer == f"See [{top['source_id']}]."

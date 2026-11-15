@@ -134,9 +134,18 @@ def test_the_api_shows_posts_and_what_each_step_could_read(seen):
     assert client.get("/runs/nope/board").status_code == 404
 
 
+# A2 cites A7's lessons where it follows A7 (agents/lessons.py); every other step is isolated
+READS_LESSONS = {"knowledge_kickoff", "new_project_intake", "estimation_review",
+                 "estimation_calibration"}
+
+
 def test_built_in_workflows_stay_isolated():
     for spec in map(scenarios.loaded, scenarios.SCENARIOS):
-        assert {s.reads for s in spec.steps} == {"isolated"}, spec.id
+        reading = {s.id for s in spec.steps if s.reads != "isolated"}
+        assert reading == ({"A2"} if spec.id in READS_LESSONS else set()), spec.id
+        for step in spec.steps:
+            if step.reads == "upstream":
+                assert step.agent == "A2" and "A7" in spec.upstream(step.id), spec.id
     steps = client.get("/workflows/risk_escalation").json()["steps"]
     assert {s["reads"] for s in steps} == {"isolated"}
 

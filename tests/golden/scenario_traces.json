@@ -2032,7 +2032,7 @@
       "schema": "gate_review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      }
     ],
@@ -2064,7 +2064,7 @@
       "schema": "review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -2075,7 +2075,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 14 worker outputs for goal 'Go/No-Go decision report based on risks and gates'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "Synthesized 14 worker outputs for goal 'Go/No-Go decision report based on risks and gates'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -3539,7 +3539,7 @@
       "schema": "gate_review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -3581,7 +3581,7 @@
       "schema": "review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -3596,7 +3596,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 24 worker outputs for goal 'Resolve resource conflicts across multiple projects'. - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(review.v1): VERIFIED gate.staffed · PROJ-14 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(review.v1): VERIFIED gate.staffed · PROJ-22 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A6(review.v1): VERIFIED gate.staffed · PROJ-31 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.staffed · PROJ-14 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.staffed · PROJ-22 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A8(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED gate.staffed · PROJ-31 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31"
+    "complete": "Synthesized 24 worker outputs for goal 'Resolve resource conflicts across multiple projects'. - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(review.v1): VERIFIED gate.staffed · PROJ-14 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(review.v1): VERIFIED gate.staffed · PROJ-22 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A6(review.v1): VERIFIED gate.staffed · PROJ-31 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.staffed · PROJ-14 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.staffed · PROJ-22 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED gate.staffed · PROJ-31 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31"
    },
    {
     "hypotheses": [
@@ -3824,7 +3824,7 @@
       "schema": "gate_review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      }
     ],
@@ -3856,7 +3856,7 @@
       "schema": "review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -3867,7 +3867,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 14 worker outputs for goal 'Escalate high-severity risks and submit for approval'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "Synthesized 14 worker outputs for goal 'Escalate high-severity risks and submit for approval'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -4210,7 +4210,7 @@
       "schema": "gate_review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -4252,7 +4252,7 @@
       "schema": "review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -4267,7 +4267,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 24 worker outputs for goal 'Risk-driven resource reallocation and gate check'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(review.v1): VERIFIED gate.staffed · PROJ-14 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(review.v1): VERIFIED gate.staffed · PROJ-22 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A6(review.v1): VERIFIED gate.staffed · PROJ-31 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.staffed · PROJ-14 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.staffed · PROJ-22 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A8(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED gate.staffed · PROJ-31 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31"
+    "complete": "Synthesized 24 worker outputs for goal 'Risk-driven resource reallocation and gate check'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(review.v1): VERIFIED gate.staffed · PROJ-14 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(review.v1): VERIFIED gate.staffed · PROJ-22 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A6(review.v1): VERIFIED gate.staffed · PROJ-31 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.staffed · PROJ-14 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.staffed · PROJ-22 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED gate.staffed · PROJ-31 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31"
    },
    {
     "hypotheses": [
@@ -6901,7 +6901,7 @@
       "schema": "gate_review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      }
     ],
@@ -6933,7 +6933,7 @@
       "schema": "review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -6944,7 +6944,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '리스크·게이트 기반 Go/No-Go 의사결정 보고' 에 대해 14개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "목표 '리스크·게이트 기반 Go/No-Go 의사결정 보고' 에 대해 14개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -8408,7 +8408,7 @@
       "schema": "gate_review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -8450,7 +8450,7 @@
       "schema": "review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -8465,7 +8465,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '멀티 프로젝트 자원 경합 해소' 에 대해 24개 작업자 산출을 종합했습니다. - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(review.v1): VERIFIED gate.staffed · PROJ-14 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(review.v1): VERIFIED gate.staffed · PROJ-22 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A6(review.v1): VERIFIED gate.staffed · PROJ-31 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.staffed · PROJ-14 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.staffed · PROJ-22 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A8(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED gate.staffed · PROJ-31 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31"
+    "complete": "목표 '멀티 프로젝트 자원 경합 해소' 에 대해 24개 작업자 산출을 종합했습니다. - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(review.v1): VERIFIED gate.staffed · PROJ-14 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(review.v1): VERIFIED gate.staffed · PROJ-22 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A6(review.v1): VERIFIED gate.staffed · PROJ-31 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.staffed · PROJ-14 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.staffed · PROJ-22 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED gate.staffed · PROJ-31 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31"
    },
    {
     "hypotheses": [
@@ -8693,7 +8693,7 @@
       "schema": "gate_review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      }
     ],
@@ -8725,7 +8725,7 @@
       "schema": "review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -8736,7 +8736,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '고위험 리스크 에스컬레이션 및 승인 상신' 에 대해 14개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "목표 '고위험 리스크 에스컬레이션 및 승인 상신' 에 대해 14개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -9079,7 +9079,7 @@
       "schema": "gate_review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -9121,7 +9121,7 @@
       "schema": "review.v1"
      },
      {
-      "headline": "CHALLENGE gate.no_open_high_risk · PROJ-31",
+      "headline": "VERIFIED gate.no_open_high_risk · PROJ-31",
       "schema": "review.v1"
      },
      {
@@ -9136,7 +9136,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '리스크 기반 자원 재배분 및 게이트 검증' 에 대해 24개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(review.v1): VERIFIED gate.staffed · PROJ-14 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(review.v1): VERIFIED gate.staffed · PROJ-22 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A6(review.v1): VERIFIED gate.staffed · PROJ-31 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.staffed · PROJ-14 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.staffed · PROJ-22 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A8(review.v1): CHALLENGE gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED gate.staffed · PROJ-31 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31"
+    "complete": "목표 '리스크 기반 자원 재배분 및 게이트 검증' 에 대해 24개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(review.v1): VERIFIED gate.staffed · PROJ-14 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(review.v1): VERIFIED gate.staffed · PROJ-22 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A6(review.v1): VERIFIED gate.staffed · PROJ-31 - A6(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.staffed · PROJ-14 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.staffed · PROJ-22 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED gate.staffed · PROJ-31 - A8(review.v1): VERIFIED gate.allocation_by_deadline · PROJ-31"
    },
    {
     "hypotheses": [

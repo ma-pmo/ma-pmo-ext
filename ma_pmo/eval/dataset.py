@@ -144,6 +144,7 @@ class Dataset:
     resources: list[dict] = field(default_factory=list)
     labels: dict[str, str] = field(default_factory=dict)
     baselines: dict = field(default_factory=dict)
+    example_values: list[str] = field(default_factory=list)  # template examples still in place
 
     @property
     def scope(self) -> str:
@@ -335,7 +336,36 @@ def load_dataset(data_dir: str | Path) -> tuple[Dataset, list[Issue]]:
                                     f"{key} must be a number ≥ 0 ({BASELINE_KEYS[key]})"))
             else:
                 ds.baselines[key] = value
+    _flag_examples(ds, issues)
     return ds, issues
+
+
+_MEASURED = ("manual_report_cycle_time_sec", "manual_estimation_error_pct")
+
+
+def _flag_examples(ds: Dataset, issues: list[Issue]) -> None:
+    """Warn about the template's example rows and baselines left in place.
+
+    They are valid data, so nothing else catches them, and a report would present the demo
+    portfolio's results, or an example baseline, as the organization's.
+    """
+    examples = _example_rows()
+    demo_ids = {row[0] for row in examples["projects.csv"]}
+    left = sorted(demo_ids & {p["id"] for p in ds.projects})
+    if left:
+        ds.example_values.append(f"projects.csv: {', '.join(left)}")
+        issues.append(Issue("warning", "projects.csv", None,
+                            f"example rows from the demo portfolio are still here ({', '.join(left)})"
+                            " — replace them with your projects"))
+    # measured numbers only: a target such as 80% utilization, or 0 days of manual warning, can
+    # well be the organization's own choice
+    demo_base = json.loads((_FIXTURES / "baselines.json").read_text(encoding="utf-8"))
+    same = [k for k in _MEASURED if k in ds.baselines and ds.baselines[k] == demo_base.get(k)]
+    if same:
+        ds.example_values.append(f"baselines.json: {', '.join(same)}")
+        issues.append(Issue("warning", "baselines.json", None,
+                            f"{', '.join(same)} still hold the template's example values — "
+                            "measure them (H1/H2 compare against these)"))
 
 
 def import_dataset(ds: Dataset) -> None:

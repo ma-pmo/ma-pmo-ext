@@ -38,7 +38,7 @@ def _postgres_saver(db_url: str) -> Any:
 
 
 def build_checkpointer() -> Any:
-    """The checkpointer that resumes HITL interrupts and restores state."""
+    """The LangGraph checkpointer for graph state; run progress itself lives in run_step rows."""
     settings = get_settings()
     if settings.db_url.startswith("postgresql"):
         return _postgres_saver(settings.db_url)

@@ -74,14 +74,26 @@ def test_the_spike_totals(monkeypatch):
     assert (gate_conflicts, held, report_fixes) == (9, 9, 2)
 
 
-def test_a_decision_already_queued_keeps_one_approval(monkeypatch):
+def test_a_failed_gate_agrees_with_its_risk(monkeypatch):
+    """PROJ-31 is red and its gate failed: the decision already agrees with A4's high risk, so it
+    is verified, not challenged, and keeps only the approval A6 queued for any failed gate."""
     result = run_full(monkeypatch, portfolio("control_healthy"), spec(PLAIN, review=True))
-    # PROJ-31 is red with a failing gate: queued by A6 itself, and challenged on risk
     gate = _gate(result, "PROJ-31")
-    assert gate["status"] == commit.REVIEW_PENDING
+    assert gate["status"] == commit.COMMITTED and gate["challenges"] == []
     items = [p for p in result["pending"] if p["message_id"] == gate["message_id"]]
-    assert len(items) == 1 and items[0]["review"]["challenges"]
+    assert len(items) == 1 and items[0]["review"] is None
     assert _gate(result, "PROJ-22")["status"] == commit.COMMITTED
+
+
+def test_a_decision_already_queued_keeps_one_approval():
+    """stage_gate_review passes PROJ-31 on conditions although A4 rates it high: A6 queued the
+    conditional gate itself, and the review's challenge is attached to that one approval."""
+    trace = scenarios.run_spec(scenarios.loaded("stage_gate_review"))
+    gate = next(c for c in trace["commit"]
+                if c["schema"] == "gate_review.v1" and c["project_id"] == "PROJ-31")
+    assert gate["status"] == commit.REVIEW_PENDING
+    items = [p for p in hitl.list_pending() if p["message_id"] == gate["message_id"]]
+    assert len(items) == 1 and items[0]["review"]["challenges"]
 
 
 def test_checking_again_adds_nothing(monkeypatch):
@@ -120,7 +132,9 @@ def test_an_unreviewed_run_is_not_gated():
 
 
 def test_a_reviewed_scenario_on_the_demo_data():
-    flow = scenarios.loaded("risk_escalation").model_copy(update={"review": True})
+    # G2 passes PROJ-31 on conditions while A4 rates it high (risk_escalation fails it at G3,
+    # which agrees with the risk)
+    flow = scenarios.loaded("stage_gate_review").model_copy(update={"review": True})
     trace = scenarios.run_spec(flow)
     assert trace["status"] == "succeeded"
     by_project = {c["project_id"]: c for c in trace["commit"] if c["schema"] == "gate_review.v1"}

@@ -14,9 +14,10 @@ from datetime import UTC, datetime
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.risk_signals import ProjectSignals, analyze_portfolio, baseline_severity
 from ma_pmo.connectors.base import IssueTrackerConnector
-from ma_pmo.core import kpi, protocol
+from ma_pmo.core import kpi, protocol, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.kpi import Axis
+from ma_pmo.core.obs import get_logger
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.risk_alert_v1 import RiskAlertV1
 from ma_pmo.core.scope import DEFAULT_SCOPE
@@ -32,6 +33,7 @@ on the signals without exaggeration. lead_time_days is the lead time in days fro
 until the risk would actually materialize."""
 
 _HIGH = {"high", "critical"}
+_log = get_logger("risk")
 
 
 class RiskAgent(BaseAgent[RiskAlertV1]):
@@ -88,9 +90,13 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
             f"Rule-based baseline severity: {baseline}\n\n"
             "Rate the risk from these signals. Keep project_id unchanged."
         )
+        path = "llm"
         try:
             alert = self.structured(prompt)
-        except Exception:  # no LLM / outage -> rule-based risk alert fallback
+        except Exception as e:  # no LLM / outage / invalid output -> rule-based risk alert
+            _log.warning("risk_fallback", project_id=sig.project_id, error=type(e).__name__)
+            tracing.mark_fallback("A4 risk", e)
+            path = "rule"
             alert = RiskAlertV1(
                 project_id=sig.project_id,
                 signal=(
@@ -137,11 +143,12 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
                 "risk_lead_time_days",
                 alert.lead_time_days,
                 project_id=sig.project_id,
-                meta={
+                meta={  # which path rated it: on the rule path there is no LLM rating to compare
                     "risk_id": risk_id,
-                    "severity_llm": alert.severity,
+                    "path": path,
+                    "severity_llm": alert.severity if path == "llm" else None,
                     "severity_baseline": baseline,
-                    "agreement": alert.severity == baseline,
+                    "agreement": alert.severity == baseline if path == "llm" else None,
                 },
             )
         kpi.record(Axis.RISK, "risk_detected", 1, project_id=sig.project_id)

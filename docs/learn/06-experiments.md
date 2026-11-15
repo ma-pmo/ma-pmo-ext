@@ -13,6 +13,9 @@ contribution with an ablation, and pin behavior with smoke and regression tests.
   removed — in a file you can review, version and rerun. Not a notebook cell.
 - **Ablation.** Remove one component, keep everything else equal, compare. If the result does
   not change, the component is not doing what you claim — or the scenarios never exercise it.
+  Measure what *other* components produce: the removed one's own output always disappears with
+  it, so counting it shows only that it ran. The ablation report counts the messages of other
+  agents that cite the removed agent (`cited_by_others`).
 - **Deterministic runs.** Thanks to the fallbacks in lecture 3, offline runs give the same
   answer twice. Repetitions then measure nothing; with an LLM in the loop they measure
   variance.

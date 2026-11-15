@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 from ma_pmo.api.main import app
 from ma_pmo.cli import main as cli
 from ma_pmo.core.i18n import use_lang
+from ma_pmo.core.scenarios import run_scenario
 from ma_pmo.eval.dataset import COLUMNS, generate_data_template, import_dataset, load_dataset
 from ma_pmo.eval.harness import run_all
 from ma_pmo.eval.report import build_report, render, summarize
@@ -35,9 +36,34 @@ def test_generated_template_is_valid(tmp_path):
     paths = generate_data_template(tmp_path)
     assert {p.name for p in paths} == {*COLUMNS, "baselines.json", "README.md"}
     ds, issues = load_dataset(tmp_path)
-    assert issues == []
+    # valid, but the example rows and baselines are flagged until they are replaced
+    assert [i.level for i in issues] == ["warning", "warning"]
+    assert [i.file for i in issues] == ["projects.csv", "baselines.json"]
+    assert ds.example_values == ["projects.csv: PROJ-14, PROJ-22, PROJ-31",
+                                 "baselines.json: manual_report_cycle_time_sec, "
+                                 "manual_estimation_error_pct"]
     assert ds.scope == "PORTFOLIO#2026-Q1"
     assert len(ds.projects) == 3 and sum(len(p["tasks"]) for p in ds.projects) == 7
+
+
+def test_replaced_examples_are_not_flagged(tmp_path):
+    generate_data_template(tmp_path)
+    for name in ("projects.csv", "tasks.csv", "risk_labels.csv"):
+        path = tmp_path / name
+        path.write_text(path.read_text(encoding="utf-8").replace("PROJ-", "ACME-"),
+                        encoding="utf-8")
+    base = json.loads((tmp_path / "baselines.json").read_text(encoding="utf-8"))
+    base.update(manual_report_cycle_time_sec=9000, manual_estimation_error_pct=20)
+    (tmp_path / "baselines.json").write_text(json.dumps(base), encoding="utf-8")
+    ds, issues = load_dataset(tmp_path)
+    assert issues == [] and ds.example_values == []
+
+
+def test_report_names_example_values_left_in_the_data():
+    report = build_report(run_all(populate=False), scope="S", source="org data",
+                          example_values=["baselines.json: manual_report_cycle_time_sec"])
+    assert "template example values still in" in report["source"]
+    assert "manual_report_cycle_time_sec" in report["limitations"][0]
 
 
 def test_template_refuses_to_overwrite(tmp_path):
@@ -113,6 +139,7 @@ def test_dataset_import_and_evaluation_use_its_labels(tmp_path):
 # ── report ───────────────────────────────────────────────────────
 @pytest.mark.regression
 def test_verdicts_on_demo_results():
+    run_scenario("knowledge_kickoff")  # H4 counts other agents citing A7's lessons in real runs
     verdicts = {r["id"]: r["verdict"] for r in summarize(run_all())}
     assert verdicts["H2"] == "partial"     # 45.1% utilization vs. 80% target
     assert verdicts["H3"] == "supported"   # F1 = 1.0 on the fixtures

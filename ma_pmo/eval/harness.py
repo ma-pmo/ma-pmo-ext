@@ -9,6 +9,8 @@ import json
 import statistics
 from pathlib import Path
 
+from sqlalchemy import select
+
 from ma_pmo.agents.governance import GovernanceAgent
 from ma_pmo.agents.knowledge import KnowledgeAgent
 from ma_pmo.agents.planning import PlanningAgent
@@ -103,20 +105,53 @@ def h3_risk_detection(scope: str = DEFAULT_SCOPE, labels: dict | None = None) ->
     }
 
 
-# ── H4: knowledge (A7) ablation — coverage with/without retrieval ─
+# ── H4: knowledge (A7) — do other agents' decisions rest on its lessons? ─────────────────
+def _lessons_used() -> dict:
+    """Runs with A7, and messages of other agents that cite one of its answers as evidence.
+
+    Counting A7's own answers would show only that A7 ran; what H4 claims is that the lessons
+    reach decisions, so this counts the other agents' messages that rest on them.
+    """
+    from ma_pmo.db.models import AgentMessageRow
+    from ma_pmo.db.session import get_session
+
+    with get_session() as s:
+        rows = s.scalars(select(AgentMessageRow)).all()
+        answers = {r.message_id: r.run_id for r in rows if r.sender == "A7"}
+        citing = [r for r in rows if r.sender != "A7" and any(
+            e.get("kind") == "message" and e.get("ref") in answers for e in (r.evidence or []))]
+        return {"runs": len({run for run in answers.values() if run}),
+                "citing": len(citing), "agents": sorted({r.sender for r in citing})}
+
+
 def h4_knowledge_ablation(query: str | None = None) -> dict:
     query = query or tr("data migration delay risk", "데이터 마이그레이션 지연 리스크")
     hits = KnowledgeAgent().retrieve(query, k=3)
     top_sim = hits[0]["similarity"] if hits else 0
+    used = _lessons_used()
+    gain = used["citing"] if used["runs"] else None
+    if gain is None:
+        note = tr("No run with A7 yet — run a scenario that uses it (e.g. knowledge_kickoff)",
+                  "A7이 포함된 실행이 아직 없음 — A7을 쓰는 시나리오"
+                  "(예: knowledge_kickoff)를 실행하세요")
+    elif gain:
+        note = tr(f"{gain} messages of {', '.join(used['agents'])} cite A7's lessons "
+                  f"in {used['runs']} runs; without A7 there is nothing to cite",
+                  f"{used['runs']}개 실행에서 {', '.join(used['agents'])}의 메시지 {gain}건이 "
+                  "A7의 교훈을 근거로 인용 — A7이 없으면 인용할 것이 없음")
+    else:
+        note = tr(f"A7 ran in {used['runs']} runs, but no other agent's message cites its lessons",
+                  f"A7이 {used['runs']}개 실행에 있었지만 다른 에이전트의 메시지 중 "
+                  "교훈을 인용한 것이 없음")
     return {
         "hypothesis": tr("H4 success rate (A7 ablation)", "H4 성공률 (A7 ablation)"),
-        "a7_enabled": {"citations": len(hits), "top_similarity": top_sim},
-        "a7_disabled": {"citations": 0, "top_similarity": 0},
-        "coverage_gain": len(hits),
-        "note": tr(
-            "With A7 enabled, citations back up estimates and decisions",
-            "A7 유효 시 근거(citation) 확보 → 견적/판단 근거 강화",
-        ),
+        "a7_enabled": {"citations": len(hits), "top_similarity": top_sim,
+                       "messages_citing_lessons": used["citing"]},
+        "a7_disabled": {"citations": 0, "top_similarity": 0, "messages_citing_lessons": 0},
+        "runs_with_a7": used["runs"],
+        "citing_agents": used["agents"],
+        "coverage_gain": gain,
+        "note": note,
     }
 
 
@@ -153,11 +188,23 @@ def h5_complexity(scope: str = DEFAULT_SCOPE) -> dict:
             k: {"n": len(v), "avg_spi": round(statistics.mean(v), 3) if v else None}
             for k, v in strata.items()
         },
-        "note": tr(
-            "SPI tends to drop in the high-complexity stratum (moderation effect)",
-            "복잡성 높은 층에서 SPI 저하 경향 확인(조절효과)",
-        ),
+        "note": _h5_note(strata),
     }
+
+
+def _h5_note(strata: dict[str, list]) -> str:
+    """What the strata show, not what H5 hopes they show."""
+    if not strata["low"] or not strata["high"]:
+        return tr("Too few projects to compare strata", "층을 비교할 프로젝트가 부족함")
+    low, high = statistics.mean(strata["low"]), statistics.mean(strata["high"])
+    if high < low:
+        return tr(f"SPI is lower in the high-complexity stratum ({high:.3f} vs. {low:.3f}): "
+                  "consistent with a moderation effect",
+                  f"고복잡도 층의 SPI가 더 낮음({high:.3f} / {low:.3f}): 조절효과와 일치")
+    return tr(f"SPI is not lower in the high-complexity stratum ({high:.3f} vs. {low:.3f}): "
+              "no moderation effect in this data",
+              f"고복잡도 층의 SPI가 낮지 않음({high:.3f} / {low:.3f}): "
+              "이 데이터에서는 조절효과 없음")
 
 
 def run_all(populate: bool = True, scope: str = DEFAULT_SCOPE,

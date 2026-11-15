@@ -274,10 +274,14 @@ def check_lab3(workdir: Path) -> list[Result]:
         from ma_pmo.harness.runner import run_experiment
 
         rows = run_experiment(state["spec"]).get("ablation", {}).get("A7", [])
-        delta = sum(r["delta_findings"] for r in rows)
-        _require(rows and delta > 0,
-                 tr("the ablation should show fewer findings without A7",
-                    "A7을 뺐을 때 발견 사항이 줄어드는 결과가 나와야 합니다"))
+        # A7's own finding vanishes with it whatever it contributes; what H4 needs is another
+        # agent resting on its lessons
+        cited = sum(r.get("cited_by_others", 0) for r in rows)
+        _require(rows and cited > 0,
+                 tr("no other agent cites A7's lessons in these scenarios: include one where a "
+                    "later step reads A7 (e.g. knowledge_kickoff, estimation_review)",
+                    "이 시나리오들에서는 A7의 교훈을 인용한 다른 에이전트가 없습니다. 뒤 단계가 A7을 "
+                    "읽는 시나리오(예: knowledge_kickoff, estimation_review)를 넣으세요"))
 
     _run(results, tr("experiment file loads", "실험 파일 로드"), loads)
     if not results[-1].ok:

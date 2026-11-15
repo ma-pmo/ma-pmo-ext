@@ -14,7 +14,7 @@ from ma_pmo.core.schemas.message import AgentMessage
 from ma_pmo.core.schemas.payloads import PAYLOAD_REGISTRY
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
-from ma_pmo.integrations.dispatch import emit
+from ma_pmo.integrations.dispatch import emit_later
 from ma_pmo.integrations.events import events_from_message
 
 _settings = get_settings()
@@ -72,6 +72,7 @@ def publish(message: AgentMessage) -> AgentMessage:
         confidence=message.confidence,
         gated=gated,
     )
-    # notify integrations (Slack, webhooks, ...); best effort, never raises
-    emit(events_from_message(message, gated))
+    # notify integrations (Slack, webhooks, ...) in the background: best effort, never raises,
+    # and a slow webhook does not hold the run
+    emit_later(events_from_message(message, gated))
     return message

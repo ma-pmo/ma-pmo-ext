@@ -299,3 +299,38 @@ def test_status_names_the_environment_variables_to_set():
     rows = {r["name"]: r for r in registry.status(_settings(MA_PMO_INTEGRATIONS="webhook"))}
     assert rows["webhook"]["missing_env"] == ["MA_PMO_WEBHOOK_URL"]
     assert rows["slack"]["missing_env"] == ["SLACK_WEBHOOK_URL"]
+
+
+def test_a_notifier_that_keeps_failing_is_skipped_for_a_while():
+    dispatch.reset_breakers()
+    bad = Recorder("dead", fail=True)
+    for _ in range(dispatch.BREAKER_FAILURES):
+        dispatch.emit([Event(type=EventType.TEST, title="t", summary="")], notifiers=[bad],
+                      settings=_settings())
+    rows = dispatch.emit([Event(type=EventType.TEST, title="t", summary="")], notifiers=[bad],
+                         settings=_settings())
+    assert rows == [{"integration": bad.name, "event": EventType.TEST.value, "ok": False,
+                     "error": "skipped: failing repeatedly"}]
+    dispatch.reset_breakers()
+
+
+def test_pipeline_delivery_does_not_wait_for_a_slow_notifier(monkeypatch):
+    """A webhook that hangs used to hold every run for its timeout per event."""
+    import threading
+    import time
+
+    release, received = threading.Event(), []
+
+    class Slow:
+        name = "slow"
+
+        def send(self, event):
+            release.wait(5)
+            received.append(event.type.value)
+
+    monkeypatch.setattr(dispatch, "build_notifiers", lambda settings: [Slow()])
+    started = time.monotonic()
+    dispatch.emit_later([Event(type=EventType.TEST, title="t", summary="")])
+    assert time.monotonic() - started < 0.5 and received == []
+    release.set()
+    assert dispatch.flush(timeout=5) and received == [EventType.TEST.value]

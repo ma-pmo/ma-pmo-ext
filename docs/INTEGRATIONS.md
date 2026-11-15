@@ -14,6 +14,7 @@ Turn them on with environment variables — no code changes.
 - **Notifiers** (outbound) receive events. Several can be active at once.
 - **Trackers** (inbound) are where agents read portfolio data. One is active at a time; without one, the bundled demo portfolio is used.
 - Integrations are **best effort**: if Slack is down or a URL is wrong, the error is logged and the agents keep working.
+- Notifications are sent **in the background**, so a slow or hanging webhook does not hold an agent run (each attempt still waits up to `MA_PMO_INTEGRATION_TIMEOUT`, 5 s by default). After 3 failures in a row a notifier is skipped for 60 s (`integration_paused` in the log), so a dead endpoint is not waited on for every event.
 
 ## Quick start
 

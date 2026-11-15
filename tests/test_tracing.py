@@ -60,3 +60,12 @@ def test_llm_failure_and_fallback_are_visible(spans):
     a5 = next(s for s in finished if s.name == "invoke_agent A5")
     assert a5.attributes[tracing.FALLBACK] is True
     assert any(e.name == "fallback" for e in a5.events)
+
+
+def test_every_risk_fallback_is_marked(spans):
+    """A4's rule path was the one fallback a trace did not show, so alerts on
+    ma_pmo.fallback missed a risk agent running on rules all day."""
+    run_scenario("quarterly_review")
+    marked = {s.attributes.get(tracing.FALLBACK_COMPONENT) for s in spans.get_finished_spans()
+              if s.attributes.get(tracing.FALLBACK)}
+    assert {"A4 risk", "A5 report"} <= marked
