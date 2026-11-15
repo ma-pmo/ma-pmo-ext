@@ -22,6 +22,15 @@ def test_cli_version(capsys):
     assert __version__ in capsys.readouterr().out
 
 
+def test_version_matches_pyproject():
+    """Reports, traces, the API and the MCP server announce __version__; it once stayed 0.4.0."""
+    import tomllib
+    from pathlib import Path
+
+    pyproject = Path(__file__).resolve().parents[1] / "pyproject.toml"
+    assert __version__ == tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"]["version"]
+
+
 @pytest.mark.parametrize(
     "path",
     [

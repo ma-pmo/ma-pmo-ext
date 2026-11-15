@@ -4,9 +4,9 @@
 // `python docs/capture_seed.py` for sample spend and recommendations, `make api`, `make web`),
 // Google Chrome, and `npm install playwright-core` in a scratch folder.
 // usage: node capture-screenshots.js <outDir> [--gif] [--base http://localhost:3000] [--api http://localhost:8000]
-// Writes <page>-<en|ko>.png for dashboard, scenarios, scenario-trace, approvals, evaluation,
-// integrations, workflows (with a run), workflow-editor, costs and recommendations
-// (1440x900 @2x, light theme). With --gif, frames go to <outDir>/frames named NNN_<hold>.png,
+// Writes <page>-<en|ko>.png for dashboard, scenarios, scenario-trace, approvals, review (a held
+// decision in the queue), evaluation, integrations, workflows (with a run), run-board,
+// workflow-editor, costs and recommendations (1440x900 @2x, light theme). With --gif, frames go to <outDir>/frames named NNN_<hold>.png,
 // where <hold> is the frame duration in ticks.
 const { chromium } = require("playwright-core");
 const fs = require("fs");
@@ -50,9 +50,13 @@ fs.mkdirSync(outDir, { recursive: true });
     await page.waitForSelector(lang === "ko" ? "text=인사이트 —" : "text=Insight —");
     await page.waitForTimeout(900); await shot(`scenario-trace-${lang}.png`);
     await go("/approvals", lang); await shot(`approvals-${lang}.png`);
+    await top(page.locator("tr:has(+ tr.rv-row)")); await shot(`review-${lang}.png`);
     await go("/evaluation", lang); await shot(`evaluation-${lang}.png`);
     await go("/integrations", lang); await shot(`integrations-${lang}.png`);
     await go(`/workflows?id=risk_escalation&run=${run}`, lang); await shot(`workflows-${lang}.png`);
+    await page.waitForSelector(".card h2 >> text=" + (lang === "ko" ? "게시판" : "Board"));
+    await top(page.locator(".card", { has: page.locator("h2", { hasText: lang === "ko" ? /^게시판$/ : /^Board$/ }) }));
+    await shot(`run-board-${lang}.png`);
     await go("/workflows?id=risk_escalation", lang);
     await page.locator(".wf-edit-btn", { hasText: lang === "ko" ? "편집" : "Edit" }).first().click();
     await page.waitForTimeout(500); await top(page.locator(".wf-edit-only")); await shot(`workflow-editor-${lang}.png`);
