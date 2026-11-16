@@ -120,7 +120,7 @@ Pick a use case in the **Scenarios** tab to run four phases — **plan → execu
 | H5 Moderation | SPI by complexity | low 0.523 / high 0.54 | complexity median | stratified analysis |
 
 > The H3 rule-based baseline is `ma_pmo/agents/risk_signals.py`; the ground-truth labels are `ma_pmo/fixtures/risk_ground_truth.json`.
-> Rule vs. LLM agreement for H3 is recorded in `kpi_event.meta.agreement` when A4 runs.
+> Rule vs. LLM agreement for H3 is recorded in `kpi_event.meta.agreement` when A4 runs on the LLM path; `meta.path` says which path rated the risk (`llm` or `rule`), and on the rule path `severity_llm` and `agreement` are empty.
 
 ---
 

@@ -93,12 +93,17 @@ def summarize(results: dict) -> list[dict]:
     })
 
     gain = h4.get("coverage_gain")
+    agents = ", ".join(h4.get("citing_agents", [])) or "–"
     rows.append({
         "id": "H4",
         "claim": tr("Lessons learned (A7) back up decisions",
                     "과거 교훈(A7)이 판단 근거를 제공한다"),
-        "evidence": tr(f"{_fmt(gain)} citations with A7, 0 without",
-                       f"A7 사용 시 인용 {_fmt(gain)}건, 미사용 시 0건"),
+        # other agents' messages that rest on A7's answers: counting A7's own output would only
+        # show that A7 ran
+        "evidence": tr(f"{_fmt(gain)} messages of other agents ({agents}) cite A7's lessons "
+                       f"in {h4.get('runs_with_a7', 0)} runs; 0 without A7",
+                       f"다른 에이전트({agents})의 메시지 {_fmt(gain)}건이 A7의 교훈을 인용 "
+                       f"(실행 {h4.get('runs_with_a7', 0)}개), A7이 없으면 0건"),
         "verdict": "insufficient" if gain is None else "supported" if gain > 0 else "not_supported",
     })
 
@@ -164,8 +169,24 @@ def _calibration_rows(report: dict) -> list[tuple[str, str, str, str, str, str]]
              _fmt(c["brier"]), str(c["distinct_confidences"])) for k, c in blocks]
 
 
-def build_report(results: dict, *, scope: str, source: str) -> dict:
-    """Structured report content, shared by the Markdown and HTML renderers."""
+def build_report(results: dict, *, scope: str, source: str,
+                 example_values: list[str] | None = None) -> dict:
+    """Structured report content, shared by the Markdown and HTML renderers.
+
+    `example_values` names template examples still in an organization's data; the report says so
+    next to the source and among the limitations instead of presenting them as the organization's.
+    """
+    limitations = _limitations()
+    if example_values:
+        found = "; ".join(example_values)
+        source = tr(f"{source} (⚠ template example values still in: {found})",
+                    f"{source} (⚠ 양식의 예시 값이 남아 있음: {found})")
+        limitations.insert(0, tr(
+            f"Example values from the data template are still in the data ({found}): the verdicts "
+            "that rest on them describe the demo portfolio or an example baseline, not this "
+            "organization.",
+            f"데이터 양식의 예시 값이 남아 있습니다({found}). 그 값에 기댄 판정은 이 조직이 아니라 데모 "
+            "포트폴리오나 예시 기준선의 결과입니다."))
     return {
         "title": tr("MA-PMO evaluation report", "MA-PMO 평가 보고서"),
         "scope": scope,
@@ -176,7 +197,7 @@ def build_report(results: dict, *, scope: str, source: str) -> dict:
         "summary": summarize(results),
         "kpis": kpi_summary(),
         "results": results,
-        "limitations": _limitations(),
+        "limitations": limitations,
     }
 
 

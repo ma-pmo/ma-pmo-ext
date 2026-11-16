@@ -48,7 +48,9 @@ When a workflow lets them read, two agents review their own output:
 | A5 | `report.covers_risks` | every project A4 rated medium or above is among the key risks | A4 step |
 
 A6 posts one verdict per constraint and project next to each gate decision; the decision itself
-does not change. A5 checks itself before publishing: a missing risk is added to the key risks,
+does not change. A check judges the project, so whether it disagrees depends on the decision: for a
+gate that *failed*, a broken constraint agrees with it and is `VERIFIED` on the same evidence (a
+challenge would read as if the decision were wrong); A8 does the same. A5 checks itself before publishing: a missing risk is added to the key risks,
 then the verdict is posted. A constraint whose source step is not readable is not checked, and no
 verdict is posted for it: not checked is not the same as verified.
 

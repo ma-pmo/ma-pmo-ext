@@ -2,8 +2,12 @@
 
 High-risk decisions (budget, scope, contracts, external communication) are final only
 after passing a human approval gate.
-- LangGraph `interrupt` pauses the graph (approval node)
-- the approval queue (approval table) lists and resolves pending items
+- `protocol.publish` queues a pending approval (approval table) for a gated message
+- a run started with `pause_on_gate` stops after the step that queued it (`waiting_approval`): the
+  executor skips the later steps and keeps its `run_step` rows, so nothing is held in memory and
+  a restart loses nothing (core/executor.py, not a LangGraph interrupt)
+- `resolve` records the decision; approving the last pending item resumes the run
+  (`executor.resume_run`), rejecting cancels it
 - approval latency is measured as a KPI (cost axis)
 """
 from __future__ import annotations
@@ -16,7 +20,7 @@ from ma_pmo.core import kpi, runs
 from ma_pmo.core.obs import get_logger
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
-from ma_pmo.integrations.dispatch import emit
+from ma_pmo.integrations.dispatch import emit_later
 from ma_pmo.integrations.events import approval_resolved_event
 
 _log = get_logger("hitl")
@@ -92,7 +96,7 @@ def resolve(approval_id: int, *, approver: str, decision: str) -> dict:
             "decision": decision,
             "approver": approver,
         }
-    emit([approval_resolved_event(result)])
+    emit_later([approval_resolved_event(result)])
     run_status = _continue_run(run_id, decision, approver)
     return {**result, "run_status": run_status} if run_status else result
 

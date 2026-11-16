@@ -26,7 +26,7 @@ saying which projects really were in trouble. Precision without labels is a gues
   `delivery`, `risk`, `cost`. Agents call `kpi.record(...)` as they work (A2 records SPI and
   projected slippage); `record_llm_cost` tracks tokens and latency.
 - **Hypotheses** — `ma_pmo/eval/harness.py`: H1 report time, H2 idle rate, H3 risk detection
-  (precision/recall/F1 against labels), H4 the A7 ablation, H5 complexity strata.
+  (precision/recall/F1 against labels), H4 whether other agents' decisions cite A7's lessons, H5 complexity strata.
 - **Verdicts** — `ma_pmo/eval/report.py` `summarize()` applies the rules: supported / partly
   supported / not supported / insufficient data.
 - **Your data** — `ma-pmo template data` writes the inputs a claim needs: projects, tasks,

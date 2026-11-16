@@ -128,7 +128,7 @@ make web                 # http://localhost:3000  (대시보드)
 | H5 조절 | 복잡성별 SPI | low 0.523 / high 0.54 | 복잡성 중앙값 | 층화 분석 |
 
 > H3의 규칙기반 baseline은 `ma_pmo/agents/risk_signals.py`, 정답 레이블은 `ma_pmo/fixtures/risk_ground_truth.json`.
-> LLM 에이전트와의 비교(H3 규칙 vs LLM)는 A4 실행 시 `kpi_event.meta.agreement`에 기록된다.
+> LLM 에이전트와의 비교(H3 규칙 vs LLM)는 A4가 LLM 경로로 돌 때 `kpi_event.meta.agreement`에 기록된다. `meta.path`가 어느 경로(`llm`·`rule`)로 판정했는지 남기며, 규칙 경로에서는 `severity_llm`과 `agreement`가 비어 있다.
 
 ---
 

@@ -43,3 +43,34 @@ def test_run_all_returns_five_hypotheses():
     r = run_all(populate=True)
     # five hypotheses plus the confidence-calibration check of the HITL threshold
     assert set(r.keys()) == {"H1", "H2", "H3", "H4", "H5", "calibration"}
+
+
+def test_h5_note_follows_the_result():
+    from ma_pmo.eval.harness import _h5_note
+
+    assert "consistent" in _h5_note({"low": [0.6], "high": [0.4]})
+    assert "no moderation effect" in _h5_note({"low": [0.4], "high": [0.6]})
+    assert "Too few" in _h5_note({"low": [0.5], "high": []})
+
+
+def test_a2_and_a6_cite_a7s_lessons_where_they_follow_it():
+    """knowledge_kickoff: A2 reads A7 (upstream) and A6 reads it through review, so both cite the
+    lessons; without A7 nothing does. H4 counts these, not A7's own answers."""
+    from sqlalchemy import select
+
+    from ma_pmo.core.scenarios import run_scenario
+    from ma_pmo.db.models import AgentMessageRow
+    from ma_pmo.db.session import get_session
+
+    def citing(trace):
+        with get_session() as s:
+            rows = s.scalars(select(AgentMessageRow).where(
+                AgentMessageRow.run_id == trace["run_id"])).all()
+            return {r.sender for r in rows if r.sender != "A7" and any(
+                e["kind"] == "knowledge" for e in (r.evidence or []))}
+
+    with_a7 = run_scenario("knowledge_kickoff")
+    assert citing(with_a7) == {"A2", "A6"}
+    assert citing(run_scenario("knowledge_kickoff", drop_agents=("A7",))) == set()
+    r = h4_knowledge_ablation()
+    assert r["coverage_gain"] and set(r["citing_agents"]) >= {"A2", "A6"}

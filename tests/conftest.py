@@ -26,3 +26,12 @@ def _db():
     load_fixtures()
     load_lessons()
     yield
+
+
+@pytest.fixture(autouse=True)
+def _fresh_breakers():
+    """A notifier that failed in one test must not be skipped in the next."""
+    from ma_pmo.integrations import dispatch
+
+    dispatch.reset_breakers()
+    yield

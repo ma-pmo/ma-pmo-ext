@@ -87,11 +87,12 @@ def _cmd_template(ns: argparse.Namespace) -> int:
             _print_issues(e.issues)
             print(f"✗ {e}")
             return 1
-        scope, source = ds.scope, workflow.dataset_source(ns.data)
+        scope, source, examples = ds.scope, workflow.dataset_source(ns.data), ds.example_values
     else:
         results = workflow.evaluate_demo()
-        scope, source = workflow.DEMO_SCOPE, workflow.demo_source()
-    text = render(build_report(results, scope=scope, source=source), ns.format)
+        scope, source, examples = workflow.DEMO_SCOPE, workflow.demo_source(), []
+    text = render(build_report(results, scope=scope, source=source, example_values=examples),
+                  ns.format)
     if ns.out:
         Path(ns.out).write_text(text, encoding="utf-8")
         print(tr(f"✓ report written to {ns.out}", f"✓ 보고서를 {ns.out}에 저장했습니다"))
@@ -231,7 +232,8 @@ def _cmd_budget(ns: argparse.Namespace) -> int:
     from ma_pmo.core.i18n import tr
 
     def money(v: float | None) -> str:
-        return "–" if v is None else f"${v:.2f}"
+        # cents hide small run budgets: $0.005 would show as $0.01, the same as a $0.01 limit
+        return "–" if v is None else f"${v:.2f}" if v >= 1 else f"${v:.4g}"
 
     try:
         if ns.action == "set":

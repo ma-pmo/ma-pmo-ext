@@ -71,14 +71,17 @@ def render_markdown(result: dict) -> str:
             lines.append(tr(f"### Without {agent}", f"### {agent} 제외"))
             lines.append("")
             lines.append(tr(
-                "| Scenario | Outputs (base→ablated) | Findings (base→ablated) | Δ findings |",
-                "| 시나리오 | 산출(기준→제외) | 발견(기준→제외) | Δ발견 |",
+                "| Scenario | Outputs (base→ablated) | Findings (base→ablated) | Δ findings "
+                f"| Other agents citing {agent} |",
+                "| 시나리오 | 산출(기준→제외) | 발견(기준→제외) | Δ발견 "
+                f"| {agent}를 인용한 다른 에이전트 메시지 |",
             ))
-            lines.append("|---|---|---|---|")
+            lines.append("|---|---|---|---|---|")
             for r in rows:
                 lines.append(
                     f"| {r['scenario_id']} | {r['baseline_outputs']}→{r['ablated_outputs']} | "
-                    f"{r['baseline_findings']}→{r['ablated_findings']} | {r['delta_findings']} |"
+                    f"{r['baseline_findings']}→{r['ablated_findings']} | {r['delta_findings']} "
+                    f"| {r.get('cited_by_others', 0)} |"
                 )
             lines.append("")
     return "\n".join(lines)

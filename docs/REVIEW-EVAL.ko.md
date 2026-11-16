@@ -44,11 +44,11 @@ ma-pmo eval --review
 
 | Condition | Gate conflicts that reached a person | Conflicting gates committed | Report conflicts fixed | Controls held | Approvals added per run | Alternatives per conflict | LLM calls | Median run (ms) |
 |---|---|---|---|---|---|---|---|---|
-| main | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0% [0, 0] | 0.00 | 0.0 | 0 | 24 |
-| +builder | 0% [0, 0] | 100% [100, 100] | 100% [100, 100] | 0% [0, 0] | 0.00 | 0.0 | 0 | 31 |
-| +auditor | 0% [0, 0] | 100% [100, 100] | 100% [100, 100] | 0% [0, 0] | 0.00 | 0.0 | 0 | 40 |
-| +commit gate | 100% [100, 100] | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0.57 | 0.0 | 0 | 43 |
-| +alternatives | 100% [100, 100] | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0.57 | 1.6 | 0 | 44 |
+| main | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0% [0, 0] | 0.00 | 0.0 | 0 | 22 |
+| +builder | 0% [0, 0] | 100% [100, 100] | 100% [100, 100] | 0% [0, 0] | 0.00 | 0.0 | 0 | 29 |
+| +auditor | 0% [0, 0] | 100% [100, 100] | 100% [100, 100] | 0% [0, 0] | 0.00 | 0.0 | 0 | 37 |
+| +commit gate | 100% [100, 100] | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0.57 | 0.0 | 0 | 38 |
+| +alternatives | 100% [100, 100] | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0.57 | 1.6 | 0 | 40 |
 
 - builder 검토는 A5가 자기 결과를 고칠 수 있어서 보고서 충돌을 모두 해결합니다. 게이트에는 효과가 없습니다.
   A6가 이의를 게시판에 남기지만 아무에게도 묻지 않기 때문입니다.
@@ -67,30 +67,33 @@ ma-pmo eval --review
 
 | Scenario | Decisions | Held | Newly queued | Already queued | Why | Run ms (off → on) |
 |---|---|---|---|---|---|---|
-| baseline_planning | 3 | 0 | 0 | 0 | – | 28 → 34 |
-| burndown_alert | 1 | 0 | 0 | 0 | – | 25 → 26 |
-| capacity_planning | 3 | 0 | 0 | 0 | – | 20 → 31 |
-| change_control | 3 | 0 | 0 | 0 | – | 20 → 32 |
-| compliance_audit | 4 | 0 | 0 | 0 | – | 14 → 17 |
-| estimation_calibration | 1 | 0 | 0 | 0 | – | 19 → 21 |
-| estimation_review | 0 | 0 | 0 | 0 | – | 14 → 17 |
-| executive_briefing | 1 | 0 | 0 | 0 | – | 26 → 30 |
-| go_nogo_decision | 4 | 1 | 0 | 1 | gate.no_open_high_risk | 19 → 28 |
-| knowledge_kickoff | 3 | 0 | 0 | 0 | – | 20 → 22 |
-| lessons_learned_closure | 4 | 0 | 0 | 0 | – | 17 → 20 |
-| new_project_intake | 3 | 0 | 0 | 0 | – | 24 → 34 |
-| portfolio_prioritization | 1 | 0 | 0 | 0 | – | 26 → 30 |
-| quarterly_review | 1 | 0 | 0 | 0 | – | 22 → 25 |
-| resource_conflict | 3 | 1 | 0 | 1 | gate.no_open_high_risk | 21 → 33 |
-| risk_escalation | 4 | 1 | 0 | 1 | gate.no_open_high_risk | 20 → 28 |
-| risk_rebalance | 3 | 1 | 0 | 1 | gate.no_open_high_risk | 21 → 33 |
-| schedule_recovery | 0 | 0 | 0 | 0 | – | 23 → 24 |
-| stage_gate_review | 3 | 1 | 0 | 1 | gate.no_open_high_risk | 22 → 29 |
-| weekly_status | 1 | 0 | 0 | 0 | – | 15 → 17 |
-| **all** | 46 | 5 | 0 | 5 | | |
+| baseline_planning | 3 | 0 | 0 | 0 | – | 26 → 31 |
+| burndown_alert | 1 | 0 | 0 | 0 | – | 24 → 24 |
+| capacity_planning | 3 | 0 | 0 | 0 | – | 20 → 28 |
+| change_control | 3 | 0 | 0 | 0 | – | 20 → 29 |
+| compliance_audit | 4 | 0 | 0 | 0 | – | 13 → 16 |
+| estimation_calibration | 1 | 0 | 0 | 0 | – | 19 → 20 |
+| estimation_review | 0 | 0 | 0 | 0 | – | 13 → 16 |
+| executive_briefing | 1 | 0 | 0 | 0 | – | 24 → 30 |
+| go_nogo_decision | 4 | 0 | 0 | 0 | – | 18 → 26 |
+| knowledge_kickoff | 3 | 0 | 0 | 0 | – | 18 → 21 |
+| lessons_learned_closure | 4 | 0 | 0 | 0 | – | 15 → 18 |
+| new_project_intake | 3 | 0 | 0 | 0 | – | 23 → 31 |
+| portfolio_prioritization | 1 | 0 | 0 | 0 | – | 24 → 29 |
+| quarterly_review | 1 | 0 | 0 | 0 | – | 20 → 25 |
+| resource_conflict | 3 | 0 | 0 | 0 | – | 20 → 32 |
+| risk_escalation | 4 | 0 | 0 | 0 | – | 19 → 26 |
+| risk_rebalance | 3 | 0 | 0 | 0 | – | 20 → 33 |
+| schedule_recovery | 0 | 0 | 0 | 0 | – | 21 → 23 |
+| stage_gate_review | 3 | 1 | 0 | 1 | gate.no_open_high_risk | 21 → 27 |
+| weekly_status | 1 | 0 | 0 | 0 | – | 14 → 17 |
+| **all** | 46 | 1 | 0 | 1 | | |
 
-검토는 데모 데이터에서 **새로 승인을 요청하지 않습니다.** 보류된 결정 5건은 A4가 high로 본 PROJ-31의
-게이트로, A6가 이미 승인을 요청했던 것에 이의 내용이 덧붙은 것입니다.
+검토는 데모 데이터에서 **새로 승인을 요청하지 않습니다.** 보류된 결정 1건은 stage_gate_review에서 A4가
+high로 본 PROJ-31을 G2 게이트가 조건부로 통과시킨 것으로, A6가 이미 승인을 요청했던 것에 이의 내용이 덧붙었습니다.
+0.7.1 전에는 4건이 더 보류되었습니다. 이미 *미통과*로 판정된 PROJ-31의 G3 게이트들입니다. 미통과 게이트는 열린
+고위험과 이미 일치하므로, 0.7.1부터는 이의 대신 확인(VERIFIED)으로 판정합니다(이의는 결정이 틀린 것처럼 읽혔습니다).
+충돌한 채 통과한 게이트를 다룬 위의 라벨 사례 결과는 바뀌지 않았습니다.
 
 ## 결정 (실행 전에 정한 기준)
 

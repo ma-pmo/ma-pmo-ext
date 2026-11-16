@@ -87,6 +87,7 @@ def test_pipeline_emits_integration_events(monkeypatch):
     resp = client.post("/scenarios/risk_escalation/run")
     assert resp.status_code == 200
     assert resp.json()["phases"][-1]["phase"] == "insight"
+    assert dispatch.flush(timeout=10)  # delivery happens in the background
     assert "risk.detected" in received
     assert "approval.requested" in received
 

@@ -33,3 +33,27 @@ def test_message_gate_by_confidence():
 
 def test_registry_covers_report():
     assert PAYLOAD_REGISTRY["report.v1"] is ReportV1
+
+
+@pytest.mark.parametrize("severity", ["High", "높음", "somewhere in the middle", ""])
+def test_risk_severity_is_a_closed_set(severity):
+    """Every reader compares severity with sets like {"high", "critical"}: another spelling would
+    pass validation and silently skip the approval gate, notifications and review."""
+    from ma_pmo.core.schemas.payloads.risk_alert_v1 import RiskAlertV1
+
+    with pytest.raises(ValidationError):
+        RiskAlertV1(project_id="P", signal="s", severity=severity, mitigation="m", rationale="r")
+
+
+def test_gate_decision_and_report_status_are_closed_sets():
+    from ma_pmo.core.schemas.payloads.gate_review_v1 import GateReviewV1
+    from ma_pmo.core.schemas.payloads.report_v1 import ProjectStatusLine
+
+    with pytest.raises(ValidationError):
+        GateReviewV1(project_id="P", gate="G2-planning", decision="Pass")
+    with pytest.raises(ValidationError):
+        ProjectStatusLine(project_id="P", name="P", status="yellow", percent_complete=1,
+                          headline="h")
+    # the LLM is given the JSON schema, so it sees the allowed values too
+    schema = PAYLOAD_REGISTRY["risk_alert.v1"].model_json_schema()
+    assert schema["properties"]["severity"]["enum"] == ["low", "medium", "high", "critical"]

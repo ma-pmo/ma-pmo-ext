@@ -117,11 +117,26 @@ def allocation_by_deadline(project: dict, board: list[dict],
                       f"A3 계획상 {pid}는 마감({deadline}) 안에 끝남"))
 
 
-def gate_checks(project: dict, board: list[dict], steps: list[dict]) -> list[Verdict]:
-    """The gate cross-checks that the readable steps allow, for one project."""
-    found = (no_open_high_risk(project, board, steps), staffed(project, board, steps),
-             allocation_by_deadline(project, board, steps))
-    return [v for v in found if v is not None]
+def gate_checks(project: dict, board: list[dict], steps: list[dict],
+                decision: str | None = None) -> list[Verdict]:
+    """The gate cross-checks that the readable steps allow, for one project.
+
+    A check judges a constraint on the project; whether that disagrees with the gate depends on
+    the decision. A gate that failed already agrees with a broken constraint, so for `fail` a
+    finding that would challenge a pass is verified instead, on the same evidence: challenging it
+    would tell a person the decision is wrong when it is not.
+    """
+    found = [v for v in (no_open_high_risk(project, board, steps), staffed(project, board, steps),
+                         allocation_by_deadline(project, board, steps)) if v is not None]
+    if decision == "fail":
+        found = [_agrees_with_fail(v) if v.verdict == CHALLENGE else v for v in found]
+    return found
+
+
+def _agrees_with_fail(v: Verdict) -> Verdict:
+    return Verdict(v.constraint, v.project_id, VERIFIED, v.evidence,
+                   tr(f"the gate failed, which agrees: {v.rationale}",
+                      f"게이트가 미통과로 판정되어 일치함: {v.rationale}"))
 
 
 def risks_to_report(board: list[dict], steps: list[dict]) -> list[dict] | None:

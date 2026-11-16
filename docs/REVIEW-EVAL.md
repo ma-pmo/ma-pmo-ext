@@ -27,13 +27,13 @@ on a G3 gate.
 
 ## Conditions
 
-| Condition | What is on |
-|---|---|
-| main | nothing: every step isolated (0.6.0) |
-| +builder | A6 and A5 read their upstream and review their own output; A5 adds missing risks |
-| +auditor | an A8 step reviews every decision |
-| +commit gate | decisions commit only when their reviews hold; the rest go to a person |
-| +alternatives | A8 offers alternatives for the decisions it challenges |
+| Condition | Gate conflicts that reached a person | Conflicting gates committed | Report conflicts fixed | Controls held | Approvals added per run | Alternatives per conflict | LLM calls | Median run (ms) |
+|---|---|---|---|---|---|---|---|---|
+| main | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0% [0, 0] | 0.00 | 0.0 | 0 | 22 |
+| +builder | 0% [0, 0] | 100% [100, 100] | 100% [100, 100] | 0% [0, 0] | 0.00 | 0.0 | 0 | 30 |
+| +auditor | 0% [0, 0] | 100% [100, 100] | 100% [100, 100] | 0% [0, 0] | 0.00 | 0.0 | 0 | 38 |
+| +commit gate | 100% [100, 100] | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0.57 | 0.0 | 0 | 40 |
+| +alternatives | 100% [100, 100] | 0% [0, 0] | 100% [100, 100] | 0% [0, 0] | 0.57 | 1.6 | 0 | 41 |
 
 ## Results
 
@@ -62,30 +62,34 @@ The 20 built-in scenarios on the demo portfolio, with review off and on:
 
 | Scenario | Decisions | Held | Newly queued | Already queued | Why | Run ms (off → on) |
 |---|---|---|---|---|---|---|
-| baseline_planning | 3 | 0 | 0 | 0 | – | 28 → 34 |
-| burndown_alert | 1 | 0 | 0 | 0 | – | 25 → 26 |
-| capacity_planning | 3 | 0 | 0 | 0 | – | 20 → 31 |
-| change_control | 3 | 0 | 0 | 0 | – | 20 → 32 |
-| compliance_audit | 4 | 0 | 0 | 0 | – | 14 → 17 |
-| estimation_calibration | 1 | 0 | 0 | 0 | – | 19 → 21 |
-| estimation_review | 0 | 0 | 0 | 0 | – | 14 → 17 |
-| executive_briefing | 1 | 0 | 0 | 0 | – | 26 → 30 |
-| go_nogo_decision | 4 | 1 | 0 | 1 | gate.no_open_high_risk | 19 → 28 |
-| knowledge_kickoff | 3 | 0 | 0 | 0 | – | 20 → 22 |
-| lessons_learned_closure | 4 | 0 | 0 | 0 | – | 17 → 20 |
-| new_project_intake | 3 | 0 | 0 | 0 | – | 24 → 34 |
+| baseline_planning | 3 | 0 | 0 | 0 | – | 26 → 30 |
+| burndown_alert | 1 | 0 | 0 | 0 | – | 23 → 23 |
+| capacity_planning | 3 | 0 | 0 | 0 | – | 21 → 28 |
+| change_control | 3 | 0 | 0 | 0 | – | 23 → 30 |
+| compliance_audit | 4 | 0 | 0 | 0 | – | 13 → 15 |
+| estimation_calibration | 1 | 0 | 0 | 0 | – | 19 → 20 |
+| estimation_review | 0 | 0 | 0 | 0 | – | 14 → 16 |
+| executive_briefing | 1 | 0 | 0 | 0 | – | 28 → 28 |
+| go_nogo_decision | 4 | 0 | 0 | 0 | – | 27 → 34 |
+| knowledge_kickoff | 3 | 0 | 0 | 0 | – | 24 → 24 |
+| lessons_learned_closure | 4 | 0 | 0 | 0 | – | 22 → 21 |
+| new_project_intake | 3 | 0 | 0 | 0 | – | 26 → 34 |
 | portfolio_prioritization | 1 | 0 | 0 | 0 | – | 26 → 30 |
-| quarterly_review | 1 | 0 | 0 | 0 | – | 22 → 25 |
-| resource_conflict | 3 | 1 | 0 | 1 | gate.no_open_high_risk | 21 → 33 |
-| risk_escalation | 4 | 1 | 0 | 1 | gate.no_open_high_risk | 20 → 28 |
-| risk_rebalance | 3 | 1 | 0 | 1 | gate.no_open_high_risk | 21 → 33 |
-| schedule_recovery | 0 | 0 | 0 | 0 | – | 23 → 24 |
-| stage_gate_review | 3 | 1 | 0 | 1 | gate.no_open_high_risk | 22 → 29 |
-| weekly_status | 1 | 0 | 0 | 0 | – | 15 → 17 |
-| **all** | 46 | 5 | 0 | 5 | | |
+| quarterly_review | 1 | 0 | 0 | 0 | – | 22 → 26 |
+| resource_conflict | 3 | 0 | 0 | 0 | – | 24 → 36 |
+| risk_escalation | 4 | 0 | 0 | 0 | – | 22 → 44 |
+| risk_rebalance | 3 | 0 | 0 | 0 | – | 21 → 37 |
+| schedule_recovery | 0 | 0 | 0 | 0 | – | 22 → 28 |
+| stage_gate_review | 3 | 1 | 0 | 1 | gate.no_open_high_risk | 23 → 61 |
+| weekly_status | 1 | 0 | 0 | 0 | – | 16 → 22 |
+| **all** | 46 | 1 | 0 | 1 | | |
 
-Review queues **nothing new** on the demo data: the five decisions it holds are PROJ-31's gate
-(rated high by A4), which A6 had already sent for approval, now with the challenge attached.
+Review queues **nothing new** on the demo data: the one decision it holds is PROJ-31's G2 gate
+in stage_gate_review, passed on conditions although A4 rates the project high; A6 had already
+sent it for approval, and the challenge is attached. Until 0.7.1 four more were held: PROJ-31's
+G3 gates, which had *failed*. A failed gate already agrees with an open high risk, so since 0.7.1
+the checks verify it instead of challenging it (the challenge read as if the decision were
+wrong); the labelled cases above, where gates pass despite a conflict, are unchanged.
 
 ## Decisions (criteria set before the run)
 

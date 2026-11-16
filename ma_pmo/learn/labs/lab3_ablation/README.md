@@ -35,9 +35,13 @@ that can actually show the effect, and keeping experiments small and reproducibl
 ma-pmo learn check 3
 ```
 
-The last check runs your experiment and expects fewer findings when A7 is removed.
+The last check runs your experiment and expects other agents to cite A7's lessons. Removing A7
+always removes its own finding, so a drop in findings would only show that A7 ran; what H4 needs
+is that another step (A2's schedule, A6's gate) rests on the lessons. Pick at least one scenario
+where a later step reads A7 (its `reads` in `GET /workflows/<id>`).
 
 ## Think about it
 
-Fewer findings without A7 supports H4, but does not prove better *decisions*. What would
+Other agents citing the lessons supports H4, but does not prove better *decisions*: the lessons
+are recorded next to a CPM schedule and a gate decision, they do not change them. What would
 you measure next — and which part of that needs a human?

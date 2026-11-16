@@ -54,7 +54,9 @@ def run_experiment(spec: ExperimentSpec | Experiment) -> dict:
 def _run_ablation(scenario_ids: list[str], agents: list[str], scope: str) -> dict:
     """Compare outputs/findings against the baseline when each agent is removed.
 
-    Runs baseline vs. ablated only for scenarios that include that agent.
+    Runs baseline vs. ablated only for scenarios that include that agent. A finding of the
+    removed agent's own disappears with it, so `cited_by_others` also counts the messages of other
+    agents in the baseline run that cite its posts: the contribution an ablation is meant to show.
     """
     out: dict[str, list[dict]] = {}
     for agent in agents:
@@ -72,6 +74,8 @@ def _run_ablation(scenario_ids: list[str], agents: list[str], scope: str) -> dic
                     "baseline_findings": _n_findings(base),
                     "ablated_findings": _n_findings(abl),
                     "delta_findings": _n_findings(base) - _n_findings(abl),
+                    # what other agents rested on it: unlike findings, this is not its own output
+                    "cited_by_others": _n_citing(base, agent),
                 }
             )
         out[agent] = rows
@@ -82,6 +86,21 @@ def _n_outputs(trace: dict) -> int:
     return sum(
         len(p.get("results", [])) for p in trace["phases"] if p["phase"] == "execute"
     )
+
+
+def _n_citing(trace: dict, agent: str) -> int:
+    """Messages of other agents in this run whose evidence points at one of `agent`'s messages."""
+    from sqlalchemy import select
+
+    from ma_pmo.db.models import AgentMessageRow
+    from ma_pmo.db.session import get_session
+
+    with get_session() as s:
+        rows = s.scalars(select(AgentMessageRow).where(
+            AgentMessageRow.run_id == trace["run_id"])).all()
+        mine = {r.message_id for r in rows if r.sender == agent}
+        return sum(1 for r in rows if r.sender != agent and any(
+            e.get("kind") == "message" and e.get("ref") in mine for e in (r.evidence or [])))
 
 
 def _n_findings(trace: dict) -> int:

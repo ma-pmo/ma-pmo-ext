@@ -5,7 +5,7 @@ Flow: collect mock status -> CPM critical path (deterministic, no LLM) -> schedu
 """
 from __future__ import annotations
 
-from ma_pmo.agents import common
+from ma_pmo.agents import common, lessons
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.cpm import CpmResult, compute_cpm
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -49,8 +49,9 @@ class PlanningAgent(BaseAgent[ScheduleV1]):
         scope = state.get("task_ref", DEFAULT_SCOPE)
         status = self.tracker.get_portfolio_status(scope)
         outputs, messages = [], []
+        cited = lessons.evidence(lessons.on_board(state))  # empty unless the workflow lets it read
         for proj in status.get("projects", []):
-            sched, msg = self._plan(proj, scope)
+            sched, msg = self._plan(proj, scope, cited)
             outputs.append(common.entry(self.agent_id, "schedule.v1", sched))
             messages.append(common.wire(msg))
         return {"outputs": outputs, "messages": messages}
@@ -62,7 +63,8 @@ class PlanningAgent(BaseAgent[ScheduleV1]):
         sched, _ = self._plan(proj, scope)
         return sched.model_dump()
 
-    def _plan(self, proj: dict, scope: str) -> tuple[ScheduleV1, AgentMessage]:
+    def _plan(self, proj: dict, scope: str,
+              cited: list | None = None) -> tuple[ScheduleV1, AgentMessage]:
         start = proj.get("planned_start")
         cpm = compute_cpm(proj.get("tasks", []))
         crit = set(cpm.critical_path)
@@ -99,6 +101,7 @@ class PlanningAgent(BaseAgent[ScheduleV1]):
             task_ref=f"{scope}/{proj['project_id']}",
             payload=MessagePayload(schema_="schedule.v1", data=sched.model_dump()),
             confidence=0.95,  # deterministic output -> high confidence
+            evidence=cited or [],  # lessons A7 found, cited next to the estimate
         )
         protocol.publish(msg)
         return sched, msg

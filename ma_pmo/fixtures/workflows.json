@@ -25,7 +25,8 @@
       },
       {
         "id": "A2",
-        "agent": "A2"
+        "agent": "A2",
+        "reads": "upstream"
       },
       {
         "id": "A6",
@@ -63,7 +64,8 @@
       },
       {
         "id": "A2",
-        "agent": "A2"
+        "agent": "A2",
+        "reads": "upstream"
       },
       {
         "id": "A3",
@@ -142,7 +144,8 @@
       },
       {
         "id": "A2",
-        "agent": "A2"
+        "agent": "A2",
+        "reads": "upstream"
       }
     ]
   },
@@ -599,7 +602,8 @@
       },
       {
         "id": "A2",
-        "agent": "A2"
+        "agent": "A2",
+        "reads": "upstream"
       },
       {
         "id": "A5",

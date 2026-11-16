@@ -42,8 +42,9 @@ def test_a4_detects_risk_and_gates_high_severity(monkeypatch):
             select(KpiEvent).where(KpiEvent.metric == "risk_lead_time_days")
         ).all()
         assert rlt, "RLT KPI event recorded (H3)"
-        # rule-based vs. LLM severity agreement is recorded in meta
-        assert "agreement" in rlt[0].meta
+        # which path rated the risk is recorded; offline there is no LLM rating to agree with
+        assert rlt[0].meta["path"] == "rule"
+        assert rlt[0].meta["severity_llm"] is None and rlt[0].meta["agreement"] is None
 
         # high severity -> approval queue (HITL)
         gated = s.scalars(select(Approval).where(Approval.decision == "pending")).all()

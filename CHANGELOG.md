@@ -6,6 +6,26 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-15
+
+Fixes found while writing the book *Harness Engineering* against 0.7.0: contracts that were only comments, fallbacks and sources that were not recorded, a review that challenged decisions it agreed with, and measurements that counted a component's own output.
+
+### Changed
+- **A2 and A6 cite A7's lessons** (`agents/lessons.py`). Where a workflow lets them read A7 (A2 now reads `upstream` in knowledge_kickoff, new_project_intake, estimation_review and estimation_calibration; A6 through review), their schedule and gate messages carry evidence to A7's answer and each cited lesson, and A6's checklist gains `lessons_reviewed`. The lessons are recorded next to the CPM schedule and the gate decision; they do not change them.
+- **H4 counts what other agents rest on**: other agents' messages that cite A7's answers across runs (`coverage_gain`, `citing_agents`, `runs_with_a7`), not the lessons retrieval found; no run with A7 is insufficient data. Ablation reports add `cited_by_others`, and Lab 3's last check expects another agent to cite A7 (removing A7 always removes its own finding, so fewer findings only showed that it ran).
+- **Gate cross-checks look at the decision**: for a gate that failed, a broken constraint agrees with it and is `VERIFIED` on the same evidence instead of challenged. On the demo data review holds 1 decision instead of 5 (the four were PROJ-31's failed G3 gates); the labelled review evaluation is unchanged. Golden traces of go_nogo_decision, resource_conflict, risk_escalation and risk_rebalance change accordingly.
+- **Notifications are sent in the background** (`dispatch.emit_later`), so a slow or hanging webhook no longer holds a run (a 10 s hang cost 15 s per run with three events); after 3 failures in a row a notifier is skipped for 60 s (`integration_paused`). `emit` still delivers at once for tests and the integration test endpoint.
+
+### Fixed
+- `risk_alert.v1.severity`, `gate_review.v1.decision` and `report.v1` project `status` are `Literal` types: allowed values were only in comments, so `"High"` or `"높음"` validated and skipped the approval gate, notifications and review. The JSON schema given to the LLM now lists them; an invalid answer falls back to the rule path.
+- A4's fallback is logged (`risk_fallback`) and marked on the trace (`mark_fallback("A4 risk")`); it was the one fallback a trace did not show.
+- A4's lead-time KPI records which path rated the risk (`meta.path`: `llm` or `rule`); on the rule path `severity_llm` and `agreement` are empty instead of the rule's value under the LLM's name.
+- A7 drops citations of lessons it did not retrieve, uses the lessons' own excerpts, and replaces an answer that names an unretrieved lesson with the extractive one; before, an LLM's made-up source (e.g. `LL-999`) was published as a citation.
+- The H5 note is derived from the strata; it always said SPI drops with complexity, even when it did not.
+- `ma-pmo template validate` warns, and reports say, when the template's example rows or measured baselines (report time, estimation error) are still in an organization's data; they validated silently and were reported as the organization's.
+- `ma-pmo budget show` prints amounts under $1 without rounding to cents ($0.005 showed as $0.01).
+- The `hitl` and checkpointer docstrings described a LangGraph interrupt; runs pause by skipping steps and keeping `run_step` rows.
+
 ## [0.7.0] - 2026-11-09
 
 Roadmap 7: agents' decisions are checked against each other before they commit, after ArcticSwarm ([docs/REVIEW.md](docs/REVIEW.md), [evaluation](docs/REVIEW-EVAL.md)).
@@ -159,7 +179,8 @@ First public release.
 ### Fixed
 - Progress bars on the dashboard did not render their fill.
 
-[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.4.0...v0.5.0
@@ -173,6 +194,23 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+### [0.7.1] - 2026-11-15
+
+책 『하네스 엔지니어링』을 0.7.0으로 쓰며 찾은 문제를 고쳤습니다. 주석으로만 적힌 계약, 기록되지 않던 대체 경로와 출처, 결정과 일치하는데도 이의를 단 검토, 구성 요소 자신의 출력을 세던 측정입니다.
+
+- 변경: **A2와 A6가 A7의 교훈을 인용합니다**(`agents/lessons.py`). 워크플로가 A7을 읽게 허락한 곳(knowledge_kickoff, new_project_intake, estimation_review, estimation_calibration에서 A2가 `upstream`을 읽고, A6는 검토로 읽음)에서 일정·게이트 메시지의 근거에 A7의 답과 인용된 교훈이 들어가고, A6 체크리스트에 `lessons_reviewed`가 생깁니다. 교훈은 CPM 일정과 게이트 결정 옆에 기록될 뿐 그것을 바꾸지 않습니다.
+- 변경: **H4는 다른 에이전트가 기댄 것을 셉니다.** 검색이 찾은 교훈 수가 아니라, 실행들에서 A7의 답을 인용한 다른 에이전트의 메시지 수입니다(`coverage_gain`, `citing_agents`, `runs_with_a7`). A7이 포함된 실행이 없으면 데이터 부족입니다. 제거 실험 보고서에 `cited_by_others`가 생기고, 실습 3의 마지막 항목은 다른 에이전트가 A7을 인용하는지 봅니다(A7을 빼면 A7 자신의 발견은 언제나 사라지므로, 발견 수 감소는 실행되었다는 뜻일 뿐이었습니다).
+- 변경: **게이트 교차 검사가 결정을 봅니다.** 미통과 게이트에서는 깨진 제약이 결정과 일치하므로 이의 대신 같은 근거로 `VERIFIED`를 남깁니다. 데모 데이터에서 검토 보류가 5건에서 1건이 되었고(빠진 4건은 PROJ-31의 미통과 G3 게이트), 라벨 사례 평가는 그대로입니다. go_nogo_decision, resource_conflict, risk_escalation, risk_rebalance의 골든 트레이스가 이에 따라 바뀝니다.
+- 변경: **알림을 백그라운드에서 보냅니다**(`dispatch.emit_later`). 느리거나 응답 없는 웹훅이 실행을 붙잡지 않습니다(10초 멈춘 웹훅이 이벤트 3개짜리 실행에 15초를 더했습니다). 연속 3번 실패한 알림은 60초 동안 건너뜁니다(`integration_paused`). `emit`은 테스트와 연동 테스트 엔드포인트를 위해 그대로 즉시 보냅니다.
+- 수정: `risk_alert.v1.severity`, `gate_review.v1.decision`, `report.v1`의 프로젝트 `status`를 `Literal` 타입으로. 허용 값이 주석에만 있어 `"High"`, `"높음"`이 검증을 통과하고 승인 게이트·알림·검토를 건너뛰었습니다. LLM에 주는 JSON 스키마에도 값이 들어가며, 틀린 답은 규칙 경로로 넘어갑니다.
+- 수정: A4 대체 경로를 로그(`risk_fallback`)와 트레이스(`mark_fallback("A4 risk")`)에 남깁니다. 트레이스에 보이지 않던 유일한 대체 경로였습니다.
+- 수정: A4의 선행 기간 KPI에 어느 경로가 판정했는지(`meta.path`: `llm`·`rule`) 남깁니다. 규칙 경로에서는 `severity_llm`과 `agreement`가 규칙 값 대신 비어 있습니다.
+- 수정: A7이 검색하지 않은 교훈의 인용을 버리고, 인용 발췌는 교훈 원문을 쓰며, 검색하지 않은 교훈을 답에 적으면 추출형 답으로 바꿉니다. 이전에는 LLM이 지어낸 출처(예: `LL-999`)가 인용으로 게시되었습니다.
+- 수정: H5 설명을 층별 결과에서 만듭니다. 결과와 관계없이 늘 "복잡성이 높으면 SPI가 낮다"고 말했습니다.
+- 수정: 조직 데이터에 양식의 예시 행이나 측정 기준선(보고 시간, 견적 오차)이 그대로 남아 있으면 `ma-pmo template validate`가 경고하고 보고서에 표시합니다. 이전에는 조용히 통과해 조직의 결과로 보고되었습니다.
+- 수정: `ma-pmo budget show`가 1달러 미만 금액을 센트로 반올림하지 않습니다($0.005가 $0.01로 보였습니다).
+- 수정: `hitl`과 체크포인터 설명이 LangGraph interrupt를 말하던 문제. 실행은 단계를 건너뛰고 `run_step` 행을 남겨 멈춥니다.
 
 ### [0.7.0] - 2026-11-09
 
