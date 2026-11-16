@@ -10,7 +10,7 @@ change here; a commit gate decides what a challenged decision needs.
 """
 from __future__ import annotations
 
-from ma_pmo.agents import cross_checks, lessons
+from ma_pmo.agents import common, cross_checks, lessons
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.gates import evaluate_gate, normalize_gate
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -47,10 +47,8 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
         found = lessons.on_board(state)  # empty unless the workflow lets it read
         for proj in status.get("projects", []):
             review, msg = self._review(proj, gate, scope, found)
-            outputs.append(
-                {"agent": self.agent_id, "schema": "gate_review.v1", "data": review.model_dump()}
-            )
-            messages.append(msg.model_dump(by_alias=True, mode="json"))
+            outputs.append(common.entry(self.agent_id, "gate_review.v1", review))
+            messages.append(common.wire(msg))
             if "board" in state:  # builder review, only where the workflow grants reading
                 for verdict in cross_checks.gate_checks(proj, state["board"],
                                                         state.get("board_steps", []),
@@ -62,10 +60,7 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
     def review_project(
         self, project_id: str, gate: str = "G2-planning", scope: str = DEFAULT_SCOPE
     ) -> dict | None:
-        status = self.tracker.get_portfolio_status(scope)
-        proj = next(
-            (p for p in status.get("projects", []) if p["project_id"] == project_id), None
-        )
+        proj = common.find_project(self.tracker, scope, project_id)
         if proj is None:
             return None
         review, _ = self._review(proj, gate, scope)

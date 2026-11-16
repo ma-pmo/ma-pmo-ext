@@ -27,6 +27,11 @@ async function req(path: string, init?: RequestInit) {
 }
 
 // the validator's list from a 422 ({"detail": {"problems": [...]}}), else the error itself
+// The text of a failed request, for an error message on the page.
+export function errorText(err: unknown): string {
+  return String((err as Error)?.message || err);
+}
+
 export function problemsOf(err: unknown): string[] {
   const text = String((err as Error)?.message ?? err);
   try {

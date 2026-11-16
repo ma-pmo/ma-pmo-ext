@@ -21,6 +21,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ma_pmo.agents import registry
 from ma_pmo.core.i18n import tr
+from ma_pmo.core.times import iso
 from ma_pmo.core.workflow import WorkflowSpec
 from ma_pmo.db.models import WorkflowVersion
 from ma_pmo.db.session import get_session
@@ -198,6 +199,6 @@ def spec_of(workflow_id: str, version: int) -> WorkflowSpec:
 def _row(r: WorkflowVersion) -> dict:
     return {"version": r.version, "status": r.status, "note": r.note,
             "created_by": r.created_by,
-            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "created_at": iso(r.created_at),
             "published_by": r.published_by,
-            "published_at": r.published_at.isoformat() if r.published_at else None}
+            "published_at": iso(r.published_at)}

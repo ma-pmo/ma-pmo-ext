@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { api } from "./lib/api";
+import { api, errorText } from "./lib/api";
 import { useI18n } from "./lib/i18n";
 import { usePlace } from "./lib/place";
 import { BarRow, Gauge, StackBar } from "./components/charts";
-import { Card, PageHeader, Stat } from "./components/shell";
+import { Card, PageHeader, Stat, ErrorCard } from "./components/shell";
 import { Icon } from "./components/icons";
 
 const GATES = ["G1-initiation", "G2-planning", "G3-execution", "G4-closure"];
@@ -36,14 +36,14 @@ export default function Dashboard() {
       setRisks(await api.risks(scope));
       setAllocations(await api.allocations(scope));
       setErr("");
-    } catch (e: any) { setErr(String(e.message || e)); }
+    } catch (e: any) { setErr(errorText(e)); }
   }
   // reload when the language changes so server-generated text follows it
   useEffect(() => { load(); setCitations([]); setGates([]); setResult(null); }, [lang]);
 
   const guard = (fn: () => Promise<void>) => async () => {
     setErr("");
-    try { await fn(); } catch (e: any) { setErr(String(e.message || e)); }
+    try { await fn(); } catch (e: any) { setErr(errorText(e)); }
   };
   const runOrchestrate = guard(async () => {
     setRunning(true);
@@ -84,7 +84,7 @@ export default function Dashboard() {
         desc={t.pages.dashboard}
         actions={<button className="ghost" onClick={load}><Icon.refresh />{t.common2.refresh}</button>}
       />
-      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.apiError}: {err} — <span className="muted">{t.common.checkApi}</span></div>}
+      {err && <ErrorCard label={t.common.apiError}>{err} — <span className="muted">{t.common.checkApi}</span></ErrorCard>}
 
       {/* five-axis KPIs */}
       <div className="grid cols-6">

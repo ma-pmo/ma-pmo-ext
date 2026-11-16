@@ -156,6 +156,11 @@ export function PageHeader({ title, desc, actions }: { title: string; desc?: str
   );
 }
 
+// A failed request, shown where the page's content would be.
+export function ErrorCard({ label, children }: { label: ReactNode; children: ReactNode }) {
+  return <div className="card" style={{ color: "var(--red)" }}>{label}: {children}</div>;
+}
+
 export function Card({ title, desc, actions, children, flush, className = "" }: {
   title?: ReactNode; desc?: ReactNode; actions?: ReactNode; children: ReactNode; flush?: boolean; className?: string;
 }) {

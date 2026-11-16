@@ -2,10 +2,10 @@
 // The cost ledger: what LLM calls cost, from a versioned price table. A call whose model has no
 // known price is counted separately and never folded into the USD total.
 import { useEffect, useState } from "react";
-import { api, problemsOf } from "../lib/api";
+import { api, problemsOf, errorText } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 import { when } from "../lib/time";
-import { Card, PageHeader, Stat } from "../components/shell";
+import { Card, PageHeader, Stat, ErrorCard } from "../components/shell";
 import { Icon } from "../components/icons";
 import { Recommendations } from "./recommendations";
 
@@ -62,7 +62,7 @@ export default function Costs() {
   useEffect(() => {
     Promise.all(GROUPS.map((g) => api.costs(g, days || undefined)))
       .then((all: Summary[]) => { setData(Object.fromEntries(all.map((s) => [s.by, s]))); setErr(""); })
-      .catch((e) => setErr(String(e.message || e)));
+      .catch((e) => setErr(errorText(e)));
   }, [days, lang]);
 
   const total = data.model?.total;
@@ -109,7 +109,7 @@ export default function Costs() {
           </select>
         </label>
       } />
-      {err && <div className="card" style={{ color: "var(--red)" }}>{t.common.error}: {err}</div>}
+      {err && <ErrorCard label={t.common.error}>{err}</ErrorCard>}
       {total && (
         <div className="grid cols-4">
           <Stat icon={<Icon.coins />} label={c.usd} value={money(total.usd, "$0")} sub={c.table(data.model.price_table)} />
