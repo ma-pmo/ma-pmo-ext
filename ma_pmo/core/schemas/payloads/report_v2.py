@@ -5,6 +5,12 @@ KPIs with their previous values, each project's status, progress, forecast and c
 last report, and tolerance checks. Every fact has an `id` so that text can cite it. The structure
 follows a PRINCE2 highlight report: period, RAG summary, tolerance status, issues and risks.
 
+Reports come in kinds a PMO uses for different readers (`reports/kinds.py`): a status
+(highlight) report, a one-page executive summary, an exception report, a gate decision pack and
+a closure report. The kind decides which sections are shown and what the narrative is about; the
+facts are the same. Risks, gate decisions and lessons come from what earlier steps posted, when
+the workflow lets A5 read them.
+
 A5 still publishes `report.v1` (`ReportV2.to_v1()`) to the other agents; report.v2 is what is
 stored and what people read.
 """
@@ -17,6 +23,7 @@ from pydantic import BaseModel, Field
 from ma_pmo.core.schemas.payloads.report_v1 import ProjectStatusLine, ReportV1
 
 Status = Literal["green", "amber", "red"]
+Kind = Literal["status", "executive", "exception", "gate", "closure"]
 
 
 class KpiFact(BaseModel):
@@ -56,13 +63,58 @@ class ToleranceCheck(BaseModel):
     breached: bool
 
 
+class RiskFact(BaseModel):
+    id: str  # "risk.<message id>"
+    project_id: str
+    severity: str
+    signal: str
+    mitigation: str = ""
+    message_id: str
+
+
+class GateFact(BaseModel):
+    id: str  # "gate.PROJ-14.G3-execution"
+    project_id: str
+    gate: str
+    decision: str  # pass | conditional | fail
+    failed: list[str] = Field(default_factory=list)  # checklist criteria not passed
+    conditions: list[str] = Field(default_factory=list)
+    message_id: str
+
+
+class LessonFact(BaseModel):
+    id: str  # "lesson.LL-012"
+    source_id: str
+    excerpt: str
+    message_id: str
+
+
+class ApprovalFact(BaseModel):
+    id: str  # "approval.12"
+    approval_id: int
+    task_ref: str
+    project_id: str | None = None
+    sender: str
+    schema_: str = Field(default="", alias="schema")
+    requested_at: str
+    held_by_review: bool = False  # the commit gate held it, not low confidence
+
+    model_config = {"populate_by_name": True}
+
+
 class ReportFacts(BaseModel):
     as_of: str  # YYYY-MM-DD
+    projects_in_scope: list[str] | None = None  # None: the whole portfolio
     period_start: str | None = None  # the previous report's as-of date
     previous_report_id: str | None = None
     kpis: list[KpiFact] = Field(default_factory=list)
     projects: list[ProjectFact] = Field(default_factory=list)
     tolerances: list[ToleranceCheck] = Field(default_factory=list)
+    risks: list[RiskFact] = Field(default_factory=list)  # from A4, when readable
+    gates: list[GateFact] = Field(default_factory=list)  # from A6, when readable
+    lessons: list[LessonFact] = Field(default_factory=list)  # from A7, when readable
+    approvals: list[ApprovalFact] = Field(default_factory=list)  # waiting in the queue
+    board_read: bool = False  # whether the step could read earlier posts at all
 
     @property
     def breaches(self) -> list[ToleranceCheck]:
@@ -73,7 +125,9 @@ class ReportV2(BaseModel):
     """Structured report (A5): header, computed facts, narrative."""
 
     scope: str
-    audience: Literal["executive", "team"] = "executive"
+    kind: Kind = "status"
+    title: str = ""
+    audience: Literal["executive", "team"] = "team"
     path: Literal["llm", "rule"]  # who wrote the narrative
     language: str = "en"
     overall_status: Status

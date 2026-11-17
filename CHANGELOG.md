@@ -7,7 +7,11 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
-- **Reports carry computed facts** (roadmap 12, step 1). A5 now computes the facts under its report before writing it, without an LLM (`reports/facts.py`): portfolio KPIs (average progress, SPI, red and amber projects, projects forecast past their deadline, worst slack) with their value in the previous report of the scope, each project's status, progress, CPM forecast and slack with its previous status and progress, and tolerance checks (`MA_PMO_TOLERANCE_SPI`, default 0.9; `MA_PMO_TOLERANCE_SLIP_DAYS`, default 0). The LLM gets these numbers and is told to use them. The stored report is the new `report.v2` (header, overall RAG, facts, narrative); A5 still publishes `report.v1` to the other agents, so commit gates, review and golden traces are unchanged.
+- **Reports a PMO can use** (roadmap 12, step 1; [docs/REPORTS.md](docs/REPORTS.md)).
+  - Five kinds, set on a workflow's A5 step (`"params": {"kind": ...}`): `status` (PRINCE2 highlight), `executive` (one page), `exception`, `gate` (decision pack) and `closure`. Built-in workflows pick one each; `audience`, `projects` (a project report) and `as_of` can be set too.
+  - Figures are computed without an LLM (`reports/facts.py`): progress, a time-based SPI against the tracker's plan dates, an earned-value forecast finish and slack, red/amber and late counts, tolerance checks (`MA_PMO_TOLERANCE_SPI`, `MA_PMO_TOLERANCE_SLIP_DAYS`), each next to the previous report of the same scope and kind; plus A4's risks, A6's gate decisions, A7's lessons and items waiting for approval. The LLM is given them; the rule narrative follows the kind.
+  - Stored as the new `report.v2`; A5 still publishes `report.v1` to the other agents, so commit gates and review are unchanged. Golden traces change only in A5's summary line.
+  - Read and download: `GET /reports`, `/reports/latest`, `/reports/{id}`, `/reports/{id}/export?format=md|html|csv|json`, and `ma-pmo report list | show | export`. `MA_PMO_REPORT_AS_OF` reports as of a date.
 
 ## [0.7.1] - 2026-11-15
 
@@ -198,7 +202,7 @@ First public release.
 
 ### [Unreleased]
 
-- 추가: **보고서에 계산된 사실이 붙습니다**(로드맵 12, 1단계). A5가 보고서를 쓰기 전에 LLM 없이 사실을 계산합니다(`reports/facts.py`). 포트폴리오 KPI(평균 진척, SPI, red·amber 프로젝트 수, 마감 초과 예상 프로젝트 수, 최소 여유)와 같은 범위 직전 보고서의 값, 프로젝트별 상태·진척·CPM 예상 완료일·여유와 직전 상태·진척, 허용 범위 검사(`MA_PMO_TOLERANCE_SPI` 기본 0.9, `MA_PMO_TOLERANCE_SLIP_DAYS` 기본 0)입니다. LLM은 이 숫자를 받아 그대로 쓰도록 지시받습니다. 저장되는 보고서는 새 `report.v2`(머리, 종합 RAG, 사실, 서술)이고, 다른 에이전트에게는 여전히 `report.v1`을 게시하므로 확정 게이트, 검토, 골든 트레이스는 바뀌지 않습니다.
+- 추가: **PMO가 쓸 수 있는 보고서**(로드맵 12, 1단계. [docs/REPORTS.ko.md](docs/REPORTS.ko.md)). 다섯 종류(`status` PRINCE2 하이라이트, `executive` 한 장, `exception`, `gate` 의사결정 자료, `closure`)를 워크플로의 A5 단계에서 고르고(`"params": {"kind": ...}`), 기본 워크플로는 각각 하나씩 정해 두었습니다. `audience`, `projects`(프로젝트 보고서), `as_of`도 정할 수 있습니다. 수치는 LLM 없이 계산합니다(`reports/facts.py`): 진척, 트래커 계획 날짜 기준의 시간 SPI, 획득 가치 기반 예상 완료일과 여유, red·amber·지연 수, 허용 범위 검사(`MA_PMO_TOLERANCE_SPI`, `MA_PMO_TOLERANCE_SLIP_DAYS`)를 같은 범위·종류의 직전 보고서 값과 함께 내고, A4 리스크, A6 게이트 결정, A7 교훈, 승인 대기 항목을 붙입니다. 새 `report.v2`로 저장하고 다른 에이전트에게는 여전히 `report.v1`을 게시하므로 확정 게이트와 검토는 그대로이며, 골든 트레이스는 A5 요약 한 줄만 바뀝니다. `GET /reports`, `/reports/latest`, `/reports/{id}`, `/reports/{id}/export?format=md|html|csv|json`과 `ma-pmo report list | show | export`로 보고 내려받습니다.
 
 ### [0.7.1] - 2026-11-15
 
