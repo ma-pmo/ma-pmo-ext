@@ -2,11 +2,12 @@
 
     ma-pmo benchmark coverage <dump> [--k 14 28] [--min-issues 20]
 
-A release is usable at as-of offset k when at least `min_issues` issues were scheduled for it k
-days before its release date (`history`). The bar set in roadmap 3 is at least 200 usable
-releases, with at least 10 in each of at least 3 collections. Releases where between 10% and 90%
-of the scheduled issues slipped are counted separately: in the others every issue (or none)
-slipped, so there is little to tell apart.
+A release is usable at as-of offset k when at least `min_issues` labelled issues (scheduled for it
+k days before its release date, outcome not `late`; see `history`) remain. The bar set in roadmap 3
+is at least 200 usable releases, with at least 10 in each of at least 3 collections. Releases
+where between 10% and 90% of those issues slipped are counted separately: in the others every
+issue (or none) slipped, so there is little to tell apart. The same counts are given for the
+issues already started at T.
 """
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from ma_pmo.benchmark.history import IssueHistory, Release, issue_history, releases_in
+from ma_pmo.benchmark.history import SLIPPED, IssueHistory, Release, issue_history, releases_in
 
 MIN_ISSUES = 20
 MIN_RELEASES = 200
@@ -30,13 +31,21 @@ INFORMATIVE = (0.1, 0.9)
 class ReleaseRow:
     release: Release
     k: int
-    scheduled: int
-    slipped: int
-    moved_out: int  # slipped by losing the fix version (others: resolved late or never)
+    outcomes: Counter[str]  # of the issues scheduled at T
+    started: Counter[str]  # of those already started at T
+
+    @staticmethod
+    def labelled(c: Counter[str]) -> int:
+        return c.total() - c["late"]
+
+    @staticmethod
+    def slipped(c: Counter[str]) -> int:
+        return sum(c[o] for o in SLIPPED)
 
     @property
     def slip_rate(self) -> float:
-        return self.slipped / self.scheduled if self.scheduled else 0.0
+        n = self.labelled(self.outcomes)
+        return self.slipped(self.outcomes) / n if n else 0.0
 
 
 class Coverage:
@@ -65,23 +74,25 @@ class Coverage:
         out = []
         for ref, release in self.releases.items():
             t = datetime.combine(release.release_date, datetime.min.time()) - timedelta(days=k)
-            scheduled = slipped = moved = 0
+            outcomes: Counter[str] = Counter()
+            started: Counter[str] = Counter()
             for h in self.issues.get(ref, []):
                 if not h.scheduled(release.version_id, t):
                     continue
-                scheduled += 1
-                if h.slipped(release.version_id, release.release_date):
-                    slipped += 1
-                    moved += release.version_id not in h.fix_versions
-            if scheduled:
-                out.append(ReleaseRow(release, k, scheduled, slipped, moved))
+                o = h.outcome(release.version_id, release.release_date)
+                outcomes[o] += 1
+                if h.started(t):
+                    started[o] += 1
+            if outcomes:
+                out.append(ReleaseRow(release, k, outcomes, started))
         return out
 
     def report(self, ks: Iterable[int] = (14, 28), min_issues: int = MIN_ISSUES) -> dict[str, Any]:
         counts = {c: dict(v) for c, v in sorted(self.counts.items())}
         result: dict[str, Any] = {"collections": counts}
         for k in ks:
-            usable = [r for r in self.rows(k) if r.scheduled >= min_issues]
+            rows = self.rows(k)
+            usable = [r for r in rows if ReleaseRow.labelled(r.outcomes) >= min_issues]
             per: dict[str, list[ReleaseRow]] = defaultdict(list)
             for r in usable:
                 per[r.release.collection].append(r)
@@ -91,14 +102,19 @@ class Coverage:
                 "usable_releases": len(usable),
                 "informative_releases": sum(lo <= r.slip_rate <= hi for r in usable),
                 "collections_with_enough": len(enough),
+                "usable_started_releases": sum(ReleaseRow.labelled(r.started) >= min_issues
+                                               for r in rows),
                 "go": len(usable) >= MIN_RELEASES and len(enough) >= MIN_COLLECTIONS,
                 "per_collection": {
                     c: {
                         "releases": len(rs),
                         "informative": sum(lo <= r.slip_rate <= hi for r in rs),
-                        "issues": sum(r.scheduled for r in rs),
-                        "slip_rate": _rate(rs, "slipped"),
-                        "moved_out_rate": _rate(rs, "moved_out"),
+                        "issues": sum(ReleaseRow.labelled(r.outcomes) for r in rs),
+                        "slip_rate": _rate([r.outcomes for r in rs], SLIPPED),
+                        "moved_out_rate": _rate([r.outcomes for r in rs], {"moved_out"}),
+                        "late_left_out": sum(r.outcomes["late"] for r in rs),
+                        "started_issues": sum(ReleaseRow.labelled(r.started) for r in rs),
+                        "started_slip_rate": _rate([r.started for r in rs], SLIPPED),
                         "years": f"{min(r.release.release_date.year for r in rs)}–"
                                  f"{max(r.release.release_date.year for r in rs)}",
                     }
@@ -108,8 +124,9 @@ class Coverage:
         return result
 
 
-def _rate(rows: list[ReleaseRow], field: str) -> float:
-    return round(sum(getattr(r, field) for r in rows) / sum(r.scheduled for r in rows), 3)
+def _rate(counts: list[Counter[str]], outcomes: set[str]) -> float:
+    n = sum(ReleaseRow.labelled(c) for c in counts)
+    return round(sum(c[o] for c in counts for o in outcomes) / n, 3) if n else 0.0
 
 
 def scan(path: str | Path, *, progress: bool = False) -> Coverage:
@@ -133,14 +150,18 @@ def to_markdown(report: dict[str, Any]) -> str:
             f"## As of {key[2:]} days before release: {verdict}",
             "",
             f"{r['usable_releases']} usable releases ({r['informative_releases']} informative), "
-            f"{r['collections_with_enough']} collections with at least {MIN_PER_COLLECTION}. "
+            f"{r['collections_with_enough']} collections with at least {MIN_PER_COLLECTION}, "
+            f"{r['usable_started_releases']} usable on started issues alone. "
             f"Bar: {MIN_RELEASES} releases, {MIN_COLLECTIONS} collections.",
             "",
-            "| collection | releases | informative | issues | slipped | moved out | years |",
-            "|---|---|---|---|---|---|---|",
+            "| collection | releases | informative | issues | slipped | moved out | late, left out "
+            "| started | started slipped | years |",
+            "|---|---|---|---|---|---|---|---|---|---|",
         ]
         for c, v in r["per_collection"].items():
             lines.append(f"| {c} | {v['releases']} | {v['informative']} | {v['issues']} | "
-                         f"{v['slip_rate']:.0%} | {v['moved_out_rate']:.0%} | {v['years']} |")
+                         f"{v['slip_rate']:.0%} | {v['moved_out_rate']:.0%} | "
+                         f"{v['late_left_out']} | {v['started_issues']} | "
+                         f"{v['started_slip_rate']:.0%} | {v['years']} |")
         lines.append("")
     return "\n".join(lines)

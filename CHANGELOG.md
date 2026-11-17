@@ -7,7 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
-- **Benchmark coverage on public Jira history** (roadmap 3, step 1): `ma-pmo benchmark coverage <dump>` streams the Public Jira Dataset's mongodump without MongoDB (`benchmark/dump.py`), replays each issue's fix versions to an as-of date (`benchmark/history.py`) and counts usable releases against the go/no-go bar (`benchmark/coverage.py`). New extra `ma-pmo[benchmark]` (pymongo's bson). Rules and the spike result in [docs/BENCHMARK.md](docs/BENCHMARK.md).
+- **Benchmark coverage on public Jira history** (roadmap 3, step 1): `ma-pmo benchmark coverage <dump>` streams the Public Jira Dataset's mongodump without MongoDB (`benchmark/dump.py`), replays each issue's fix versions and status to an as-of date and reads its outcome a day after the release (on time, moved out, open; late closures left out) (`benchmark/history.py`) and counts usable releases against the go/no-go bar (`benchmark/coverage.py`). New extra `ma-pmo[benchmark]` (pymongo's bson). Rules and the spike result in [docs/BENCHMARK.md](docs/BENCHMARK.md).
 
 ## [0.7.1] - 2026-11-15
 
@@ -198,7 +198,7 @@ First public release.
 
 ### [Unreleased]
 
-- 추가: **공개 Jira 이력의 벤치마크 커버리지**(로드맵 3, 1단계). `ma-pmo benchmark coverage <덤프>`가 Public Jira Dataset의 mongodump를 MongoDB 없이 스트림으로 읽고(`benchmark/dump.py`), 이슈마다 fix version을 시점 T로 되돌린 뒤(`benchmark/history.py`), 쓸 수 있는 릴리스를 세어 진행 기준과 비교합니다(`benchmark/coverage.py`). 새 extra `ma-pmo[benchmark]`(pymongo의 bson). 규칙과 스파이크 결과는 [docs/BENCHMARK.ko.md](docs/BENCHMARK.ko.md).
+- 추가: **공개 Jira 이력의 벤치마크 커버리지**(로드맵 3, 1단계). `ma-pmo benchmark coverage <덤프>`가 Public Jira Dataset의 mongodump를 MongoDB 없이 스트림으로 읽고(`benchmark/dump.py`), 이슈마다 fix version과 상태를 시점 T로 되돌리고 출시 다음 날의 결과(제때, 빠짐, 미해결, 늦은 종료는 제외)를 읽은 뒤(`benchmark/history.py`), 쓸 수 있는 릴리스를 세어 진행 기준과 비교합니다(`benchmark/coverage.py`). 새 extra `ma-pmo[benchmark]`(pymongo의 bson). 규칙과 스파이크 결과는 [docs/BENCHMARK.ko.md](docs/BENCHMARK.ko.md).
 
 ### [0.7.1] - 2026-11-15
 
