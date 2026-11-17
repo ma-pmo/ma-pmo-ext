@@ -56,33 +56,36 @@ ma-pmo benchmark coverage ThePublicJiraDataset.zip --json     # all counters
 
 ## Spike result
 
-**Go.** Numbers on the first 69% of the dump (2.0 of 2.7 million issues; the archive interleaves instances, so
-the rest adds more of the same ones and the few not yet reached). They will be replaced by the full run before
-this is merged.
+**Go.** The full dump (md5 checked): 2,686,282 issues in 16 instances, all but 13 with their full
+changelog. Reading it with `ma-pmo benchmark coverage` takes about two minutes.
 
 | As of | usable releases | informative (10–90% slipped) | instances with ≥ 10 | usable on started issues alone |
 |---|---|---|---|---|
-| 14 days before | 1,888 | 1,153 | 8 | 327 |
-| 28 days before | 1,795 | 1,231 | 8 | 269 |
+| 14 days before | 2,466 | 1,512 | 11 | 419 |
+| 28 days before | 2,510 | 1,762 | 11 | 386 |
 
 14 days before release (instances with at least 10 usable releases):
 
 | instance | releases | labelled issues | slipped | moved out | late, left out | started | started slipped | years |
 |---|---|---|---|---|---|---|---|---|
 | Red Hat | 948 | 55,754 | 81% | 65% | 1,977 | 11,180 | 60% | 2005–2021 |
-| Apache | 326 | 22,806 | 90% | 62% | 524 | 1,784 | 70% | 2005–2021 |
+| Apache | 801 | 49,333 | 84% | 64% | 1,062 | 6,555 | 68% | 2004–2021 |
 | Jira | 168 | 7,180 | 62% | 43% | 515 | 1,950 | 25% | 2003–2021 |
 | Spring | 149 | 6,154 | 65% | 52% | 220 | 707 | 46% | 2005–2018 |
 | Qt | 116 | 6,003 | 87% | 56% | 397 | 2,575 | 80% | 2009–2021 |
-| MongoDB | 107 | 6,170 | 65% | 61% | 165 | 1,534 | 43% | 2009–2021 |
-| Jira Ecosystem | 50 | 1,822 | 46% | 40% | 272 | 262 | 10% | 2008–2016 |
+| MongoDB | 107 | 6,170 | 65% | 61% | 167 | 1,534 | 43% | 2009–2021 |
+| Jira Ecosystem | 51 | 1,869 | 47% | 39% | 281 | 306 | 23% | 2008–2016 |
+| MariaDB | 49 | 4,717 | 87% | 76% | 42 | 685 | 65% | 2012–2020 |
+| JFrog | 33 | 970 | 57% | 56% | 13 | 326 | 32% | 2008–2019 |
 | Sakai | 16 | 777 | 54% | 22% | 300 | 321 | 34% | 2005–2013 |
+| Hyperledger | 11 | 915 | 74% | 13% | 498 | 460 | 65% | 2017–2020 |
 
-Every issue read so far but 7 has its full changelog.
+Mojang (420,819 issues) has almost no usable release: its fix versions are mostly set when an issue
+is resolved, not planned ahead. Mindville has none at all.
 
 ## What this means for the benchmark
 
-- **Most scheduled issues slip, mostly by being moved out.** Two weeks before a release, 46–90% of the
+- **Most scheduled issues slip, mostly by being moved out.** Two weeks before a release, 47–87% of the
   still-open issues do not make it, and most of those were taken out of the release: a planning decision the
   changelog records, which makes it a clean label. "Everything slips" is a strong baseline on accuracy, so the
   benchmark reports PR-AUC and per-release ranking instead, and also the reverse question ("which issues will
