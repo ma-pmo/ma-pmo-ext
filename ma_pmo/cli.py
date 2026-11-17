@@ -287,6 +287,21 @@ def _cmd_replay(ns: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_benchmark(ns: argparse.Namespace) -> int:
+    import json
+
+    from ma_pmo.benchmark import coverage
+    from ma_pmo.benchmark.dump import DumpError
+
+    try:
+        report = coverage.scan(ns.dump, progress=True).report(ns.k, ns.min_issues)
+    except (ImportError, DumpError, OSError) as e:
+        print(f"✗ {e}", file=sys.stderr)
+        return 1
+    print(json.dumps(report, indent=1) if ns.json else coverage.to_markdown(report))
+    return 0
+
+
 def _cmd_recommendation(ns: argparse.Namespace) -> int:
     from ma_pmo.core import replay
 
@@ -402,6 +417,18 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("mcp", help='MCP server over stdio for AI assistants (needs "ma-pmo[mcp]")')
 
+    bench = sub.add_parser(
+        "benchmark", help='benchmark on public Jira history (needs "ma-pmo[benchmark]")'
+    )
+    bsub = bench.add_subparsers(dest="action", required=True)
+    b_cov = bsub.add_parser("coverage", help="count usable releases in the dump (the go/no-go bar)")
+    b_cov.add_argument("dump", help="the dataset zip or its mongodump .archive")
+    b_cov.add_argument("--k", type=int, nargs="+", default=[14, 28],
+                       help="as-of days before release")
+    b_cov.add_argument("--min-issues", type=int, default=20,
+                       help="scheduled issues a release needs")
+    b_cov.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
+
     learn = sub.add_parser("learn", help="course labs: list | start N | check N")
     learn.add_argument("args", nargs=argparse.REMAINDER)
 
@@ -462,6 +489,8 @@ def main(argv: list[str] | None = None) -> int:
         except ImportError as e:
             print(f"✗ {e}", file=sys.stderr)
             return 1
+    elif ns.command == "benchmark":
+        return _cmd_benchmark(ns)
     elif ns.command == "learn":
         from ma_pmo.learn.cli import main as learn_main
 
