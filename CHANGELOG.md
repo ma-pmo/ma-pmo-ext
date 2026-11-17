@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **Reports carry computed facts** (roadmap 12, step 1). A5 now computes the facts under its report before writing it, without an LLM (`reports/facts.py`): portfolio KPIs (average progress, SPI, red and amber projects, projects forecast past their deadline, worst slack) with their value in the previous report of the scope, each project's status, progress, CPM forecast and slack with its previous status and progress, and tolerance checks (`MA_PMO_TOLERANCE_SPI`, default 0.9; `MA_PMO_TOLERANCE_SLIP_DAYS`, default 0). The LLM gets these numbers and is told to use them. The stored report is the new `report.v2` (header, overall RAG, facts, narrative); A5 still publishes `report.v1` to the other agents, so commit gates, review and golden traces are unchanged.
+
 ## [0.7.1] - 2026-11-15
 
 Fixes found while writing the book *Harness Engineering* against 0.7.0: contracts that were only comments, fallbacks and sources that were not recorded, a review that challenged decisions it agreed with, and measurements that counted a component's own output.
@@ -194,6 +197,8 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+- 추가: **보고서에 계산된 사실이 붙습니다**(로드맵 12, 1단계). A5가 보고서를 쓰기 전에 LLM 없이 사실을 계산합니다(`reports/facts.py`). 포트폴리오 KPI(평균 진척, SPI, red·amber 프로젝트 수, 마감 초과 예상 프로젝트 수, 최소 여유)와 같은 범위 직전 보고서의 값, 프로젝트별 상태·진척·CPM 예상 완료일·여유와 직전 상태·진척, 허용 범위 검사(`MA_PMO_TOLERANCE_SPI` 기본 0.9, `MA_PMO_TOLERANCE_SLIP_DAYS` 기본 0)입니다. LLM은 이 숫자를 받아 그대로 쓰도록 지시받습니다. 저장되는 보고서는 새 `report.v2`(머리, 종합 RAG, 사실, 서술)이고, 다른 에이전트에게는 여전히 `report.v1`을 게시하므로 확정 게이트, 검토, 골든 트레이스는 바뀌지 않습니다.
 
 ### [0.7.1] - 2026-11-15
 

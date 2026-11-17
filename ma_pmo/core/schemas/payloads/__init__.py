@@ -1,4 +1,4 @@
-"""Agent output payload schemas (`.v1`).
+"""Agent output payload schemas (`.v1`, `.v2`).
 
 Every agent's output is validated against its Pydantic schema (hallucination control).
 """
@@ -8,6 +8,7 @@ from ma_pmo.core.schemas.payloads.allocation_v1 import AllocationV1
 from ma_pmo.core.schemas.payloads.gate_review_v1 import GateReviewV1
 from ma_pmo.core.schemas.payloads.knowledge_v1 import KnowledgeV1
 from ma_pmo.core.schemas.payloads.report_v1 import ReportV1
+from ma_pmo.core.schemas.payloads.report_v2 import ReportV2
 from ma_pmo.core.schemas.payloads.review_v1 import ReviewV1
 from ma_pmo.core.schemas.payloads.risk_alert_v1 import RiskAlertV1
 from ma_pmo.core.schemas.payloads.routing_v1 import RoutingV1
@@ -16,6 +17,7 @@ from ma_pmo.core.schemas.payloads.schedule_v1 import ScheduleV1
 # schema string -> Pydantic model registry (used for validation/deserialization)
 PAYLOAD_REGISTRY: dict[str, type[BaseModel]] = {
     "report.v1": ReportV1,
+    "report.v2": ReportV2,
     "risk_alert.v1": RiskAlertV1,
     "allocation.v1": AllocationV1,
     "schedule.v1": ScheduleV1,
@@ -27,6 +29,7 @@ PAYLOAD_REGISTRY: dict[str, type[BaseModel]] = {
 
 __all__ = [
     "ReportV1",
+    "ReportV2",
     "ReviewV1",
     "RiskAlertV1",
     "AllocationV1",
