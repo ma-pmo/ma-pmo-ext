@@ -119,10 +119,13 @@ class ReportingAgent(BaseAgent[ReportV1]):
         kind_spec = kinds.spec(kind)
         projects = state.get("projects")
         status = self.tracker.get_portfolio_status(scope)
-        earlier = report_facts.earlier_reports(scope, kind, projects)
+        as_of = report_facts.as_of_date(state.get("as_of"))
+        # compare only with reports as of this date or before (a report can be written for a past
+        # date after later ones)
+        earlier = [e for e in report_facts.earlier_reports(scope, kind, projects)
+                   if e[1] <= as_of.isoformat()]
         facts = report_facts.build(
-            status, earlier[0] if earlier else None,
-            today=report_facts.as_of_date(state.get("as_of")), projects=projects,
+            status, earlier[0] if earlier else None, today=as_of, projects=projects,
             board=state.get("board"), steps=state.get("board_steps"))
         found = insights.build(facts, earlier)
         if projects:  # a project report: the narrative sees only those projects

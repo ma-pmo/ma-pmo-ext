@@ -1,11 +1,12 @@
 // Capture README screenshots and demo-GIF frames from a locally running dashboard.
 //
 // Prerequisites: API and dashboard running with demo data (`make db-init`, then
-// `python docs/capture_seed.py` for sample spend and recommendations, `make api`, `make web`),
+// `MA_PMO_REPORT_AS_OF=2026-02-16 python docs/capture_seed.py` for sample spend, recommendations
+// and reports, then `make api` and `make web` with the same MA_PMO_REPORT_AS_OF),
 // Google Chrome, and `npm install playwright-core` in a scratch folder.
 // usage: node capture-screenshots.js <outDir> [--gif] [--base http://localhost:3000] [--api http://localhost:8000]
 // Writes <page>-<en|ko>.png for dashboard, scenarios, scenario-trace, approvals, review (a held
-// decision in the queue), reports (an exception report the page writes in that language),
+// decision in the queue), reports (the seed's last weekly status report in that language),
 // evaluation, integrations, workflows (with a run), run-board, workflow-editor, costs and
 // recommendations (1440x900 @2x, light theme). With --gif, frames go to <outDir>/frames named NNN_<hold>.png,
 // where <hold> is the frame duration in ticks.
@@ -52,9 +53,11 @@ fs.mkdirSync(outDir, { recursive: true });
     await page.waitForTimeout(900); await shot(`scenario-trace-${lang}.png`);
     await go("/approvals", lang); await shot(`approvals-${lang}.png`);
     await top(page.locator("tr:has(+ tr.rv-row)")); await shot(`review-${lang}.png`);
-    await go("/reports", lang);
-    await page.locator("button", { hasText: lang === "ko" ? "리스크 에스컬레이션" : "Risk escalation" }).click();
-    await page.waitForSelector(".report-list li >> nth=0"); await page.waitForTimeout(1500);
+    // the seed's third weekly status report in this language: it has changes to show
+    const weekly = (await (await fetch(`${API}/reports?kind=status&limit=100`)).json())
+      .find((r) => r.language === lang && r.as_of === "2026-02-16");
+    await go(`/reports${weekly ? `?id=${weekly.id}` : ""}`, lang);
+    await page.waitForSelector(".report-frame"); await page.waitForTimeout(1500);
     await shot(`reports-${lang}.png`);
     await go("/evaluation", lang); await shot(`evaluation-${lang}.png`);
     await go("/integrations", lang); await shot(`integrations-${lang}.png`);

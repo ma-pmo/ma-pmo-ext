@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-20
+
+Reports a PMO can send (roadmap 12): five kinds for different readers, figures computed from the plan rather than written by the LLM, what changed since the last report, a check that the LLM's narrative matches the figures, and a reports page with downloads. Also the first step of the benchmark on public Jira history (roadmap 3).
+
 ### Added
 - **Reports page in the dashboard** (roadmap 12): reports newest first with a kind filter, the selected one shown as it downloads, what changed since the last report, buttons to download HTML, Markdown, CSV or JSON, print or save as PDF, and to write a new one by running a report workflow. Downloads carry the workspace and API key headers.
 - **Reports say what changed, and an LLM's narrative is checked** (roadmap 12, step 2; [docs/REPORTS.md](docs/REPORTS.md)). Rules compare each report with the earlier ones of the same scope and kind (`reports/insights.py`): tolerance breached or cleared, status worse or better, forecast slipped, no progress, new high risk, SPI falling three reports in a row; each cites its facts, suggests an action and is ranked by severity, and they lead the report ("Since the last report"). Every number, date and id in an LLM's narrative is checked against the facts (`reports/grounding.py`); one that does not match replaces the narrative with the rule narrative, marks the fallback on the trace, and is recorded under `grounding` in report.v2.
@@ -204,6 +208,10 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+### [0.8.0] - 2026-11-20
+
+PMO가 보낼 수 있는 보고서(로드맵 12): 받는 사람별 다섯 종류, LLM이 아니라 계획에서 계산한 수치, 직전 보고 이후 변화, LLM 서술이 수치와 맞는지 검사, 내려받기가 있는 보고서 화면. 공개 Jira 이력 벤치마크(로드맵 3)의 첫 단계도 들어 있습니다.
 
 - 추가: **대시보드 보고서 화면**(로드맵 12). 최신순 목록과 종류 필터, 내려받을 때와 같은 모습의 보고서, 직전 보고 이후 변화, HTML·Markdown·CSV·JSON 내려받기, 인쇄·PDF 저장, 보고 워크플로를 실행해 새 보고서를 쓰는 버튼. 내려받기에도 워크스페이스와 API 키 헤더가 붙습니다.
 - 추가: **보고서가 바뀐 것을 말하고, LLM 서술을 검사합니다**(로드맵 12, 2단계. [docs/REPORTS.ko.md](docs/REPORTS.ko.md)). 규칙이 같은 범위·종류의 이전 보고서와 비교합니다(`reports/insights.py`): 허용 범위 이탈·복귀, 상태 악화·개선, 예상 완료일 지연, 진척 없음, 새 high 리스크, SPI 3회 연속 하락. 각각 근거 사실을 인용하고 조치를 제안하며 중요도 순으로 보고서 앞에 옵니다("직전 보고 이후"). LLM 서술의 모든 숫자·날짜·id를 사실과 대조하고(`reports/grounding.py`), 하나라도 맞지 않으면 규칙 서술로 바꾸고 추적에 대체 경로를 표시하며 report.v2의 `grounding`에 기록합니다.
