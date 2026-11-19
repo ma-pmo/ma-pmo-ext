@@ -82,6 +82,9 @@ LLM은 수치와 인사이트를 받고 그것만 쓰도록 지시받습니다. 
 
 ## 보기와 내려받기
 
+대시보드의 **보고서** 화면은 최신순 목록(종류로 거르기), 고른 보고서를 내려받을 때와 같은 모습으로 보여 주고,
+HTML·Markdown·CSV·JSON 내려받기, 인쇄(PDF 저장), 보고 워크플로를 실행해 새 보고서를 쓰는 버튼이 있습니다.
+
 ```bash
 ma-pmo report list                                  # 최신순. --kind, --scope
 ma-pmo report show latest --kind executive          # 터미널에 Markdown
@@ -115,4 +118,4 @@ ma-pmo report export RPT-1a2b3c4d --format html --out report.html
 - A2의 CPM 완료일은 태스크마다 한 사람이 하루 8시간 일한다고 가정해서 보고서의 예상 완료일과 다를 수 있습니다.
   보고서는 트래커의 계획 날짜를 씁니다.
 - A6 게이트의 "SPI ≥ 0.8" 기준은 시간 기준 SPI가 아니라 공수 가중 완료율을 씁니다.
-- 로드맵 12의 다음 단계: 대시보드 보고서 화면, docx·pdf 내보내기.
+- 로드맵 12의 다음 단계: docx·pdf 파일, 보고서 알림의 링크, MCP 도구.

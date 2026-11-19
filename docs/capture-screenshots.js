@@ -5,8 +5,9 @@
 // Google Chrome, and `npm install playwright-core` in a scratch folder.
 // usage: node capture-screenshots.js <outDir> [--gif] [--base http://localhost:3000] [--api http://localhost:8000]
 // Writes <page>-<en|ko>.png for dashboard, scenarios, scenario-trace, approvals, review (a held
-// decision in the queue), evaluation, integrations, workflows (with a run), run-board,
-// workflow-editor, costs and recommendations (1440x900 @2x, light theme). With --gif, frames go to <outDir>/frames named NNN_<hold>.png,
+// decision in the queue), reports (an exception report the page writes in that language),
+// evaluation, integrations, workflows (with a run), run-board, workflow-editor, costs and
+// recommendations (1440x900 @2x, light theme). With --gif, frames go to <outDir>/frames named NNN_<hold>.png,
 // where <hold> is the frame duration in ticks.
 const { chromium } = require("playwright-core");
 const fs = require("fs");
@@ -51,6 +52,10 @@ fs.mkdirSync(outDir, { recursive: true });
     await page.waitForTimeout(900); await shot(`scenario-trace-${lang}.png`);
     await go("/approvals", lang); await shot(`approvals-${lang}.png`);
     await top(page.locator("tr:has(+ tr.rv-row)")); await shot(`review-${lang}.png`);
+    await go("/reports", lang);
+    await page.locator("button", { hasText: lang === "ko" ? "리스크 에스컬레이션" : "Risk escalation" }).click();
+    await page.waitForSelector(".report-list li >> nth=0"); await page.waitForTimeout(1500);
+    await shot(`reports-${lang}.png`);
     await go("/evaluation", lang); await shot(`evaluation-${lang}.png`);
     await go("/integrations", lang); await shot(`integrations-${lang}.png`);
     await go(`/workflows?id=risk_escalation&run=${run}`, lang); await shot(`workflows-${lang}.png`);
@@ -67,7 +72,7 @@ fs.mkdirSync(outDir, { recursive: true });
   await ctx.close();
 
   // 2) GIF frames (1x scale, smaller viewport): dashboard → scenario run → its workflow → approve →
-  //    costs → evaluation → Korean
+  //    a report written and shown → costs → evaluation → Korean
   if (gif) {
     const framesDir = path.join(outDir, "frames");
     fs.mkdirSync(framesDir, { recursive: true });
@@ -100,6 +105,9 @@ fs.mkdirSync(outDir, { recursive: true });
     await nav("Approvals"); await snap(10);
     await p.locator("tbody tr").first().locator("button", { hasText: "Approve" }).click(); await p.waitForTimeout(700);
     await snap(8);
+    await nav("Reports", 700);
+    await p.locator("button", { hasText: "Executive briefing" }).click();
+    await p.waitForTimeout(1800); await snap(14);
     await nav("Costs", 700); await snap(12);
     await nav("Evaluation", 700); await snap(14);
     await p.locator(".topbar button", { hasText: "한국어" }).click();

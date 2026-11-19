@@ -84,6 +84,10 @@ lists what was checked and what did not match. Wording is not judged.
 
 ## Reading and downloading
 
+In the dashboard, **Reports** lists them newest first (filter by kind), shows the selected one as
+it will be downloaded, and has buttons to download it as HTML, Markdown, CSV or JSON, to print it
+(or save it as PDF), and to write a new one by running a report workflow.
+
 ```bash
 ma-pmo report list                                  # newest first; --kind, --scope
 ma-pmo report show latest --kind executive          # Markdown in the terminal
@@ -118,4 +122,4 @@ written in.
 - A2's CPM finish assumes one person at 8 hours a day per task, so it can differ from the report's
   forecast; the report uses the tracker's plan dates.
 - A6's gate criterion "SPI ≥ 0.8" uses the effort-weighted completion ratio, not this time-based SPI.
-- Coming next in roadmap 12: a reports page in the dashboard, docx and pdf export.
+- Coming next in roadmap 12: docx and pdf files, a link in report notifications, an MCP tool.

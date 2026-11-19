@@ -17,6 +17,7 @@ export const Icon = {
   costs: () => <Svg><circle cx="12" cy="12" r="9" /><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v2M12 16v2" /></Svg>,
   approvals: () => <Svg><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></Svg>,
   evaluation: () => <Svg><path d="M3 3v18h18" /><path d="M7 15l4-4 3 3 5-6" /></Svg>,
+  reports: () => <Svg><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6" /><path d="M8 13h8M8 17h5" /></Svg>,
   integrations: () => <Svg><path d="M9 7H6a3 3 0 0 0 0 6h3" /><path d="M15 7h3a3 3 0 0 1 0 6h-3" /><path d="M8 10h8" /><path d="M12 17v4" /></Svg>,
   menu: () => <Svg><path d="M3 6h18M3 12h18M3 18h18" /></Svg>,
   refresh: () => <Svg size={16}><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></Svg>,

@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **Reports page in the dashboard** (roadmap 12): reports newest first with a kind filter, the selected one shown as it downloads, what changed since the last report, buttons to download HTML, Markdown, CSV or JSON, print or save as PDF, and to write a new one by running a report workflow. Downloads carry the workspace and API key headers.
 - **Reports say what changed, and an LLM's narrative is checked** (roadmap 12, step 2; [docs/REPORTS.md](docs/REPORTS.md)). Rules compare each report with the earlier ones of the same scope and kind (`reports/insights.py`): tolerance breached or cleared, status worse or better, forecast slipped, no progress, new high risk, SPI falling three reports in a row; each cites its facts, suggests an action and is ranked by severity, and they lead the report ("Since the last report"). Every number, date and id in an LLM's narrative is checked against the facts (`reports/grounding.py`); one that does not match replaces the narrative with the rule narrative, marks the fallback on the trace, and is recorded under `grounding` in report.v2.
 - **Reports a PMO can use** (roadmap 12, step 1; [docs/REPORTS.md](docs/REPORTS.md)).
   - Five kinds, set on a workflow's A5 step (`"params": {"kind": ...}`): `status` (PRINCE2 highlight), `executive` (one page), `exception`, `gate` (decision pack) and `closure`. Built-in workflows pick one each; `audience`, `projects` (a project report) and `as_of` can be set too.
@@ -204,6 +205,7 @@ First public release.
 
 ### [Unreleased]
 
+- 추가: **대시보드 보고서 화면**(로드맵 12). 최신순 목록과 종류 필터, 내려받을 때와 같은 모습의 보고서, 직전 보고 이후 변화, HTML·Markdown·CSV·JSON 내려받기, 인쇄·PDF 저장, 보고 워크플로를 실행해 새 보고서를 쓰는 버튼. 내려받기에도 워크스페이스와 API 키 헤더가 붙습니다.
 - 추가: **보고서가 바뀐 것을 말하고, LLM 서술을 검사합니다**(로드맵 12, 2단계. [docs/REPORTS.ko.md](docs/REPORTS.ko.md)). 규칙이 같은 범위·종류의 이전 보고서와 비교합니다(`reports/insights.py`): 허용 범위 이탈·복귀, 상태 악화·개선, 예상 완료일 지연, 진척 없음, 새 high 리스크, SPI 3회 연속 하락. 각각 근거 사실을 인용하고 조치를 제안하며 중요도 순으로 보고서 앞에 옵니다("직전 보고 이후"). LLM 서술의 모든 숫자·날짜·id를 사실과 대조하고(`reports/grounding.py`), 하나라도 맞지 않으면 규칙 서술로 바꾸고 추적에 대체 경로를 표시하며 report.v2의 `grounding`에 기록합니다.
 
 - 추가: **PMO가 쓸 수 있는 보고서**(로드맵 12, 1단계. [docs/REPORTS.ko.md](docs/REPORTS.ko.md)). 다섯 종류(`status` PRINCE2 하이라이트, `executive` 한 장, `exception`, `gate` 의사결정 자료, `closure`)를 워크플로의 A5 단계에서 고르고(`"params": {"kind": ...}`), 기본 워크플로는 각각 하나씩 정해 두었습니다. `audience`, `projects`(프로젝트 보고서), `as_of`도 정할 수 있습니다. 수치는 LLM 없이 계산합니다(`reports/facts.py`): 진척, 트래커 계획 날짜 기준의 시간 SPI, 획득 가치 기반 예상 완료일과 여유, red·amber·지연 수, 허용 범위 검사(`MA_PMO_TOLERANCE_SPI`, `MA_PMO_TOLERANCE_SLIP_DAYS`)를 같은 범위·종류의 직전 보고서 값과 함께 내고, A4 리스크, A6 게이트 결정, A7 교훈, 승인 대기 항목을 붙입니다. 새 `report.v2`로 저장하고 다른 에이전트에게는 여전히 `report.v1`을 게시하므로 확정 게이트와 검토는 그대로이며, 골든 트레이스는 A5 요약 한 줄만 바뀝니다. `GET /reports`, `/reports/latest`, `/reports/{id}`, `/reports/{id}/export?format=md|html|csv|json`과 `ma-pmo report list | show | export`로 보고 내려받습니다.
