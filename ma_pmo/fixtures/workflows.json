@@ -179,7 +179,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "executive"
+        }
       }
     ]
   },
@@ -208,7 +211,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "status"
+        }
       }
     ]
   },
@@ -355,7 +361,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "exception"
+        }
       }
     ]
   },
@@ -389,7 +398,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "exception"
+        }
       }
     ]
   },
@@ -497,7 +509,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "gate"
+        }
       }
     ]
   },
@@ -535,7 +550,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "gate"
+        }
       }
     ]
   },
@@ -572,7 +590,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "closure"
+        }
       }
     ]
   },
@@ -607,7 +628,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "status"
+        }
       }
     ]
   },
@@ -645,7 +669,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "executive"
+        }
       }
     ]
   },
@@ -684,7 +711,10 @@
       },
       {
         "id": "A5",
-        "agent": "A5"
+        "agent": "A5",
+        "params": {
+          "kind": "executive"
+        }
       }
     ]
   },

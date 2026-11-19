@@ -38,6 +38,7 @@ from ma_pmo.api.routers import (  # noqa: E402
     orchestrate,
     planning,
     recommendations,
+    reports,
     risks,
     runs,
     scenarios,
@@ -111,6 +112,7 @@ app.include_router(workflows.router)
 app.include_router(costs.router)
 app.include_router(budgets.router)
 app.include_router(recommendations.router)
+app.include_router(reports.router)
 
 
 @app.get("/health")

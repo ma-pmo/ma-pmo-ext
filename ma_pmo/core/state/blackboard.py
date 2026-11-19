@@ -15,6 +15,11 @@ class PortfolioState(TypedDict, total=False):
     goal: str  # goal the user gave to A1
     task_ref: str  # scope (e.g. PORTFOLIO#2026-Q1)
     gate: str  # gate for A6 to review (e.g. G2-planning)
+    # A5's report (reports/kinds.py): kind, reader, projects (None: the portfolio), as-of date
+    kind: str
+    audience: str
+    projects: list[str]
+    as_of: str
 
     # A1 routing result (routing.v1)
     routing: dict[str, Any]

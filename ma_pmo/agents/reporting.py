@@ -1,8 +1,9 @@
 """A5 Reporting agent — stakeholder communication (§3.2). [operational]
 
-Flow: collect mock issue-tracker status -> generate executive report with the LLM
-      (validated as report.v1) -> store report -> record RCT (report cycle time) KPI
-      -> publish inform message to A1.
+Flow: collect issue-tracker status -> compute the report's facts (KPIs, change since the last
+      report, forecasts, tolerances; `reports/facts.py`, no LLM) -> write the narrative with the
+      LLM from those facts (validated as report.v1) -> store the full report as report.v2
+      -> record RCT (report cycle time) KPI -> publish report.v1 to A1.
 
 When the workflow lets this step read earlier posts (`reads`), A5 checks its report before
 publishing it: a project A4 rated medium or above but missing from the key risks is added
@@ -13,19 +14,23 @@ from __future__ import annotations
 import json
 import time
 import uuid
+from typing import Literal
 
 from ma_pmo.agents import common, cross_checks
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, protocol, tracing
-from ma_pmo.core.i18n import tr
+from ma_pmo.core.i18n import get_lang, tr
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.report_v1 import ProjectStatusLine, ReportV1
+from ma_pmo.core.schemas.payloads.report_v2 import ReportV2
 from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
 from ma_pmo.db.models import Report
 from ma_pmo.db.session import get_session
 from ma_pmo.integrations.registry import get_tracker
+from ma_pmo.reports import facts as report_facts
+from ma_pmo.reports import kinds
 
 
 def _fallback_report(status: dict, scope: str) -> ReportV1:
@@ -41,9 +46,9 @@ def _fallback_report(status: dict, scope: str) -> ReportV1:
         executive_summary=(
             tr(
                 f"{len(projects)} projects: {len(reds)} red, {len(ambers)} amber, "
-                f"average progress {avg}%. (rule-based automatic report)",
+                f"average progress {avg}%.",
                 f"{len(projects)}개 프로젝트 중 red {len(reds)}건, amber {len(ambers)}건, "
-                f"평균 진척 {avg}%. (규칙기반 자동 보고)",
+                f"평균 진척 {avg}%.",
             )
         ),
         project_status=[
@@ -109,22 +114,43 @@ class ReportingAgent(BaseAgent[ReportV1]):
         scope = state.get("task_ref", DEFAULT_SCOPE)
         goal = state.get("goal", "Generate portfolio executive report")
 
+        kind = state.get("kind") or "status"
+        kind_spec = kinds.spec(kind)
+        projects = state.get("projects")
         status = self.tracker.get_portfolio_status(scope)
+        facts = report_facts.build(
+            status, report_facts.previous_report(scope, kind, projects),
+            today=report_facts.as_of_date(state.get("as_of")), projects=projects,
+            board=state.get("board"))
+        if projects:  # a project report: the narrative sees only those projects
+            status = {**status, "projects": [p for p in status.get("projects", [])
+                                             if p["project_id"] in set(projects)]}
         user_prompt = (
-            f"Goal: {goal}\nScope: {scope}\n\n"
+            f"Goal: {goal}\nScope: {scope}\n"
+            f"Report kind: {kind}. {kind_spec.instruction}\n\n"
             "Current portfolio status (JSON):\n"
             f"{json.dumps(status, ensure_ascii=False, indent=2)}\n\n"
+            "Computed facts: KPIs with their value in the previous report, per-project forecast "
+            "and slack, tolerance checks (JSON). Use these numbers; do not compute your own:\n"
+            f"{facts.model_dump_json(indent=2)}\n\n"
             "Write the executive report from this data."
         )
+        path: Literal["llm", "rule"] = "llm"
         try:
             report = self.structured(user_prompt)
         except Exception as e:  # no LLM / outage -> deterministic report fallback
             tracing.mark_fallback("A5 report", e)
-            report = _fallback_report(status, scope)
+            report = kinds.narrate(kind, _fallback_report(status, scope), facts)
+            path = "rule"
         if "board" in state:  # self-check: every risk A4 raised belongs in the key risks
             report = _with_upstream_risks(report, state["board"], state.get("board_steps", []))
 
-        # persist output
+        # persist the full report (report.v2): narrative on top of the computed facts
+        full = ReportV2(scope=scope, kind=kind, title=kinds.title(kind),
+                        audience=state.get("audience") or kind_spec.audience,
+                        path=path, language=get_lang(),
+                        overall_status=report_facts.overall_status(facts), facts=facts,
+                        **report.model_dump(exclude={"scope"}))
         report_id = f"RPT-{uuid.uuid4().hex[:8]}"
         with get_session() as s:
             s.add(
@@ -132,7 +158,7 @@ class ReportingAgent(BaseAgent[ReportV1]):
                     id=report_id,
                     scope=scope,
                     generated_by=self.agent_id,
-                    content=report.model_dump(),
+                    content=full.model_dump(),
                 )
             )
 

@@ -473,7 +473,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). (rule-based autom",
       "schema": "report.v1"
      },
      {
@@ -494,7 +494,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 8 worker outputs for goal 'Respond to stalled-burndown risk and replan the schedule'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "Synthesized 8 worker outputs for goal 'Respond to stalled-burndown risk and replan the schedule'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). (rule-based autom - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -514,7 +514,7 @@
      },
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H1"
      },
      {
@@ -1291,7 +1291,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Gate decisions: 2",
       "schema": "report.v1"
      }
     ],
@@ -1303,7 +1303,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 4 worker outputs for goal 'Audit methodology and quality-gate compliance and report'. - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+    "complete": "Synthesized 4 worker outputs for goal 'Audit methodology and quality-gate compliance and report'. - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Gate decisions: 2"
    },
    {
     "hypotheses": [
@@ -1312,7 +1312,7 @@
     "insight": [
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H3"
      },
      {
@@ -1436,7 +1436,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). (rule-based autom",
       "schema": "report.v1"
      }
     ],
@@ -1448,7 +1448,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 5 worker outputs for goal 'Calibrate estimates from actuals and report'. - A7(knowledge.v1): 3 citations · [LL-2022-09] CRM integration reporting cycle improvement: In a CRM integration p - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+    "complete": "Synthesized 5 worker outputs for goal 'Calibrate estimates from actuals and report'. - A7(knowledge.v1): 3 citations · [LL-2022-09] CRM integration reporting cycle improvement: In a CRM integration p - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). (rule-based autom"
    },
    {
     "hypotheses": [
@@ -1463,7 +1463,7 @@
      },
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H1"
      },
      {
@@ -1769,7 +1769,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Waiting for appro",
       "schema": "report.v1"
      },
      {
@@ -1790,7 +1790,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 9 worker outputs for goal 'Executive briefing across all axes (schedule, resources, risk)'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "Synthesized 9 worker outputs for goal 'Executive briefing across all axes (schedule, resources, risk)'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Waiting for appro - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -1816,7 +1816,7 @@
      },
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H1"
      },
      {
@@ -2042,7 +2042,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Gate decisions: 1",
       "schema": "report.v1"
      },
      {
@@ -2075,7 +2075,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 14 worker outputs for goal 'Go/No-Go decision report based on risks and gates'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "Synthesized 14 worker outputs for goal 'Go/No-Go decision report based on risks and gates'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Gate decisions: 1 - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -2090,7 +2090,7 @@
      },
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H1"
      },
      {
@@ -2398,7 +2398,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Gate decisions: 0",
       "schema": "report.v1"
      }
     ],
@@ -2410,7 +2410,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 5 worker outputs for goal 'Closure gate and capture of lessons learned'. - A6(gate_review.v1): PROJ-14 G4-closure → fail - A6(gate_review.v1): PROJ-22 G4-closure → fail - A6(gate_review.v1): PROJ-31 G4-closure → fail - A7(knowledge.v1): 3 citations · [LL-2022-03] Cloud migration gate review success story: The cloud migration stri - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+    "complete": "Synthesized 5 worker outputs for goal 'Closure gate and capture of lessons learned'. - A6(gate_review.v1): PROJ-14 G4-closure → fail - A6(gate_review.v1): PROJ-22 G4-closure → fail - A6(gate_review.v1): PROJ-31 G4-closure → fail - A7(knowledge.v1): 3 citations · [LL-2022-03] Cloud migration gate review success story: The cloud migration stri - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Gate decisions: 0"
    },
    {
     "hypotheses": [
@@ -2419,7 +2419,7 @@
     "insight": [
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H4"
      },
      {
@@ -2967,7 +2967,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Waiting for appro",
       "schema": "report.v1"
      },
      {
@@ -2988,7 +2988,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 9 worker outputs for goal 'Prioritize the portfolio by risk and resources'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "Synthesized 9 worker outputs for goal 'Prioritize the portfolio by risk and resources'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A3(allocation.v1): 12 allocations · utilization=45.1% · overloads=[] - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Waiting for appro - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -3013,7 +3013,7 @@
      },
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H2"
      }
     ],
@@ -3168,7 +3168,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Waiting for appro",
       "schema": "report.v1"
      },
      {
@@ -3189,7 +3189,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 8 worker outputs for goal 'Q1 integrated portfolio review (schedule, risk, executive report)'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "Synthesized 8 worker outputs for goal 'Q1 integrated portfolio review (schedule, risk, executive report)'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). Waiting for appro - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -3209,7 +3209,7 @@
      },
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H1"
      },
      {
@@ -3834,7 +3834,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). (rule-based autom",
       "schema": "report.v1"
      },
      {
@@ -3867,7 +3867,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 14 worker outputs for goal 'Escalate high-severity risks and submit for approval'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "Synthesized 14 worker outputs for goal 'Escalate high-severity risks and submit for approval'. - A4(risk_alert.v1): PROJ-14 severity=medium · status amber, slack 4d, stalled [], blocked ['T-1403'] - A4(risk_alert.v1): PROJ-31 severity=high · status red, slack -7d, stalled ['T-3101'], blocked ['T-3102' - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). (rule-based autom - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -3881,7 +3881,7 @@
      },
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H3"
      },
      {
@@ -4823,7 +4823,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)",
+      "headline": "3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). (rule-based autom",
       "schema": "report.v1"
      }
     ],
@@ -4835,7 +4835,7 @@
     "title": "Execute — A8 Auditor"
    },
    {
-    "complete": "Synthesized 4 worker outputs for goal 'Collect weekly progress and publish a status report'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-based automatic report)"
+    "complete": "Synthesized 4 worker outputs for goal 'Collect weekly progress and publish a status report'. - A2(schedule.v1): PROJ-14 projected finish=2026-02-13 critical path=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 projected finish=2026-02-02 critical path=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 projected finish=2026-03-06 critical path=['T-3101', 'T-3102'] - A5(report.v1): 3 projects: 1 red, 1 amber, average progress 52.9%. Outside tolerance: PROJ-31 (7 days past deadline). (rule-based autom"
    },
    {
     "hypotheses": [
@@ -4849,7 +4849,7 @@
      },
      {
       "axis": "time",
-      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. (rule-ba",
+      "finding": "Executive report auto-generated — 3 projects: 1 red, 1 amber, average progress 52.9%. Outside ",
       "hypothesis": "H1"
      },
      {
@@ -5342,7 +5342,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). (규칙기반 자동 보고)",
       "schema": "report.v1"
      },
      {
@@ -5363,7 +5363,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '번다운 정체 리스크 대응 및 일정 재계획' 에 대해 8개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "목표 '번다운 정체 리스크 대응 및 일정 재계획' 에 대해 8개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -5383,7 +5383,7 @@
      },
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H1"
      },
      {
@@ -6160,7 +6160,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 게이트 결정: 통과 2, 조건부 1, 불통과 0. 승인 대기: 47건. (규칙기반 자동 ",
       "schema": "report.v1"
      }
     ],
@@ -6172,7 +6172,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '방법론·품질 게이트 준수 감사 및 보고' 에 대해 4개 작업자 산출을 종합했습니다. - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+    "complete": "목표 '방법론·품질 게이트 준수 감사 및 보고' 에 대해 4개 작업자 산출을 종합했습니다. - A6(gate_review.v1): PROJ-14 G2-planning → pass - A6(gate_review.v1): PROJ-22 G2-planning → pass - A6(gate_review.v1): PROJ-31 G2-planning → conditional - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 게이트 결정: 통과 2, 조건부 1, 불통과 0. 승인 대기: 47건. (규칙기반 자동 "
    },
    {
     "hypotheses": [
@@ -6181,7 +6181,7 @@
     "insight": [
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H3"
      },
      {
@@ -6305,7 +6305,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). (규칙기반 자동 보고)",
       "schema": "report.v1"
      }
     ],
@@ -6317,7 +6317,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '실적 기반 견적 캘리브레이션 및 보고' 에 대해 5개 작업자 산출을 종합했습니다. - A7(knowledge.v1): 인용 2건 · [LL-2022-09] CRM 통합 보고 주기 개선: CRM 통합 프로젝트에서 수작업 경영 보고에 회당 6시간이 소요됐다. 상태 자동 취합 도입 - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+    "complete": "목표 '실적 기반 견적 캘리브레이션 및 보고' 에 대해 5개 작업자 산출을 종합했습니다. - A7(knowledge.v1): 인용 2건 · [LL-2022-09] CRM 통합 보고 주기 개선: CRM 통합 프로젝트에서 수작업 경영 보고에 회당 6시간이 소요됐다. 상태 자동 취합 도입 - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). (규칙기반 자동 보고)"
    },
    {
     "hypotheses": [
@@ -6332,7 +6332,7 @@
      },
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H1"
      },
      {
@@ -6638,7 +6638,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 승인 대기: 55건. (규칙기반 자동 보고)",
       "schema": "report.v1"
      },
      {
@@ -6659,7 +6659,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '전 축(일정·자원·리스크) 경영진 브리핑' 에 대해 9개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "목표 '전 축(일정·자원·리스크) 경영진 브리핑' 에 대해 9개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 승인 대기: 55건. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -6685,7 +6685,7 @@
      },
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H1"
      },
      {
@@ -6911,7 +6911,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 게이트 결정: 통과 1, 조건부 0, 불통과 2. 승인 대기: 50건. (규칙기반 자동 ",
       "schema": "report.v1"
      },
      {
@@ -6944,7 +6944,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '리스크·게이트 기반 Go/No-Go 의사결정 보고' 에 대해 14개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "목표 '리스크·게이트 기반 Go/No-Go 의사결정 보고' 에 대해 14개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 게이트 결정: 통과 1, 조건부 0, 불통과 2. 승인 대기: 50건. (규칙기반 자동  - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -6959,7 +6959,7 @@
      },
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H1"
      },
      {
@@ -7267,7 +7267,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 게이트 결정: 통과 0, 조건부 0, 불통과 3. 인용된 교훈: 3건. (규칙기반 자동 ",
       "schema": "report.v1"
      }
     ],
@@ -7279,7 +7279,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '프로젝트 종료 게이트 및 교훈 지식화' 에 대해 5개 작업자 산출을 종합했습니다. - A6(gate_review.v1): PROJ-14 G4-closure → fail - A6(gate_review.v1): PROJ-22 G4-closure → fail - A6(gate_review.v1): PROJ-31 G4-closure → fail - A7(knowledge.v1): 인용 3건 · [LL-2022-03] 클라우드 이전 게이트 리뷰 성공 사례: 클라우드 이전은 계획완료 게이트에서 WBS·의존성·롤백 계획을 엄격히 검증해 실행 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+    "complete": "목표 '프로젝트 종료 게이트 및 교훈 지식화' 에 대해 5개 작업자 산출을 종합했습니다. - A6(gate_review.v1): PROJ-14 G4-closure → fail - A6(gate_review.v1): PROJ-22 G4-closure → fail - A6(gate_review.v1): PROJ-31 G4-closure → fail - A7(knowledge.v1): 인용 3건 · [LL-2022-03] 클라우드 이전 게이트 리뷰 성공 사례: 클라우드 이전은 계획완료 게이트에서 WBS·의존성·롤백 계획을 엄격히 검증해 실행 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 게이트 결정: 통과 0, 조건부 0, 불통과 3. 인용된 교훈: 3건. (규칙기반 자동 "
    },
    {
     "hypotheses": [
@@ -7288,7 +7288,7 @@
     "insight": [
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H4"
      },
      {
@@ -7836,7 +7836,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 승인 대기: 54건. (규칙기반 자동 보고)",
       "schema": "report.v1"
      },
      {
@@ -7857,7 +7857,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '리스크·자원 기준 포트폴리오 우선순위화' 에 대해 9개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "목표 '리스크·자원 기준 포트폴리오 우선순위화' 에 대해 9개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A3(allocation.v1): 배분 12건 · 활용률=45.1% · 과부하=[] - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 승인 대기: 54건. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -7882,7 +7882,7 @@
      },
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H2"
      }
     ],
@@ -8037,7 +8037,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 승인 대기: 31건. (규칙기반 자동 보고)",
       "schema": "report.v1"
      },
      {
@@ -8058,7 +8058,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 'Q1 포트폴리오 통합 리뷰(일정·리스크·경영보고)' 에 대해 8개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "목표 'Q1 포트폴리오 통합 리뷰(일정·리스크·경영보고)' 에 대해 8개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). 승인 대기: 31건. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -8078,7 +8078,7 @@
      },
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H1"
      },
      {
@@ -8703,7 +8703,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). (규칙기반 자동 보고)",
       "schema": "report.v1"
      },
      {
@@ -8736,7 +8736,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '고위험 리스크 에스컬레이션 및 승인 상신' 에 대해 14개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
+    "complete": "목표 '고위험 리스크 에스컬레이션 및 승인 상신' 에 대해 14개 작업자 산출을 종합했습니다. - A4(risk_alert.v1): PROJ-14 심각도=medium · 상태 amber, 여유 4일, 정체 [], 차단 ['T-1403'] - A4(risk_alert.v1): PROJ-31 심각도=high · 상태 red, 여유 -7일, 정체 ['T-3101'], 차단 ['T-3102'] - A6(gate_review.v1): PROJ-14 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A6(gate_review.v1): PROJ-22 G3-execution → pass - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A6(gate_review.v1): PROJ-31 G3-execution → fail - A6(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). (규칙기반 자동 보고) - A5(review.v1): VERIFIED report.covers_risks ·  - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-14 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-22 - A8(review.v1): VERIFIED gate.no_open_high_risk · PROJ-31 - A8(review.v1): VERIFIED report.covers_risks · "
    },
    {
     "hypotheses": [
@@ -8750,7 +8750,7 @@
      },
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H3"
      },
      {
@@ -9692,7 +9692,7 @@
     "execute": "A5",
     "results": [
      {
-      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "headline": "3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). (규칙기반 자동 보고)",
       "schema": "report.v1"
      }
     ],
@@ -9704,7 +9704,7 @@
     "title": "수행 — A8 감사"
    },
    {
-    "complete": "목표 '주간 진척 상태 취합 및 상태 보고' 에 대해 4개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)"
+    "complete": "목표 '주간 진척 상태 취합 및 상태 보고' 에 대해 4개 작업자 산출을 종합했습니다. - A2(schedule.v1): PROJ-14 예상완료=2026-02-13 임계경로=['T-1401', 'T-1402', 'T-1403'] - A2(schedule.v1): PROJ-22 예상완료=2026-02-02 임계경로=['T-2201', 'T-2202'] - A2(schedule.v1): PROJ-31 예상완료=2026-03-06 임계경로=['T-3101', 'T-3102'] - A5(report.v1): 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (마감 7일 초과). (규칙기반 자동 보고)"
    },
    {
     "hypotheses": [
@@ -9718,7 +9718,7 @@
      },
      {
       "axis": "time",
-      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. (규칙기반 자동 보고)",
+      "finding": "경영 보고 자동 생성 — 3개 프로젝트 중 red 1건, amber 1건, 평균 진척 52.9%. 허용 범위 초과: PROJ-31 (",
       "hypothesis": "H1"
      },
      {
