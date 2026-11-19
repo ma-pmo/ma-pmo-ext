@@ -59,6 +59,10 @@ dev = [
 mcp = [
     "mcp>=2.2,<3",
 ]
+# `ma-pmo benchmark`: reads the Public Jira Dataset's mongodump with pymongo's bson
+benchmark = [
+    "pymongo>=4.6,<5",
+]
 # OpenTelemetry tracing of agent runs (OTEL_ENABLED=true, see infra/otel)
 otel = [
     "opentelemetry-sdk>=1.30,<2",

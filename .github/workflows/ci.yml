@@ -23,7 +23,7 @@ jobs:
         run: python -m pip install --upgrade uv
 
       - name: Install dependencies
-        run: uv sync --extra dev --extra mcp --extra otel
+        run: uv sync --extra dev --extra mcp --extra otel --extra benchmark
 
       - name: Lint (ruff)
         run: uv run ruff check .
@@ -79,7 +79,7 @@ jobs:
         run: python -m pip install --upgrade uv
 
       - name: Install dependencies
-        run: uv sync --extra dev --extra mcp --extra otel --extra postgres
+        run: uv sync --extra dev --extra mcp --extra otel --extra postgres --extra benchmark
 
       - name: Create the ordinary role the app connects as
         env:
