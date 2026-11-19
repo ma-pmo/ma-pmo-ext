@@ -287,6 +287,39 @@ def _cmd_replay(ns: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_report(ns: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from ma_pmo.reports import render, store
+
+    if ns.action == "list":
+        rows = store.list_reports(ns.scope, ns.kind, ns.limit)
+        if not rows:
+            print("no reports yet: run a workflow with an A5 step (e.g. ma-pmo serve, then "
+                  "POST /scenarios/weekly_status/run)")
+        for r in rows:
+            where = f" {','.join(r['projects'])}" if r["projects"] else ""
+            print(f"{r['id']}  {r['as_of']}  {r['kind']:<9} {r['overall_status']:<5} "
+                  f"{r['scope']}{where}")
+        return 0
+    if ns.id == "latest":
+        found = store.latest(ns.scope, ns.kind)
+        report_id, content = found if found else ("", None)
+    else:
+        report_id, content = ns.id, store.get_report(ns.id)
+    if content is None:
+        print(f"✗ no report {ns.id!r}", file=sys.stderr)
+        return 1
+    fmt = "md" if ns.action == "show" else ns.format
+    text = render.render(content, report_id, fmt)
+    if ns.action == "export" and ns.out:
+        Path(ns.out).write_text(text, encoding="utf-8")
+        print(f"✓ {ns.out}")
+    else:
+        print(text)
+    return 0
+
+
 def _cmd_recommendation(ns: argparse.Namespace) -> int:
     from ma_pmo.core import replay
 
@@ -364,6 +397,21 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--repeat", type=int, default=3, help="runs per side (2-50)")
     rp.add_argument("--tolerance", type=float, default=0.05,
                     help="largest quality drop to accept (share, default 0.05)")
+    rep = sub.add_parser("report", help="reports A5 produced: list | show | export")
+    repsub = rep.add_subparsers(dest="action", required=True)
+    r_list = repsub.add_parser("list", help="newest first")
+    r_list.add_argument("--limit", type=int, default=20)
+    for name, helptext in (("show", "print a report as Markdown"),
+                           ("export", "write a report as md, html, csv or json")):
+        r = repsub.add_parser(name, help=helptext)
+        r.add_argument("id", help='a report id, or "latest"')
+        if name == "export":
+            r.add_argument("--format", choices=["md", "html", "csv", "json"], default="html")
+            r.add_argument("--out", help="file to write (default: stdout)")
+    for r in (r_list, *[repsub.choices[n] for n in ("show", "export")]):
+        r.add_argument("--scope", help="only this portfolio scope")
+        r.add_argument("--kind", choices=["status", "executive", "exception", "gate", "closure"])
+
     rec = sub.add_parser("recommendation", help="replay recommendations: list | approve | reject")
     recsub = rec.add_subparsers(dest="action", required=True)
     recsub.add_parser("list")
@@ -427,6 +475,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_budget(ns)
     elif ns.command == "replay":
         return _cmd_replay(ns)
+    elif ns.command == "report":
+        return _cmd_report(ns)
     elif ns.command == "recommendation":
         return _cmd_recommendation(ns)
     elif ns.command == "serve":

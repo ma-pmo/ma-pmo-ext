@@ -156,7 +156,7 @@ class Report(Scoped, Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     scope: Mapped[str] = mapped_column(String)
     generated_by: Mapped[str] = mapped_column(String, default="A5")
-    content: Mapped[dict] = mapped_column(JSON)  # data validated as report.v1
+    content: Mapped[dict] = mapped_column(JSON)  # report.v2 (report.v1 in rows from 0.7.x)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
 
 

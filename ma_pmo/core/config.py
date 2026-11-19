@@ -44,6 +44,12 @@ class Settings(BaseSettings):
     hitl_confidence_threshold: float = Field(
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )
+    # reports: a project is outside tolerance when its SPI is below this, or its projected
+    # finish is more than this many days after its deadline
+    tolerance_spi: float = Field(default=0.9, alias="MA_PMO_TOLERANCE_SPI")
+    tolerance_slip_days: int = Field(default=0, alias="MA_PMO_TOLERANCE_SLIP_DAYS")
+    # reports are as of this date (YYYY-MM-DD) instead of today, e.g. to reproduce a past report
+    report_as_of: str | None = Field(default=None, alias="MA_PMO_REPORT_AS_OF")
 
     # the workspace of the CLI, the MCP server and background work (requests send X-Workspace)
     workspace: str = Field(default="default", alias="MA_PMO_WORKSPACE")

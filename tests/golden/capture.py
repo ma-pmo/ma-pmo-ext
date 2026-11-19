@@ -41,6 +41,10 @@ def normalize(trace: dict) -> dict:
 
 
 def main() -> None:
+    import os
+
+    # reports compare forecasts with their as-of date: pin it, or traces change with the calendar
+    os.environ.setdefault("MA_PMO_REPORT_AS_OF", "2026-02-16")
     from ma_pmo.core.i18n import use_lang
     from ma_pmo.core.scenarios import SCENARIOS, run_scenario
     from ma_pmo.db.init import main as init_db
