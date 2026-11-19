@@ -11,7 +11,8 @@ A workflow picks the kind on its A5 step (`"params": {"kind": "exception"}`); `a
 | gate | a gate or go/no-go meeting | gate decisions, risks, tolerances |
 | closure | closing a project or phase | projects, gate decisions, lessons |
 
-Every kind starts with the summary and ends with the recommended actions.
+Every kind starts with the summary and what changed since the last report, and ends with the
+recommended actions.
 
 The narrative without an LLM (`narrate`) follows the kind; with an LLM, `instruction` tells the
 model what the kind is for.
@@ -23,7 +24,7 @@ from typing import get_args
 
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.payloads.report_v1 import ReportV1
-from ma_pmo.core.schemas.payloads.report_v2 import Kind, ReportFacts
+from ma_pmo.core.schemas.payloads.report_v2 import Insight, Kind, ReportFacts
 
 
 @dataclass(frozen=True)
@@ -37,27 +38,27 @@ class KindSpec:
 KINDS: dict[str, KindSpec] = {
     "status": KindSpec(
         ("Status report", "상태 보고서"), "team",
-        ("summary", "kpis", "projects", "tolerances", "risks", "actions"),
+        ("summary", "changes", "kpis", "projects", "tolerances", "risks", "actions"),
         "A periodic status (highlight) report for the team and PMO: progress since the last "
         "report, every project's status and forecast, tolerances, risks, next actions."),
     "executive": KindSpec(
         ("Executive summary", "경영진 요약"), "executive",
-        ("summary", "kpis", "exceptions", "decisions", "actions"),
+        ("summary", "changes", "kpis", "exceptions", "decisions", "actions"),
         "A one-page summary for sponsors: lead with what is outside tolerance and what they "
         "must decide; healthy projects get one line at most."),
     "exception": KindSpec(
         ("Exception report", "예외 보고서"), "executive",
-        ("summary", "exceptions", "risks", "actions"),
+        ("summary", "changes", "exceptions", "risks", "actions"),
         "An exception report: which projects breach a tolerance, by how much, why, and the "
         "options to recover (re-plan, add capacity, change scope or deadline)."),
     "gate": KindSpec(
         ("Gate decision pack", "게이트 의사결정 자료"), "executive",
-        ("summary", "decisions", "risks", "tolerances", "actions"),
+        ("summary", "changes", "decisions", "risks", "tolerances", "actions"),
         "A gate / go-no-go pack: each project's gate decision, the criteria it failed, the "
         "conditions attached, and the risks the decision should weigh."),
     "closure": KindSpec(
         ("Closure report", "종료 보고서"), "team",
-        ("summary", "projects", "decisions", "lessons", "actions"),
+        ("summary", "changes", "projects", "decisions", "lessons", "actions"),
         "A closure report: what was delivered against plan, the closure gate, and the lessons "
         "to carry into the next projects."),
 }
@@ -85,8 +86,10 @@ def _exceptions(facts: ReportFacts) -> list[str]:
     return [f"{pid} ({', '.join(what)})" for pid, what in by_project.items()]
 
 
-def narrate(kind: str, base: ReportV1, facts: ReportFacts) -> ReportV1:
-    """The rule-based narrative for `kind`, built on the plain rule report `base`."""
+def narrate(kind: str, base: ReportV1, facts: ReportFacts,
+            insights: list[Insight] | None = None) -> ReportV1:
+    """The rule-based narrative for `kind`, built on the plain rule report `base`, with the
+    most important changes since the last report (`insights`) first."""
     exceptions = _exceptions(facts)
     failed = [g for g in facts.gates if g.decision != "pass"]
     lines: list[str] = []
@@ -105,6 +108,10 @@ def narrate(kind: str, base: ReportV1, facts: ReportFacts) -> ReportV1:
             f"{counts['fail']} fail.",
             f"게이트 결정: 통과 {counts['pass']}, 조건부 {counts['conditional']}, "
             f"불통과 {counts['fail']}."))
+    top = [i for i in insights or [] if i.severity != "low"][:3]
+    if top:
+        lines.insert(0, tr("Since the last report: ", "직전 보고 이후: ")
+                     + " ".join(i.text for i in top))
     if kind in ("executive", "gate") and facts.approvals:
         lines.append(tr(f"Waiting for approval: {len(facts.approvals)}.",
                         f"승인 대기: {len(facts.approvals)}건."))
@@ -122,6 +129,10 @@ def narrate(kind: str, base: ReportV1, facts: ReportFacts) -> ReportV1:
                        f"before proceeding",
                        f"{g.project_id} {g.gate}: 진행 전 {', '.join(g.failed) or '조건'} 해결")
                     for g in failed]
+    named = " ".join(actions)  # one action per project is enough: skip those already named
+    actions += [i.action for i in insights or [] if i.severity == "high"
+                and i.action not in actions
+                and not (i.project_id and i.project_id in named)]
     summary = " ".join([base.executive_summary, *lines,
                         tr("(rule-based automatic report)", "(규칙기반 자동 보고)")])
     # key risks stay the rule report's: A5's self-check adds what A4 raised (the review stack
