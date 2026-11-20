@@ -105,6 +105,15 @@ Pick a use case in the **Scenarios** tab to run four phases — **plan → execu
 - Paper angle: a gate on uncalibrated confidence is oversight in name only; report the threshold
   table next to the approval-latency KPI (cost of review vs. errors that slip through).
 
+### Figure G — external validity on public Jira history (roadmap 3)
+- Protocol and commands: [BENCHMARK.md](BENCHMARK.md) (`ma-pmo benchmark prepare | run | calibrate`).
+- Result (k = 14, latest 711 releases): PR-AUC all-slip 0.829, progress 0.884, A4 rule signals
+  0.881, literature random forest 0.964; on started issues A4 is at chance (ROC-AUC 0.50).
+- Calibration: A4's calibrated confidence lowers ECE from 0.223 to 0.070; with `HITL_RISK_ALPHA`
+  = 0.15 the review threshold is 0.74.
+- Paper angle: report H3 on this benchmark next to the demo labels, and the gap to the literature
+  baseline as a limitation of rule-based risk detection.
+
 ---
 
 ## 3. Hypothesis results table (example — fixtures)
@@ -158,4 +167,4 @@ The outputs (`docs/evidence_*.json`, `GET /eval` JSON) can be attached as raw da
 - **Data**: currently fixture-based. Replace baselines and ground truth with real project logs (→ statistical tests for H1–H5).
 - **Sample size**: one portfolio with three projects gives small precision/recall samples.
 - **LLM non-determinism**: A4/A5/A7 synthesis depends on the LLM → mitigated with deterministic fallbacks, schema validation and structured output.
-- **External validity**: mock connectors → extend to real Jira/Calendar/ERP integrations and field pilots (P5).
+- **External validity**: partly addressed by the public Jira benchmark (Figure G, 2,367 releases in 11 instances); open-source projects are not a corporate PMO, release dates may be actual rather than planned, and there is no capacity data (H2). Field pilots (P5) remain.
