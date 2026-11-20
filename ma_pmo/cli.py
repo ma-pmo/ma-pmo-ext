@@ -293,11 +293,51 @@ def _cmd_benchmark(ns: argparse.Namespace) -> int:
     from ma_pmo.benchmark import coverage
     from ma_pmo.benchmark.dump import DumpError
 
+    if ns.action == "run":
+        from ma_pmo.benchmark import run
+        from ma_pmo.benchmark.replay import ReplayTracker
+
+        try:
+            result = run.evaluate(ReplayTracker.load(ns.data), ns.k)
+        except (ImportError, OSError) as e:
+            print(f"✗ {e}", file=sys.stderr)
+            return 1
+        if ns.out:
+            with open(ns.out, "w", encoding="utf-8") as f:
+                json.dump(result, f, indent=1, default=str)
+        print(json.dumps(result, indent=1, default=str) if ns.json else run.to_markdown(result))
+        return 0
+    if ns.action == "replay":
+        from ma_pmo.benchmark.replay import ReplayTracker
+
+        tracker = ReplayTracker.load(ns.data)
+        if not ns.release:
+            for pid in sorted(tracker.portfolios(ns.k)):
+                print(pid)
+            return 0
+        found = next((p for p in tracker.portfolios(ns.k)
+                      if p.startswith(f"BENCH#{ns.release}@")), None)
+        if found is None:
+            print(f"✗ no release {ns.release!r} in {ns.data}", file=sys.stderr)
+            return 1
+        print(json.dumps(tracker.get_portfolio_status(found), indent=1, ensure_ascii=False))
+        return 0
     try:
-        report = coverage.scan(ns.dump, progress=True).report(ns.k, ns.min_issues)
+        cov = coverage.scan(ns.dump, progress=True)
     except (ImportError, DumpError, OSError) as e:
         print(f"✗ {e}", file=sys.stderr)
         return 1
+    if ns.action == "prepare":
+        from pathlib import Path
+
+        from ma_pmo.benchmark.prepare import prepare
+
+        dump = Path(ns.dump)
+        manifest = prepare(cov, Path(ns.out), ns.k, ns.min_issues,
+                           source={"file": dump.name, "bytes": dump.stat().st_size})
+        print(f"✓ {manifest['releases']} releases, {manifest['issues']} issues → {ns.out}")
+        return 0
+    report = cov.report(ns.k, ns.min_issues)
     print(json.dumps(report, indent=1) if ns.json else coverage.to_markdown(report))
     return 0
 
@@ -474,7 +514,8 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("mcp", help='MCP server over stdio for AI assistants (needs "ma-pmo[mcp]")')
 
     bench = sub.add_parser(
-        "benchmark", help='benchmark on public Jira history (needs "ma-pmo[benchmark]")'
+        "benchmark", help='benchmark on public Jira history: coverage | prepare | replay | run '
+                          '(needs "ma-pmo[benchmark]")'
     )
     bsub = bench.add_subparsers(dest="action", required=True)
     b_cov = bsub.add_parser("coverage", help="count usable releases in the dump (the go/no-go bar)")
@@ -484,6 +525,24 @@ def main(argv: list[str] | None = None) -> int:
     b_cov.add_argument("--min-issues", type=int, default=20,
                        help="scheduled issues a release needs")
     b_cov.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
+    b_prep = bsub.add_parser("prepare", help="write the usable releases and their issues' history")
+    b_prep.add_argument("dump", help="the dataset zip or its mongodump .archive")
+    b_prep.add_argument("--out", required=True, help="folder to write (never commit it)")
+    b_prep.add_argument("--k", type=int, nargs="+", default=[14, 28],
+                        help="as-of days before release")
+    b_prep.add_argument("--min-issues", type=int, default=20,
+                        help="scheduled issues a release needs")
+    b_run = bsub.add_parser("run", help="score every issue at T with each scorer; metrics")
+    b_run.add_argument("data", help="a folder written by prepare")
+    b_run.add_argument("--k", type=int, nargs="+", default=[14, 28],
+                       help="as-of days before release")
+    b_run.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
+    b_run.add_argument("--out", help="also write the JSON to this file")
+    b_rep = bsub.add_parser("replay", help="show what the tracker showed for a release at T")
+    b_rep.add_argument("data", help="a folder written by prepare")
+    b_rep.add_argument("release", nargs="?",
+                       help="<collection>/<version id>; omitted: list the releases")
+    b_rep.add_argument("--k", type=int, default=14, help="as-of days before release")
 
     learn = sub.add_parser("learn", help="course labs: list | start N | check N")
     learn.add_argument("args", nargs=argparse.REMAINDER)

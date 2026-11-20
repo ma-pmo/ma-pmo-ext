@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - **Reports: Word, notification links, MCP, faithfulness** (roadmap 12). `docx` export (`ma-pmo report export --format docx`, `GET /reports/{id}/export?format=docx`, a Word button on the Reports page) with the new extra `ma-pmo[export]`; `report.generated` notifications are titled with the report's kind and link to it on the Reports page; MCP tool `latest_report`; `ma-pmo eval` and `GET /eval` count how stored narratives were written and checked (`faithful_rate`, replaced, examples).
+- **Benchmark replay** (roadmap 3, step 2; [docs/BENCHMARK.md](docs/BENCHMARK.md)). `ma-pmo benchmark prepare <dump> --out DIR` keeps the usable releases and their issues' full history; `ReplayTracker` serves a release as the tracker showed it at T through the ordinary tracker contract, so the real agents run on it (`ma-pmo benchmark replay DIR <collection>/<version>`). Issue history now also keeps resolution, priority, assignee, original estimate and blocking links over time; a test adds random changes after T to every field and checks the tracker shows the same. `build_project` takes the as-of date.
+- **Benchmark scoring** (roadmap 3, step 3): `ma-pmo benchmark run DIR` scores every issue scheduled at T with four scorers (all slip, progress, A4's rule signals per task, a random forest on the issue-delay literature's features in `benchmark/features.py`), trains on the earliest 70% of releases and reports PR-AUC with bootstrap intervals, ROC-AUC, F1, Brier, ECE and per-collection results. On the full dump the forest reaches PR-AUC 0.964 against 0.881 for A4's signals, which are no better than chance on started issues and badly calibrated (ECE 0.22). `scikit-learn` joins the `benchmark` extra.
+
+### Fixed
+- Benchmark: "unresolved at T" and "resolved by the release" are read from the resolution's own history; with the final resolution date, an issue resolved before T and reopened later counted as open at T. Coverage at 14 days is now 2,367 usable releases (was 2,466).
 
 ## [0.8.0] - 2026-11-20
 
@@ -213,6 +218,9 @@ First public release.
 ### [Unreleased]
 
 - 추가: **보고서: Word, 알림 링크, MCP, 충실도**(로드맵 12). `docx` 내보내기(`ma-pmo report export --format docx`, `GET /reports/{id}/export?format=docx`, 보고서 화면의 Word 버튼)와 새 extra `ma-pmo[export]`. `report.generated` 알림 제목에 보고서 종류가 붙고 보고서 화면의 그 보고서로 연결됩니다. MCP 도구 `latest_report`. `ma-pmo eval`과 `GET /eval`이 저장된 서술이 어떻게 쓰이고 검사됐는지 셉니다(`faithful_rate`, 교체 수, 예시).
+- 추가: **벤치마크 재생**(로드맵 3, 2단계. [docs/BENCHMARK.ko.md](docs/BENCHMARK.ko.md)). `ma-pmo benchmark prepare <덤프> --out DIR`가 쓸 수 있는 릴리스와 이슈 전체 이력을 남기고, `ReplayTracker`가 T 시점에 트래커가 보여 주던 릴리스를 보통 트래커 계약으로 내줘서 실제 에이전트가 그 위에서 돕니다(`ma-pmo benchmark replay DIR <컬렉션>/<버전>`). 이슈 이력이 해결, 우선순위, 담당자, 원래 추정치, 막는 링크의 변경도 남깁니다. 테스트가 T 이후에 모든 필드를 무작위로 바꿔도 트래커가 똑같이 보이는지 확인합니다. `build_project`가 기준일을 받습니다.
+- 추가: **벤치마크 채점**(로드맵 3, 3단계). `ma-pmo benchmark run DIR`가 T에 예정된 이슈마다 채점기 네 개(모두 밀림, 진척, 태스크별 A4 규칙 신호, `benchmark/features.py`의 이슈 지연 연구 특징으로 만든 랜덤 포레스트)로 점수를 매기고, 앞의 70% 릴리스로 학습해 PR-AUC(부트스트랩 구간), ROC-AUC, F1, Brier, ECE, 컬렉션별 결과를 냅니다. 전체 덤프에서 포레스트는 PR-AUC 0.964, A4 신호는 0.881이며, A4 신호는 시작된 이슈에서 우연 수준이고 보정이 크게 어긋나 있습니다(ECE 0.22). `benchmark` extra에 `scikit-learn`이 들어갑니다.
+- 수정: 벤치마크에서 "T에 미해결"과 "출시까지 해결"을 해결 필드의 변경 이력으로 판단합니다. 최종 해결일로 판단하면 T 전에 해결됐다가 나중에 다시 열린 이슈가 T에 열린 것으로 세어졌습니다. 출시 14일 전 기준 쓸 수 있는 릴리스는 이제 2,367개입니다(이전 2,466개).
 
 ### [0.8.0] - 2026-11-20
 
