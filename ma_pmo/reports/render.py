@@ -71,6 +71,13 @@ def sections(r: ReportV2) -> list[Section]:
     f = r.facts
     out: dict[str, Section] = {}
     out["summary"] = Section(tr("Summary", "요약"), text=r.executive_summary)
+    marks = {"high": "▲▲", "medium": "▲", "low": "▽"}
+    out["changes"] = Section(tr("Since the last report", "직전 보고 이후"), items=[
+        f"{marks[i.severity]} {i.text} → {i.action}" for i in r.insights
+    ] or [tr("Nothing to compare yet: this is the first report of its kind for this scope.",
+             "아직 비교할 보고서가 없습니다. 이 범위·종류의 첫 보고서입니다.")
+          if not r.facts.previous_report_id else
+          tr("No change worth reporting.", "보고할 만한 변화가 없습니다.")])
     out["kpis"] = Section(tr("Key figures", "핵심 지표"), table=(
         [tr("Measure", "지표"), tr("Now", "현재"), tr("Last report", "직전 보고"),
          tr("Change", "변화")],
@@ -145,10 +152,20 @@ def _header(r: ReportV2, report_id: str) -> list[tuple[str, str]]:
 
 def _footer(r: ReportV2) -> str:
     who = tr("an LLM", "LLM") if r.path == "llm" else tr("rules (no LLM)", "규칙(LLM 없음)")
-    return tr(f"Figures are computed by MA-PMO {__version__} from the tracker and the agents' "
+    text = tr(f"Figures are computed by MA-PMO {__version__} from the tracker and the agents' "
               f"posts; the summary, risks and actions were written by {who}.",
-              f"수치는 MA-PMO {__version__}가 트래커와 에이전트 게시물에서 계산했고, 요약·리스크·"
-              f"조치는 {who}이 작성했습니다.")
+              f"수치는 트래커와 에이전트 게시물을 바탕으로 MA-PMO {__version__}에서 계산했고, "
+              f"요약·리스크·조치는 {who}이 작성했습니다.")
+    g = r.grounding
+    if g and g.replaced:
+        text += " " + tr(f"The LLM's text cited figures not in the facts "
+                         f"({', '.join(g.ungrounded[:5])}) and was replaced.",
+                         f"LLM 문장에 사실에 없는 수치({', '.join(g.ungrounded[:5])})가 있어 "
+                         f"교체했습니다.")
+    elif g:
+        text += " " + tr(f"All {g.checked} figures, dates and ids in it match the facts.",
+                         f"문장 속 수치·날짜·id {g.checked}개가 모두 사실과 일치합니다.")
+    return text
 
 
 def to_markdown(r: ReportV2, report_id: str) -> str:

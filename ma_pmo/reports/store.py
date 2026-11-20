@@ -35,6 +35,7 @@ def _summary(row: Report) -> dict[str, Any] | None:
         return None
     return {"id": row.id, "scope": row.scope, "kind": c.get("kind", "status"),
             "title": c.get("title", ""), "as_of": c["facts"]["as_of"],
+            "language": c.get("language", "en"),
             "overall_status": c["overall_status"], "path": c["path"],
             "projects": c["facts"].get("projects_in_scope"),
             "created_at": iso(row.created_at)}

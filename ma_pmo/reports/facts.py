@@ -126,11 +126,13 @@ def _board_facts(board: list[dict], in_scope: set[str] | None) -> dict[str, Any]
     return {"risks": risks, "gates": gates, "lessons": lessons}
 
 
-def previous_report(scope: str, kind: str = "status",
-                    projects: list[str] | None = None) -> tuple[str, str, dict[str, Any]] | None:
-    """(id, as-of date, content) of the latest stored report of the same scope, kind and
-    projects in this workspace. Reports from before report.v2 count as status reports."""
+def earlier_reports(scope: str, kind: str = "status", projects: list[str] | None = None,
+                    n: int = 6) -> list[tuple[str, str, dict[str, Any]]]:
+    """(id, as-of date, content) of up to `n` stored reports of the same scope, kind and
+    projects in this workspace, newest first. Reports from before report.v2 count as status
+    reports."""
     wanted = sorted(projects) if projects else None
+    out = []
     with get_session() as s:
         rows = s.scalars(select(Report).where(Report.scope == scope)
                          .order_by(Report.created_at.desc()).limit(200)).all()
@@ -140,15 +142,25 @@ def previous_report(scope: str, kind: str = "status",
                     or facts.get("projects_in_scope") != wanted):
                 continue
             as_of = facts.get("as_of") or row.created_at.date().isoformat()
-            return row.id, as_of, dict(row.content)
-    return None
+            out.append((row.id, as_of, dict(row.content)))
+            if len(out) == n:
+                break
+    return out
+
+
+def previous_report(scope: str, kind: str = "status",
+                    projects: list[str] | None = None) -> tuple[str, str, dict[str, Any]] | None:
+    """The latest of `earlier_reports`, or None."""
+    found = earlier_reports(scope, kind, projects, n=1)
+    return found[0] if found else None
 
 
 def build(status: dict, previous: tuple[str, str, dict[str, Any]] | None = None, *,
           today: date | None = None, projects: list[str] | None = None,
-          board: list[dict] | None = None) -> ReportFacts:
+          board: list[dict] | None = None, steps: list[dict] | None = None) -> ReportFacts:
     """Facts for the portfolio `status` (as a tracker returns it), compared with `previous`.
-    `projects` limits the report to some projects; `board` is what the step may read."""
+    `projects` limits the report to some projects; `board` is what the step may read, and
+    `steps` the steps it may read ({"step", "agent"})."""
     settings = get_settings()
     as_of = today or as_of_date()
     in_scope = set(projects) if projects else None
@@ -156,7 +168,9 @@ def build(status: dict, previous: tuple[str, str, dict[str, Any]] | None = None,
             if in_scope is None or p["project_id"] in in_scope]
     prev_id, prev_as_of, prev = previous or (None, None, {})
     prev_kpis = {k["id"]: k.get("value") for k in (prev.get("facts") or {}).get("kpis", [])}
-    prev_lines = {p["project_id"]: p for p in prev.get("project_status", [])}
+    # a report.v2 keeps each project's facts; older reports only their narrative lines
+    prev_lines = {p["project_id"]: p for p in
+                  (prev.get("facts") or {}).get("projects") or prev.get("project_status", [])}
 
     project_facts, checks = [], []
     ev_total = pv_total = 0.0
@@ -213,8 +227,9 @@ def build(status: dict, previous: tuple[str, str, dict[str, Any]] | None = None,
         as_of=as_of.isoformat(), projects_in_scope=sorted(in_scope) if in_scope else None,
         period_start=prev_as_of, previous_report_id=prev_id,
         kpis=kpis, projects=project_facts, tolerances=checks,
-        board_read=board is not None, approvals=_approvals(status.get("portfolio_id", ""),
-                                                           in_scope),
+        board_read=board is not None,
+        risks_read=any(s.get("agent") == "A4" for s in steps or []),
+        approvals=_approvals(status.get("portfolio_id", ""), in_scope),
         **_board_facts(board or [], in_scope),
     )
 

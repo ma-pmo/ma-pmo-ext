@@ -115,10 +115,32 @@ class ReportFacts(BaseModel):
     lessons: list[LessonFact] = Field(default_factory=list)  # from A7, when readable
     approvals: list[ApprovalFact] = Field(default_factory=list)  # waiting in the queue
     board_read: bool = False  # whether the step could read earlier posts at all
+    risks_read: bool = False  # whether it could read an A4 step (so no risks means none)
 
     @property
     def breaches(self) -> list[ToleranceCheck]:
         return [t for t in self.tolerances if t.breached]
+
+
+class Insight(BaseModel):
+    """Something that changed since the last report (`reports/insights.py`)."""
+
+    id: str  # "insight.status.PROJ-31"
+    kind: str  # breach.new, status.worse, forecast.slipped, ...
+    severity: Literal["high", "medium", "low"]
+    project_id: str | None = None
+    text: str
+    action: str
+    fact_ids: list[str] = Field(default_factory=list)
+    previous_report_id: str | None = None
+
+
+class Grounding(BaseModel):
+    """Whether the LLM's narrative matched the facts (`reports/grounding.py`)."""
+
+    checked: int = 0  # numbers, dates and ids looked at
+    ungrounded: list[str] = Field(default_factory=list)  # what did not match
+    replaced: bool = False  # the narrative was replaced by the rule narrative
 
 
 class ReportV2(BaseModel):
@@ -132,6 +154,8 @@ class ReportV2(BaseModel):
     language: str = "en"
     overall_status: Status
     facts: ReportFacts
+    insights: list[Insight] = Field(default_factory=list)
+    grounding: Grounding | None = None  # None: the narrative came from rules
     executive_summary: str
     project_status: list[ProjectStatusLine]
     key_risks: list[str] = Field(default_factory=list)

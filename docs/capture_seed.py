@@ -1,4 +1,4 @@
-"""Sample history for the README screenshots: runs, LLM spend, budgets and recommendations.
+"""Sample history for the README screenshots: runs, LLM spend, budgets, recommendations, reports.
 
 The screenshots of the Costs page and the workflow views need some history, and the demo data
 has none (without an API key nothing is spent). This script makes it with a stand-in provider:
@@ -6,9 +6,9 @@ it answers risk ratings the way a model would and reports token counts, so every
 those pages comes from the real ledger, budgets and replay code, but the spend is sample data.
 No request leaves the machine.
 
-usage (on a fresh demo database, before starting the API):
+usage (on a fresh demo database, before starting the API with the same MA_PMO_REPORT_AS_OF):
     DB_URL=sqlite:///capture.db ma-pmo init-db
-    DB_URL=sqlite:///capture.db python docs/capture_seed.py
+    DB_URL=sqlite:///capture.db MA_PMO_REPORT_AS_OF=2026-02-16 python docs/capture_seed.py
 """
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ import litellm
 
 from ma_pmo.core import budgets, llm, replay
 from ma_pmo.core.config import get_settings
+from ma_pmo.core.i18n import use_lang
 from ma_pmo.core.scenarios import run_scenario
 from ma_pmo.db import workspaces
 
@@ -50,8 +51,9 @@ def main() -> None:
     llm.litellm.completion = completion
     if not workspaces.exists("research"):
         workspaces.create("research", "Research lab")
+    # stage_gate_review leaves the one decision review holds on the demo data (PROJ-31's G2 gate)
     for scenario in ("weekly_status", "risk_escalation", "executive_briefing",
-                     "risk_escalation", "weekly_status"):
+                     "risk_escalation", "weekly_status", "stage_gate_review"):
         run_scenario(scenario)
     budgets.set_budget("month", 8.0, 10.0, "admin")
     budgets.set_budget("run", None, 0.5, "admin")
@@ -62,7 +64,18 @@ def main() -> None:
     approved = replay.replay("risk_escalation", "A4", repeat=3, by="operator")
     replay.decide(approved["id"], "approved", "approver")
     replay.replay("executive_briefing", "A4", repeat=3, by="operator")
-    print("seeded: runs, spend, budgets and", len(replay.recommendations()), "recommendations")
+
+    # three weekly status reports up to the as-of date the screenshots use, with nothing moving
+    # in between, so the latest one has something to say since the last report
+    settings = get_settings()
+    for lang in ("en", "ko"):
+        with use_lang(lang):
+            for day in ("2026-02-02", "2026-02-09", "2026-02-16"):
+                settings.report_as_of = day
+                run_scenario("weekly_status")
+    settings.report_as_of = None
+    print("seeded: runs, spend, budgets, reports and", len(replay.recommendations()),
+          "recommendations")
 
 
 if __name__ == "__main__":

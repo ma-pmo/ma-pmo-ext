@@ -30,7 +30,8 @@ from ma_pmo.db.models import Report
 from ma_pmo.db.session import get_session
 from ma_pmo.integrations.registry import get_tracker
 from ma_pmo.reports import facts as report_facts
-from ma_pmo.reports import kinds
+from ma_pmo.reports import grounding as grounding_check
+from ma_pmo.reports import insights, kinds
 
 
 def _fallback_report(status: dict, scope: str) -> ReportV1:
@@ -118,10 +119,15 @@ class ReportingAgent(BaseAgent[ReportV1]):
         kind_spec = kinds.spec(kind)
         projects = state.get("projects")
         status = self.tracker.get_portfolio_status(scope)
+        as_of = report_facts.as_of_date(state.get("as_of"))
+        # compare only with reports as of this date or before (a report can be written for a past
+        # date after later ones)
+        earlier = [e for e in report_facts.earlier_reports(scope, kind, projects)
+                   if e[1] <= as_of.isoformat()]
         facts = report_facts.build(
-            status, report_facts.previous_report(scope, kind, projects),
-            today=report_facts.as_of_date(state.get("as_of")), projects=projects,
-            board=state.get("board"))
+            status, earlier[0] if earlier else None, today=as_of, projects=projects,
+            board=state.get("board"), steps=state.get("board_steps"))
+        found = insights.build(facts, earlier)
         if projects:  # a project report: the narrative sees only those projects
             status = {**status, "projects": [p for p in status.get("projects", [])
                                              if p["project_id"] in set(projects)]}
@@ -133,15 +139,25 @@ class ReportingAgent(BaseAgent[ReportV1]):
             "Computed facts: KPIs with their value in the previous report, per-project forecast "
             "and slack, tolerance checks (JSON). Use these numbers; do not compute your own:\n"
             f"{facts.model_dump_json(indent=2)}\n\n"
-            "Write the executive report from this data."
+            "What changed since the last report, most important first (JSON):\n"
+            f"{json.dumps([i.model_dump() for i in found], ensure_ascii=False, indent=2)}\n\n"
+            "Write the report from this data. Every number, date and project id you write must "
+            "come from the facts above; sentences with other figures are discarded."
         )
         path: Literal["llm", "rule"] = "llm"
+        grounding = None
         try:
             report = self.structured(user_prompt)
+            grounding = grounding_check.check(report, facts, scope)
         except Exception as e:  # no LLM / outage -> deterministic report fallback
             tracing.mark_fallback("A5 report", e)
-            report = kinds.narrate(kind, _fallback_report(status, scope), facts)
+            report = kinds.narrate(kind, _fallback_report(status, scope), facts, found)
             path = "rule"
+        if grounding is not None and grounding.ungrounded:  # a made-up figure: rules instead
+            tracing.mark_fallback("A5 report grounding",
+                                  ValueError(f"ungrounded: {grounding.ungrounded[:5]}"))
+            report = kinds.narrate(kind, _fallback_report(status, scope), facts, found)
+            path, grounding = "rule", grounding.model_copy(update={"replaced": True})
         if "board" in state:  # self-check: every risk A4 raised belongs in the key risks
             report = _with_upstream_risks(report, state["board"], state.get("board_steps", []))
 
@@ -150,6 +166,7 @@ class ReportingAgent(BaseAgent[ReportV1]):
                         audience=state.get("audience") or kind_spec.audience,
                         path=path, language=get_lang(),
                         overall_status=report_facts.overall_status(facts), facts=facts,
+                        insights=found, grounding=grounding,
                         **report.model_dump(exclude={"scope"}))
         report_id = f"RPT-{uuid.uuid4().hex[:8]}"
         with get_session() as s:

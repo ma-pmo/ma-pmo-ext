@@ -16,15 +16,16 @@ export function setApiWorkspace(workspace: string) {
 const scoped = (path: string, scope?: string) =>
   scope ? `${path}${path.includes("?") ? "&" : "?"}scope=${encodeURIComponent(scope)}` : path;
 
-async function req(path: string, init?: RequestInit) {
+async function raw(path: string, init?: RequestInit) {
   const sep = path.includes("?") ? "&" : "?";
   const headers = new Headers(init?.headers);
   if (API_KEY) headers.set("X-API-Key", API_KEY);
   if (WORKSPACE) headers.set("X-Workspace", WORKSPACE);
   const res = await fetch(`${BASE}${path}${sep}lang=${LANG}`, { cache: "no-store", ...init, headers });
   if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-  return res.json();
+  return res;
 }
+const req = async (path: string, init?: RequestInit) => (await raw(path, init)).json();
 
 // the validator's list from a 422 ({"detail": {"problems": [...]}}), else the error itself
 // The text of a failed request, for an error message on the page.
@@ -118,6 +119,11 @@ export const api = {
       body: zip,
     }),
   integrations: () => req(`/integrations`),
+  reports: (kind?: string) => req(`/reports${kind ? `?kind=${encodeURIComponent(kind)}` : ""}`),
+  report: (id: string) => req(`/reports/${encodeURIComponent(id)}`),
+  // the rendered report, fetched with the workspace and key headers a plain link would not send
+  reportExport: async (id: string, format: string) =>
+    raw(`/reports/${encodeURIComponent(id)}/export?format=${format}`),
   testIntegration: (name: string) =>
     req(`/integrations/${encodeURIComponent(name)}/test`, { method: "POST" }),
 };

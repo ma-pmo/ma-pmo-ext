@@ -54,10 +54,39 @@ instead of a portfolio report, and `as_of` reports as of a past date.
 | risks, gate decisions, lessons | what A4, A6 and A7 posted in the same run, when the step may read them (review is on by default) |
 | decisions needed | failed or conditional gates, and items waiting in the approval queue |
 
-The LLM gets these figures and is told to use them. Checking that its sentences match them is the
-next step of roadmap 12.
+## What changed since the last report
+
+Each report is compared with the earlier reports of the same scope, kind and projects. Rules find
+what changed, cite the facts behind it, suggest an action, and rank it so exceptions come first:
+
+| insight | when | severity |
+|---|---|---|
+| a tolerance breached | not breached in the previous report | high |
+| back within tolerance | breached in the previous report | low |
+| status worse / better | the project's RAG moved | high if now red, else medium / low |
+| forecast slipped | the forecast finish moved 7 or more days later | medium; high if now late |
+| no progress | an unfinished project did not move since an earlier-dated report | medium |
+| new high risk | A4 rates it high or critical; the previous report read A4 and had not | high |
+| SPI falling | the portfolio SPI fell three reports in a row | medium |
+
+They appear under "Since the last report", lead the rule narrative, and high ones add their action.
+The first report of a scope and kind has nothing to compare with.
+
+## Checking the LLM's narrative
+
+The LLM gets the figures and the insights and is told to use only them. Then every number, date and
+id in its summary, risks, actions and project lines is checked against the facts: a date must be
+one in the facts, an id a project (or a task, lesson or risk the facts quote), and a number a figure
+at the precision written (52.9 matches 52.94; −7 may be written as 7). Small whole numbers up to 10
+and years pass. One unmatched item replaces the whole narrative with the rule narrative, and the
+trace marks the fallback. The report's footer says which happened, and `grounding` in report.v2
+lists what was checked and what did not match. Wording is not judged.
 
 ## Reading and downloading
+
+In the dashboard, **Reports** lists them newest first (filter by kind), shows the selected one as
+it will be downloaded, and has buttons to download it as HTML, Markdown, CSV or JSON, to print it
+(or save it as PDF), and to write a new one by running a report workflow.
 
 ```bash
 ma-pmo report list                                  # newest first; --kind, --scope
@@ -86,10 +115,11 @@ written in.
 
 ## Limits
 
+- SPI swings early in a project, when little planned value has accrued, so forecasts and the
+  "forecast slipped" insight are noisy in the first weeks.
 - The plan baseline is a straight line from planned start to planned finish. A tracker with a
   time-phased baseline would give a better planned value.
 - A2's CPM finish assumes one person at 8 hours a day per task, so it can differ from the report's
   forecast; the report uses the tracker's plan dates.
 - A6's gate criterion "SPI ≥ 0.8" uses the effort-weighted completion ratio, not this time-based SPI.
-- Coming next in roadmap 12: grounding the narrative in the figures, insights across reports, a
-  reports page in the dashboard, docx and pdf export.
+- Coming next in roadmap 12: docx and pdf files, a link in report notifications, an MCP tool.

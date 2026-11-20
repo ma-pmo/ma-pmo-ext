@@ -102,7 +102,9 @@ def test_compared_with_the_previous_report():
     first = facts.build(portfolio(AHEAD, BEHIND), today=TODAY)
     stored = ReportV2(scope="P", path="rule", overall_status="amber", facts=first,
                       executive_summary="x", project_status=[]).model_dump()
-    stored["project_status"] = [{"project_id": "B", "status": "green", "percent_complete": 5.0}]
+    for p in stored["facts"]["projects"]:
+        if p["project_id"] == "B":
+            p.update(status="green", percent_complete=5.0)
     moved = {**BEHIND, "status": "red", "percent_complete": 35.0}
     f = facts.build(portfolio(AHEAD, moved), ("RPT-1", "2026-01-25", stored), today=TODAY)
     assert (f.previous_report_id, f.period_start) == ("RPT-1", "2026-01-25")
