@@ -96,10 +96,20 @@ ma-pmo report export RPT-1a2b3c4d --format html --out report.html
 | `GET /reports?kind=&scope=&limit=` | 목록, 최신순 |
 | `GET /reports/latest?kind=&scope=` | 가장 최근 보고서 |
 | `GET /reports/{id}` | 보고서 하나(report.v2 JSON) |
-| `GET /reports/{id}/export?format=md\|html\|csv\|json` | 내려받기. `&inline=true`면 HTML을 브라우저에서 엶 |
+| `GET /reports/{id}/export?format=md\|html\|csv\|json\|docx` | 내려받기. `&inline=true`면 HTML을 브라우저에서 엶 |
 
 형식: 위키·메신저용 Markdown, 읽거나 브라우저에서 PDF로 인쇄할 HTML, 스프레드시트용 CSV(프로젝트당 한 행),
-다른 도구용 JSON. 보고서는 쓰인 언어로 렌더링됩니다.
+다른 도구용 JSON, 그리고 Word(`docx`. `pip install "ma-pmo[export]"` 필요. 없으면 501로 답함). 보고서는 쓰인
+언어로 렌더링됩니다.
+
+그 밖에:
+
+- `report.generated` 알림(Slack, 웹훅)은 제목에 보고서 종류가 붙고, 보고서 화면의 그 보고서로 연결됩니다
+  (`MA_PMO_PUBLIC_URL/reports?id=...`).
+- MCP 서버의 `latest_report` 도구는 AI 어시스턴트에 가장 최근 보고서(또는 id·종류로 고른 보고서)를 Markdown으로
+  줍니다.
+- `ma-pmo eval`과 `GET /eval`(`reports`)은 저장된 보고서의 서술이 어떻게 쓰였는지 셉니다. LLM이 쓴 수, 사실에
+  없는 수치 때문에 교체된 수, 일치한 비율(`faithful_rate`), 맞지 않은 예시입니다.
 
 ## 설정
 
@@ -118,4 +128,5 @@ ma-pmo report export RPT-1a2b3c4d --format html --out report.html
 - A2의 CPM 완료일은 태스크마다 한 사람이 하루 8시간 일한다고 가정해서 보고서의 예상 완료일과 다를 수 있습니다.
   보고서는 트래커의 계획 날짜를 씁니다.
 - A6 게이트의 "SPI ≥ 0.8" 기준은 시간 기준 SPI가 아니라 공수 가중 완료율을 씁니다.
-- 로드맵 12의 다음 단계: docx·pdf 파일, 보고서 알림의 링크, MCP 도구.
+- PDF는 HTML을 인쇄해서 만듭니다(대시보드의 인쇄·PDF 버튼). 서버에서 PDF를 만들려면 한국어 글꼴이 있는 렌더링
+  엔진이 필요해 넣지 않았습니다.

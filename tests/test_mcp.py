@@ -15,7 +15,7 @@ from mcp import Client  # noqa: E402
 from ma_pmo.mcp_server import create_server  # noqa: E402
 
 READ_ONLY = {"portfolio_status", "schedule", "risks", "pending_approvals", "list_scenarios",
-             "evaluation", "search_lessons"}
+             "evaluation", "search_lessons", "latest_report"}
 
 
 def _data(result) -> object:
@@ -63,3 +63,17 @@ async def test_run_scenario_and_korean_output():
         verdicts = _data(await client.call_tool("evaluation", {}))["verdicts"]
         assert len(verdicts) == 5
         assert isinstance(_data(await client.call_tool("pending_approvals", {})), list)
+
+
+async def test_latest_report():
+    from ma_pmo.agents.reporting import ReportingAgent
+
+    ReportingAgent().run({"goal": "report", "task_ref": "PORTFOLIO#2026-Q1", "kind": "gate",
+                          "as_of": "2026-02-16"})
+    async with Client(create_server()) as client:
+        got = _data(await client.call_tool("latest_report", {"kind": "gate"}))
+        assert got["kind"] == "gate" and got["markdown"].startswith("# Gate decision pack")
+        same = _data(await client.call_tool("latest_report", {"report_id": got["id"]}))
+        assert same["id"] == got["id"]
+        missing = _data(await client.call_tool("latest_report", {"report_id": "RPT-nope"}))
+        assert "unknown report" in missing["error"]

@@ -40,6 +40,13 @@ def main(data_dir: str | None = None) -> int:
             if k in ("hypothesis", "detail"):
                 continue
             print(f"  - {k}: {json.dumps(v, ensure_ascii=False)}")
+    from ma_pmo.reports.store import quality
+
+    q = quality()
+    print("\n" + tr("[Reports] narratives checked against the facts",
+                    "[보고서] 서술과 사실 대조"))
+    for k, v in q.items():
+        print(f"  - {k}: {json.dumps(v, ensure_ascii=False)}")
     print(tr("\n(full JSON: GET /eval · report: ma-pmo template report)",
              "\n(전체 JSON: GET /eval · 보고서: ma-pmo template report)"))
     return 0

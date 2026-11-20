@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- **Reports: Word, notification links, MCP, faithfulness** (roadmap 12). `docx` export (`ma-pmo report export --format docx`, `GET /reports/{id}/export?format=docx`, a Word button on the Reports page) with the new extra `ma-pmo[export]`; `report.generated` notifications are titled with the report's kind and link to it on the Reports page; MCP tool `latest_report`; `ma-pmo eval` and `GET /eval` count how stored narratives were written and checked (`faithful_rate`, replaced, examples).
 - **Benchmark replay** (roadmap 3, step 2; [docs/BENCHMARK.md](docs/BENCHMARK.md)). `ma-pmo benchmark prepare <dump> --out DIR` keeps the usable releases and their issues' full history; `ReplayTracker` serves a release as the tracker showed it at T through the ordinary tracker contract, so the real agents run on it (`ma-pmo benchmark replay DIR <collection>/<version>`). Issue history now also keeps resolution, priority, assignee, original estimate and blocking links over time; a test adds random changes after T to every field and checks the tracker shows the same. `build_project` takes the as-of date.
 
 ## [0.8.0] - 2026-11-20
@@ -212,6 +213,7 @@ First public release.
 
 ### [Unreleased]
 
+- 추가: **보고서: Word, 알림 링크, MCP, 충실도**(로드맵 12). `docx` 내보내기(`ma-pmo report export --format docx`, `GET /reports/{id}/export?format=docx`, 보고서 화면의 Word 버튼)와 새 extra `ma-pmo[export]`. `report.generated` 알림 제목에 보고서 종류가 붙고 보고서 화면의 그 보고서로 연결됩니다. MCP 도구 `latest_report`. `ma-pmo eval`과 `GET /eval`이 저장된 서술이 어떻게 쓰이고 검사됐는지 셉니다(`faithful_rate`, 교체 수, 예시).
 - 추가: **벤치마크 재생**(로드맵 3, 2단계. [docs/BENCHMARK.ko.md](docs/BENCHMARK.ko.md)). `ma-pmo benchmark prepare <덤프> --out DIR`가 쓸 수 있는 릴리스와 이슈 전체 이력을 남기고, `ReplayTracker`가 T 시점에 트래커가 보여 주던 릴리스를 보통 트래커 계약으로 내줘서 실제 에이전트가 그 위에서 돕니다(`ma-pmo benchmark replay DIR <컬렉션>/<버전>`). 이슈 이력이 해결, 우선순위, 담당자, 원래 추정치, 막는 링크의 변경도 남깁니다. 테스트가 T 이후에 모든 필드를 무작위로 바꿔도 트래커가 똑같이 보이는지 확인합니다. `build_project`가 기준일을 받습니다.
 
 ### [0.8.0] - 2026-11-20

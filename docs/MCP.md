@@ -23,6 +23,7 @@ ma-pmo mcp                   # MCP over stdio
 | `list_scenarios` | the 20 lifecycle scenarios | no |
 | `run_scenario` | runs a scenario through the agents and returns the four-phase trace | **yes** — audit log, KPIs, maybe new approvals |
 | `evaluation` | H1–H5 verdicts with evidence | no |
+| `latest_report` | the newest report (or one by id, or of a kind) as Markdown | no |
 | `search_lessons` | lessons learned with citations (A7) | no |
 
 Read-only tools carry `read_only_hint`, so clients can call them without asking every time.

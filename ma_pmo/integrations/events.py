@@ -53,18 +53,23 @@ def events_from_message(message: AgentMessage, gated: bool) -> list[Event]:
             )
         )
     elif schema == "report.v1":
+        # A5 stores the full report before it publishes this message: link to that report
+        from ma_pmo.reports import store
+
+        found = store.latest(data.get("scope") or None)
+        report_id, title = (found[0], found[1].get("title")) if found else (None, None)
         events.append(
             Event(
                 type=EventType.REPORT_GENERATED,
                 title=tr(
-                    f"Executive report ready · {data.get('scope', '')}",
-                    f"경영 보고서 생성 · {data.get('scope', '')}",
+                    f"{title or 'Report'} ready · {data.get('scope', '')}",
+                    f"{title or '보고서'} 생성 · {data.get('scope', '')}",
                 ),
                 summary=str(data.get("executive_summary", ""))[:500],
                 severity="info",
-                url=_link("/"),
+                url=_link(f"/reports?id={report_id}" if report_id else "/reports"),
                 task_ref=ref,
-                data=edata,
+                data={**edata, "report_id": report_id},
             )
         )
 

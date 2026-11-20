@@ -41,8 +41,10 @@ def evaluate(populate: bool | None = None) -> dict:
     that happens only on an empty database, so opening the page does not queue new approvals."""
     if populate is None:
         populate = not _has_telemetry()
+    from ma_pmo.reports.store import quality
+
     results = run_all(populate=populate)
-    return {**results, "summary": summarize(results)}
+    return {**results, "summary": summarize(results), "reports": quality()}
 
 
 @router.get("/eval/retrieval")
