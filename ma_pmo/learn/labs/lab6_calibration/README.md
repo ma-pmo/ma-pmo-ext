@@ -34,6 +34,8 @@ ma-pmo learn check 6
 
 ## Think about it
 
-On the demo data A4 always reports 0.85, so its confidence is *uninformative*: no threshold can
-separate its right and wrong alerts. What would you change in A4 — and why is "make the LLM say
-a number" not enough?
+Until 0.9, A4 reported 0.85 for every alert, so its confidence was *uninformative*: no threshold
+could separate its right and wrong alerts. What would you change in A4, and why is "make the LLM
+say a number" not enough? Then compare with what A4 does now (`agents/risk_calibration.py`): its
+confidence is the share of issues with the same evidence that slipped in the public Jira
+benchmark.

@@ -150,6 +150,47 @@ At k = 28 the order is the same (forest PR-AUC 0.934, ROC-AUC 0.825; on started 
 - **A4's scores are not calibrated** (ECE 0.22: a "0.9" slips far less than 90% of the time, a
   "0.3" far more). Roadmap 11 calibrates them on these labels.
 
+## Calibrating A4 (roadmap 11)
+
+```bash
+ma-pmo benchmark calibrate bench-data --out my_calibration.json   # MA_PMO_A4_CALIBRATION reads it
+```
+
+A4 used to report confidence 0.85 for every alert. It now reports the chance that the tasks an
+alert points at slip, from a table of what happened to issues with the same evidence in the
+training releases (`ma_pmo/fixtures/a4_calibration.json`, `agents/risk_calibration.py`):
+
+| A4's evidence on a task | issues (train) | slipped [95% CI] | slipped in the latest releases |
+|---|---|---|---|
+| blocked by an unfinished task | 927 | 0.740 [0.711, 0.767] | 0.773 |
+| stalled (predecessors done, under 50%) | 80,360 | 0.819 [0.816, 0.822] | 0.894 |
+| moving (anything else still open) | 12,359 | 0.564 [0.555, 0.573] | 0.620 |
+
+On the latest 711 releases, ECE falls from 0.223 (the old fixed scores) to 0.070 and the Brier
+score from 0.181 to 0.133. The remaining error is drift: later releases slip more than the
+training ones. Two findings shaped the table: blocked tasks slip *less* often than stalled ones,
+so the kinds are treated as categories rather than a scale, and the evidence separates issues
+only modestly (ROC-AUC 0.67), so calibrated confidence makes A4's alerts honest, not sharp. On the
+demo portfolio PROJ-14's alert now carries 0.74 and PROJ-31's 0.78.
+
+### A review threshold with a guarantee
+
+`HITL_CONFIDENCE_THRESHOLD` (0.6) says nothing about how many wrong alerts get through. With
+`HITL_RISK_ALPHA` set, A4's alerts use a threshold chosen on the calibration table's held-out
+releases instead (`core/risk_control.py`): the lowest confidence at which the alerts committed
+without a person are wrong at most α of the time, with probability 1 − δ (`HITL_RISK_DELTA`,
+default 0.1). Candidates are tested from the highest down and the first that fails stops the
+search (fixed-sequence testing, as in Learn-then-Test), each against a one-sided Clopper–Pearson
+bound. On the benchmark table:
+
+| α | threshold | committed without a person |
+|---|---|---|
+| 0.15 | 0.74 | stalled and blocked evidence (10.7% wrong, 31,887 held-out issues) |
+| 0.20 | 0.56 | everything (17.1% wrong) |
+
+So with α = 0.15, an alert that rests only on tasks already moving (0.56) goes to a person, and
+one that points at stalled or blocked tasks does not. Other agents keep the fixed threshold.
+
 ## What this means for the benchmark
 
 - **Most scheduled issues slip, mostly by being moved out.** Two weeks before a release, 46–88% of the

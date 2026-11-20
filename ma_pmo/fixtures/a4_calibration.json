@@ -1,0 +1,68 @@
+{
+ "description": "A4 task evidence -> share of issues that slipped (public Jira benchmark)",
+ "fitted": "2026-11-21",
+ "as_of_days": 14,
+ "train": {
+  "issues": 93646,
+  "releases": 1656,
+  "until": "2017-10-12"
+ },
+ "kinds": {
+  "blocked": {
+   "n": 927,
+   "slipped": 686,
+   "rate": 0.74,
+   "ci95": [
+    0.711,
+    0.767
+   ]
+  },
+  "stalled": {
+   "n": 80360,
+   "slipped": 65803,
+   "rate": 0.819,
+   "ci95": [
+    0.816,
+    0.822
+   ]
+  },
+  "moving": {
+   "n": 12359,
+   "slipped": 6972,
+   "rate": 0.564,
+   "ci95": [
+    0.555,
+    0.573
+   ]
+  }
+ },
+ "test": {
+  "issues": 41648,
+  "releases": 711,
+  "slipped": 0.829,
+  "ece_fixed": 0.223,
+  "ece_calibrated": 0.07,
+  "brier_fixed": 0.181,
+  "brier_calibrated": 0.133,
+  "kinds": {
+   "blocked": {
+    "n": 309,
+    "slipped": 239
+   },
+   "stalled": {
+    "n": 31578,
+    "slipped": 28238
+   },
+   "moving": {
+    "n": 9761,
+    "slipped": 6054
+   }
+  },
+  "thresholds_delta_0.1": {
+   "0.15": 0.74,
+   "0.2": 0.564,
+   "0.25": 0.564,
+   "0.3": 0.564
+  }
+ }
+}
