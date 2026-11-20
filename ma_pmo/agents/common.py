@@ -26,11 +26,7 @@ def find_project(tracker: IssueTrackerConnector, scope: str, project_id: str) ->
 
 
 def spi(project: dict) -> float | None:
-    """SPI = EV/PV (schedule performance index): PV is the total effort, EV the
-    completion-weighted effort."""
-    tasks = project.get("tasks", [])
-    pv = sum(t.get("effort", 0.0) for t in tasks)
-    if pv <= 0:
-        return None
-    ev = sum(t.get("effort", 0.0) * (t.get("percent_complete", 0.0) / 100.0) for t in tasks)
-    return round(ev / pv, 3)
+    """SPI = EV/PV at the as-of date, PV spread over the planned dates (`evm.py`)."""
+    from ma_pmo.agents import evm
+
+    return evm.spi(project)

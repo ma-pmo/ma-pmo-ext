@@ -25,12 +25,13 @@ and progress.
 """
 from __future__ import annotations
 
-from datetime import UTC, date, datetime, timedelta
+from datetime import date
 from typing import Any, Literal
 
 from sqlalchemy import select
 
-from ma_pmo.agents.cpm import compute_cpm
+from ma_pmo.agents import evm
+from ma_pmo.agents.evm import as_of_date
 from ma_pmo.core.config import get_settings
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.schemas.payloads.report_v2 import (
@@ -48,55 +49,6 @@ from ma_pmo.db.models import Report
 from ma_pmo.db.session import get_session
 
 _RANK = {"green": 0, "amber": 1, "red": 2}
-
-
-def as_of_date(value: str | None = None) -> date:
-    text = value or get_settings().report_as_of
-    return date.fromisoformat(text) if text else datetime.now(UTC).date()
-
-
-def _day(text: str | None) -> date | None:
-    try:
-        return date.fromisoformat(text) if text else None
-    except ValueError:
-        return None
-
-
-def _plan(project: dict) -> tuple[date, date] | None:
-    """(planned start, planned finish); the CPM finish when the tracker has no planned finish."""
-    start = _day(project.get("planned_start"))
-    if start is None:
-        return None
-    finish = _day(project.get("planned_finish"))
-    if finish is None or finish <= start:
-        finish = start + timedelta(days=max(1, compute_cpm(project.get("tasks", []))
-                                            .project_duration))
-    return start, finish
-
-
-def _values(project: dict, as_of: date) -> tuple[float, float]:
-    """(EV, PV) of a project at `as_of`."""
-    tasks = project.get("tasks", [])
-    bac = sum(t.get("effort", 0.0) for t in tasks)
-    ev = sum(t.get("effort", 0.0) * t.get("percent_complete", 0.0) / 100 for t in tasks)
-    plan = _plan(project)
-    if plan is None:
-        return ev, 0.0
-    start, finish = plan
-    share = min(1.0, max(0.0, (as_of - start).days / (finish - start).days))
-    return ev, bac * share
-
-
-def _forecast(project: dict, spi: float | None) -> str | None:
-    if project.get("percent_complete", 0.0) >= 100:
-        return None  # nothing left to do
-    plan = _plan(project)
-    if plan is None:
-        return None
-    start, finish = plan
-    if not spi:  # not started (or no progress yet): the plan is all there is
-        return finish.isoformat()
-    return (start + timedelta(days=round((finish - start).days / spi))).isoformat()
 
 
 def _board_facts(board: list[dict], in_scope: set[str] | None) -> dict[str, Any]:
@@ -176,11 +128,11 @@ def build(status: dict, previous: tuple[str, str, dict[str, Any]] | None = None,
     ev_total = pv_total = 0.0
     for p in rows:
         pid = p["project_id"]
-        ev, pv = _values(p, as_of)
+        ev, pv = evm.values(p, as_of)
         ev_total, pv_total = ev_total + ev, pv_total + pv
         spi = round(ev / pv, 3) if pv > 0 else None
-        finish = _forecast(p, spi)
-        deadline = _day(p.get("deadline"))
+        finish = evm.forecast(p, spi)
+        deadline = evm.parse_day(p.get("deadline"))
         slack = (deadline - date.fromisoformat(finish)).days if finish and deadline else None
         before = prev_lines.get(pid, {})
         project_facts.append(ProjectFact(
