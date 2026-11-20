@@ -307,6 +307,17 @@ def _cmd_benchmark(ns: argparse.Namespace) -> int:
                 json.dump(result, f, indent=1, default=str)
         print(json.dumps(result, indent=1, default=str) if ns.json else run.to_markdown(result))
         return 0
+    if ns.action == "calibrate":
+        from ma_pmo.benchmark.calibrate import calibrate
+        from ma_pmo.benchmark.replay import ReplayTracker
+
+        table = calibrate(ReplayTracker.load(ns.data), ns.k)
+        text = json.dumps(table, indent=1, ensure_ascii=False)
+        if ns.out:
+            with open(ns.out, "w", encoding="utf-8") as f:
+                f.write(text + "\n")
+        print(text)
+        return 0
     if ns.action == "replay":
         from ma_pmo.benchmark.replay import ReplayTracker
 
@@ -514,7 +525,8 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("mcp", help='MCP server over stdio for AI assistants (needs "ma-pmo[mcp]")')
 
     bench = sub.add_parser(
-        "benchmark", help='benchmark on public Jira history: coverage | prepare | replay | run '
+        "benchmark", help='benchmark on public Jira history: coverage | prepare | replay | run | '
+                          'calibrate '
                           '(needs "ma-pmo[benchmark]")'
     )
     bsub = bench.add_subparsers(dest="action", required=True)
@@ -538,6 +550,10 @@ def main(argv: list[str] | None = None) -> int:
                        help="as-of days before release")
     b_run.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
     b_run.add_argument("--out", help="also write the JSON to this file")
+    b_cal = bsub.add_parser("calibrate", help="fit A4's confidence table on the benchmark")
+    b_cal.add_argument("data", help="a folder written by prepare")
+    b_cal.add_argument("--k", type=int, default=14, help="as-of days before release")
+    b_cal.add_argument("--out", help="write the table here (MA_PMO_A4_CALIBRATION reads it)")
     b_rep = bsub.add_parser("replay", help="show what the tracker showed for a release at T")
     b_rep.add_argument("data", help="a folder written by prepare")
     b_rep.add_argument("release", nargs="?",

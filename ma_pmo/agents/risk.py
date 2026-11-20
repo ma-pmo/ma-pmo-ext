@@ -3,7 +3,8 @@
 Flow: collect mock status -> deterministic signal analysis (rule-based baseline) ->
       LLM severity/mitigation per flagged project (validated as risk_alert.v1) ->
       store Risk (detected_at) -> record RLT (lead time) KPI ->
-      message to A1 (high/critical sets human_gate_required -> approval gate).
+      message to A1 (high/critical sets human_gate_required -> approval gate). Its confidence
+      is the calibrated chance that the tasks it names slip (`risk_calibration.py`).
 """
 from __future__ import annotations
 
@@ -11,7 +12,7 @@ import json
 import uuid
 from datetime import UTC, datetime
 
-from ma_pmo.agents import common
+from ma_pmo.agents import common, risk_calibration
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.risk_signals import ProjectSignals, analyze_portfolio, baseline_severity
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -51,10 +52,11 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
         scope = state.get("task_ref", DEFAULT_SCOPE)
         status = self.tracker.get_portfolio_status(scope)
         signals = analyze_portfolio(status)
+        projects = {p["project_id"]: p for p in status.get("projects", [])}
 
         outputs, messages = [], []
         for sig in signals:
-            alert, msg = self._assess(sig, scope)
+            alert, msg = self._assess(sig, scope, projects.get(sig.project_id, {}))
             outputs.append(common.entry(self.agent_id, "risk_alert.v1", alert))
             messages.append(common.wire(msg))
         return {"outputs": outputs, "messages": messages}
@@ -73,11 +75,12 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
                 "risk": None,
                 "note": tr("no significant signal", "유의 신호 없음"),
             }
-        alert, _ = self._assess(sig, scope)
+        alert, _ = self._assess(sig, scope, proj)
         return {"project_id": project_id, "risk": alert.model_dump()}
 
     # ── internal: signal -> LLM rating -> store -> KPI -> message ─
-    def _assess(self, sig: ProjectSignals, scope: str) -> tuple[RiskAlertV1, AgentMessage]:
+    def _assess(self, sig: ProjectSignals, scope: str,
+                project: dict | None = None) -> tuple[RiskAlertV1, AgentMessage]:
         baseline = baseline_severity(sig)
         prompt = (
             f"Scope: {scope}\nProject: {sig.project_id}\n"
@@ -156,7 +159,8 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
             intent=Intent.PROPOSE if gate else Intent.INFORM,
             task_ref=f"{scope}/{sig.project_id}",
             payload=MessagePayload(schema_="risk_alert.v1", data=alert.model_dump()),
-            confidence=0.85,
+            # the calibrated chance that the tasks this alert points at slip (risk_calibration.py)
+            confidence=risk_calibration.alert_confidence(sig, project or {}),
             human_gate_required=gate,  # high severity goes through the human approval gate
         )
         protocol.publish(msg)
