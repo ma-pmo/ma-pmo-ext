@@ -83,6 +83,25 @@ changelog. Reading it with `ma-pmo benchmark coverage` takes about two minutes.
 Mojang (420,819 issues) has almost no usable release: its fix versions are mostly set when an issue
 is resolved, not planned ahead. Mindville has none at all.
 
+## Replaying a release (step 2)
+
+```bash
+ma-pmo benchmark prepare ThePublicJiraDataset.zip --out bench-data   # once; never commit it
+ma-pmo benchmark replay bench-data                                   # list the releases
+ma-pmo benchmark replay bench-data Apache/12345678 --k 14            # one release at T
+```
+
+`prepare` keeps the usable releases and the full history of their issues (`releases.jsonl`,
+`issues.jsonl.gz`, `manifest.json`). The **ReplayTracker** (`ma_pmo/benchmark/replay.py`) serves
+them through the ordinary tracker contract, so the real agents run on a release as it stood at T:
+one project per release, with the issues that had it as a fix version at T as tasks (progress 100
+if resolved at T, 50 if started, else 0; the original estimate at T, else 8 hours; the issues of
+the same release that blocked it at T as dependencies), the release date as deadline, and each
+task's status, priority, assignee and type at T. Every value is the current one with the changes
+after T undone; a test adds random changes after T to every issue (status, resolution, priority,
+assignee, estimate, links, fix versions) and checks the tracker shows exactly the same.
+Outcomes are only read for scoring (`ReplayTracker.outcomes`), never shown to agents.
+
 ## What this means for the benchmark
 
 - **Most scheduled issues slip, mostly by being moved out.** Two weeks before a release, 47–87% of the

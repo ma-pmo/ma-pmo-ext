@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **Benchmark replay** (roadmap 3, step 2; [docs/BENCHMARK.md](docs/BENCHMARK.md)). `ma-pmo benchmark prepare <dump> --out DIR` keeps the usable releases and their issues' full history; `ReplayTracker` serves a release as the tracker showed it at T through the ordinary tracker contract, so the real agents run on it (`ma-pmo benchmark replay DIR <collection>/<version>`). Issue history now also keeps resolution, priority, assignee, original estimate and blocking links over time; a test adds random changes after T to every field and checks the tracker shows the same. `build_project` takes the as-of date.
+
 ## [0.8.0] - 2026-11-20
 
 Reports a PMO can send (roadmap 12): five kinds for different readers, figures computed from the plan rather than written by the LLM, what changed since the last report, a check that the LLM's narrative matches the figures, and a reports page with downloads. Also the first step of the benchmark on public Jira history (roadmap 3).
@@ -208,6 +211,8 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+- 추가: **벤치마크 재생**(로드맵 3, 2단계. [docs/BENCHMARK.ko.md](docs/BENCHMARK.ko.md)). `ma-pmo benchmark prepare <덤프> --out DIR`가 쓸 수 있는 릴리스와 이슈 전체 이력을 남기고, `ReplayTracker`가 T 시점에 트래커가 보여 주던 릴리스를 보통 트래커 계약으로 내줘서 실제 에이전트가 그 위에서 돕니다(`ma-pmo benchmark replay DIR <컬렉션>/<버전>`). 이슈 이력이 해결, 우선순위, 담당자, 원래 추정치, 막는 링크의 변경도 남깁니다. 테스트가 T 이후에 모든 필드를 무작위로 바꿔도 트래커가 똑같이 보이는지 확인합니다. `build_project`가 기준일을 받습니다.
 
 ### [0.8.0] - 2026-11-20
 

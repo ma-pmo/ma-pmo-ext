@@ -69,8 +69,9 @@ def blocked_by_in_text(text: str | None) -> list[str]:
     return [m.group(1) for m in _BLOCKED_BY.finditer(text or "")]
 
 
-def build_project(project_id: str, records: list[IssueRecord]) -> dict:
-    today = date.today().isoformat()
+def build_project(project_id: str, records: list[IssueRecord], today: date | None = None) -> dict:
+    """The project agents read; `today` decides what is overdue (a replay passes its as-of date)."""
+    today_s = (today or date.today()).isoformat()
     tasks = [
         {"task_id": r.key, "wbs": r.key, "effort": r.effort, "deps": r.deps,
          "percent_complete": r.progress}
@@ -79,7 +80,7 @@ def build_project(project_id: str, records: list[IssueRecord]) -> dict:
     created = [r.created for r in records if r.created]
     due_all = [r.due for r in records if r.due]
     due_open = [r.due for r in records if r.due and r.progress < 100]
-    overdue = any(d < today for d in due_open)
+    overdue = any(d < today_s for d in due_open)
     done_ids = {r.key for r in records if r.progress >= 100}
     blocked = any(r.progress < 100 and any(d not in done_ids for d in r.deps) for r in records)
     total = sum(r.effort for r in records) or 1.0

@@ -81,6 +81,23 @@ ma-pmo benchmark coverage ThePublicJiraDataset.zip --json     # 모든 카운터
 Mojang(이슈 420,819개)은 쓸 수 있는 릴리스가 거의 없습니다. fix version을 미리 계획하지 않고 해결할 때 붙이기
 때문입니다. Mindville은 하나도 없습니다.
 
+## 릴리스 재생(2단계)
+
+```bash
+ma-pmo benchmark prepare ThePublicJiraDataset.zip --out bench-data   # 한 번만. 저장소에 넣지 않음
+ma-pmo benchmark replay bench-data                                   # 릴리스 목록
+ma-pmo benchmark replay bench-data Apache/12345678 --k 14            # 시점 T의 릴리스 하나
+```
+
+`prepare`는 쓸 수 있는 릴리스와 그 이슈들의 전체 이력을 남깁니다(`releases.jsonl`, `issues.jsonl.gz`,
+`manifest.json`). **ReplayTracker**(`ma_pmo/benchmark/replay.py`)는 이를 보통 트래커 계약으로 내주므로, 실제
+에이전트가 T 시점의 릴리스 위에서 그대로 돕니다. 릴리스 하나가 프로젝트 하나이고, T에 그 릴리스가 fix version이던
+이슈가 태스크입니다(T에 해결됐으면 진척 100, 시작됐으면 50, 아니면 0. T의 원래 추정치, 없으면 8시간. T에 같은
+릴리스 안에서 막고 있던 이슈가 의존 관계). 마감은 출시일이고, 태스크마다 T의 상태·우선순위·담당자·유형이 붙습니다.
+모든 값은 지금 값에서 T 이후의 변경을 되돌린 것입니다. 테스트가 모든 이슈에 T 이후의 무작위 변경(상태, 해결,
+우선순위, 담당자, 추정치, 링크, fix version)을 더해도 트래커가 똑같이 보이는지 확인합니다. 결과는 채점할 때만
+읽고(`ReplayTracker.outcomes`) 에이전트에게는 보여 주지 않습니다.
+
 ## 벤치마크에 주는 뜻
 
 - **예정된 이슈 대부분이 밀리고, 대개는 버전에서 빠지는 방식입니다.** 출시 2주 전에 아직 열린 이슈의 47~87%가
