@@ -64,6 +64,11 @@ Like any change to a workflow it is validated, saved as a draft and published (s
 shows the effect by model. Calls outside a workflow step (routing a goal, `/knowledge/ask`) use
 `LLM_MODEL`. If `LLM_MODEL_FAST` is empty, `fast` falls back to `LLM_MODEL`.
 
+On a fast step A4 checks its own answer: a rating two or more levels from the rule baseline
+(say `low` where the signals say `high`) is asked again of the standard model, and the standard
+answer is kept. The KPI event records `deferred`, and the trace marks it. `MA_PMO_A4_DEFER=false`
+turns it off (roadmap 11).
+
 Which steps can safely use the fast model is a question of quality, not only price: the replay
 evaluator below measures it before anyone changes a workflow.
 

@@ -16,7 +16,7 @@ from ma_pmo.agents import common, risk_calibration
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.risk_signals import ProjectSignals, analyze_portfolio, baseline_severity
 from ma_pmo.connectors.base import IssueTrackerConnector
-from ma_pmo.core import kpi, protocol, tracing
+from ma_pmo.core import kpi, llm, protocol, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.obs import get_logger
@@ -78,6 +78,19 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
         alert, _ = self._assess(sig, scope, proj)
         return {"project_id": project_id, "risk": alert.model_dump()}
 
+    @staticmethod
+    def _unsure(severity: str, baseline: str) -> bool:
+        """A fast model's rating is not trusted when it is two or more levels from the rule
+        baseline (e.g. low against high): the cheap model is the one likely to be wrong, and the
+        standard model is asked instead (roadmap 11, step 3; `MA_PMO_A4_DEFER=false` turns it
+        off). Only on a `model_tier: fast` step."""
+        from ma_pmo.core.config import get_settings
+
+        if not get_settings().a4_defer or not llm.on_fast_model():
+            return False
+        order = ["low", "medium", "high", "critical"]
+        return abs(order.index(severity) - order.index(baseline)) >= 2
+
     # ── internal: signal -> LLM rating -> store -> KPI -> message ─
     def _assess(self, sig: ProjectSignals, scope: str,
                 project: dict | None = None) -> tuple[RiskAlertV1, AgentMessage]:
@@ -90,8 +103,19 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
             "Rate the risk from these signals. Keep project_id unchanged."
         )
         path = "llm"
+        deferred = False
         try:
             alert = self.structured(prompt)
+            if self._unsure(alert.severity, baseline):  # ask the standard model instead
+                try:
+                    alert = llm.complete_structured(self.role_prompt, prompt, RiskAlertV1,
+                                                    agent=self.agent_id,
+                                                    model=llm.model_for("standard"))
+                    deferred = True
+                    tracing.mark_fallback("A4 fast model deferred to standard")
+                except Exception as e:  # keep the fast answer if the standard one fails
+                    _log.warning("risk_defer_failed", project_id=sig.project_id,
+                                 error=type(e).__name__)
         except Exception as e:  # no LLM / outage / invalid output -> rule-based risk alert
             _log.warning("risk_fallback", project_id=sig.project_id, error=type(e).__name__)
             tracing.mark_fallback("A4 risk", e)
@@ -148,6 +172,7 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
                     "severity_llm": alert.severity if path == "llm" else None,
                     "severity_baseline": baseline,
                     "agreement": alert.severity == baseline if path == "llm" else None,
+                    "deferred": deferred,
                 },
             )
         kpi.record(Axis.RISK, "risk_detected", 1, project_id=sig.project_id)

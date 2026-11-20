@@ -109,3 +109,45 @@ def test_a4_alerts_use_the_risk_controlled_threshold(monkeypatch):
     assert risk_control.threshold_for("A2", 0.6) == 0.6  # other agents keep the fixed one
     monkeypatch.setattr(settings, "hitl_risk_alpha", 0.0001)
     assert risk_control.threshold_for("A4", 0.6) == risk_control.NOBODY
+
+
+def _rating_by_model(fast_says: str, calls: list):
+    from ma_pmo.core import llm
+    from ma_pmo.core.schemas.payloads.risk_alert_v1 import RiskAlertV1
+
+    def fake(system, user, schema, *, agent="?", model=None):
+        model = model or llm.model_for()
+        calls.append(model)
+        project = user.split("Project: ")[1].split("\n")[0]
+        return RiskAlertV1(project_id=project, signal="s", mitigation="m", rationale="r",
+                           severity=fast_says if model == "fast-model" else "high")
+    return fake
+
+
+def test_a_fast_rating_far_from_the_rules_goes_to_the_standard_model(monkeypatch):
+    from ma_pmo.core import llm
+    from ma_pmo.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "llm_model_fast", "fast-model")
+    calls: list = []
+    monkeypatch.setattr("ma_pmo.core.llm.complete_structured", _rating_by_model("low", calls))
+    with llm.use_tier("fast"):
+        out = RiskAgent().run({"task_ref": "PORTFOLIO#2026-Q1"})
+    by_project = {o["data"]["project_id"]: o["data"]["severity"] for o in out["outputs"]}
+    # PROJ-31: rules say high, fast says low (two levels) -> standard asked, its "high" kept
+    assert by_project["PROJ-31"] == "high"
+    # PROJ-14: rules say medium, fast says low (one level) -> the fast answer stands
+    assert by_project["PROJ-14"] == "low"
+    assert calls.count(settings.llm_model) == 1 and calls.count("fast-model") == 2
+
+    calls.clear()
+    monkeypatch.setattr(settings, "a4_defer", False)
+    with llm.use_tier("fast"):
+        out = RiskAgent().run({"task_ref": "PORTFOLIO#2026-Q1"})
+    assert settings.llm_model not in calls  # turned off
+    monkeypatch.setattr(settings, "a4_defer", True)
+
+    calls.clear()
+    RiskAgent().run({"task_ref": "PORTFOLIO#2026-Q1"})  # standard tier: nothing to defer
+    assert calls == [settings.llm_model, settings.llm_model]
