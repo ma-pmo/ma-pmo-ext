@@ -23,6 +23,8 @@ def item(field, frm=None, to=None, frm_s=None, to_s=None):
 
 def doc(key, *, created="2020-01-01", fix=(V1,), status="Open", resolution=None, history=(),
         links=(), estimate=None, priority="Major", assignee="u1", resolved_on=None):
+    if resolution and resolved_on:  # Jira logs the resolution when it is set
+        history = [*history, (resolved_on, [item("resolution", to_s=resolution)])]
     return {
         "key": key,
         "fields": {
@@ -73,8 +75,7 @@ def _release_docs():
         doc("A-1", status="In Progress",
             history=[("2020-01-10", [item("Fix Version", None, "1")])]),
         doc("A-2", links=["A-1"]),  # blocked by A-1, not started
-        doc("A-3", status="Closed", resolution="Fixed", resolved_on="2020-02-10",
-            history=[("2020-02-10", [item("resolution", to_s="Fixed")])]),  # done before T
+        doc("A-3", status="Closed", resolution="Fixed", resolved_on="2020-02-10"),  # done before T
         doc("A-4", created="2020-02-20"),  # created after T
     ]
 
@@ -149,3 +150,53 @@ def test_real_agents_run_on_the_replay():
     assert plan["outputs"][0]["data"]["critical_path"]
     risks = RiskAgent(tracker).run({"task_ref": pid})
     assert {o["schema"] for o in risks["outputs"]} <= {"risk_alert.v1"}
+
+
+def test_features_ignore_everything_after_t():
+    from ma_pmo.benchmark.features import NAMES, release_features
+
+    tracker, release = _tracker()
+    issues = [h for hs in tracker.issues.values() for h in hs]
+    before = release_features(issues, "1", RELEASE, T)
+    assert set(before) == {"A-1", "A-2"} and set(before["A-1"]) == set(NAMES)
+    assert before["A-2"]["blocked_by_open"] == 1 and before["A-1"]["blocks"] == 1
+    assert before["A-1"]["started"] == 1 and before["A-1"]["days_left"] == 14
+    rnd = random.Random(11)
+    for _ in range(20):
+        assert release_features([_after_t(h, rnd) for h in issues], "1", RELEASE, T) == before
+
+
+def test_the_benchmark_scores_and_measures(monkeypatch):
+    import pytest
+
+    pytest.importorskip("sklearn")
+    from ma_pmo.benchmark import run
+
+    docs = []
+    for v in range(10):  # ten releases, one a month; in each, started issues make it
+        day = date(2019, 1 + v, 28)
+        version = {"id": str(v), "name": f"1.{v}", "released": True,
+                   "releaseDate": day.isoformat()}
+        for i in range(6):
+            started = i < 3
+            docs.append(doc(f"R{v}-{i}", created=f"2019-{1 + v:02d}-01", fix=(version,),
+                            status="In Progress" if started else "Open",
+                            resolution="Fixed" if started else None,
+                            resolved_on=f"2019-{1 + v:02d}-25" if started else None))
+    cov = coverage.Coverage()
+    for d in docs:
+        cov.add("C", d)
+    tracker = ReplayTracker(list(cov.releases.values()),
+                            [h for hs in cov.issues.values() for h in hs])
+    monkeypatch.setattr(run, "MIN_ISSUES", 6)
+    rows = run.rows_at(tracker, 14, min_issues=6)
+    assert len(rows) == 60 and sum(r.label for r in rows) == 30
+    train, test = run.split(rows)
+    assert len({r.release for r in train}) == 7 and min(r.release_date for r in test) > max(
+        r.release_date for r in train)
+    m = run.metrics(test, lambda r: 0.2 if r.features["started"] else 0.9)
+    assert m["pr_auc"] == 1.0 and m["roc_auc"] == 1.0 and m["pr_auc_ci"] == [1.0, 1.0]
+    assert run.metrics(test, lambda r: 1.0)["pr_auc"] == 0.5  # the base rate
+    result = run.evaluate(tracker, ks=[14])
+    assert result["k=14"]["progress"]["all"]["roc_auc"] == 1.0
+    assert "| forest |" in run.to_markdown(result)

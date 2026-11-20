@@ -5,8 +5,9 @@ or removes one version id). The fix versions an issue had at time T are the curr
 every change after T undone. Version ids are unique within one Jira instance (a collection),
 not across them.
 
-An issue is **scheduled** for release V at T when it existed at T, was unresolved at T, and had V
-as a fix version at T. Its **outcome** is read one day after the release date (D):
+An issue is **scheduled** for release V at T when it existed at T, was unresolved at T (by the
+resolution's history, so a later reopening does not count), and had V as a fix version at T. Its
+**outcome** is read one day after the release date (D):
 
 | outcome | at D | label |
 |---|---|---|
@@ -96,8 +97,16 @@ class IssueHistory:
                 versions.add(c.version_id)
         return versions
 
+    def resolved_at(self, t: datetime) -> bool:
+        """Resolved at T, from the resolution's own history: an issue resolved before T and
+        reopened later counts as resolved at T. Without any recorded resolution change, the
+        final resolution date decides."""
+        if self.resolution_changes or self.resolution:
+            return bool(_at(self.resolution_changes, self.resolution, t))
+        return self.resolved is not None and self.resolved <= t
+
     def scheduled(self, version_id: str, t: datetime) -> bool:
-        if self.created > t or (self.resolved is not None and self.resolved <= t):
+        if self.created > t or self.resolved_at(t):
             return False
         return version_id in self.fix_versions_at(t)
 
@@ -106,9 +115,10 @@ class IssueHistory:
         due = datetime.combine(release_date, datetime.min.time()) + GRACE
         if version_id not in self.fix_versions_at(due):
             return "moved_out"
-        if self.resolved is not None and self.resolved <= due:
+        if self.resolved_at(due):
             return "on_time"
-        if self.resolved is not None and version_id in self.fix_versions:
+        if self.resolved is not None and self.resolved_at(datetime.max) \
+                and version_id in self.fix_versions:
             return "late"
         return "open"
 

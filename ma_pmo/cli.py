@@ -293,6 +293,20 @@ def _cmd_benchmark(ns: argparse.Namespace) -> int:
     from ma_pmo.benchmark import coverage
     from ma_pmo.benchmark.dump import DumpError
 
+    if ns.action == "run":
+        from ma_pmo.benchmark import run
+        from ma_pmo.benchmark.replay import ReplayTracker
+
+        try:
+            result = run.evaluate(ReplayTracker.load(ns.data), ns.k)
+        except (ImportError, OSError) as e:
+            print(f"✗ {e}", file=sys.stderr)
+            return 1
+        if ns.out:
+            with open(ns.out, "w", encoding="utf-8") as f:
+                json.dump(result, f, indent=1, default=str)
+        print(json.dumps(result, indent=1, default=str) if ns.json else run.to_markdown(result))
+        return 0
     if ns.action == "replay":
         from ma_pmo.benchmark.replay import ReplayTracker
 
@@ -500,7 +514,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("mcp", help='MCP server over stdio for AI assistants (needs "ma-pmo[mcp]")')
 
     bench = sub.add_parser(
-        "benchmark", help='benchmark on public Jira history: coverage | prepare | replay '
+        "benchmark", help='benchmark on public Jira history: coverage | prepare | replay | run '
                           '(needs "ma-pmo[benchmark]")'
     )
     bsub = bench.add_subparsers(dest="action", required=True)
@@ -518,6 +532,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="as-of days before release")
     b_prep.add_argument("--min-issues", type=int, default=20,
                         help="scheduled issues a release needs")
+    b_run = bsub.add_parser("run", help="score every issue at T with each scorer; metrics")
+    b_run.add_argument("data", help="a folder written by prepare")
+    b_run.add_argument("--k", type=int, nargs="+", default=[14, 28],
+                       help="as-of days before release")
+    b_run.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
+    b_run.add_argument("--out", help="also write the JSON to this file")
     b_rep = bsub.add_parser("replay", help="show what the tracker showed for a release at T")
     b_rep.add_argument("data", help="a folder written by prepare")
     b_rep.add_argument("release", nargs="?",

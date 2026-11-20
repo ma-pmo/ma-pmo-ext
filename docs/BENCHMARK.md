@@ -61,24 +61,24 @@ changelog. Reading it with `ma-pmo benchmark coverage` takes about two minutes.
 
 | As of | usable releases | informative (10–90% slipped) | instances with ≥ 10 | usable on started issues alone |
 |---|---|---|---|---|
-| 14 days before | 2,466 | 1,512 | 11 | 419 |
-| 28 days before | 2,510 | 1,762 | 11 | 386 |
+| 14 days before | 2,367 | 1,430 | 11 | 330 |
+| 28 days before | 2,429 | 1,703 | 11 | 302 |
 
 14 days before release (instances with at least 10 usable releases):
 
 | instance | releases | labelled issues | slipped | moved out | late, left out | started | started slipped | years |
 |---|---|---|---|---|---|---|---|---|
-| Red Hat | 948 | 55,754 | 81% | 65% | 1,977 | 11,180 | 60% | 2005–2021 |
-| Apache | 801 | 49,333 | 84% | 64% | 1,062 | 6,555 | 68% | 2004–2021 |
-| Jira | 168 | 7,180 | 62% | 43% | 515 | 1,950 | 25% | 2003–2021 |
-| Spring | 149 | 6,154 | 65% | 52% | 220 | 707 | 46% | 2005–2018 |
-| Qt | 116 | 6,003 | 87% | 56% | 397 | 2,575 | 80% | 2009–2021 |
-| MongoDB | 107 | 6,170 | 65% | 61% | 167 | 1,534 | 43% | 2009–2021 |
-| Jira Ecosystem | 51 | 1,869 | 47% | 39% | 281 | 306 | 23% | 2008–2016 |
-| MariaDB | 49 | 4,717 | 87% | 76% | 42 | 685 | 65% | 2012–2020 |
-| JFrog | 33 | 970 | 57% | 56% | 13 | 326 | 32% | 2008–2019 |
-| Sakai | 16 | 777 | 54% | 22% | 300 | 321 | 34% | 2005–2013 |
-| Hyperledger | 11 | 915 | 74% | 13% | 498 | 460 | 65% | 2017–2020 |
+| Red Hat | 904 | 53,130 | 81% | 66% | 921 | 8,942 | 59% | 2005–2021 |
+| Apache | 770 | 47,795 | 85% | 65% | 669 | 5,365 | 70% | 2004–2021 |
+| Jira | 166 | 7,076 | 62% | 43% | 455 | 1,865 | 22% | 2003–2021 |
+| Spring | 144 | 5,969 | 64% | 53% | 123 | 545 | 40% | 2005–2018 |
+| Qt | 108 | 5,673 | 88% | 58% | 268 | 2,304 | 80% | 2009–2021 |
+| MongoDB | 107 | 6,052 | 66% | 62% | 111 | 1,407 | 44% | 2009–2021 |
+| Jira Ecosystem | 50 | 1,823 | 46% | 40% | 242 | 257 | 10% | 2008–2016 |
+| MariaDB | 49 | 4,709 | 86% | 76% | 23 | 670 | 64% | 2012–2020 |
+| JFrog | 32 | 940 | 57% | 57% | 9 | 305 | 31% | 2008–2019 |
+| Hyperledger | 11 | 904 | 74% | 14% | 483 | 447 | 64% | 2017–2020 |
+| Sakai | 10 | 407 | 71% | 31% | 39 | 25 | 52% | 2005–2013 |
 
 Mojang (420,819 issues) has almost no usable release: its fix versions are mostly set when an issue
 is resolved, not planned ahead. Mindville has none at all.
@@ -102,15 +102,60 @@ after T undone; a test adds random changes after T to every issue (status, resol
 assignee, estimate, links, fix versions) and checks the tracker shows exactly the same.
 Outcomes are only read for scoring (`ReplayTracker.outcomes`), never shown to agents.
 
+## Scoring issues (step 3)
+
+```bash
+ma-pmo benchmark run bench-data              # Markdown; --json, --out results.json, --k 14 28
+```
+
+Every issue scheduled for a usable release at T is a row, labelled 1 if it slipped (moved out or
+still open a day after the release) and 0 if it was resolved in time; late closures are left out.
+"Unresolved at T" and "resolved by the release" are read from the resolution's own history, so an
+issue resolved before T and reopened afterwards is not counted as open at T.
+
+| scorer | what it sees at T |
+|---|---|
+| `all_slip` | nothing: every issue slips (the majority class) |
+| `progress` | not started 1, started 0.5, in review 0.2 |
+| `a4_signals` | A4's own rule signals on the replayed release, per task: blocked 0.9, stalled 0.7, else 0.3 |
+| `forest` | a random forest on the issue-delay literature's features (`benchmark/features.py`): state, age, days since the last status change, reschedules so far, links, priority, type, assignee load, release size |
+
+Releases are split by date: the earliest 70% train the forest; every scorer is measured on the
+latest 30%. Metrics: PR-AUC with a 95% bootstrap interval over releases, ROC-AUC, F1 at 0.5, Brier,
+ECE, and PR-AUC for the reverse question (which issues make it), on all issues, on informative
+releases and on issues already started at T, plus PR-AUC per collection. A test adds random changes
+after T to every issue and checks the features do not move.
+
+Results on the full dump (`ma-pmo benchmark run`, test = the latest 711 releases at k = 14):
+
+| scorer | all issues: PR-AUC [95% CI] | ROC-AUC | ECE | started issues: PR-AUC | ROC-AUC |
+|---|---|---|---|---|---|
+| all_slip | 0.829 [0.814, 0.843] | 0.5 | 0.171 | 0.620 | 0.5 |
+| progress | 0.884 [0.869, 0.896] | 0.678 | 0.115 | 0.637 | 0.534 |
+| a4_signals | 0.881 [0.866, 0.894] | 0.670 | 0.223 | 0.621 | 0.500 |
+| forest | **0.964** [0.957, 0.970] | **0.858** | 0.039 | **0.869** | **0.793** |
+
+At k = 28 the order is the same (forest PR-AUC 0.934, ROC-AUC 0.825; on started issues 0.846 and
+0.804).
+
+- **A4's rule signals add nothing over "not started yet"** (ROC-AUC 0.67 against 0.68), and on
+  issues already started they are no better than chance: such an issue is never "stalled" (50%
+  progress) and rarely blocked inside its release, so every one gets the same score.
+- **The literature baseline is far ahead**, mostly through how long an issue has gone untouched
+  (days since its last status change, ROC-AUC 0.84 on its own) and its age: old, idle issues are
+  moved out. This is the bar an agent has to clear.
+- **A4's scores are not calibrated** (ECE 0.22: a "0.9" slips far less than 90% of the time, a
+  "0.3" far more). Roadmap 11 calibrates them on these labels.
+
 ## What this means for the benchmark
 
-- **Most scheduled issues slip, mostly by being moved out.** Two weeks before a release, 47–87% of the
+- **Most scheduled issues slip, mostly by being moved out.** Two weeks before a release, 46–88% of the
   still-open issues do not make it, and most of those were taken out of the release: a planning decision the
   changelog records, which makes it a clean label. "Everything slips" is a strong baseline on accuracy, so the
   benchmark reports PR-AUC and per-release ranking instead, and also the reverse question ("which issues will
   make it?").
 - **Backlog inflates the rate.** Issues that only carried a version slip far more often than started ones (Jira
-  62% against 25%, MongoDB 65% against 43%). The started set is reported next to the full one, so a model cannot
+  62% against 22%, MongoDB 66% against 44%). The started set is reported next to the full one, so a model cannot
   look good just by spotting untouched backlog.
 - **Informative releases are the main set.** Releases where every issue (or none) slipped have little to tell
   apart; the 10–90% releases are the primary evaluation set.
