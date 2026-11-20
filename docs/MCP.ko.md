@@ -23,6 +23,7 @@ ma-pmo mcp                   # stdio로 MCP 서버 실행
 | `list_scenarios` | 생애주기 시나리오 20개 | 없음 |
 | `run_scenario` | 시나리오를 에이전트로 실행하고 4단계 추적을 반환 | **있음** — 감사 로그, KPI, 새 승인 대기가 생길 수 있음 |
 | `evaluation` | H1~H5 판정과 근거 | 없음 |
+| `latest_report` | 가장 최근 보고서(또는 id·종류로 고른 보고서)를 Markdown으로 | 없음 |
 | `search_lessons` | 출처가 달린 과거 교훈(A7) | 없음 |
 
 읽기 전용 도구에는 `read_only_hint`가 붙어 있어 클라이언트가 매번 묻지 않고 호출할 수 있습니다.

@@ -3,9 +3,10 @@
     pip install "ma-pmo[mcp]"
     ma-pmo mcp                       # stdio transport (for Claude Desktop, Claude Code, IDEs)
 
-Read-only tools report status, schedules, risks, approvals, evaluation results and lessons
-learned. `run_scenario` runs agents and may queue new approvals. Approving or rejecting is
-deliberately *not* a tool: HITL decisions stay with a person, in the dashboard or the API.
+Read-only tools report status, schedules, risks, approvals, evaluation results, the latest
+report and lessons learned. `run_scenario` runs agents and may queue new approvals. Approving or
+rejecting is deliberately *not* a tool: HITL decisions stay with a person, in the dashboard or
+the API.
 
 The stdio server runs with the permissions of the local user who starts it, so it does not go
 through the HTTP API's authentication (see docs/AUTH.md); it uses the same database settings
@@ -23,9 +24,10 @@ from ma_pmo.core.scope import DEFAULT_SCOPE
 
 INSTRUCTIONS = (
     "MA-PMO is a multi-agent project management office. Use portfolio_status first to see "
-    "projects, then schedule, risks and pending_approvals for details. run_scenario runs a "
-    "lifecycle scenario end to end (plan, execute, complete, insight). Approvals are made by a "
-    "person, never by a tool. Pass lang='ko' for Korean output."
+    "projects, then schedule, risks and pending_approvals for details, and latest_report for "
+    "the newest report. run_scenario runs a lifecycle scenario end to end (plan, execute, "
+    "complete, insight). Approvals are made by a person, never by a tool. Pass lang='ko' for "
+    "Korean output."
 )
 
 
@@ -134,6 +136,27 @@ def create_server() -> Any:
 
         with _lang(lang):
             return {"verdicts": summarize(run_all(populate=False))}
+
+    @server.tool(annotations=read_only)
+    def latest_report(kind: str | None = None, portfolio_id: str | None = None,
+                      report_id: str | None = None) -> dict:
+        """The newest report A5 wrote (or `report_id`), as Markdown with its id, kind, as-of
+        date and overall status. `kind`: status, executive, exception, gate or closure."""
+        from ma_pmo.reports import render, store
+
+        if report_id:
+            found = (report_id, store.get_report(report_id))
+        else:
+            found = store.latest(portfolio_id, kind) or ("", None)
+        rid, content = found
+        if content is None:
+            if report_id:
+                return {"error": f"unknown report {report_id!r}"}
+            return {"error": "no report yet: run a report workflow, e.g. "
+                             "run_scenario('weekly_status')"}
+        return {"id": rid, "kind": content.get("kind", "status"),
+                "as_of": content["facts"]["as_of"], "overall_status": content["overall_status"],
+                "markdown": render.render(content, rid, "md")}
 
     @server.tool(annotations=read_only)
     def search_lessons(query: str, k: int = 3, lang: str | None = None) -> dict:

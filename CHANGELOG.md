@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **Reports: Word, notification links, MCP, faithfulness** (roadmap 12). `docx` export (`ma-pmo report export --format docx`, `GET /reports/{id}/export?format=docx`, a Word button on the Reports page) with the new extra `ma-pmo[export]`; `report.generated` notifications are titled with the report's kind and link to it on the Reports page; MCP tool `latest_report`; `ma-pmo eval` and `GET /eval` count how stored narratives were written and checked (`faithful_rate`, replaced, examples).
+
 ## [0.8.0] - 2026-11-20
 
 Reports a PMO can send (roadmap 12): five kinds for different readers, figures computed from the plan rather than written by the LLM, what changed since the last report, a check that the LLM's narrative matches the figures, and a reports page with downloads. Also the first step of the benchmark on public Jira history (roadmap 3).
@@ -208,6 +211,8 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+- 추가: **보고서: Word, 알림 링크, MCP, 충실도**(로드맵 12). `docx` 내보내기(`ma-pmo report export --format docx`, `GET /reports/{id}/export?format=docx`, 보고서 화면의 Word 버튼)와 새 extra `ma-pmo[export]`. `report.generated` 알림 제목에 보고서 종류가 붙고 보고서 화면의 그 보고서로 연결됩니다. MCP 도구 `latest_report`. `ma-pmo eval`과 `GET /eval`이 저장된 서술이 어떻게 쓰이고 검사됐는지 셉니다(`faithful_rate`, 교체 수, 예시).
 
 ### [0.8.0] - 2026-11-20
 

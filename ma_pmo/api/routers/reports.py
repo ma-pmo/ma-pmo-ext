@@ -3,7 +3,7 @@
 GET /reports                          : newest first (?scope=, ?kind=, ?limit=)
 GET /reports/latest                   : the newest one (?scope=, ?kind=), as report.v2
 GET /reports/{id}                     : one report as report.v2
-GET /reports/{id}/export?format=...   : md | html | csv | json, as a download
+GET /reports/{id}/export?format=...   : md | html | csv | json | docx, as a download
                                         (?inline=true shows HTML in the browser instead)
 """
 from __future__ import annotations
@@ -44,8 +44,11 @@ def export_report(report_id: str, format: str = "html", inline: bool = False) ->
     content = store.get_report(report_id)
     if content is None:
         raise HTTPException(status_code=404, detail=f"unknown report {report_id!r}")
-    text = render.render(content, report_id, format)
+    try:
+        body = render.render_bytes(content, report_id, format)
+    except ImportError as e:  # docx without the extra
+        raise HTTPException(status_code=501, detail=str(e)) from e
     name = f"{report_id}-{content.get('kind', 'status')}-{content['facts']['as_of']}.{format}"
     disposition = "inline" if inline and format == "html" else "attachment"
-    return Response(text, media_type=render.MEDIA[format],
+    return Response(body, media_type=render.MEDIA[format],
                      headers={"Content-Disposition": f'{disposition}; filename="{name}"'})
