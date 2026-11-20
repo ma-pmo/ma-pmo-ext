@@ -99,11 +99,21 @@ ma-pmo report export RPT-1a2b3c4d --format html --out report.html
 | `GET /reports?kind=&scope=&limit=` | list, newest first |
 | `GET /reports/latest?kind=&scope=` | the newest report |
 | `GET /reports/{id}` | one report as report.v2 JSON |
-| `GET /reports/{id}/export?format=md\|html\|csv\|json` | a download; `&inline=true` opens HTML in the browser |
+| `GET /reports/{id}/export?format=md\|html\|csv\|json\|docx` | a download; `&inline=true` opens HTML in the browser |
 
 Formats: Markdown for wikis and chat, HTML to read or print to PDF from the browser, CSV (one row per
-project) for spreadsheets, JSON for other tools. The report is rendered in the language it was
-written in.
+project) for spreadsheets, JSON for other tools, and Word (`docx`, with `pip install "ma-pmo[export]"`;
+without it the endpoint answers 501). The report is rendered in the language it was written in.
+
+Elsewhere:
+
+- The `report.generated` notification (Slack, webhook) is titled with the report's kind and links
+  to it on the Reports page (`MA_PMO_PUBLIC_URL/reports?id=...`).
+- The MCP server's `latest_report` tool gives an AI assistant the newest report, or one by id or
+  kind, as Markdown.
+- `ma-pmo eval` and `GET /eval` (`reports`) count how the stored reports' narratives were written:
+  how many an LLM wrote, how many were replaced for a figure not in the facts, the share that
+  matched (`faithful_rate`) and examples of what did not.
 
 ## Settings
 
@@ -122,4 +132,5 @@ written in.
 - A2's CPM finish assumes one person at 8 hours a day per task, so it can differ from the report's
   forecast; the report uses the tracker's plan dates.
 - A6's gate criterion "SPI ≥ 0.8" uses the effort-weighted completion ratio, not this time-based SPI.
-- Coming next in roadmap 12: docx and pdf files, a link in report notifications, an MCP tool.
+- PDF comes from printing the HTML (the dashboard's Print / PDF button); there is no server-side
+  PDF, which would need a rendering engine with fonts for Korean.

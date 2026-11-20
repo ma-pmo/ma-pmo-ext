@@ -62,6 +62,31 @@ def get_report(report_id: str) -> dict[str, Any] | None:
         return as_v2(dict(row.content), iso(row.created_at) or "")
 
 
+def quality(limit: int = 1000) -> dict[str, Any]:
+    """How the stored reports' narratives were written and checked, in this workspace.
+
+    `faithful_rate`: of the narratives an LLM wrote, the share whose numbers, dates and ids all
+    matched the facts (the others were replaced by the rule narrative). None without LLM reports.
+    """
+    with get_session() as s:
+        rows = s.scalars(select(Report).order_by(Report.created_at.desc()).limit(limit)).all()
+        contents = [c for c in (as_v2(dict(r.content), iso(r.created_at) or "") for r in rows)
+                    if c is not None]
+    v2 = [c for c in contents if "facts" in c and c.get("facts", {}).get("kpis") is not None]
+    checked = [c["grounding"] for c in v2 if c.get("grounding")]
+    replaced = sum(bool(g.get("replaced")) for g in checked)
+    kinds: dict[str, int] = {}
+    for c in v2:
+        kinds[c.get("kind", "status")] = kinds.get(c.get("kind", "status"), 0) + 1
+    return {
+        "reports": len(contents), "with_facts": len(v2), "by_kind": kinds,
+        "llm_checked": len(checked), "llm_replaced": replaced,
+        "faithful_rate": round((len(checked) - replaced) / len(checked), 3) if checked else None,
+        "ungrounded_examples": [u for g in checked for u in g.get("ungrounded", [])][:10],
+        "with_insights": sum(bool(c.get("insights")) for c in v2),
+    }
+
+
 def latest(scope: str | None = None, kind: str | None = None) -> tuple[str, dict] | None:
     rows = list_reports(scope, kind, limit=1)
     if not rows:

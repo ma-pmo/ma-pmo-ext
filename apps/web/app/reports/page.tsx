@@ -17,7 +17,7 @@ type Full = { id: string; insights: { severity: string }[]; grounding: { replace
 const KINDS = ["status", "executive", "exception", "gate", "closure"];
 const MAKERS = ["weekly_status", "executive_briefing", "risk_escalation", "go_nogo_decision",
   "lessons_learned_closure"];
-const FORMATS = ["html", "md", "csv", "json"];
+const FORMATS = ["html", "md", "csv", "json", "docx"];
 
 export default function Reports() {
   const { lang, t } = useI18n();
@@ -123,7 +123,7 @@ export default function Reports() {
               <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
                 {FORMATS.map((f) => (
                   <button key={f} className="ghost" onClick={() => download(f)} aria-label={`${r.download} ${f}`}>
-                    <Icon.download /> {f.toUpperCase()}
+                    <Icon.download /> {f === "docx" ? "Word" : f.toUpperCase()}
                   </button>
                 ))}
                 <button className="ghost" onClick={() => frame.current?.contentWindow?.print()}>{r.print}</button>

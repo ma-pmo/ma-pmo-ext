@@ -1,7 +1,9 @@
-"""A stored report as Markdown, HTML (print it to PDF from the browser), CSV or JSON.
+"""A stored report as Markdown, HTML (print it to PDF from the browser), CSV, JSON or Word.
 
     ma-pmo report export RPT-1a2b3c4d --format html --out report.html
-    GET /reports/{id}/export?format=md|html|csv|json
+    GET /reports/{id}/export?format=md|html|csv|json|docx
+
+Word (`docx`) needs the extra: pip install "ma-pmo[export]".
 
 The sections and their order come from the report's kind (`reports/kinds.py`). Numbers come
 from the computed facts; only the summary, risks and actions are the narrative.
@@ -20,9 +22,10 @@ from ma_pmo.core.i18n import tr, use_lang
 from ma_pmo.core.schemas.payloads.report_v2 import ReportV2
 from ma_pmo.reports import kinds
 
-FORMATS = ("md", "html", "csv", "json")
+FORMATS = ("md", "html", "csv", "json", "docx")
 MEDIA = {"md": "text/markdown; charset=utf-8", "html": "text/html; charset=utf-8",
-         "csv": "text/csv; charset=utf-8", "json": "application/json"}
+         "csv": "text/csv; charset=utf-8", "json": "application/json",
+         "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
 _RAG = {"green": "#1a7f37", "amber": "#9a6700", "red": "#cf222e"}
 
 
@@ -250,10 +253,68 @@ def to_csv(r: ReportV2, report_id: str) -> str:
     return buf.getvalue()
 
 
+def to_docx(r: ReportV2, report_id: str) -> bytes:
+    """The report as a Word document, with the same sections and tables as the HTML."""
+    try:
+        import docx
+        from docx.oxml.ns import qn
+        from docx.shared import Pt, RGBColor
+    except ImportError as e:  # optional dependency
+        raise ImportError('Word export needs the extra: pip install "ma-pmo[export]"') from e
+
+    d = docx.Document()
+    normal = d.styles["Normal"]
+    normal.font.size = Pt(10)  # and a font for Korean text:
+    normal.element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:eastAsia"), "Malgun Gothic")
+
+    def text(paragraph: Any, value: str) -> None:  # **bold** as in the Markdown
+        for i, part in enumerate(value.split("**")):
+            paragraph.add_run(part).bold = i % 2 == 1
+
+    d.add_heading(r.title or kinds.title(r.kind), 0)
+    head = d.add_table(rows=0, cols=2)
+    for k, v in _header(r, report_id):
+        cells = head.add_row().cells
+        cells[0].text, cells[1].text = k, v
+        cells[0].paragraphs[0].runs[0].bold = True
+        if v in _RAG:
+            cells[1].paragraphs[0].runs[0].font.color.rgb = RGBColor.from_string(_RAG[v][1:])
+    for s in sections(r):
+        d.add_heading(s.heading, 1)
+        if s.text:
+            text(d.add_paragraph(), s.text)
+        if s.table:
+            columns, rows = s.table
+            t = d.add_table(rows=1, cols=len(columns))
+            t.style = "Table Grid"  # in every Word template, and shown by every viewer
+            for cell, name in zip(t.rows[0].cells, columns, strict=True):
+                cell.text = name
+                cell.paragraphs[0].runs[0].bold = True
+            for row in rows:
+                for cell, value in zip(t.add_row().cells, row, strict=True):
+                    cell.text = value
+        for item in s.items:
+            text(d.add_paragraph(style="List Number" if s.ordered else "List Bullet"), item)
+    foot = d.add_paragraph().add_run(_footer(r))
+    foot.italic, foot.font.size = True, Pt(8)
+    buf = io.BytesIO()
+    d.save(buf)
+    return buf.getvalue()
+
+
+def render_bytes(content: dict[str, Any], report_id: str, fmt: str) -> bytes:
+    """Like `render`, as bytes; the only way to get `docx`."""
+    if fmt != "docx":
+        return render(content, report_id, fmt).encode("utf-8")
+    r = ReportV2.model_validate(content)
+    with use_lang(r.language):
+        return to_docx(r, report_id)
+
+
 def render(content: dict[str, Any], report_id: str, fmt: str) -> str:
     """A stored report's content in `fmt` (md, html, csv, json), in the report's language."""
-    if fmt not in FORMATS:
-        raise ValueError(f"format must be one of {', '.join(FORMATS)}")
+    if fmt not in FORMATS or fmt == "docx":
+        raise ValueError(f"format must be one of {', '.join(f for f in FORMATS if f != 'docx')}")
     if fmt == "json":
         return json.dumps({"id": report_id, **content}, ensure_ascii=False, indent=2)
     r = ReportV2.model_validate(content)

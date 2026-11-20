@@ -326,12 +326,19 @@ def _cmd_report(ns: argparse.Namespace) -> int:
         print(f"✗ no report {ns.id!r}", file=sys.stderr)
         return 1
     fmt = "md" if ns.action == "show" else ns.format
-    text = render.render(content, report_id, fmt)
+    if fmt == "docx" and not ns.out:
+        print("✗ docx needs --out FILE", file=sys.stderr)
+        return 1
+    try:
+        body = render.render_bytes(content, report_id, fmt)
+    except ImportError as e:
+        print(f"✗ {e}", file=sys.stderr)
+        return 1
     if ns.action == "export" and ns.out:
-        Path(ns.out).write_text(text, encoding="utf-8")
+        Path(ns.out).write_bytes(body)
         print(f"✓ {ns.out}")
     else:
-        print(text)
+        print(body.decode("utf-8"))
     return 0
 
 
@@ -417,11 +424,12 @@ def main(argv: list[str] | None = None) -> int:
     r_list = repsub.add_parser("list", help="newest first")
     r_list.add_argument("--limit", type=int, default=20)
     for name, helptext in (("show", "print a report as Markdown"),
-                           ("export", "write a report as md, html, csv or json")):
+                           ("export", "write a report as md, html, csv, json or docx")):
         r = repsub.add_parser(name, help=helptext)
         r.add_argument("id", help='a report id, or "latest"')
         if name == "export":
-            r.add_argument("--format", choices=["md", "html", "csv", "json"], default="html")
+            r.add_argument("--format", choices=["md", "html", "csv", "json", "docx"],
+                           default="html")
             r.add_argument("--out", help="file to write (default: stdout)")
     for r in (r_list, *[repsub.choices[n] for n in ("show", "export")]):
         r.add_argument("--scope", help="only this portfolio scope")

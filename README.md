@@ -34,7 +34,7 @@ MA-PMO turns the proof-of-concept simulation of the *MA-PMO* paper into a real, 
 - **Bilingual** — dashboard, API responses, reports and LLM output in English or Korean (`?lang=ko`, `Accept-Language`, or `MA_PMO_LANG`).
 - **Pluggable integrations** — Slack and webhook notifications; Jira Cloud, GitHub or Linear as the data source; .ics resource calendars; and a plugin entry point for your own.
 - **Evaluate on your own data** — fill-in data templates with line-by-line validation, H1–H5 reports with verdicts (Markdown/HTML), and an experiment scaffold (`ma-pmo harness new`).
-- **MCP server** — `ma-pmo mcp` gives AI assistants eight tools over the Model Context Protocol; approvals stay human.
+- **MCP server** — `ma-pmo mcp` gives AI assistants nine tools over the Model Context Protocol; approvals stay human.
 - **Learn harness engineering** — a [hands-on course](https://github.com/ma-pmo/ma-pmo-ext/blob/main/docs/learn/README.md): eight lectures and six labs with automatic checks (`ma-pmo learn`).
 - **Workspaces** — teams or clients kept apart down to the database (Postgres row-level security), roles per workspace, and a workspace and portfolio switcher in the dashboard.
 - **Workflows you can see and change** — each workflow drawn as parallel stages with a live run overlay; an editor checked as you type, a dry run on demo data, and versions: a draft runs only after an approver publishes it.
