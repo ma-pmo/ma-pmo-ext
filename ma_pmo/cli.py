@@ -308,10 +308,11 @@ def _cmd_benchmark(ns: argparse.Namespace) -> int:
         print(json.dumps(result, indent=1, default=str) if ns.json else run.to_markdown(result))
         return 0
     if ns.action == "calibrate":
-        from ma_pmo.benchmark.calibrate import calibrate
+        from ma_pmo.benchmark.calibrate import calibrate, thresholds
         from ma_pmo.benchmark.replay import ReplayTracker
 
         table = calibrate(ReplayTracker.load(ns.data), ns.k)
+        table["test"]["thresholds_delta_0.1"] = thresholds(table)
         text = json.dumps(table, indent=1, ensure_ascii=False)
         if ns.out:
             with open(ns.out, "w", encoding="utf-8") as f:

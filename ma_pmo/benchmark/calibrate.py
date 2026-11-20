@@ -44,6 +44,16 @@ def fit(train: list[Row]) -> dict[str, dict[str, Any]]:
     return kinds
 
 
+def thresholds(table: dict[str, Any], alphas: tuple[float, ...] = (0.15, 0.2, 0.25, 0.3),
+               delta: float = 0.1) -> dict[str, float]:
+    """The risk-controlled review threshold for A4's alerts at a few error budgets."""
+    from ma_pmo.core.risk_control import Group, threshold
+
+    groups = [Group(table["kinds"][k]["rate"], c["n"], c["n"] - c["slipped"])
+              for k, c in table["test"]["kinds"].items()]
+    return {str(a): threshold(groups, a, delta) for a in alphas}
+
+
 def calibrate(tracker: ReplayTracker, k: int = 14) -> dict[str, Any]:
     train, test = split(rows_at(tracker, k))
     kinds = fit(train)
@@ -61,9 +71,9 @@ def calibrate(tracker: ReplayTracker, k: int = 14) -> dict[str, Any]:
                  "slipped": round(sum(y) / len(y), 3),
                  "ece_fixed": _ece(y, raw), "ece_calibrated": _ece(y, cal),
                  "brier_fixed": _brier(y, raw), "brier_calibrated": _brier(y, cal),
-                 "rate_by_kind": {kind: round(sum(r.label for r in test
-                                                  if KIND_OF_SCORE[r.a4] == kind)
-                                              / max(1, sum(KIND_OF_SCORE[r.a4] == kind
-                                                           for r in test)), 3)
-                                  for kind in KINDS}},
+                 # held-out counts per kind: core/risk_control.py sets thresholds from them
+                 "kinds": {kind: {"n": sum(KIND_OF_SCORE[r.a4] == kind for r in test),
+                                  "slipped": sum(r.label for r in test
+                                                 if KIND_OF_SCORE[r.a4] == kind)}
+                           for kind in KINDS}},
     }

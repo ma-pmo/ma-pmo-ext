@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from sqlalchemy import select
 
+from ma_pmo.core import risk_control
 from ma_pmo.core.config import get_settings
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.runs import current_run_id, dedupe_key
@@ -58,7 +59,8 @@ def publish(message: AgentMessage) -> AgentMessage:
                 dedupe_key=key,
             )
         )
-        gated = message.needs_human_gate(_settings.hitl_confidence_threshold)
+        gated = message.needs_human_gate(
+            risk_control.threshold_for(message.sender, _settings.hitl_confidence_threshold))
         if gated:
             s.add(Approval(message_id=message.message_id, decision="pending",
                            run_id=current_run_id()))

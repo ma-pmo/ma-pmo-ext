@@ -44,10 +44,25 @@
   "ece_calibrated": 0.07,
   "brier_fixed": 0.181,
   "brier_calibrated": 0.133,
-  "rate_by_kind": {
-   "blocked": 0.773,
-   "stalled": 0.894,
-   "moving": 0.62
+  "kinds": {
+   "blocked": {
+    "n": 309,
+    "slipped": 239
+   },
+   "stalled": {
+    "n": 31578,
+    "slipped": 28238
+   },
+   "moving": {
+    "n": 9761,
+    "slipped": 6054
+   }
+  },
+  "thresholds_delta_0.1": {
+   "0.15": 0.74,
+   "0.2": 0.564,
+   "0.25": 0.564,
+   "0.3": 0.564
   }
  }
 }

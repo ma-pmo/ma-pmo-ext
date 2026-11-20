@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     hitl_confidence_threshold: float = Field(
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )
+    # A4's alerts: instead of the fixed threshold, one that keeps the share of wrong alerts
+    # committed without a person at most this, with probability 1 - delta (core/risk_control.py)
+    hitl_risk_alpha: float | None = Field(default=None, alias="HITL_RISK_ALPHA")
+    hitl_risk_delta: float = Field(default=0.1, alias="HITL_RISK_DELTA")
     # reports: a project is outside tolerance when its SPI is below this, or its projected
     # finish is more than this many days after its deadline
     tolerance_spi: float = Field(default=0.9, alias="MA_PMO_TOLERANCE_SPI")
