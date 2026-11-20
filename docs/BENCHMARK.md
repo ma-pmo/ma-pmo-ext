@@ -100,7 +100,10 @@ the same release that blocked it at T as dependencies), the release date as dead
 task's status, priority, assignee and type at T. Every value is the current one with the changes
 after T undone; a test adds random changes after T to every issue (status, resolution, priority,
 assignee, estimate, links, fix versions) and checks the tracker shows exactly the same.
-Outcomes are only read for scoring (`ReplayTracker.outcomes`), never shown to agents.
+Outcomes are only read for scoring (`ReplayTracker.outcomes`), never shown to agents. Agents that
+store what they produce against a project (A4 keeps its alerts in the `risk` table) need the
+project in the database, which a replay is not: the benchmark reads A4 through its signal
+analysis (`a4_signals`), and a full agent run on replays needs a throwaway database.
 
 ## Scoring issues (step 3)
 

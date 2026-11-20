@@ -7,7 +7,6 @@ import random
 from datetime import date, datetime, timedelta
 
 from ma_pmo.agents.planning import PlanningAgent
-from ma_pmo.agents.risk import RiskAgent
 from ma_pmo.benchmark import coverage, prepare
 from ma_pmo.benchmark.history import FixChange, IssueHistory, issue_history
 from ma_pmo.benchmark.replay import ReplayTracker, as_of, parse_id, portfolio_id
@@ -144,12 +143,16 @@ def test_nothing_after_t_changes_what_the_tracker_shows():
 
 
 def test_real_agents_run_on_the_replay():
+    """A2 plans the replayed release, and A4's signal analysis reads it. (A4's full run also
+    stores its alerts, which need the project in the database: a replay is not.)"""
+    from ma_pmo.agents.risk_signals import analyze_portfolio, baseline_severity
+
     tracker, release = _tracker()
     pid = portfolio_id(release, 14)
     plan = PlanningAgent(tracker).run({"task_ref": pid})
     assert plan["outputs"][0]["data"]["critical_path"]
-    risks = RiskAgent(tracker).run({"task_ref": pid})
-    assert {o["schema"] for o in risks["outputs"]} <= {"risk_alert.v1"}
+    [signals] = analyze_portfolio(tracker.get_portfolio_status(pid))
+    assert signals.blocked_tasks == ["A-2"] and baseline_severity(signals) == "medium"
 
 
 def test_features_ignore_everything_after_t():
