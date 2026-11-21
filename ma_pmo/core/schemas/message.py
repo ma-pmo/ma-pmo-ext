@@ -69,6 +69,12 @@ class AgentMessage(BaseModel):
     human_gate_required: bool = False
     evidence: list[EvidenceRef] = Field(default_factory=list)
     timestamp: datetime = Field(default_factory=_now)
+    # conversation envelope (FIPA ACL conversation-id, in-reply-to, reply-by): the conversation
+    # this message belongs to (the run by default), the message it answers, and when an answer
+    # to it is due. Set by protocol.publish when left empty.
+    conversation_id: str | None = None
+    in_reply_to: str | None = None
+    reply_by: datetime | None = None
 
     def needs_human_gate(self, confidence_threshold: float) -> bool:
         """Approval is needed if a gate is explicitly required or confidence is too low."""

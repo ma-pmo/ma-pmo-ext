@@ -36,6 +36,15 @@ A review judges one **constraint** of one post and cites its evidence:
 
 `VERIFIED` and `CHALLENGE` must cite evidence; `ALTERNATIVE` must describe the alternative.
 
+## Threads
+
+Every message carries a conversation envelope (FIPA ACL `conversation-id`, `in-reply-to`,
+`reply-by`): `conversation_id` is the run it was sent in (a new id outside a run), and a
+`review.v1` verdict's `in_reply_to` is the decision it judges. `GET /messages/{id}/thread` returns
+a message's conversation in time order with `replies` (a decision to its verdicts), and
+`GET /messages?conversation=<run id>` lists one run's messages. Messages logged before 0.10 have
+no envelope and come back alone.
+
 ## Builder review
 
 When a workflow lets them read, two agents review their own output:

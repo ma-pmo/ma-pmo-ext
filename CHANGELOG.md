@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **Conversation envelope** (roadmap 8, step 1): messages carry `conversation_id` (the run, or a new id outside one), `in_reply_to` and `reply_by` (FIPA ACL); review verdicts reply to the decision they judge. `GET /messages?conversation=` and `GET /messages/{id}/thread` (a conversation with its replies). Migration `0014_message_envelope`.
+
 ## [0.9.0] - 2026-11-21
 
 Agents measured against real release history (roadmap 3) and confidence that means something (roadmap 11): a replay of 2,367 public Jira releases with baselines and metrics, A4's confidence calibrated on it, a review threshold with a guarantee, one SPI for agents and reports, and reports in Word with links from notifications and an MCP tool.
@@ -223,6 +226,8 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+- 추가: **대화 봉투**(로드맵 8, 1단계). 메시지에 `conversation_id`(실행, 실행 밖이면 새 id), `in_reply_to`, `reply_by`(FIPA ACL)가 붙고, 검토 판정은 판정 대상 결정에 답합니다. `GET /messages?conversation=`과 `GET /messages/{id}/thread`(답 관계가 있는 대화). 마이그레이션 `0014_message_envelope`.
 
 ### [0.9.0] - 2026-11-21
 

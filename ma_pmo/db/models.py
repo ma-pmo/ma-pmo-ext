@@ -299,6 +299,10 @@ class AgentMessageRow(Scoped, Base):
     )
     # set inside a run step: a retried step cannot write the same row twice
     dedupe_key: Mapped[str | None] = mapped_column(String, nullable=True, unique=True, index=True)
+    # conversation envelope (0.10): None for messages written before it
+    conversation_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    in_reply_to: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    reply_by: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class Approval(Scoped, Base):
