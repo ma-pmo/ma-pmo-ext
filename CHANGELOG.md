@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-21
+
+Agents measured against real release history (roadmap 3) and confidence that means something (roadmap 11): a replay of 2,367 public Jira releases with baselines and metrics, A4's confidence calibrated on it, a review threshold with a guarantee, one SPI for agents and reports, and reports in Word with links from notifications and an MCP tool.
+
 ### Fixed
 - Benchmark: "unresolved at T" and "resolved by the release" are read from the resolution's own history; with the final resolution date, an issue resolved before T and reopened later counted as open at T. Coverage at 14 days is now 2,367 usable releases (was 2,466).
 - **One SPI for agents and reports** (`agents/evm.py`): A2's KPI and A6's gate criterion "SPI ≥ 0.8" used the completed share of the effort, so a project half done halfway through its plan scored 0.5 and failed G3. They now use earned over planned value at the as-of date, as reports do; past the planned finish nothing changes. A2's `schedule.v1` adds the earned-value `forecast_finish` next to the CPM finish (one person per task at 8 h/day), and its slippage KPI uses it. At the demo's as-of date (2026-02-16) G3 for PROJ-14 and PROJ-31 becomes conditional instead of fail, and review challenges PROJ-31's (A4 rates it high); golden traces change accordingly.
@@ -219,6 +223,10 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+### [0.9.0] - 2026-11-21
+
+실제 릴리스 이력으로 잰 에이전트(로드맵 3)와 의미 있는 확신도(로드맵 11). 공개 Jira 릴리스 2,367개의 재생과 기준선·지표, 그 결과로 보정한 A4 확신도, 보장이 있는 검토 기준, 에이전트와 보고서가 함께 쓰는 SPI, 그리고 Word 보고서와 알림 링크, MCP 도구.
 
 - 추가: **빠른 모델이 크게 벗어나면 A4가 표준 모델에 다시 묻습니다**(로드맵 11, 3단계). `model_tier: fast` 단계에서 규칙 기준선과 두 단계 이상 벌어진 평가는 표준 모델에 다시 묻고 그 답을 씁니다. KPI 이벤트에 `deferred`가 남습니다(`MA_PMO_A4_DEFER=false`로 끔).
 - 수정: **에이전트와 보고서가 같은 SPI를 씁니다**(`agents/evm.py`). A2의 KPI와 A6 게이트의 "SPI ≥ 0.8"은 공수 완료율을 써서, 계획의 절반 시점에 절반 끝난 프로젝트가 0.5로 G3에 떨어졌습니다. 이제 보고서처럼 기준일의 획득 가치 ÷ 계획 가치를 쓰며, 계획 종료 후에는 달라지지 않습니다. A2의 `schedule.v1`에 CPM 완료일(태스크마다 한 사람, 하루 8시간) 옆에 획득 가치 `forecast_finish`가 더해지고 지연 KPI가 이를 씁니다. 데모 기준일(2026-02-16)에서 PROJ-14·PROJ-31의 G3가 불통과에서 조건부가 되고, 검토가 PROJ-31 게이트에 이의를 답니다(A4는 고위험으로 봄). 골든 트레이스도 그에 맞게 바뀝니다.
