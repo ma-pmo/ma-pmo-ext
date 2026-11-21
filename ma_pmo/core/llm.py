@@ -67,6 +67,11 @@ def _note(agent: str, model: str, outcome: str) -> None:
                      "run_id": runs.current_run_id(), "step": runs.current_step_seq()})
 
 
+def on_fast_model() -> bool:
+    """Whether calls now go to the fast model (a `model_tier: fast` step with one configured)."""
+    return _tier.get() == "fast" and bool(_settings.llm_model_fast)
+
+
 def model_for(tier: str | None = None) -> str:
     tier = tier if tier is not None else _tier.get()
     if tier == "fast" and _settings.llm_model_fast:

@@ -5,7 +5,7 @@ Flow: collect mock status -> CPM critical path (deterministic, no LLM) -> schedu
 """
 from __future__ import annotations
 
-from ma_pmo.agents import common, lessons
+from ma_pmo.agents import common, evm, lessons
 from ma_pmo.agents.base import BaseAgent
 from ma_pmo.agents.cpm import CpmResult, compute_cpm
 from ma_pmo.connectors.base import IssueTrackerConnector
@@ -20,9 +20,10 @@ from ma_pmo.integrations.registry import get_tracker
 _ROLE = """You are the PMO planning agent. Compute the CPM critical path."""
 
 
-def _slippage_days(project: dict, cpm: CpmResult) -> int | None:
-    """Projected slippage = deadline − projected finish (negative means late)."""
-    pf = cpm.projected_finish(project.get("planned_start"))
+def _slippage_days(project: dict, cpm: CpmResult, forecast: str | None = None) -> int | None:
+    """Projected slippage = deadline − forecast finish (negative means late). The earned-value
+    forecast when there is one; the CPM finish (one person per task, 8 h/day) otherwise."""
+    pf = forecast or cpm.projected_finish(project.get("planned_start"))
     dl = project.get("deadline")
     if not pf or not dl:
         return None
@@ -84,11 +85,12 @@ class PlanningAgent(BaseAgent[ScheduleV1]):
             projected_finish=cpm.projected_finish(start),
         )
 
-        # delivery KPIs (§7): SPI, projected slippage
+        # delivery KPIs (§7): SPI and slippage from earned value at the as-of date
         spi = common.spi(proj)
+        sched.forecast_finish = evm.forecast(proj, spi)
         if spi is not None:
             kpi.record(Axis.DELIVERY, "spi", spi, project_id=proj["project_id"])
-        slip = _slippage_days(proj, cpm)
+        slip = _slippage_days(proj, cpm, sched.forecast_finish)
         if slip is not None:
             kpi.record(
                 Axis.DELIVERY, "projected_slippage_days", slip, project_id=proj["project_id"]

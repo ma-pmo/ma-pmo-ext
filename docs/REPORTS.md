@@ -129,8 +129,8 @@ Elsewhere:
   "forecast slipped" insight are noisy in the first weeks.
 - The plan baseline is a straight line from planned start to planned finish. A tracker with a
   time-phased baseline would give a better planned value.
-- A2's CPM finish assumes one person at 8 hours a day per task, so it can differ from the report's
-  forecast; the report uses the tracker's plan dates.
-- A6's gate criterion "SPI ≥ 0.8" uses the effort-weighted completion ratio, not this time-based SPI.
+- A2 keeps its CPM finish (one person per task at 8 hours a day) for the order of the work, and
+  since 0.9 also reports the same earned-value forecast as the report (`forecast_finish`); its
+  slippage KPI and A6's "SPI ≥ 0.8" use this SPI too (`agents/evm.py`).
 - PDF comes from printing the HTML (the dashboard's Print / PDF button); there is no server-side
   PDF, which would need a rendering engine with fonts for Korean.

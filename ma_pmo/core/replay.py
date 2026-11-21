@@ -30,6 +30,7 @@ from typing import Any
 from sqlalchemy import func, select
 
 from ma_pmo.core import llm, runs, scenarios, workflow_store
+from ma_pmo.core.config import get_settings
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.sandbox import demo_scope, sandbox
@@ -149,10 +150,17 @@ def replay(workflow_id: str, step_id: str, *, repeat: int = 3, tolerance: float 
     candidate, labels = _with_tier(spec, step_id, "fast"), _labels()
     base_runs: list[dict] = []
     cand_runs: list[dict] = []
-    with sandbox("replay"):
-        for _ in range(repeat):  # alternate, so drift over time hits both sides alike
-            base_runs.append(_one_run(spec, step_id, labels))
-            cand_runs.append(_one_run(candidate, step_id, labels))
+    # the fast model is measured on its own: A4's deferral to the standard model would hide a
+    # fast model that misjudges risk
+    settings = get_settings()
+    defer, settings.a4_defer = settings.a4_defer, False
+    try:
+        with sandbox("replay"):
+            for _ in range(repeat):  # alternate, so drift over time hits both sides alike
+                base_runs.append(_one_run(spec, step_id, labels))
+                cand_runs.append(_one_run(candidate, step_id, labels))
+    finally:
+        settings.a4_defer = defer
 
     def values(rows: list[dict], key: str) -> list[float]:
         return [r[key] for r in rows if r[key] is not None]

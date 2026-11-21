@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     # committed without a person at most this, with probability 1 - delta (core/risk_control.py)
     hitl_risk_alpha: float | None = Field(default=None, alias="HITL_RISK_ALPHA")
     hitl_risk_delta: float = Field(default=0.1, alias="HITL_RISK_DELTA")
+    # a fast-tier A4 rating two or more levels from the rule baseline is asked again of the
+    # standard model (agents/risk.py)
+    a4_defer: bool = Field(default=True, alias="MA_PMO_A4_DEFER")
     # reports: a project is outside tolerance when its SPI is below this, or its projected
     # finish is more than this many days after its deadline
     tolerance_spi: float = Field(default=0.9, alias="MA_PMO_TOLERANCE_SPI")
