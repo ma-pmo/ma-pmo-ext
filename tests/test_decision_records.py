@@ -20,9 +20,12 @@ def test_the_commit_gate_records_each_decision_with_its_reviewers():
     for item in trace["commit"]:
         rec = by_message[item["message_id"]]
         assert rec["status"] in {"committed", "proposed"}
-        assert (rec["status"] == "committed") == (item["status"] == "committed")
+        if item["status"] != "committed":  # held by review: a person decides
+            assert rec["status"] == "proposed"
         assert rec["decision_makers"][0]["role"] == "proposer"
         assert rec["options"][0]["message_id"] == item["message_id"]
+    waiting = {a["message_id"] for a in hitl.list_pending()}  # gated when sent, or held
+    assert all((r["status"] == "proposed") == (r["message_id"] in waiting) for r in mine)
     assert any(r["consulted"] and all(c["verdict"] for c in r["consulted"]) for r in mine)
     gates = [r for r in mine if r["kind"] == "gate"]
     assert gates and all("/" in r["subject"] for r in gates)

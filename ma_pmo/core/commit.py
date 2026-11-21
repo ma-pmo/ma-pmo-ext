@@ -93,16 +93,21 @@ def check(run_id: str, spec: WorkflowSpec) -> list[dict[str, Any]]:
 
 def _record(run_id: str, posts: list[dict], reviews: dict[str, list[dict]],
             outcome: list[dict]) -> None:
-    """A decision record per decision: committed, or proposed while a person decides."""
+    """A decision record per decision: committed, or proposed while a person decides (held by
+    review, or gated for approval when it was sent)."""
     from ma_pmo.core import decisions
 
     by_id = {p["message_id"]: p for p in posts}
+    with get_session() as s:
+        waiting = set(s.scalars(select(Approval.message_id).where(
+            Approval.message_id.in_([o["message_id"] for o in outcome]),
+            Approval.decision == "pending")))
     for item in outcome:
         post = by_id[item["message_id"]]
         kind, subject, title = decisions.describe(post["schema"], post["data"], post["task_ref"])
         mine = reviews.get(post["message_id"], [])
         decisions.record(
-            kind, subject, title, "committed" if item["status"] == COMMITTED else "proposed",
+            kind, subject, title, "proposed" if item["message_id"] in waiting else "committed",
             drivers=post.get("evidence") or [],
             options=[{"option": "as proposed", "message_id": post["message_id"]}]
             + [{"option": "alternative", "message_id": m} for m in item["alternatives"]],
