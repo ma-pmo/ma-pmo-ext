@@ -35,6 +35,14 @@ Multi-Agent Research*, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870))을 
 
 `VERIFIED`와 `CHALLENGE`는 근거를 인용해야 하고, `ALTERNATIVE`는 대안을 설명해야 합니다.
 
+## 스레드
+
+모든 메시지에 대화 봉투(FIPA ACL `conversation-id`, `in-reply-to`, `reply-by`)가 붙습니다. `conversation_id`는
+보낸 실행(실행 밖이면 새 id)이고, `review.v1` 판정의 `in_reply_to`는 판정 대상 결정입니다.
+`GET /messages/{id}/thread`는 그 메시지의 대화를 시간 순으로 돌려주고 `replies`(결정 → 판정들)를 함께 줍니다.
+`GET /messages?conversation=<실행 id>`는 실행 하나의 메시지를 나열합니다. 0.10 전에 남은 메시지는 봉투가 없어
+혼자 돌아옵니다.
+
 ## builder 검토
 
 워크플로가 읽기를 허락하면 두 에이전트가 자기 결과를 검토합니다.

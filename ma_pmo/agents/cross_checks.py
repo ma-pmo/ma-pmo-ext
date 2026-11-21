@@ -257,5 +257,5 @@ def publish_review(agent_id: str, verdict: Verdict, target_id: str, task_ref: st
     protocol.publish(AgentMessage(
         sender=agent_id, receiver="A1", intent=Intent.INFORM, task_ref=task_ref,
         payload=MessagePayload(schema_="review.v1", data=data), confidence=0.95,
-        evidence=verdict.evidence))
+        evidence=verdict.evidence, in_reply_to=target_id))  # a verdict answers its decision
     return {"agent": agent_id, "schema": "review.v1", "data": data}

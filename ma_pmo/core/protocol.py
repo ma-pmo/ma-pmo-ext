@@ -5,6 +5,8 @@ reproducibility. Payloads are validated against the schema registry to curb erro
 """
 from __future__ import annotations
 
+import uuid
+
 from sqlalchemy import select
 
 from ma_pmo.core import risk_control
@@ -37,6 +39,9 @@ def publish(message: AgentMessage) -> AgentMessage:
     The returned message is stored append-only; its later state is tracked via approval.
     """
     validate_payload(message)
+    if message.conversation_id is None:  # a run is one conversation; outside one, a new one
+        message = message.model_copy(update={
+            "conversation_id": current_run_id() or f"conv-{uuid.uuid4().hex[:12]}"})
     key = dedupe_key("message")
     with get_session() as s:
         stored = s.scalar(select(AgentMessageRow.message_id).where(
@@ -57,6 +62,9 @@ def publish(message: AgentMessage) -> AgentMessage:
                 timestamp=message.timestamp,
                 run_id=current_run_id(),
                 dedupe_key=key,
+                conversation_id=message.conversation_id,
+                in_reply_to=message.in_reply_to,
+                reply_by=message.reply_by,
             )
         )
         gated = message.needs_human_gate(
@@ -96,4 +104,7 @@ def message_dict(row: AgentMessageRow, *, payload: bool = True) -> dict:
     if payload:
         item["payload"] = row.payload
     item["timestamp"] = iso(row.timestamp)
+    item["conversation_id"] = row.conversation_id
+    item["in_reply_to"] = row.in_reply_to
+    item["reply_by"] = iso(row.reply_by)
     return item
