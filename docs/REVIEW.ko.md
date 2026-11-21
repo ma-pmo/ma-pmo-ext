@@ -43,6 +43,20 @@ Multi-Agent Research*, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870))을 
 `GET /messages?conversation=<실행 id>`는 실행 하나의 메시지를 나열합니다. 0.10 전에 남은 메시지는 봉투가 없어
 혼자 돌아옵니다.
 
+## 결정 기록
+
+모든 결정은 MADR 형식의 기록을 남깁니다(`GET /decisions`, `kind`·`status`·`subject`로 거르기;
+`GET /decisions/{id}`).
+
+- 커밋 게이트는 에이전트 결정마다 하나를 씁니다. `committed`이거나 사람을 기다리는 동안 `proposed`이고,
+  근거(`drivers`), 검토가 제시한 대안(`options`), 제안한 에이전트(`decision_makers`), 검토자별 판정(`consulted`)이 담깁니다.
+- 승인하면 `accepted` 또는 `rejected`가 되고 승인자와 사유(`outcome.justification`)가 더해집니다.
+- 워크플로 게시, 예산 설정, 재생 추천 결정도 기록됩니다.
+- 같은 대상(예: 같은 프로젝트 게이트)에 새 결정이 나오면 이전 기록은 `superseded`가 되고 새 기록이 이를 가리킵니다.
+
+거절할 때, 그리고 검토자가 이의를 제기한 결정을 승인할 때(재정의, EU AI Act 14조 4항 d호)는 사유가 필요합니다.
+사유가 없으면 `POST /approvals/{id}`가 400을 돌려주고, 승인 화면은 사유를 묻습니다.
+
 ## builder 검토
 
 워크플로가 읽기를 허락하면 두 에이전트가 자기 결과를 검토합니다.

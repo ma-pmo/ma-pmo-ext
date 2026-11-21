@@ -348,6 +348,8 @@ const en = {
     reject: "Reject",
     showRaw: "Show raw (JSON)",
     hideRaw: "Hide raw",
+    whyReject: "Why reject? (recorded in the decision log)",
+    whyOverride: "A reviewer challenged this. Why approve it anyway? (recorded in the decision log)",
     recentTitle: "Recent agent messages (audit log · §4)",
     recentDesc: "All communication is stored append-only. Full log:",
     sum: {
@@ -713,6 +715,8 @@ const ko: Messages = {
     reject: "반려",
     showRaw: "원문(JSON) 보기",
     hideRaw: "원문 숨기기",
+    whyReject: "거절 사유를 입력하세요 (결정 기록에 남습니다)",
+    whyOverride: "검토자가 이의를 제기한 결정입니다. 그래도 승인하는 사유를 입력하세요 (결정 기록에 남습니다)",
     recentTitle: "최근 에이전트 메시지 (감사 로그 · §4)",
     recentDesc: "모든 통신은 append-only 로 저장됩니다. 전체:",
     sum: {

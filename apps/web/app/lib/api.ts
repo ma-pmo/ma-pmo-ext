@@ -93,11 +93,12 @@ export const api = {
     req(scoped(`/gate-review?gate=${encodeURIComponent(gate)}`, scope), { method: "POST" }),
   knowledgeSearch: (q: string) => req(`/knowledge/search?q=${encodeURIComponent(q)}`),
   approvals: () => req(`/approvals`),
-  resolveApproval: (id: number, approver: string, decision: "approve" | "reject") =>
+  resolveApproval: (id: number, approver: string, decision: "approve" | "reject",
+    rationale?: string) =>
     req(`/approvals/${id}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ approver, decision }),
+      body: JSON.stringify({ approver, decision, rationale }),
     }),
   orchestrate: (goal: string, task_ref = "PORTFOLIO#2026-Q1") =>
     req(`/orchestrate`, {

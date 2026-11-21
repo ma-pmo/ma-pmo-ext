@@ -14,6 +14,8 @@ class ApprovalDecision(BaseModel):
     # ignored when auth is on: the authenticated user is recorded instead
     approver: str = ""
     decision: str  # approve | reject
+    # why: required to reject, and to approve a decision a reviewer challenged
+    rationale: str | None = None
 
 
 @router.get("/approvals")
@@ -26,7 +28,8 @@ def resolve_approval(approval_id: int, body: ApprovalDecision, principal: Curren
     # With auth on, a caller cannot sign a decision in someone else's name.
     approver = principal.subject if principal is not ANONYMOUS else (body.approver or "anonymous")
     try:
-        return hitl.resolve(approval_id, approver=approver, decision=body.decision)
+        return hitl.resolve(approval_id, approver=approver, decision=body.decision,
+                             rationale=body.rationale)
     except KeyError as e:  # also an approval in another workspace
         raise HTTPException(status_code=404, detail=str(e.args[0])) from e
     except ValueError as e:

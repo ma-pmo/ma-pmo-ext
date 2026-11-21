@@ -319,6 +319,8 @@ class Approval(Scoped, Base):
     # why a person is asked beyond the message's own gate, e.g. a commit gate holding a decision
     # its reviews challenged: {"kind": "review_pending", "challenges": [...], "missing": [...]}
     reason: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # the person's reason; required to reject and to approve a decision review challenged
+    rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class KnowledgeDoc(Scoped, Base):
@@ -355,3 +357,33 @@ class KpiEvent(Scoped, Base):
     )
     # set inside a run step: a retried step cannot write the same row twice
     dedupe_key: Mapped[str | None] = mapped_column(String, nullable=True, unique=True, index=True)
+
+
+class DecisionRecord(Scoped, Base):
+    """One decision in MADR form: what was decided, by whom, on what, whom they consulted and
+    told, and what follows (core/decisions.py). Gate and report decisions, approvals, workflow
+    publishes, model recommendations and budget changes each leave one."""
+
+    __tablename__ = "decision_record"
+    id: Mapped[str] = mapped_column(String, primary_key=True)  # DEC-<hex>
+    # gate | risk | allocation | report | schedule | workflow_publish | model_recommendation |
+    # budget | other
+    kind: Mapped[str] = mapped_column(String, index=True)
+    subject: Mapped[str] = mapped_column(String, index=True)  # e.g. PROJ-31/G3-execution
+    title: Mapped[str] = mapped_column(String)
+    # proposed -> committed | accepted | rejected; superseded when a newer one replaces it
+    status: Mapped[str] = mapped_column(String)
+    context: Mapped[str | None] = mapped_column(Text, nullable=True)
+    drivers: Mapped[list | None] = mapped_column(JSON, nullable=True)  # evidence refs
+    options: Mapped[list | None] = mapped_column(JSON, nullable=True)  # the decision, alternatives
+    outcome: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # chosen, justification
+    decision_makers: Mapped[list | None] = mapped_column(JSON, nullable=True)  # {who, role}
+    consulted: Mapped[list | None] = mapped_column(JSON, nullable=True)  # reviewers, verdicts
+    informed: Mapped[list | None] = mapped_column(JSON, nullable=True)  # who was told
+    consequences: Mapped[list | None] = mapped_column(JSON, nullable=True)  # conditions, follow-ups
+    supersedes: Mapped[str | None] = mapped_column(String, nullable=True)
+    run_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    message_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    approval_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

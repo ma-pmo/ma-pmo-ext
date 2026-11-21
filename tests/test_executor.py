@@ -160,7 +160,8 @@ def test_goal_waits_for_approval_then_synthesizes():
 
 def test_rejecting_cancels_a_goal():
     body = run_goal("risk review", SCOPE, pause_on_gate=True)
-    result = hitl.resolve(body["pending_approvals"][0], approver="pm", decision="reject")
+    result = hitl.resolve(body["pending_approvals"][0], approver="pm", decision="reject",
+                          rationale="not now")
     assert result["run_status"] == "cancelled"
     assert runs.get_run(body["run_id"])["result"] is None
 

@@ -65,7 +65,8 @@ def test_a_rejection_cancels_the_run_and_its_other_approvals():
     trace = run_scenario(GATED, pause_on_gate=True)
     run_id = trace["run_id"]
     first, *others = trace["pending_approvals"]
-    result = hitl.resolve(first, approver="pm", decision="reject")
+    result = hitl.resolve(first, approver="pm", decision="reject",
+                          rationale="schedule risk too high")
     assert result["run_status"] == "cancelled"
     run = runs.get_run(run_id)
     assert run["status"] == "cancelled" and "rejected by pm" in run["error"]

@@ -91,6 +91,11 @@ def set_budget(kind: str, warn_usd: float | None, limit_usd: float | None, by: s
                 s.add(row)
             row.warn_usd, row.limit_usd, row.updated_by = warn_usd, limit_usd, by
             row.updated_at, row.warned_for = datetime.now(UTC), None
+    from ma_pmo.core import decisions
+
+    chosen = "removed" if warn_usd is None and limit_usd is None else (
+        f"warn {warn_usd} / limit {limit_usd} USD")
+    decisions.by_person("budget", kind, f"{kind} budget: {chosen}", by, chosen)
     return status()
 
 
