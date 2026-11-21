@@ -224,7 +224,13 @@ def decide(rec_id: int, decision: str, by: str) -> dict:
         assert row is not None
         row.status, row.decided_by, row.decided_at = decision, by, datetime.now(UTC)
         row.draft_version = draft
-        return _row(row)
+        out = _row(row)
+    from ma_pmo.core import decisions
+
+    decisions.by_person("model_recommendation", f"{workflow_id}/{step_id}",
+                        f"{workflow_id} {step_id} → fast: {decision}", by, decision,
+                        options=[{"option": "keep tier"}, {"option": "fast", "draft": draft}])
+    return out
 
 
 def _row(r: Recommendation) -> dict[str, Any]:

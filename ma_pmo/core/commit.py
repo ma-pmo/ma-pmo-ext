@@ -85,9 +85,34 @@ def check(run_id: str, spec: WorkflowSpec) -> list[dict[str, Any]]:
             "alternatives": [r["message_id"] for r in offered], "missing": missing})
     held = [o for o in outcome if o["status"] == REVIEW_PENDING]
     _queue(run_id, held)
+    _record(run_id, posts, reviews, outcome)
     runs.update_state(run_id, commit=outcome)
     _log.info("commit_gate", run_id=run_id, decisions=len(outcome), held=len(held))
     return outcome
+
+
+def _record(run_id: str, posts: list[dict], reviews: dict[str, list[dict]],
+            outcome: list[dict]) -> None:
+    """A decision record per decision: committed, or proposed while a person decides."""
+    from ma_pmo.core import decisions
+
+    by_id = {p["message_id"]: p for p in posts}
+    for item in outcome:
+        post = by_id[item["message_id"]]
+        kind, subject, title = decisions.describe(post["schema"], post["data"], post["task_ref"])
+        mine = reviews.get(post["message_id"], [])
+        decisions.record(
+            kind, subject, title, "committed" if item["status"] == COMMITTED else "proposed",
+            drivers=post.get("evidence") or [],
+            options=[{"option": "as proposed", "message_id": post["message_id"]}]
+            + [{"option": "alternative", "message_id": m} for m in item["alternatives"]],
+            decision_makers=[{"who": post["agent"], "role": "proposer"}],
+            consulted=[{"who": r["agent"], "role": r["data"]["role"],
+                        "constraint": r["data"]["constraint"], "verdict": r["data"]["verdict"],
+                        "message_id": r["message_id"]} for r in mine],
+            consequences=list(post["data"].get("conditions") or []) + [
+                f"not checked: {m}" for m in item["missing"]],
+            run_id=run_id, message_id=post["message_id"])
 
 
 def _queue(run_id: str, held: list[dict]) -> None:

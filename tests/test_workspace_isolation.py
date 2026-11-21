@@ -22,6 +22,7 @@ from ma_pmo.db.models import (
     Approval,
     Base,
     Budget,
+    DecisionRecord,
     KnowledgeDoc,
     KpiEvent,
     LlmCall,
@@ -57,6 +58,7 @@ PATH = {
     "/runs/{run_id}/costs": (f"/runs/run-{MARK}/costs", lambda r: r.status_code == 404),
     "/runs/{run_id}/board": (f"/runs/run-{MARK}/board", lambda r: r.status_code == 404),
     "/reports/{report_id}": (f"/reports/RPT-{MARK}", lambda r: r.status_code == 404),
+    "/decisions/{record_id}": (f"/decisions/DEC-{MARK}", lambda r: r.status_code == 404),
     "/messages/{message_id}/thread": (f"/messages/msg-{MARK}/thread",
                                       lambda r: r.status_code == 404),
     "/reports/{report_id}/export": (f"/reports/RPT-{MARK}/export",
@@ -105,6 +107,9 @@ def _marked_rows() -> list[Base]:
                               "title": {"en": MARK, "ko": MARK}, "goal": {"en": MARK, "ko": MARK},
                               "description": {"en": MARK, "ko": MARK},
                               "steps": [{"id": "A5", "agent": "A5"}]}),
+        DecisionRecord(id=f"DEC-{MARK}", kind="budget", subject=MARK, title=MARK,
+                       status="accepted", created_at=datetime(2026, 1, 1),
+                       updated_at=datetime(2026, 1, 1)),
     ]
 
 
@@ -129,7 +134,7 @@ def other():
     with workspace.use(OTHER), get_session() as s:
         for model in (Approval, KpiEvent, AgentMessageRow, RunStep, Run, Risk, Allocation,
                       Task, Project, Resource, Portfolio, Report, KnowledgeDoc, WorkflowVersion,
-                      LlmCall, Budget, Recommendation):
+                      LlmCall, Budget, Recommendation, DecisionRecord):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Workspace).where(Workspace.id == OTHER))

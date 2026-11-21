@@ -30,6 +30,7 @@ from ma_pmo.api.routers import (  # noqa: E402
     approvals,
     budgets,
     costs,
+    decisions,
     evaluation,
     integrations,
     knowledge,
@@ -113,6 +114,7 @@ app.include_router(costs.router)
 app.include_router(budgets.router)
 app.include_router(recommendations.router)
 app.include_router(reports.router)
+app.include_router(decisions.router)
 
 
 @app.get("/health")
