@@ -16,6 +16,10 @@ class ApprovalDecision(BaseModel):
     decision: str  # approve | reject
     # why: required to reject, and to approve a decision a reviewer challenged
     rationale: str | None = None
+    # approve only: conditions the approver attaches ({text, due, debtor}), and alternatives
+    # offered for this decision that they adopt (message ids); both become commitments
+    conditions: list[dict] | None = None
+    adopt: list[str] | None = None
 
 
 @router.get("/approvals")
@@ -29,7 +33,8 @@ def resolve_approval(approval_id: int, body: ApprovalDecision, principal: Curren
     approver = principal.subject if principal is not ANONYMOUS else (body.approver or "anonymous")
     try:
         return hitl.resolve(approval_id, approver=approver, decision=body.decision,
-                             rationale=body.rationale)
+                             rationale=body.rationale, conditions=body.conditions,
+                             adopt=body.adopt)
     except KeyError as e:  # also an approval in another workspace
         raise HTTPException(status_code=404, detail=str(e.args[0])) from e
     except ValueError as e:

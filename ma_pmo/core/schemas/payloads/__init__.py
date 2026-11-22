@@ -5,6 +5,7 @@ Every agent's output is validated against its Pydantic schema (hallucination con
 from pydantic import BaseModel
 
 from ma_pmo.core.schemas.payloads.allocation_v1 import AllocationV1
+from ma_pmo.core.schemas.payloads.commitment_v1 import CommitmentV1
 from ma_pmo.core.schemas.payloads.gate_review_v1 import GateReviewV1
 from ma_pmo.core.schemas.payloads.knowledge_v1 import KnowledgeV1
 from ma_pmo.core.schemas.payloads.report_v1 import ReportV1
@@ -25,6 +26,7 @@ PAYLOAD_REGISTRY: dict[str, type[BaseModel]] = {
     "knowledge.v1": KnowledgeV1,
     "routing.v1": RoutingV1,
     "review.v1": ReviewV1,
+    "commitment.v1": CommitmentV1,
 }
 
 __all__ = [
@@ -33,6 +35,7 @@ __all__ = [
     "ReviewV1",
     "RiskAlertV1",
     "AllocationV1",
+    "CommitmentV1",
     "ScheduleV1",
     "GateReviewV1",
     "KnowledgeV1",

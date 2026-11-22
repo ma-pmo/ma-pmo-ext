@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     # reviewed runs: A8 also offers alternatives for the decisions it challenges. Off by default:
     # the evaluation found no change in what commits (docs/REVIEW-EVAL.md)
     review_alternatives: bool = Field(default=False, alias="MA_PMO_REVIEW_ALTERNATIVES")
+    # days a commitment has when nobody gave it a due date (a gate's conditions, say)
+    commitment_due_days: int = Field(default=14, alias="MA_PMO_COMMITMENT_DUE_DAYS", ge=1)
     hitl_confidence_threshold: float = Field(
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )
