@@ -4,6 +4,7 @@ GET  /commitments                  : filter by state, debtor, project
 GET  /commitments/{id}             : one, with its history
 POST /commitments/{id}/{op}        : detach | discharge | cancel | release | delegate | assign
 POST /commitments/check            : discharge the gate conditions the tracker shows are met
+POST /commitments/sweep            : violate what is overdue, take the escalation steps due
 """
 from __future__ import annotations
 
@@ -36,6 +37,11 @@ def list_commitments(state: str | None = None, debtor: str | None = None,
 def check_commitments() -> dict:
     done = commitments.check_tracker()
     return {"discharged": [c["id"] for c in done]}
+
+
+@router.post("/commitments/sweep")
+def sweep_commitments() -> dict:
+    return commitments.sweep()
 
 
 @router.get("/commitments/{commitment_id}")

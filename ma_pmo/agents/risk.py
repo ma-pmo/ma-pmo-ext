@@ -14,7 +14,7 @@ from datetime import UTC, datetime
 
 from ma_pmo.agents import common, risk_calibration
 from ma_pmo.agents.base import BaseAgent
-from ma_pmo.agents.risk_signals import ProjectSignals, analyze_portfolio, baseline_severity
+from ma_pmo.agents.risk_signals import ProjectSignals, baseline_severity, compute_signals
 from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, llm, protocol, tracing
 from ma_pmo.core.i18n import tr
@@ -38,6 +38,26 @@ _HIGH = {"high", "critical"}
 _log = get_logger("risk")
 
 
+def _missed(project_id: str) -> list[str]:
+    from ma_pmo.core import commitments
+
+    try:
+        return commitments.violated_for(project_id)
+    except Exception:  # a database without the ledger: no signal from it
+        return []
+
+
+def _with_missed(status: dict) -> list[ProjectSignals]:
+    """The projects with a signal, counting commitments they missed (roadmap 9)."""
+    found = []
+    for p in status.get("projects", []):
+        sig = compute_signals(p)
+        sig.missed_commitments = _missed(p["project_id"])
+        if sig.has_signal:
+            found.append(sig)
+    return found
+
+
 class RiskAgent(BaseAgent[RiskAlertV1]):
     agent_id = "A4"
     function = "Risk (early detection)"
@@ -51,7 +71,7 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
     def run(self, state: PortfolioState) -> dict:
         scope = state.get("task_ref", DEFAULT_SCOPE)
         status = self.tracker.get_portfolio_status(scope)
-        signals = analyze_portfolio(status)
+        signals = _with_missed(status)
         projects = {p["project_id"]: p for p in status.get("projects", [])}
 
         outputs, messages = [], []
@@ -66,9 +86,8 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
         proj = common.find_project(self.tracker, scope, project_id)
         if proj is None:
             return None
-        from ma_pmo.agents.risk_signals import compute_signals
-
         sig = compute_signals(proj)
+        sig.missed_commitments = _missed(project_id)
         if not sig.has_signal:
             return {
                 "project_id": project_id,
@@ -129,6 +148,8 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
                         f"상태 {sig.status}, 여유 {sig.schedule_slack_days}일, "
                         f"정체 {sig.stalled_tasks}, 차단 {sig.blocked_tasks}",
                     )
+                    + (tr(f", missed {sig.missed_commitments}",
+                          f", 미이행 {sig.missed_commitments}") if sig.missed_commitments else "")
                 ),
                 severity=baseline,
                 lead_time_days=float(sig.schedule_slack_days)

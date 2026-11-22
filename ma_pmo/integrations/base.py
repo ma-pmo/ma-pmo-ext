@@ -29,6 +29,9 @@ class EventType(str, Enum):
     GATE_FAILED = "gate.failed"
     REPORT_GENERATED = "report.generated"
     BUDGET_WARNING = "budget.warning"
+    COMMITMENT_VIOLATED = "commitment.violated"
+    COMMITMENT_ESCALATED = "commitment.escalated"
+    DECISION_REOPENED = "decision.reopened"
     TEST = "integration.test"
 
 

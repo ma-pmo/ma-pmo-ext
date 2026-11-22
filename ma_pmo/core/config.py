@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     review_alternatives: bool = Field(default=False, alias="MA_PMO_REVIEW_ALTERNATIVES")
     # days a commitment has when nobody gave it a due date (a gate's conditions, say)
     commitment_due_days: int = Field(default=14, alias="MA_PMO_COMMITMENT_DUE_DAYS", ge=1)
+    # days between the steps of a violated commitment's escalation chain
+    commitment_escalate_days: int = Field(default=2, alias="MA_PMO_COMMITMENT_ESCALATE_DAYS",
+                                          ge=0)
     hitl_confidence_threshold: float = Field(
         default=0.6, alias="HITL_CONFIDENCE_THRESHOLD"
     )

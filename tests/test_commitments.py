@@ -5,12 +5,15 @@ import copy
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import delete
 
 from ma_pmo.api.main import app
 from ma_pmo.core import commitments, hitl, protocol
 from ma_pmo.core.config import get_settings
 from ma_pmo.core.scenarios import run_scenario
 from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
+from ma_pmo.db.models import Commitment
+from ma_pmo.db.session import get_session
 from ma_pmo.integrations.registry import get_tracker
 
 client = TestClient(app)
@@ -20,12 +23,15 @@ client = TestClient(app)
 def _as_of(monkeypatch):
     """The demo data's own week: PROJ-14 and PROJ-31 pass G3 on condition (blocked tasks)."""
     monkeypatch.setattr(get_settings(), "report_as_of", "2026-02-16")
+    yield
+    with get_session() as s:  # due in the demo week: overdue for later tests' sweeps
+        s.execute(delete(Commitment))
 
 
 def _conditional_gate() -> dict:
     """A conditional gate waiting for a person (go/no-go on the demo data)."""
-    run_scenario("go_nogo_decision")
-    return next(p for p in hitl.list_pending() if p["payload"]["schema"] == "gate_review.v1"
+    ours = {c["message_id"] for c in run_scenario("go_nogo_decision")["commit"]}
+    return next(p for p in hitl.list_pending() if p["message_id"] in ours
                 and p["payload"]["data"]["decision"] == "conditional")
 
 

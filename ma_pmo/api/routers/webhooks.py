@@ -26,6 +26,10 @@ class IssueEvent(BaseModel):
 
 @router.post("/webhooks/issue")
 def issue_webhook(event: IssueEvent) -> dict:
+    from ma_pmo.core import commitments
+
+    commitments.check_tracker()  # what the tracker now shows done, then what is overdue
+    commitments.sweep_quietly()
     triggered = None
     if event.event_type in _RISK_TRIGGERS:
         # event-driven: reassess risk for this project only (A4)

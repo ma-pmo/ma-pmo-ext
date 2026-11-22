@@ -11,12 +11,20 @@ consequent once the antecedent holds (Singh). It is
 - `conditional` while its antecedent does not hold, then `active`;
 - `satisfied` when discharged, by a person with a reference or by the tracker (a gate condition
   is checked against the same criterion the gate used);
-- `violated` when cancelled while active (and, from roadmap 9 step 2, when its due date passes),
-  `cancelled` when cancelled while still conditional, `released` when its creditor lets it go;
+- `violated` when cancelled while active, or when its due date passes; `expired` when its
+  antecedent did not hold by `detach_by`; `cancelled` when cancelled while still conditional;
+  `released` when its creditor lets it go (also after a violation, which ends the escalation);
 - delegated (new debtor) or assigned (new creditor) without changing its state.
 
 Every operation is also a `commitment.v1` message in the conversation of the decision it came
 from, replying to that decision, so nothing changes silently.
+
+The due-date sweep (`sweep`, run before every run, on webhooks, and by `ma-pmo commitments
+sweep` from cron) violates what is overdue and walks each violation along its escalation chain,
+one step every `MA_PMO_COMMITMENT_ESCALATE_DAYS`: tell the debtor, then the accountable person
+(the creditor), then reopen the decision (back to the approval queue). Each step is a message and
+a notification, so the communication log shows it. Sweeping again changes nothing, and a sweep
+after downtime catches up.
 """
 from __future__ import annotations
 
@@ -67,23 +75,24 @@ def as_dict(row: Commitment) -> dict[str, Any]:
             "source_decision": row.source_decision, "source_approval": row.source_approval,
             "conversation_id": row.conversation_id, "check": row.check,
             "evidence": row.evidence or [], "history": row.history or [],
+            "violated_at": iso(row.violated_at), "escalation": row.escalation or 0,
             "created_at": iso(row.created_at), "updated_at": iso(row.updated_at)}
 
 
-def _post(c: dict[str, Any], op: str, by: str, note: str = "") -> None:
+def _post(c: dict[str, Any], op: str, by: str, note: str = "") -> str:
     """The operation as a commitment.v1 message, replying to the decision it came from.
     Called after the commitment is stored, outside its session."""
     from ma_pmo.core import protocol
     from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 
-    protocol.publish(AgentMessage(
+    return protocol.publish(AgentMessage(
         sender=by, receiver=c["creditor"] if by == c["debtor"] else c["debtor"],
         intent=Intent.INFORM, task_ref=c["project_id"] or c["id"],
         payload=MessagePayload(schema_="commitment.v1", data={
             "commitment_id": c["id"], "op": op, "state": c["state"], "debtor": c["debtor"],
             "creditor": c["creditor"], "consequent": c["consequent"], "due": c["due"],
             "project_id": c["project_id"], "by": by, "note": note}),
-        conversation_id=c["conversation_id"], in_reply_to=c["source_message"]))
+        conversation_id=c["conversation_id"], in_reply_to=c["source_message"])).message_id
 
 
 def create(*, kind: str, debtor: str, creditor: str, consequent: str, by: str,
@@ -123,7 +132,7 @@ def create(*, kind: str, debtor: str, creditor: str, consequent: str, by: str,
 _OPS: dict[str, tuple[set[str], str | None]] = {
     "detach": ({CONDITIONAL}, ACTIVE),
     "discharge": (OPEN, SATISFIED),
-    "release": (OPEN, RELEASED),
+    "release": (OPEN | {VIOLATED}, RELEASED),
     "delegate": (OPEN, None),
     "assign": (OPEN, None),
 }
@@ -288,3 +297,127 @@ def check_tracker(tracker: Any = None) -> list[dict]:
                               evidence=[{"kind": "tracker", "ref": project_id,
                                          "field": name}]))
     return done
+
+
+# ── due dates and escalation ──────────────────────────────────────────────────────────
+
+ENGINE = "due-dates"
+# what each step of the chain does, in order, after the violation itself
+CHAIN = ("debtor", "accountable", "reopen")
+
+
+def sweep(now: datetime | None = None) -> dict[str, list[str]]:
+    """Violate overdue commitments, expire undetached ones, and take the escalation steps that
+    are due. Idempotent: each transition and each step happens once."""
+    now = now or _today()
+    every = timedelta(days=get_settings().commitment_escalate_days)
+    with get_session() as s:
+        rows = s.scalars(select(Commitment).where(Commitment.state.in_(OPEN | {VIOLATED}))).all()
+        overdue = [r.id for r in rows if r.state == ACTIVE and r.due and r.due < now]
+        lapsed = [r.id for r in rows
+                  if r.state == CONDITIONAL and r.detach_by and r.detach_by < now]
+        steps = {r.id: (r.escalation, r.violated_at) for r in rows if r.state == VIOLATED}
+    out: dict[str, list[str]] = {"violated": [], "expired": [], "escalated": [], "reopened": []}
+    for cid in lapsed:
+        _transition(cid, EXPIRED, "expire", tr("antecedent did not hold in time",
+                                               "전제 조건이 기한 안에 충족되지 않음"))
+        out["expired"].append(cid)
+    for cid in overdue:
+        _transition(cid, VIOLATED, "violate", tr("due date passed", "기한이 지남"), when=now)
+        out["violated"].append(cid)
+        steps[cid] = (0, now)
+    for cid, (done, since) in steps.items():
+        since = since or now
+        while done < len(CHAIN) and since + every * done <= now:
+            kind = _escalate(cid, CHAIN[done])
+            out["reopened" if kind == "reopen" else "escalated"].append(cid)
+            done += 1
+    return out
+
+
+def _transition(cid: str, state: str, op: str, note: str, when: datetime | None = None) -> None:
+    with get_session() as s:
+        row = s.scalars(select(Commitment).where(Commitment.id == cid)).one()
+        row.state, row.updated_at = state, _now()
+        if state == VIOLATED:
+            row.violated_at = when
+        row.history = [*(row.history or []), {"op": op, "by": ENGINE, "at": iso(row.updated_at),
+                                               "note": note}]
+        c = as_dict(row)
+    _post(c, op, ENGINE, note)
+
+
+def _escalate(cid: str, step: str) -> str:
+    """One step of the chain: a message, a notification, and for the last one a reopened
+    decision. The step is counted first, so a failure cannot repeat it."""
+    with get_session() as s:
+        row = s.scalars(select(Commitment).where(Commitment.id == cid)).one()
+        row.escalation += 1
+        level = row.escalation
+        who = {"debtor": row.debtor, "accountable": row.creditor}.get(step)
+        note = (tr(f"step {level}: reopened the decision", f"{level}단계: 결정 재검토")
+                if step == "reopen"
+                else tr(f"step {level}: told {who}", f"{level}단계: {who}에게 알림"))
+        row.history = [*(row.history or []), {"op": "escalate", "by": ENGINE, "at": iso(_now()),
+                                               "note": note, "step": step}]
+        c = as_dict(row)
+    message_id = _post(c, "escalate", ENGINE, note)
+    if step == "reopen":
+        _reopen(c)
+    _notify(c, step, who, message_id)
+    return step
+
+
+def _reopen(c: dict[str, Any]) -> None:
+    """The decision goes back to the approval queue, with the missed obligation as the reason."""
+    from ma_pmo.core import decisions
+    from ma_pmo.db.models import Approval
+
+    why = tr(f"missed: {c['consequent']} (due {c['due'][:10]})",
+             f"미이행: {c['consequent']} (기한 {c['due'][:10]})")
+    if c["source_decision"]:
+        decisions.reopen(c["source_decision"], why)
+    if c["source_message"]:
+        with get_session() as s:
+            s.add(Approval(message_id=c["source_message"], decision="pending", reason={
+                "kind": "reopened", "commitment": c["id"], "consequent": c["consequent"],
+                "due": c["due"], "decision_record": c["source_decision"]}))
+
+
+def _notify(c: dict[str, Any], step: str, who: str | None, message_id: str) -> None:
+    from ma_pmo.integrations.base import Event, EventType
+    from ma_pmo.integrations.dispatch import emit_later
+
+    kind = {"debtor": EventType.COMMITMENT_VIOLATED, "accountable": EventType.COMMITMENT_ESCALATED,
+            "reopen": EventType.DECISION_REOPENED}[step]
+    title = {
+        "debtor": tr(f"Missed: {c['consequent']}", f"미이행: {c['consequent']}"),
+        "accountable": tr(f"Still missed, escalated to {who}: {c['consequent']}",
+                          f"계속 미이행, {who}에게 보고: {c['consequent']}"),
+        "reopen": tr(f"Decision reopened: {c['consequent']} was not met",
+                     f"결정 재검토: {c['consequent']} 미이행"),
+    }[step]
+    emit_later([Event(type=kind, title=title,
+                      severity="critical" if step == "reopen" else "warning",
+                      summary=tr(f"owed by {c['debtor']} to {c['creditor']}, due {c['due'][:10]}",
+                                 f"{c['debtor']} → {c['creditor']}, 기한 {c['due'][:10]}"),
+                      task_ref=c["project_id"] or "", data={
+                          "message_id": message_id, "commitment_id": c["id"], "to": who or "",
+                          "decision_record": c["source_decision"], "step": step})])
+
+
+def sweep_quietly() -> None:
+    """A sweep that never fails its caller (before a run, on a webhook)."""
+    try:
+        sweep()
+    except Exception as e:  # the due-date engine must not stop the work it watches
+        from ma_pmo.core.obs import get_logger
+
+        get_logger("commitments").warning("sweep_failed", error=str(e)[:200])
+
+
+def violated_for(project_id: str) -> list[str]:
+    """What a project failed to deliver: a risk signal for A4."""
+    with get_session() as s:
+        return [r.consequent for r in s.scalars(select(Commitment).where(
+            Commitment.project_id == project_id, Commitment.state == VIOLATED))]

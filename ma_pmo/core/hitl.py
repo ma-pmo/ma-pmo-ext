@@ -49,6 +49,8 @@ def list_pending() -> list[dict]:
                 "payload": m.payload,
                 "requested_at": m.timestamp.isoformat(),
                 "review": _review(a),
+                # reopened because an obligation the decision created was missed (roadmap 9)
+                "reopened": a.reason if (a.reason or {}).get("kind") == "reopened" else None,
             }
             for a, m in rows
         ]

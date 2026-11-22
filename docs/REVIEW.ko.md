@@ -81,8 +81,8 @@ Multi-Agent Research*, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870))을 
   사람이 승인했을 때입니다. 승인할 때 조건을 붙이거나(`conditions: [{text, due, debtor}]`), 검토가 제시한 대안을
   채택할 수도 있습니다(`adopt: [<메시지 id>]`). "2026-W12까지 주 30시간 추가"를 채택하면 그 주 금요일이 기한이 됩니다.
 - **상태.** 전제 조건이 충족되기 전에는 `conditional`, 그 뒤에는 `active`입니다. 이행하면 `satisfied`, 채무자가
-  취소하면 `violated`, 채권자가 놓아주면 `released`가 됩니다. `conditional`일 때 취소하면 `cancelled`입니다.
-  기한 확인은 로드맵 9의 2단계부터 동작합니다.
+  취소하거나 기한이 지나면 `violated`, 채권자가 놓아주면 `released`가 됩니다(위반 뒤에 놓아주면 보고 단계가
+  멈춥니다). `conditional`일 때 취소하면 `cancelled`, `detach_by`까지 전제 조건이 충족되지 않으면 `expired`입니다.
 - **조작.** `POST /commitments/{id}/{op}`로 `detach`, `discharge`(`reference`와 함께), `cancel`, `release`,
   `delegate`(새 채무자 `to`), `assign`(새 채권자 `to`)을 합니다. 조작마다 결정의 대화에 `commitment.v1` 메시지가
   답글로 남습니다.
@@ -90,6 +90,16 @@ Multi-Agent Research*, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870))을 
   게이트 기준을 다시 평가하고, 이제 통과하는 것은 트래커를 근거로 이행 처리합니다.
 - **기본 기한.** 기한이 없으면 프로젝트 달력의 오늘(`MA_PMO_REPORT_AS_OF`가 있으면 그 날짜)부터
   `MA_PMO_COMMITMENT_DUE_DAYS`(14)일 뒤가 기한입니다.
+- **기한과 보고 단계.** 실행할 때마다, 트래커 웹훅이 올 때마다, `POST /commitments/sweep`과
+  `ma-pmo commitments sweep`(cron용)으로 점검이 돕니다. 기한이 지난 약속은 `violated`가 되고,
+  `MA_PMO_COMMITMENT_ESCALATE_DAYS`(2)일마다 한 단계씩 올라갑니다.
+  1. 채무자에게 알림(`commitment.violated`)
+  2. 책임자에게 알림. 지금은 채권자입니다(`commitment.escalated`).
+  3. 결정 재검토(`decision.reopened`). 결정 기록이 `reopened`가 되고, 미이행 내용을 사유로 승인 큐에 다시 들어갑니다.
+
+  단계마다 `commitment.v1` 메시지와 알림이 남아 소통 기록에서 볼 수 있습니다. 다시 점검해도 같은 단계를 반복하지
+  않고, 멈춰 있다가 점검하면 밀린 단계를 모두 처리합니다. A4는 프로젝트의 위반된 약속을 리스크 신호로 보고 높음으로
+  판정합니다.
 
 ## builder 검토
 

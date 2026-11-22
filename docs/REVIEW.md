@@ -94,9 +94,10 @@ owes what to whom, by when (`GET /commitments`, filter by `state`, `debtor`, `pr
   alternative that review offered (`adopt: [<message id>]`). An adopted "add 30 h/week until
   2026-W12" is due on that week's Friday.
 - **States.** `conditional` until its antecedent holds, then `active`. From there it becomes
-  `satisfied` when discharged, `violated` when cancelled by its debtor, or `released` by its
-  creditor. A conditional one that is cancelled becomes `cancelled`. Due dates are checked from
-  roadmap 9 step 2.
+  `satisfied` when discharged, `violated` when cancelled by its debtor or when its due date
+  passes, or `released` by its creditor (also after a violation, which ends the escalation). A
+  conditional one that is cancelled becomes `cancelled`; one whose antecedent did not hold by
+  `detach_by` becomes `expired`.
 - **Operations.** `POST /commitments/{id}/{op}` with `detach`, `discharge` (with a
   `reference`), `cancel`, `release`, `delegate` (new debtor, `to`) or `assign` (new creditor,
   `to`). Each one is also a `commitment.v1` message in the decision's conversation, replying to
@@ -106,6 +107,18 @@ owes what to whom, by when (`GET /commitments`, filter by `state`, `debtor`, `pr
   tracker.
 - **Default due date.** Without a due date, a commitment is due `MA_PMO_COMMITMENT_DUE_DAYS`
   (14) days after the project calendar's today (`MA_PMO_REPORT_AS_OF` when set).
+- **Due dates and escalation.** A sweep runs before every run, on every tracker webhook, from
+  `POST /commitments/sweep`, and from `ma-pmo commitments sweep` (for cron). It moves overdue
+  commitments to `violated`, then walks each violation along a chain, one step every
+  `MA_PMO_COMMITMENT_ESCALATE_DAYS` (2):
+  1. tell the debtor (`commitment.violated`);
+  2. tell the accountable person, for now the creditor (`commitment.escalated`);
+  3. reopen the decision (`decision.reopened`): its record becomes `reopened`, and it goes back
+     to the approval queue with the missed obligation as the reason.
+
+  Each step is a `commitment.v1` message and a notification, so the communication log shows
+  it. A second sweep changes nothing, and a sweep after downtime takes every step that is due.
+  A4 counts a project's violated commitments as a risk signal and rates the project high.
 
 ## Builder review
 
