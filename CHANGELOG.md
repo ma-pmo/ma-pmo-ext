@@ -12,6 +12,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - **Communication log** (roadmap 8, step 3): every notification attempt is recorded as sent, failed or skipped with the reason (dry run, no notifier, not subscribed, paused), linked to its message, decision, approval and run. `GET /communications`; a decision record fetched by id lists them under `informed`. Background delivery now keeps the caller's workspace. Migration `0016_communications`.
 - **Provenance export** (roadmap 8, step 4): `GET /decisions/{id}/provenance` returns a decision as W3C PROV-JSON (entities: the decision, its message, reviews and evidence; activities: run steps, the commit gate or the approval; agents: A1-A8 and people), readable by standard PROV tools.
 - **Decision log page and record UI** (roadmap 8, step 5): a Decision log page (filter by kind, status and project; one record in MADR order with a PROV-JSON download), an inline reason field on approvals in place of the browser prompt, and a run's messages and notifications in Workflows (decisions with the reviews that answer them, every notification attempt). Approval notifications now carry their run.
+- **Record completeness evaluation** (roadmap 8, step 6): `ma-pmo eval --records` runs the 20 built-in scenarios and the 35 review cases with a stand-in person and stand-in notifiers, and measures decisions recorded, reasons kept and enforced, provenance to a run step and notification attempts logged: 100% on each. Evidence citation (64% and 76%) is reported as an open gap. See docs/RECORDS-EVAL.md.
 
 ## [0.9.0] - 2026-11-21
 
@@ -236,6 +237,7 @@ First public release.
 - 추가: **소통 기록**(로드맵 8, 3단계). 알림 시도마다 보냄·실패·건너뜀과 그 이유(dry run, 알림 채널 없음, 구독 안 함, 일시 중지)가 메시지·결정·승인·실행과 함께 기록됩니다. `GET /communications`. 결정 기록을 id로 조회하면 `informed`에 나옵니다. 백그라운드 발송이 호출한 워크스페이스를 유지합니다. 마이그레이션 `0016_communications`.
 - 추가: **출처(provenance) 내보내기**(로드맵 8, 4단계). `GET /decisions/{id}/provenance`가 결정을 W3C PROV-JSON으로 돌려줍니다(엔터티: 결정·메시지·검토·근거, 활동: 실행 단계·커밋 게이트·승인, 에이전트: A1-A8과 사람). 표준 PROV 도구로 읽을 수 있습니다.
 - 추가: **결정 기록 화면**(로드맵 8, 5단계). 결정 기록 페이지(종류·상태·프로젝트로 거르기, 기록 하나를 MADR 순서로 보기, PROV-JSON 내려받기), 브라우저 입력창 대신 승인 항목마다 붙은 사유 입력란, 워크플로 화면의 실행별 메시지와 알림(결정과 그에 답한 검토, 모든 알림 시도). 승인 알림이 실행과 연결됩니다.
+- 추가: **기록 완전성 평가**(로드맵 8, 6단계). `ma-pmo eval --records`가 기본 시나리오 20개와 검토 사례 35개를 대리 사용자·대리 알림 채널로 돌려 결정 기록, 사유 보존과 강제, 실행 단계까지의 출처, 알림 시도 기록을 측정합니다. 모두 100%입니다. 근거 인용(64%, 76%)은 남은 과제로 보고합니다. docs/RECORDS-EVAL.ko.md 참고.
 
 ### [0.9.0] - 2026-11-21
 

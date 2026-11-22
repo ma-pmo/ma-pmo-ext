@@ -198,6 +198,7 @@ names and labels follow the reader's language.
   high-stakes decision never commits by timeout.
 
 The evaluation of each part, and the decisions it led to, is in [REVIEW-EVAL.md](REVIEW-EVAL.md).
+Whether every decision leaves a complete record is measured in [RECORDS-EVAL.md](RECORDS-EVAL.md).
 
 ## Acknowledgement
 
