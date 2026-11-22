@@ -387,3 +387,24 @@ class DecisionRecord(Scoped, Base):
     approval_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class Communication(Scoped, Base):
+    """One notification attempt: which event went to which channel, and whether it got there
+    (sent, failed, or skipped with the reason: a dry run, no notifier, not subscribed, a paused
+    notifier). Written by integrations/dispatch.py; the decision log's `informed` reads it."""
+
+    __tablename__ = "communication"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    event: Mapped[str] = mapped_column(String, index=True)  # e.g. approval.requested
+    channel: Mapped[str] = mapped_column(String)  # notifier name; "-" when none was tried
+    target: Mapped[str] = mapped_column(String, default="")  # the task_ref it is about
+    title: Mapped[str] = mapped_column(String, default="")
+    severity: Mapped[str] = mapped_column(String, default="info")
+    status: Mapped[str] = mapped_column(String, index=True)  # sent | failed | skipped
+    error: Mapped[str | None] = mapped_column(String, nullable=True)  # or the skip reason
+    message_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    decision_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    approval_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    run_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

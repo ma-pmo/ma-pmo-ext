@@ -51,6 +51,21 @@ Limit what is sent with `MA_PMO_NOTIFY_EVENTS=approval.requested,risk.detected`
 (empty = all). Event titles follow the request language (`?lang=ko`) or `MA_PMO_LANG`.
 `MA_PMO_PUBLIC_URL` sets the dashboard link in messages.
 
+## Communication log
+
+Every delivery attempt is recorded, so you can show later whom a decision was told to
+(`GET /communications`, filter by `event`, `status`, `run` and `message`):
+
+| status | when |
+|---|---|
+| `sent` | the notifier accepted it |
+| `failed` | it raised; `error` holds the reason (e.g. connection refused) |
+| `skipped` | on purpose; `error` says why: `dry run`, `no notifier configured`, `not subscribed (MA_PMO_NOTIFY_EVENTS)`, `paused: failing repeatedly` |
+
+A row keeps the event, the channel (the notifier's name, `-` when none was tried), the task it
+is about, and links to the message, decision record, approval and run. Webhook URLs and tokens
+are never stored. A decision record fetched by id lists these rows under `informed`.
+
 ## Slack
 
 1. In Slack: **Apps → Incoming Webhooks → Add to Slack**, pick a channel, copy the URL

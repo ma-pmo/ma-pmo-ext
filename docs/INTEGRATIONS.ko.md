@@ -52,6 +52,20 @@ curl -X POST localhost:8000/integrations/slack/test   # 테스트 메시지 전�
 보낼 이벤트를 줄이려면 `MA_PMO_NOTIFY_EVENTS=approval.requested,risk.detected`처럼 설정합니다(비우면 전부).
 알림 제목은 요청 언어(`?lang=ko`) 또는 `MA_PMO_LANG`을 따르고, 메시지 속 대시보드 링크는 `MA_PMO_PUBLIC_URL`로 정합니다.
 
+## 소통 기록
+
+알림을 보내려 한 모든 시도가 기록되므로, 어떤 결정을 누구에게 알렸는지 나중에 보여줄 수 있습니다
+(`GET /communications`, `event`·`status`·`run`·`message`로 거르기).
+
+| 상태 | 언제 |
+|---|---|
+| `sent` | 알림 채널이 받았을 때 |
+| `failed` | 오류가 났을 때. `error`에 이유(예: 연결 거부)가 남습니다 |
+| `skipped` | 일부러 보내지 않았을 때. `error`에 이유가 남습니다: `dry run`, `no notifier configured`, `not subscribed (MA_PMO_NOTIFY_EVENTS)`, `paused: failing repeatedly` |
+
+각 행에는 이벤트, 채널(알림 채널 이름, 시도한 채널이 없으면 `-`), 관련 작업, 그리고 메시지·결정 기록·승인·실행과의
+연결이 남습니다. 웹훅 URL과 토큰은 저장하지 않습니다. 결정 기록을 id로 조회하면 이 행들이 `informed`에 나옵니다.
+
 ## Slack
 
 1. Slack에서 **앱 → Incoming Webhooks → Slack에 추가** → 채널 선택 → URL 복사

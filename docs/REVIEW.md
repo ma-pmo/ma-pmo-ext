@@ -56,6 +56,8 @@ Every decision leaves a record in MADR form (`GET /decisions`, filter by `kind`,
 - an approval turns it `accepted` or `rejected` and adds the approver and their reason
   (`outcome.justification`);
 - publishing a workflow, setting a budget and deciding a replay recommendation are recorded too;
+- fetched by id, a record lists whom it was told to (`informed`, from the communication log
+  in docs/INTEGRATIONS.md);
 - a newer decision on the same subject (the same project gate, say) marks the earlier one
   `superseded` and links to it.
 
