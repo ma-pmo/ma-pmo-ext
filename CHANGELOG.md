@@ -10,6 +10,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - **Conversation envelope** (roadmap 8, step 1): messages carry `conversation_id` (the run, or a new id outside one), `in_reply_to` and `reply_by` (FIPA ACL); review verdicts reply to the decision they judge. `GET /messages?conversation=` and `GET /messages/{id}/thread` (a conversation with its replies). Migration `0014_message_envelope`.
 - **Decision records** (roadmap 8, step 2): every decision leaves a MADR-style record (drivers, options, outcome, decision makers, consulted): commit-gate decisions, approvals, workflow publishing, budgets and replay recommendations; a newer one on the same subject supersedes the earlier. `GET /decisions` and `GET /decisions/{id}`. Approvals take a `rationale`, required to reject and to approve a challenged decision (400 without one); the approvals page asks for it. Migration `0015_decision_records`.
 - **Communication log** (roadmap 8, step 3): every notification attempt is recorded as sent, failed or skipped with the reason (dry run, no notifier, not subscribed, paused), linked to its message, decision, approval and run. `GET /communications`; a decision record fetched by id lists them under `informed`. Background delivery now keeps the caller's workspace. Migration `0016_communications`.
+- **Provenance export** (roadmap 8, step 4): `GET /decisions/{id}/provenance` returns a decision as W3C PROV-JSON (entities: the decision, its message, reviews and evidence; activities: run steps, the commit gate or the approval; agents: A1-A8 and people), readable by standard PROV tools.
 
 ## [0.9.0] - 2026-11-21
 
@@ -232,6 +233,7 @@ First public release.
 - 추가: **대화 봉투**(로드맵 8, 1단계). 메시지에 `conversation_id`(실행, 실행 밖이면 새 id), `in_reply_to`, `reply_by`(FIPA ACL)가 붙고, 검토 판정은 판정 대상 결정에 답합니다. `GET /messages?conversation=`과 `GET /messages/{id}/thread`(답 관계가 있는 대화). 마이그레이션 `0014_message_envelope`.
 - 추가: **결정 기록**(로드맵 8, 2단계). 커밋 게이트 결정, 승인, 워크플로 게시, 예산, 재생 추천이 모두 MADR 형식 기록(근거, 대안, 결과, 결정자, 자문)을 남기고, 같은 대상의 새 결정은 이전 결정을 대체합니다. `GET /decisions`, `GET /decisions/{id}`. 승인에 `rationale`이 붙고, 거절하거나 이의가 제기된 결정을 승인할 때는 필수입니다(없으면 400). 승인 화면이 사유를 묻습니다. 마이그레이션 `0015_decision_records`.
 - 추가: **소통 기록**(로드맵 8, 3단계). 알림 시도마다 보냄·실패·건너뜀과 그 이유(dry run, 알림 채널 없음, 구독 안 함, 일시 중지)가 메시지·결정·승인·실행과 함께 기록됩니다. `GET /communications`. 결정 기록을 id로 조회하면 `informed`에 나옵니다. 백그라운드 발송이 호출한 워크스페이스를 유지합니다. 마이그레이션 `0016_communications`.
+- 추가: **출처(provenance) 내보내기**(로드맵 8, 4단계). `GET /decisions/{id}/provenance`가 결정을 W3C PROV-JSON으로 돌려줍니다(엔터티: 결정·메시지·검토·근거, 활동: 실행 단계·커밋 게이트·승인, 에이전트: A1-A8과 사람). 표준 PROV 도구로 읽을 수 있습니다.
 
 ### [0.9.0] - 2026-11-21
 

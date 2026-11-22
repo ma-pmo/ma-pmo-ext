@@ -60,6 +60,8 @@ PATH = {
     "/runs/{run_id}/board": (f"/runs/run-{MARK}/board", lambda r: r.status_code == 404),
     "/reports/{report_id}": (f"/reports/RPT-{MARK}", lambda r: r.status_code == 404),
     "/decisions/{record_id}": (f"/decisions/DEC-{MARK}", lambda r: r.status_code == 404),
+    "/decisions/{record_id}/provenance": (f"/decisions/DEC-{MARK}/provenance",
+                                          lambda r: r.status_code == 404),
     "/messages/{message_id}/thread": (f"/messages/msg-{MARK}/thread",
                                       lambda r: r.status_code == 404),
     "/reports/{report_id}/export": (f"/reports/RPT-{MARK}/export",

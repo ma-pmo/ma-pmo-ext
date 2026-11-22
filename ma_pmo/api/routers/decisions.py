@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query
 
-from ma_pmo.core import communications, decisions
+from ma_pmo.core import communications, decisions, provenance
 
 router = APIRouter(tags=["decisions"])
 
@@ -22,6 +22,15 @@ def get_decision(record_id: str) -> dict:
     if found is None:  # also a record in another workspace
         raise HTTPException(status_code=404, detail=f"decision {record_id} not found")
     return found
+
+
+@router.get("/decisions/{record_id}/provenance")
+def decision_provenance(record_id: str) -> dict:
+    """The decision as a W3C PROV-JSON document: what it came from, who made it, which steps."""
+    doc = provenance.for_decision(record_id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail=f"decision {record_id} not found")
+    return doc
 
 
 @router.get("/communications")
