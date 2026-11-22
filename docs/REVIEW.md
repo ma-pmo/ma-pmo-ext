@@ -45,6 +45,24 @@ a message's conversation in time order with `replies` (a decision to its verdict
 `GET /messages?conversation=<run id>` lists one run's messages. Messages logged before 0.10 have
 no envelope and come back alone.
 
+## Decision records
+
+Every decision leaves a record in MADR form (`GET /decisions`, filter by `kind`, `status` and
+`subject`; `GET /decisions/{id}`):
+
+- the commit gate writes one per agent decision: `committed`, or `proposed` while it waits for a
+  person, with the evidence (`drivers`), the alternatives review offered (`options`), the
+  proposing agent (`decision_makers`) and each reviewer's verdict (`consulted`);
+- an approval turns it `accepted` or `rejected` and adds the approver and their reason
+  (`outcome.justification`);
+- publishing a workflow, setting a budget and deciding a replay recommendation are recorded too;
+- a newer decision on the same subject (the same project gate, say) marks the earlier one
+  `superseded` and links to it.
+
+A reason is required to reject, and to approve a decision a reviewer challenged (an override,
+EU AI Act Art. 14(4)(d)). Without one `POST /approvals/{id}` returns 400; the approvals page asks
+for it.
+
 ## Builder review
 
 When a workflow lets them read, two agents review their own output:

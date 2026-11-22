@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
-from ma_pmo.core import kpi, runs
+from ma_pmo.core import decisions, kpi, runs
 from ma_pmo.core.obs import get_logger
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
@@ -65,22 +65,31 @@ def _review(approval: Approval) -> dict | None:
                        WorkflowSpec.model_validate(saved) if saved else None)
 
 
-def resolve(approval_id: int, *, approver: str, decision: str) -> dict:
-    """Approve or reject. decision ∈ {approve, reject}. Records approval latency as a KPI."""
+def resolve(approval_id: int, *, approver: str, decision: str,
+            rationale: str | None = None) -> dict:
+    """Approve or reject. decision ∈ {approve, reject}. Records approval latency as a KPI and the
+    decision record. A reason is required to reject, and to approve a decision a reviewer
+    challenged (an override)."""
     if decision not in {"approve", "reject"}:
         raise ValueError("decision must be approve|reject")
+    rationale = (rationale or "").strip() or None
     with get_session() as s:
         approval = s.get(Approval, approval_id)
         if approval is None:
             raise KeyError(f"approval {approval_id} not found")
         if approval.decision != "pending":
             raise ValueError(f"already resolved: {approval.decision}")
+        challenged = bool((approval.reason or {}).get("challenges"))
+        if rationale is None and (decision == "reject" or challenged):
+            raise ValueError("a reason is required to reject, or to approve a decision a "
+                             "reviewer challenged")
 
         msg = s.get(AgentMessageRow, approval.message_id)
         now = datetime.now(UTC)
         approval.decision = decision
         approval.approver = approver
         approval.decided_at = now
+        approval.rationale = rationale
 
         if msg is not None:
             requested = msg.timestamp
@@ -89,13 +98,23 @@ def resolve(approval_id: int, *, approver: str, decision: str) -> dict:
             latency = (now - requested).total_seconds()
             kpi.record_approval_latency(latency, message_id=approval.message_id)
 
-        run_id = approval.run_id
+        run_id, message_id = approval.run_id, approval.message_id
         result = {
             "approval_id": approval_id,
             "message_id": approval.message_id,
             "decision": decision,
             "approver": approver,
+            "rationale": rationale,
         }
+        payload = (msg.payload or {}) if msg is not None else {}
+        described = decisions.describe(payload.get("schema"), payload.get("data") or {},
+                                       msg.task_ref if msg is not None else "")
+        sender, evidence = (msg.sender, msg.evidence) if msg is not None else ("?", None)
+    record = decisions.decided_by_person(
+        message_id, kind=described[0], subject=described[1], title=described[2],
+        approver=approver, decision=decision, rationale=rationale, approval_id=approval_id,
+        run_id=run_id, agent=sender, evidence=evidence)
+    result["decision_record"] = record["id"]
     emit_later([approval_resolved_event(result)])
     run_status = _continue_run(run_id, decision, approver)
     return {**result, "run_status": run_status} if run_status else result

@@ -153,7 +153,12 @@ def publish(workflow_id: str, version: int, by: str) -> dict:
             WorkflowVersion.workflow_id == workflow_id, WorkflowVersion.version == version))
         assert row is not None
         row.status, row.published_by, row.published_at = PUBLISHED, by, datetime.now(UTC)
-        return _row(row)
+        out = _row(row)
+    from ma_pmo.core import decisions
+
+    decisions.by_person("workflow_publish", workflow_id, f"{workflow_id} v{version} in use", by,
+                        f"v{version}", context=out.get("note") or None)
+    return out
 
 
 def versions(workflow_id: str) -> list[dict]:

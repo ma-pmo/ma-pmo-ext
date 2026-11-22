@@ -15,7 +15,7 @@ from ma_pmo.cli import main as cli
 from ma_pmo.core import scenarios, workflow_store, workspace
 from ma_pmo.core.scenarios import run_scenario
 from ma_pmo.db import workspaces
-from ma_pmo.db.models import Membership, WorkflowVersion, Workspace
+from ma_pmo.db.models import DecisionRecord, Membership, WorkflowVersion, Workspace
 from ma_pmo.db.session import get_session
 
 client = TestClient(app)
@@ -170,6 +170,7 @@ def test_each_workspace_keeps_its_own_versions():
             s.execute(delete(Membership).where(Membership.workspace_id == "acme-wf"))
         with workspace.use("acme-wf"), get_session() as s:
             s.execute(delete(WorkflowVersion))
+            s.execute(delete(DecisionRecord))
         with get_session() as s:
             s.execute(delete(Workspace).where(Workspace.id == "acme-wf"))
 

@@ -13,7 +13,14 @@ from ma_pmo.api.routers import approvals, runs
 from ma_pmo.cli import main as cli
 from ma_pmo.core import workspace
 from ma_pmo.db import workspaces
-from ma_pmo.db.models import AgentMessageRow, Approval, KpiEvent, Membership, Workspace
+from ma_pmo.db.models import (
+    AgentMessageRow,
+    Approval,
+    DecisionRecord,
+    KpiEvent,
+    Membership,
+    Workspace,
+)
 from ma_pmo.db.session import get_session
 
 ACME = "acme"
@@ -46,7 +53,7 @@ def acme():
     workspaces.create(ACME, "Acme")
     yield ACME
     with workspace.use(ACME), get_session() as s:  # approving also records a KPI
-        for model in (Approval, KpiEvent, AgentMessageRow):
+        for model in (Approval, KpiEvent, AgentMessageRow, DecisionRecord):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Membership).where(Membership.workspace_id == ACME))

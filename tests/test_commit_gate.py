@@ -147,8 +147,12 @@ def test_a_reviewed_scenario_on_the_demo_data():
     assert {(e["agent"], e["schema"]) for e in cited} == {("A4", "risk_alert.v1")}
     board_view = client.get(f"/runs/{trace['run_id']}/board").json()
     assert board_view["review"] is True and board_view["commit"] == trace["commit"]
+    # approving a challenged decision is an override: it needs a reason
+    with pytest.raises(ValueError, match="reason is required"):
+        hitl.resolve(held["approval_id"], approver="pm", decision="approve")
     # resolving it is an ordinary approval; the finished run stays finished
-    done = hitl.resolve(held["approval_id"], approver="pm", decision="approve")
+    done = hitl.resolve(held["approval_id"], approver="pm", decision="approve",
+                        rationale="mitigation agreed with the sponsor")
     assert done["decision"] == "approve" and runs.get_run(trace["run_id"])["status"] == \
         "succeeded"
 
