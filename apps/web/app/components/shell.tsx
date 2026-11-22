@@ -13,7 +13,7 @@ const LANGS: { code: Lang; label: string }[] = [
   { code: "ko", label: "한국어" },
 ];
 
-type Item = { href: string; key: "dashboard" | "scenarios" | "workflows" | "approvals" | "reports" | "evaluation" | "costs" | "integrations"; icon: () => JSX.Element };
+type Item = { href: string; key: "dashboard" | "scenarios" | "workflows" | "approvals" | "decisions" | "reports" | "evaluation" | "costs" | "integrations"; icon: () => JSX.Element };
 const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items: Item[] }[] = [
   { key: "overview", items: [{ href: "/", key: "dashboard", icon: Icon.dashboard }] },
   {
@@ -22,6 +22,7 @@ const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items:
       { href: "/scenarios", key: "scenarios", icon: Icon.scenarios },
       { href: "/workflows", key: "workflows", icon: Icon.workflows },
       { href: "/approvals", key: "approvals", icon: Icon.approvals },
+      { href: "/decisions", key: "decisions", icon: Icon.decisions },
     ],
   },
   {

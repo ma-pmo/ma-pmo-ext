@@ -105,6 +105,7 @@ def resolve(approval_id: int, *, approver: str, decision: str,
             "decision": decision,
             "approver": approver,
             "rationale": rationale,
+            "run_id": run_id,
         }
         payload = (msg.payload or {}) if msg is not None else {}
         described = decisions.describe(payload.get("schema"), payload.get("data") or {},

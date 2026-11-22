@@ -87,3 +87,5 @@ def test_a_decision_lists_whom_it_was_told_to():
     told = {(i["event"], i["status"]) for i in rec["informed"]}
     assert ("approval.requested", "skipped") in told  # no notifier is set up in the tests
     assert ("approval.resolved", "skipped") in told
+    resolved = communications.list_log(event="approval.resolved", run=trace["run_id"])
+    assert resolved and resolved[0]["decision_id"] == done["decision_record"]

@@ -61,6 +61,13 @@ Every decision leaves a record in MADR form (`GET /decisions`, filter by `kind`,
 - a newer decision on the same subject (the same project gate, say) marks the earlier one
   `superseded` and links to it.
 
+In the dashboard, **Decision log** lists them (filter by kind, status and project) and shows one
+in MADR order: context, drivers, options, outcome with the reason, consequences, decision
+makers, consulted and informed, with a PROV-JSON download. On the approvals page each item has a
+reason field; Reject, and Approve on a challenged decision, stay off until it is filled. A run's
+view in Workflows shows its messages and notifications: each decision with the reviews that
+answer it, and every notification attempt with its outcome.
+
 `GET /decisions/{id}/provenance` exports one record as W3C PROV-JSON, so an auditor can check it
 with standard PROV tools (for example the `prov` Python package, which reads it and prints
 PROV-N):

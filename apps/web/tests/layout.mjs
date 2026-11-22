@@ -49,6 +49,7 @@ async function pages() {
     ...(run ? [{ name: "workflow-run", path: `/workflows?id=risk_escalation&run=${run}` }] : []),
     { name: "workflow-editor", path: "/workflows?id=risk_escalation", open: "editor" },
     { name: "approvals", path: "/approvals" },
+    { name: "decisions", path: "/decisions" },
     { name: "reports", path: "/reports" },
     { name: "evaluation", path: "/evaluation" },
     { name: "costs", path: "/costs" },
