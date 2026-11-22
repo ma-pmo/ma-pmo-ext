@@ -22,6 +22,7 @@ from ma_pmo.db.models import (
     Approval,
     Base,
     Budget,
+    Communication,
     DecisionRecord,
     KnowledgeDoc,
     KpiEvent,
@@ -110,6 +111,8 @@ def _marked_rows() -> list[Base]:
         DecisionRecord(id=f"DEC-{MARK}", kind="budget", subject=MARK, title=MARK,
                        status="accepted", created_at=datetime(2026, 1, 1),
                        updated_at=datetime(2026, 1, 1)),
+        Communication(event="risk.detected", channel=MARK, target=MARK, title=MARK,
+                      status="sent", message_id=f"msg-{MARK}", run_id=f"run-{MARK}"),
     ]
 
 
@@ -134,7 +137,7 @@ def other():
     with workspace.use(OTHER), get_session() as s:
         for model in (Approval, KpiEvent, AgentMessageRow, RunStep, Run, Risk, Allocation,
                       Task, Project, Resource, Portfolio, Report, KnowledgeDoc, WorkflowVersion,
-                      LlmCall, Budget, Recommendation, DecisionRecord):
+                      LlmCall, Budget, Recommendation, DecisionRecord, Communication):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Workspace).where(Workspace.id == OTHER))

@@ -8,6 +8,10 @@ approvals and budgets) hands the events to a background sender, so a slow or dea
 an agent run nothing. `emit` delivers at once and returns one row per attempt (tests, the
 integration test endpoint). After `BREAKER_FAILURES` failures in a row a notifier is skipped for
 `BREAKER_COOLDOWN_SEC`, so a dead endpoint is not waited on for every event.
+
+Every attempt is written to the communication log (roadmap 8, step 3), deliberate skips too: a
+dry run, no notifier configured, an event the settings do not subscribe to, a paused notifier.
+The log answers whom a decision was told to; writing it never fails the delivery.
 """
 from __future__ import annotations
 
@@ -35,44 +39,84 @@ def wanted_types(settings: Settings) -> set[str]:
 
 
 def emit(events: Iterable[Event], *, notifiers: Sequence[Notifier] | None = None,
-         settings: Settings | None = None) -> list[dict]:
+         settings: Settings | None = None, run_id: str | None = None) -> list[dict]:
     """Send each event to each notifier. Returns one result row per delivery attempt."""
     events = list(events)
-    if not events or is_demo_only():  # a dry run tells nobody
+    if not events:
+        return []
+    if is_demo_only():  # a dry run tells nobody
+        _log_attempts([(e, "-", SKIPPED, "dry run") for e in events], run_id)
         return []
     settings = settings or get_settings()
     try:
         targets = list(notifiers) if notifiers is not None else build_notifiers(settings)
     except Exception as e:  # a misconfigured integration must not break the caller
         _log.warning("integration_build_failed", error=str(e))
+        _log_attempts([(ev, "-", FAILED, f"integration setup: {str(e)[:150]}")
+                       for ev in events], run_id)
         return []
     if not targets:
+        _log_attempts([(e, "-", SKIPPED, "no notifier configured") for e in events], run_id)
         return []
 
     wanted = wanted_types(settings)
     results = []
+    attempts: list[tuple[Event, str, str, str | None]] = []
     for event in events:
         if wanted and event.type.value not in wanted and event.type is not EventType.TEST:
+            attempts.append((event, "-", SKIPPED, "not subscribed (MA_PMO_NOTIFY_EVENTS)"))
             continue
         for notifier in targets:
             if _open(notifier.name):
                 results.append({"integration": notifier.name, "event": event.type.value,
                                 "ok": False, "error": "skipped: failing repeatedly"})
+                attempts.append((event, notifier.name, SKIPPED, "paused: failing repeatedly"))
                 continue
             try:
                 notifier.send(event)
                 _record(notifier.name, ok=True)
                 results.append({"integration": notifier.name, "event": event.type.value,
                                 "ok": True})
+                attempts.append((event, notifier.name, SENT, None))
                 _log.info("integration_sent", integration=notifier.name,
                           event_type=event.type.value)
             except Exception as e:
                 _record(notifier.name, ok=False)
                 results.append({"integration": notifier.name, "event": event.type.value,
                                 "ok": False, "error": str(e)[:200]})
+                attempts.append((event, notifier.name, FAILED, str(e)[:200]))
                 _log.warning("integration_failed", integration=notifier.name,
                              event_type=event.type.value, error=str(e)[:200])
+    _log_attempts(attempts, run_id)
     return results
+
+
+SENT, FAILED, SKIPPED = "sent", "failed", "skipped"
+
+
+def _log_attempts(attempts: Sequence[tuple[Event, str, str, str | None]],
+                  run_id: str | None) -> None:
+    """Write the attempts to the communication log; a failure here is only logged."""
+    if not attempts:
+        return
+    try:
+        from ma_pmo.core.runs import current_run_id
+        from ma_pmo.db.models import Communication
+        from ma_pmo.db.session import get_session
+
+        run_id = run_id or current_run_id()
+        with get_session() as s:
+            for event, channel, status, error in attempts:
+                data = event.data or {}
+                approval = data.get("approval_id")
+                s.add(Communication(
+                    event=event.type.value, channel=channel, target=event.task_ref or "",
+                    title=event.title[:300], severity=event.severity, status=status, error=error,
+                    message_id=data.get("message_id"), decision_id=data.get("decision_record"),
+                    approval_id=approval if isinstance(approval, int) else None,
+                    run_id=run_id or data.get("run_id")))
+    except Exception as e:
+        _log.warning("communication_log_failed", error=str(e)[:200])
 
 
 def _open(name: str) -> bool:
@@ -101,7 +145,8 @@ def reset_breakers() -> None:
 
 # ── background delivery ────────────────────────────────────────────────────────────────
 
-_queue: queue.Queue[tuple[list[Event], list[Notifier], Settings]] = queue.Queue()
+# events, targets, settings, and the caller's workspace and run (context vars do not cross threads)
+_queue: queue.Queue[tuple[list[Event], list[Notifier], Settings, str, str | None]] = queue.Queue()
 _worker: threading.Thread | None = None
 
 
@@ -114,16 +159,23 @@ def emit_later(events: Iterable[Event]) -> None:
     global _worker
     events = list(events)
     if not events or is_demo_only():
+        emit(events)  # nothing to send: emit only logs why
         return
     settings = get_settings()
     try:
         targets = build_notifiers(settings)
     except Exception as e:  # a misconfigured integration must not break the caller
         _log.warning("integration_build_failed", error=str(e))
+        _log_attempts([(ev, "-", FAILED, f"integration setup: {str(e)[:150]}")
+                       for ev in events], None)
         return
     if not targets:
+        emit(events, notifiers=[], settings=settings)
         return
-    _queue.put((events, list(targets), settings))
+    from ma_pmo.core import workspace
+    from ma_pmo.core.runs import current_run_id
+
+    _queue.put((events, list(targets), settings, workspace.current(), current_run_id()))
     with _lock:
         if _worker is None or not _worker.is_alive():
             _worker = threading.Thread(target=_send_queued, name="ma-pmo-notify", daemon=True)
@@ -132,9 +184,12 @@ def emit_later(events: Iterable[Event]) -> None:
 
 def _send_queued() -> None:
     while True:
-        events, targets, settings = _queue.get()
+        events, targets, settings, where, run_id = _queue.get()
         try:
-            emit(events, notifiers=targets, settings=settings)
+            from ma_pmo.core import workspace
+
+            with workspace.use(where):
+                emit(events, notifiers=targets, settings=settings, run_id=run_id)
         except Exception as e:  # never let the sender die
             _log.warning("integration_failed", error=str(e)[:200])
         finally:

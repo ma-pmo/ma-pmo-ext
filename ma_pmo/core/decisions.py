@@ -13,7 +13,7 @@ budgets. Each now also leaves a `decision_record`:
 - `outcome`: what was chosen, and the person's reason (`rationale`)
 - `decision_makers`: the agent that proposed it and the person who decided, with roles
 - `consulted`: the reviewers and their verdicts
-- `informed`: who was told (filled by the communication log)
+- `informed`: who was told: read from the communication log when one record is fetched
 - `consequences`: conditions attached, follow-ups
 
 A person must give a reason to reject, and to approve a decision review challenged (an
@@ -138,6 +138,12 @@ def list_records(kind: str | None = None, status: str | None = None,
 
 
 def get(record_id: str) -> dict[str, Any] | None:
+    from ma_pmo.core import communications
+
     with get_session() as s:  # a select, so the workspace filter applies
         row = s.scalars(select(DecisionRecord).where(DecisionRecord.id == record_id)).first()
-        return as_dict(row) if row else None
+        found = as_dict(row) if row else None
+    if found is not None:
+        found["informed"] = found["informed"] + communications.informed(found["id"],
+                                                                        found["message_id"])
+    return found

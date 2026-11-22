@@ -52,6 +52,7 @@ Multi-Agent Research*, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870))을 
   근거(`drivers`), 검토가 제시한 대안(`options`), 제안한 에이전트(`decision_makers`), 검토자별 판정(`consulted`)이 담깁니다.
 - 승인하면 `accepted` 또는 `rejected`가 되고 승인자와 사유(`outcome.justification`)가 더해집니다.
 - 워크플로 게시, 예산 설정, 재생 추천 결정도 기록됩니다.
+- id로 조회하면 누구에게 알렸는지(`informed`, docs/INTEGRATIONS.ko.md의 소통 기록)가 함께 나옵니다.
 - 같은 대상(예: 같은 프로젝트 게이트)에 새 결정이 나오면 이전 기록은 `superseded`가 되고 새 기록이 이를 가리킵니다.
 
 거절할 때, 그리고 검토자가 이의를 제기한 결정을 승인할 때(재정의, EU AI Act 14조 4항 d호)는 사유가 필요합니다.
