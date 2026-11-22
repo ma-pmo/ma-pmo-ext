@@ -61,6 +61,17 @@ Every decision leaves a record in MADR form (`GET /decisions`, filter by `kind`,
 - a newer decision on the same subject (the same project gate, say) marks the earlier one
   `superseded` and links to it.
 
+`GET /decisions/{id}/provenance` exports one record as W3C PROV-JSON, so an auditor can check it
+with standard PROV tools (for example the `prov` Python package, which reads it and prints
+PROV-N):
+
+- entities: the decision, the message it was made from, the reviews and the evidence they cite
+  (other messages, tracker fields, lessons);
+- activities: the run's steps, the commit gate or the person's approval;
+- agents: A1-A8 as `prov:SoftwareAgent`, people as `prov:Person`;
+- relations: `wasGeneratedBy`, `wasDerivedFrom`, `wasAssociatedWith`, `wasAttributedTo`,
+  `wasInformedBy`.
+
 A reason is required to reject, and to approve a decision a reviewer challenged (an override,
 EU AI Act Art. 14(4)(d)). Without one `POST /approvals/{id}` returns 400; the approvals page asks
 for it.
