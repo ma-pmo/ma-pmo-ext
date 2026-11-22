@@ -125,6 +125,16 @@ export const api = {
   // the rendered report, fetched with the workspace and key headers a plain link would not send
   reportExport: async (id: string, format: string) =>
     raw(`/reports/${encodeURIComponent(id)}/export?format=${format}`),
+  // decision log, communication log and threads (roadmap 8)
+  decisions: (f: { kind?: string; status?: string; subject?: string; limit?: number } = {}) => {
+    const q = new URLSearchParams(Object.entries(f).filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)]));
+    return req(`/decisions${q.size ? `?${q}` : ""}`);
+  },
+  decision: (id: string) => req(`/decisions/${encodeURIComponent(id)}`),
+  decisionProvenance: (id: string) => raw(`/decisions/${encodeURIComponent(id)}/provenance`),
+  communications: (run: string) => req(`/communications?run=${encodeURIComponent(run)}&limit=200`),
+  conversation: (run: string) => req(`/messages?conversation=${encodeURIComponent(run)}&limit=200`),
   testIntegration: (name: string) =>
     req(`/integrations/${encodeURIComponent(name)}/test`, { method: "POST" }),
 };

@@ -14,6 +14,7 @@ import {
 } from "./graph";
 import { Editor } from "./editor";
 import { BoardCard, type Board } from "./board";
+import { ThreadCard } from "./thread";
 
 export default function Workflows() {
   const { lang, t } = useI18n();
@@ -267,6 +268,7 @@ export default function Workflows() {
               </div>
             </Card>
             {overlay && board && <BoardCard board={board} />}
+            {overlay && board && runId && <ThreadCard runId={runId} />}
             {versions.length > 0 && (
               <Card title={w.versions} desc={w.versionsHint} flush>
                 <div className="table-wrap">

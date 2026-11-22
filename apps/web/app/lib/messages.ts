@@ -4,7 +4,7 @@ export type Lang = "en" | "ko";
 const en = {
   appTitle: "MA-PMO Admin",
   nav: {
-    dashboard: "Dashboard", scenarios: "Scenarios", workflows: "Workflows", approvals: "Approvals",
+    dashboard: "Dashboard", scenarios: "Scenarios", workflows: "Workflows", approvals: "Approvals", decisions: "Decision log",
     evaluation: "Evaluation", costs: "Costs", integrations: "Integrations", reports: "Reports",
     groups: { overview: "Overview", operations: "Operations", insights: "Insights", settings: "Settings" },
   },
@@ -20,6 +20,7 @@ const en = {
     dashboard: "Portfolio status, KPIs and agent activity at a glance.",
     scenarios: "Run a lifecycle use case and watch the agents plan, execute, complete and report.",
     approvals: "High-risk decisions and low-confidence outputs wait here for a human.",
+    decisions: "Every decision in one place: what was decided, on what evidence, by whom, whom they consulted and whom they told.",
     evaluation: "Hypotheses H1–H5 measured on live telemetry, with templates to evaluate your own data.",
     integrations: "Connect Slack, webhooks, Jira, GitHub and Linear, and see which platform features are on.",
     workflows: "What each workflow runs, in which order, and which steps must stay.",
@@ -331,6 +332,31 @@ const en = {
     reviewed: "reviewed",
   },
 
+  dlog: {
+    kind: "Kind", status: "Status", project: "Project or subject", all: "All",
+    kinds: { gate: "Gate", report: "Report", risk: "Risk", allocation: "Allocation", schedule: "Schedule",
+      workflow_publish: "Workflow published", model_recommendation: "Model recommendation", budget: "Budget",
+      other: "Other" } as Record<string, string>,
+    statuses: { proposed: "Proposed", committed: "Committed", accepted: "Accepted", rejected: "Rejected",
+      superseded: "Superseded" } as Record<string, string>,
+    none: "No decisions recorded yet. Run a workflow, decide an approval, or set a budget.",
+    pick: "Pick a decision to read it.",
+    context: "Context", drivers: "Decision drivers (evidence)", options: "Considered options",
+    outcome: "Decision outcome", chosen: "Chosen", because: "Because", noReason: "No reason was needed.",
+    consequences: "Consequences", makers: "Decision makers", consulted: "Consulted", informed: "Informed",
+    nobodyTold: "Nobody was notified.", supersedes: "Supersedes", run: "Run", message: "Message",
+    prov: "PROV-JSON", provTip: "W3C PROV document of this decision, for audit tools.",
+    asProposed: "As proposed", alternative: "Alternative",
+    sent: "sent", failed: "failed", skipped: "skipped",
+  },
+  thread: {
+    title: "Messages and notifications",
+    desc: "This run's conversation: each decision with the reviews that answer it, and every notification attempt.",
+    replies: (n: number) => `${n} replies`, none: "No messages in this run.",
+    notifications: "Notifications", noNotifications: "No notification attempts in this run.",
+    channel: "Channel", event: "Event", status: "Status", why: "Reason",
+  },
+
   appr: {
     title: "Approval queue (Human-in-the-Loop)",
     desc1:
@@ -350,6 +376,9 @@ const en = {
     hideRaw: "Hide raw",
     whyReject: "Why reject? (recorded in the decision log)",
     whyOverride: "A reviewer challenged this. Why approve it anyway? (recorded in the decision log)",
+    reasonLabel: "Reason (recorded in the decision log)",
+    reasonNeeded: "A reason is required to reject, and to approve what a reviewer challenged.",
+    reasonPlaceholder: "Why?",
     recentTitle: "Recent agent messages (audit log · §4)",
     recentDesc: "All communication is stored append-only. Full log:",
     sum: {
@@ -375,7 +404,7 @@ export type Messages = typeof en;
 const ko: Messages = {
   appTitle: "MA-PMO 관리자",
   nav: {
-    dashboard: "대시보드", scenarios: "시나리오", workflows: "워크플로", approvals: "승인 큐",
+    dashboard: "대시보드", scenarios: "시나리오", workflows: "워크플로", approvals: "승인 큐", decisions: "결정 기록",
     evaluation: "평가", costs: "비용", integrations: "연동", reports: "보고서",
     groups: { overview: "개요", operations: "운영", insights: "분석", settings: "설정" },
   },
@@ -391,6 +420,7 @@ const ko: Messages = {
     dashboard: "포트폴리오 상태, KPI, 에이전트 활동을 한눈에 봅니다.",
     scenarios: "생애주기 유즈케이스를 실행하고 에이전트의 계획·수행·완료·보고 과정을 봅니다.",
     approvals: "고위험 결정과 저신뢰 결과가 사람의 승인을 기다립니다.",
+    decisions: "모든 결정을 한곳에서 봅니다. 무엇을, 어떤 근거로, 누가 정했고, 누구와 상의하고 누구에게 알렸는지.",
     evaluation: "가설 H1~H5를 실측 텔레메트리로 평가하고, 우리 조직 데이터 평가용 템플릿을 받습니다.",
     integrations: "Slack, 웹훅, Jira, GitHub, Linear를 연결하고 플랫폼 기능이 켜져 있는지 확인합니다.",
     workflows: "각 워크플로가 무엇을 어떤 순서로 실행하는지, 어떤 단계를 뺄 수 없는지 봅니다.",
@@ -700,6 +730,31 @@ const ko: Messages = {
     reviewed: "검토",
   },
 
+  dlog: {
+    kind: "종류", status: "상태", project: "프로젝트 또는 대상", all: "전체",
+    kinds: { gate: "게이트", report: "보고서", risk: "리스크", allocation: "자원 배분", schedule: "일정",
+      workflow_publish: "워크플로 게시", model_recommendation: "모델 추천", budget: "예산",
+      other: "기타" } as Record<string, string>,
+    statuses: { proposed: "제안됨", committed: "확정", accepted: "승인", rejected: "거절",
+      superseded: "대체됨" } as Record<string, string>,
+    none: "아직 기록된 결정이 없습니다. 워크플로를 실행하거나, 승인을 처리하거나, 예산을 설정하세요.",
+    pick: "읽을 결정을 고르세요.",
+    context: "배경", drivers: "결정 근거", options: "검토한 선택지",
+    outcome: "결정 결과", chosen: "선택", because: "사유", noReason: "사유가 필요하지 않은 결정입니다.",
+    consequences: "결과와 후속 조치", makers: "결정자", consulted: "자문", informed: "알림 대상",
+    nobodyTold: "알림을 보낸 곳이 없습니다.", supersedes: "대체한 결정", run: "실행", message: "메시지",
+    prov: "PROV-JSON", provTip: "이 결정의 W3C PROV 문서입니다. 감사 도구에서 읽을 수 있습니다.",
+    asProposed: "제안대로", alternative: "대안",
+    sent: "보냄", failed: "실패", skipped: "건너뜀",
+  },
+  thread: {
+    title: "메시지와 알림",
+    desc: "이 실행의 대화입니다. 결정마다 그에 답한 검토가 붙고, 알림 시도가 모두 나옵니다.",
+    replies: (n: number) => `답 ${n}개`, none: "이 실행에는 메시지가 없습니다.",
+    notifications: "알림", noNotifications: "이 실행에서 알림을 시도한 적이 없습니다.",
+    channel: "채널", event: "이벤트", status: "상태", why: "이유",
+  },
+
   appr: {
     title: "승인 큐 (Human-in-the-Loop)",
     desc1: "고위험 결정(예산·범위·계약·외부 커뮤니케이션) 또는 저신뢰(confidence < 0.6) 메시지는 승인 전까지 ",
@@ -717,6 +772,9 @@ const ko: Messages = {
     hideRaw: "원문 숨기기",
     whyReject: "거절 사유를 입력하세요 (결정 기록에 남습니다)",
     whyOverride: "검토자가 이의를 제기한 결정입니다. 그래도 승인하는 사유를 입력하세요 (결정 기록에 남습니다)",
+    reasonLabel: "사유 (결정 기록에 남습니다)",
+    reasonNeeded: "거절할 때, 그리고 검토자가 이의를 제기한 결정을 승인할 때는 사유가 필요합니다.",
+    reasonPlaceholder: "사유",
     recentTitle: "최근 에이전트 메시지 (감사 로그 · §4)",
     recentDesc: "모든 통신은 append-only 로 저장됩니다. 전체:",
     sum: {

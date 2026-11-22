@@ -35,6 +35,7 @@ export default function Approvals() {
   const [raw, setRaw] = useState<Record<number, boolean>>({});
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState<number | null>(null);
+  const [why, setWhy] = useState<Record<number, string>>({});  // the reason typed per item
 
   async function load() {
     try {
@@ -45,16 +46,23 @@ export default function Approvals() {
   }
   useEffect(() => { load(); }, [lang]);
 
-  async function decide(id: number, decision: "approve" | "reject", challenged = false) {
-    // a reason is required to reject, and to approve what a reviewer challenged (an override)
-    let rationale: string | undefined;
-    if (decision === "reject" || challenged) {
-      const given = window.prompt(decision === "reject" ? a.whyReject : a.whyOverride);
-      if (!given?.trim()) return;
-      rationale = given.trim();
+  // a reason is required to reject, and to approve what a reviewer challenged (an override)
+  const challenged = (it: any) => !!it.review?.challenges?.length;
+  const needsReason = (it: any, decision: "approve" | "reject") => decision === "reject" || challenged(it);
+
+  async function decide(it: any, decision: "approve" | "reject") {
+    const id = it.approval_id;
+    const rationale = why[id]?.trim() || undefined;
+    if (needsReason(it, decision) && !rationale) {
+      document.getElementById(`why-${id}`)?.focus();
+      return;
     }
     setBusy(id); setErr("");
-    try { await api.resolveApproval(id, APPROVER, decision, rationale); await load(); }
+    try {
+      await api.resolveApproval(id, APPROVER, decision, rationale);
+      setWhy((w) => { const { [id]: _, ...rest } = w; return rest; });
+      await load();
+    }
     catch (e: any) { setErr(errorText(e)); }
     finally { setBusy(null); }
   }
@@ -115,9 +123,23 @@ export default function Approvals() {
                         <td className="num">{it.confidence}</td>
                         <td>
                           <div className="row" style={{ flexWrap: "nowrap" }}>
-                            <button className="sm" onClick={() => decide(it.approval_id, "approve", !!it.review?.challenges?.length)} disabled={busy === it.approval_id}>{a.approve}</button>
-                            <button className="sm ghost" onClick={() => decide(it.approval_id, "reject")} disabled={busy === it.approval_id}>{a.reject}</button>
+                            <button className="sm" onClick={() => decide(it, "approve")}
+                              disabled={busy === it.approval_id || (challenged(it) && !why[it.approval_id]?.trim())}>{a.approve}</button>
+                            <button className="sm ghost" onClick={() => decide(it, "reject")}
+                              disabled={busy === it.approval_id || !why[it.approval_id]?.trim()}>{a.reject}</button>
                           </div>
+                        </td>
+                      </tr>
+                      <tr className="reason-row">
+                        <td />
+                        <td colSpan={5}>
+                          <label htmlFor={`why-${it.approval_id}`} className="muted">
+                            {a.reasonLabel}{challenged(it) ? ` · ${a.whyOverride}` : ""}
+                          </label>
+                          <textarea id={`why-${it.approval_id}`} className="input" placeholder={a.reasonPlaceholder}
+                            value={why[it.approval_id] ?? ""} aria-describedby={`why-help-${it.approval_id}`}
+                            onChange={(e) => setWhy((w) => ({ ...w, [it.approval_id]: e.target.value }))} />
+                          <div id={`why-help-${it.approval_id}`} className="muted small">{a.reasonNeeded}</div>
                         </td>
                       </tr>
                       {it.review && (
