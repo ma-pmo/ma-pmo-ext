@@ -22,6 +22,7 @@ from ma_pmo.db.models import (
     Approval,
     Base,
     Budget,
+    Commitment,
     Communication,
     DecisionRecord,
     KnowledgeDoc,
@@ -60,6 +61,8 @@ PATH = {
     "/runs/{run_id}/board": (f"/runs/run-{MARK}/board", lambda r: r.status_code == 404),
     "/reports/{report_id}": (f"/reports/RPT-{MARK}", lambda r: r.status_code == 404),
     "/decisions/{record_id}": (f"/decisions/DEC-{MARK}", lambda r: r.status_code == 404),
+    "/commitments/{commitment_id}": (f"/commitments/COM-{MARK}",
+                                     lambda r: r.status_code == 404),
     "/decisions/{record_id}/provenance": (f"/decisions/DEC-{MARK}/provenance",
                                           lambda r: r.status_code == 404),
     "/messages/{message_id}/thread": (f"/messages/msg-{MARK}/thread",
@@ -113,6 +116,9 @@ def _marked_rows() -> list[Base]:
         DecisionRecord(id=f"DEC-{MARK}", kind="budget", subject=MARK, title=MARK,
                        status="accepted", created_at=datetime(2026, 1, 1),
                        updated_at=datetime(2026, 1, 1)),
+        Commitment(id=f"COM-{MARK}", kind="gate_condition", debtor=MARK, creditor=MARK,
+                   consequent=MARK, state="active", created_at=datetime(2026, 1, 1),
+                   updated_at=datetime(2026, 1, 1)),
         Communication(event="risk.detected", channel=MARK, target=MARK, title=MARK,
                       status="sent", message_id=f"msg-{MARK}", run_id=f"run-{MARK}"),
     ]
@@ -139,7 +145,8 @@ def other():
     with workspace.use(OTHER), get_session() as s:
         for model in (Approval, KpiEvent, AgentMessageRow, RunStep, Run, Risk, Allocation,
                       Task, Project, Resource, Portfolio, Report, KnowledgeDoc, WorkflowVersion,
-                      LlmCall, Budget, Recommendation, DecisionRecord, Communication):
+                      LlmCall, Budget, Recommendation, DecisionRecord, Communication,
+                      Commitment):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Workspace).where(Workspace.id == OTHER))

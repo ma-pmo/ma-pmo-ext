@@ -72,6 +72,25 @@ Multi-Agent Research*, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870))을 
 거절할 때, 그리고 검토자가 이의를 제기한 결정을 승인할 때(재정의, EU AI Act 14조 4항 d호)는 사유가 필요합니다.
 사유가 없으면 `POST /approvals/{id}`가 400을 돌려주고, 승인 화면은 사유를 묻습니다.
 
+## 약속(commitment)
+
+결정은 누군가에게 할 일을 남길 수 있습니다. 그 의무를 약속으로 관리합니다. 누가 누구에게 무엇을 언제까지 해야 하는지를
+담습니다(`GET /commitments`, `state`·`debtor`·`project`로 거르기).
+
+- **어디서 생기나.** 조건부 게이트의 조건은 게이트가 효력을 가질 때 프로젝트 팀의 약속이 됩니다. 커밋 게이트가 확정했거나
+  사람이 승인했을 때입니다. 승인할 때 조건을 붙이거나(`conditions: [{text, due, debtor}]`), 검토가 제시한 대안을
+  채택할 수도 있습니다(`adopt: [<메시지 id>]`). "2026-W12까지 주 30시간 추가"를 채택하면 그 주 금요일이 기한이 됩니다.
+- **상태.** 전제 조건이 충족되기 전에는 `conditional`, 그 뒤에는 `active`입니다. 이행하면 `satisfied`, 채무자가
+  취소하면 `violated`, 채권자가 놓아주면 `released`가 됩니다. `conditional`일 때 취소하면 `cancelled`입니다.
+  기한 확인은 로드맵 9의 2단계부터 동작합니다.
+- **조작.** `POST /commitments/{id}/{op}`로 `detach`, `discharge`(`reference`와 함께), `cancel`, `release`,
+  `delegate`(새 채무자 `to`), `assign`(새 채권자 `to`)을 합니다. 조작마다 결정의 대화에 `commitment.v1` 메시지가
+  답글로 남습니다.
+- **트래커가 확인할 수 있는 것은 자동으로 이행 처리합니다.** `POST /commitments/check`는 열린 게이트 조건마다 해당
+  게이트 기준을 다시 평가하고, 이제 통과하는 것은 트래커를 근거로 이행 처리합니다.
+- **기본 기한.** 기한이 없으면 프로젝트 달력의 오늘(`MA_PMO_REPORT_AS_OF`가 있으면 그 날짜)부터
+  `MA_PMO_COMMITMENT_DUE_DAYS`(14)일 뒤가 기한입니다.
+
 ## builder 검토
 
 워크플로가 읽기를 허락하면 두 에이전트가 자기 결과를 검토합니다.

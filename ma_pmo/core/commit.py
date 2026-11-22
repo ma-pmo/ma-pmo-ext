@@ -95,7 +95,7 @@ def _record(run_id: str, posts: list[dict], reviews: dict[str, list[dict]],
             outcome: list[dict]) -> None:
     """A decision record per decision: committed, or proposed while a person decides (held by
     review, or gated for approval when it was sent)."""
-    from ma_pmo.core import decisions
+    from ma_pmo.core import commitments, decisions
 
     by_id = {p["message_id"]: p for p in posts}
     with get_session() as s:
@@ -106,8 +106,9 @@ def _record(run_id: str, posts: list[dict], reviews: dict[str, list[dict]],
         post = by_id[item["message_id"]]
         kind, subject, title = decisions.describe(post["schema"], post["data"], post["task_ref"])
         mine = reviews.get(post["message_id"], [])
-        decisions.record(
-            kind, subject, title, "proposed" if item["message_id"] in waiting else "committed",
+        status = "proposed" if item["message_id"] in waiting else "committed"
+        rec = decisions.record(
+            kind, subject, title, status,
             drivers=post.get("evidence") or [],
             options=[{"option": "as proposed", "message_id": post["message_id"]}]
             + [{"option": "alternative", "message_id": m} for m in item["alternatives"]],
@@ -118,6 +119,9 @@ def _record(run_id: str, posts: list[dict], reviews: dict[str, list[dict]],
             consequences=list(post["data"].get("conditions") or []) + [
                 f"not checked: {m}" for m in item["missing"]],
             run_id=run_id, message_id=post["message_id"])
+        if status == "committed":  # in force: a conditional gate's conditions are now owed
+            commitments.from_gate(post["message_id"], creditor=post["agent"], by=post["agent"],
+                                  decision_id=rec["id"])
 
 
 def _queue(run_id: str, held: list[dict]) -> None:

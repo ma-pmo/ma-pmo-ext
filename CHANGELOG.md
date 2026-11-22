@@ -13,6 +13,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - **Provenance export** (roadmap 8, step 4): `GET /decisions/{id}/provenance` returns a decision as W3C PROV-JSON (entities: the decision, its message, reviews and evidence; activities: run steps, the commit gate or the approval; agents: A1-A8 and people), readable by standard PROV tools.
 - **Decision log page and record UI** (roadmap 8, step 5): a Decision log page (filter by kind, status and project; one record in MADR order with a PROV-JSON download), an inline reason field on approvals in place of the browser prompt, and a run's messages and notifications in Workflows (decisions with the reviews that answer them, every notification attempt). Approval notifications now carry their run.
 - **Record completeness evaluation** (roadmap 8, step 6): `ma-pmo eval --records` runs the 20 built-in scenarios and the 35 review cases with a stand-in person and stand-in notifiers, and measures decisions recorded, reasons kept and enforced, provenance to a run step and notification attempts logged: 100% on each. Evidence citation (64% and 76%) is reported as an open gap. See docs/RECORDS-EVAL.md.
+- **Commitments** (roadmap 9, step 1): a conditional gate's conditions, conditions attached when approving and adopted review alternatives become commitments (debtor, creditor, consequent, due) with Singh's states and operations (detach, discharge, cancel, release, delegate, assign), each posted as a `commitment.v1` message in the decision's conversation. The tracker discharges gate conditions whose criterion now passes. `GET /commitments`, `POST /commitments/{id}/{op}`, `POST /commitments/check`; approvals take `conditions` and `adopt`. Migration `0017_commitments`.
 
 ## [0.9.0] - 2026-11-21
 
@@ -238,6 +239,7 @@ First public release.
 - 추가: **출처(provenance) 내보내기**(로드맵 8, 4단계). `GET /decisions/{id}/provenance`가 결정을 W3C PROV-JSON으로 돌려줍니다(엔터티: 결정·메시지·검토·근거, 활동: 실행 단계·커밋 게이트·승인, 에이전트: A1-A8과 사람). 표준 PROV 도구로 읽을 수 있습니다.
 - 추가: **결정 기록 화면**(로드맵 8, 5단계). 결정 기록 페이지(종류·상태·프로젝트로 거르기, 기록 하나를 MADR 순서로 보기, PROV-JSON 내려받기), 브라우저 입력창 대신 승인 항목마다 붙은 사유 입력란, 워크플로 화면의 실행별 메시지와 알림(결정과 그에 답한 검토, 모든 알림 시도). 승인 알림이 실행과 연결됩니다.
 - 추가: **기록 완전성 평가**(로드맵 8, 6단계). `ma-pmo eval --records`가 기본 시나리오 20개와 검토 사례 35개를 대리 사용자·대리 알림 채널로 돌려 결정 기록, 사유 보존과 강제, 실행 단계까지의 출처, 알림 시도 기록을 측정합니다. 모두 100%입니다. 근거 인용(64%, 76%)은 남은 과제로 보고합니다. docs/RECORDS-EVAL.ko.md 참고.
+- 추가: **약속**(로드맵 9, 1단계). 조건부 게이트의 조건, 승인 때 붙인 조건, 채택한 검토 대안이 약속(채무자, 채권자, 할 일, 기한)이 되고, Singh의 상태와 조작(detach, discharge, cancel, release, delegate, assign)을 따릅니다. 조작마다 결정의 대화에 `commitment.v1` 메시지가 남습니다. 트래커가 게이트 기준 통과를 확인하면 조건을 이행 처리합니다. `GET /commitments`, `POST /commitments/{id}/{op}`, `POST /commitments/check`. 승인에 `conditions`, `adopt`가 붙습니다. 마이그레이션 `0017_commitments`.
 
 ### [0.9.0] - 2026-11-21
 

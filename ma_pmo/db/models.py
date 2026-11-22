@@ -408,3 +408,36 @@ class Communication(Scoped, Base):
     approval_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     run_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class Commitment(Scoped, Base):
+    """C(debtor, creditor, antecedent, consequent): who owes what to whom, by when (Singh).
+
+    conditional (antecedent not yet true) -> active -> satisfied, or violated (due passed, or
+    cancelled while active), expired (antecedent not true by detach_by), cancelled (while
+    conditional) or released (by the creditor). Every operation is also a commitment.v1 message
+    in the source's conversation (core/commitments.py).
+    """
+
+    __tablename__ = "commitment"
+    id: Mapped[str] = mapped_column(String, primary_key=True)  # COM-<hex>
+    # gate_condition | approval_condition | alternative | question
+    kind: Mapped[str] = mapped_column(String)
+    debtor: Mapped[str] = mapped_column(String, index=True)  # agent, person or project team
+    creditor: Mapped[str] = mapped_column(String)
+    antecedent: Mapped[str | None] = mapped_column(Text, nullable=True)
+    consequent: Mapped[str] = mapped_column(Text)
+    detach_by: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    due: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    state: Mapped[str] = mapped_column(String, index=True)
+    project_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    source_message: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    source_decision: Mapped[str | None] = mapped_column(String, nullable=True)
+    source_approval: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    conversation_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    # how a tracker can tell it is done, e.g. {"kind": "gate_criterion", "gate": ..., "index": 1}
+    check: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    evidence: Mapped[list | None] = mapped_column(JSON, nullable=True)  # what discharged it
+    history: Mapped[list | None] = mapped_column(JSON, nullable=True)  # {op, by, at, note}
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

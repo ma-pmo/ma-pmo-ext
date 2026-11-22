@@ -83,6 +83,30 @@ A reason is required to reject, and to approve a decision a reviewer challenged 
 EU AI Act Art. 14(4)(d)). Without one `POST /approvals/{id}` returns 400; the approvals page asks
 for it.
 
+## Commitments
+
+A decision can oblige someone to do something. Those obligations are kept as commitments: who
+owes what to whom, by when (`GET /commitments`, filter by `state`, `debtor`, `project`).
+
+- **Where they come from.** A conditional gate's conditions become commitments of the project
+  team once the gate is in force: committed by the commit gate, or approved by a person. An
+  approval can also attach conditions (`conditions: [{text, due, debtor}]`) and adopt an
+  alternative that review offered (`adopt: [<message id>]`). An adopted "add 30 h/week until
+  2026-W12" is due on that week's Friday.
+- **States.** `conditional` until its antecedent holds, then `active`. From there it becomes
+  `satisfied` when discharged, `violated` when cancelled by its debtor, or `released` by its
+  creditor. A conditional one that is cancelled becomes `cancelled`. Due dates are checked from
+  roadmap 9 step 2.
+- **Operations.** `POST /commitments/{id}/{op}` with `detach`, `discharge` (with a
+  `reference`), `cancel`, `release`, `delegate` (new debtor, `to`) or `assign` (new creditor,
+  `to`). Each one is also a `commitment.v1` message in the decision's conversation, replying to
+  it.
+- **The tracker discharges what it can see.** `POST /commitments/check` re-runs the gate
+  criterion behind each open gate condition and discharges the ones that now pass, citing the
+  tracker.
+- **Default due date.** Without a due date, a commitment is due `MA_PMO_COMMITMENT_DUE_DAYS`
+  (14) days after the project calendar's today (`MA_PMO_REPORT_AS_OF` when set).
+
 ## Builder review
 
 When a workflow lets them read, two agents review their own output:

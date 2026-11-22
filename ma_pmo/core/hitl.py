@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
-from ma_pmo.core import decisions, kpi, runs
+from ma_pmo.core import commitments, decisions, kpi, runs
 from ma_pmo.core.obs import get_logger
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
@@ -66,10 +66,15 @@ def _review(approval: Approval) -> dict | None:
 
 
 def resolve(approval_id: int, *, approver: str, decision: str,
-            rationale: str | None = None) -> dict:
+            rationale: str | None = None, conditions: list[dict] | None = None,
+            adopt: list[str] | None = None) -> dict:
     """Approve or reject. decision ∈ {approve, reject}. Records approval latency as a KPI and the
     decision record. A reason is required to reject, and to approve a decision a reviewer
-    challenged (an override)."""
+    challenged (an override).
+
+    Approving puts the decision's obligations in force as commitments (roadmap 9): a
+    conditional gate's conditions, the `conditions` the approver attaches ({text, due, debtor})
+    and the alternatives they `adopt` (message ids of ALTERNATIVE verdicts on this decision)."""
     if decision not in {"approve", "reject"}:
         raise ValueError("decision must be approve|reject")
     rationale = (rationale or "").strip() or None
@@ -79,6 +84,11 @@ def resolve(approval_id: int, *, approver: str, decision: str,
             raise KeyError(f"approval {approval_id} not found")
         if approval.decision != "pending":
             raise ValueError(f"already resolved: {approval.decision}")
+        if decision == "reject" and (conditions or adopt):
+            raise ValueError("conditions and adopted alternatives come with an approval only")
+        if any(not (c.get("text") or "").strip() for c in conditions or []):
+            raise ValueError("every condition needs a text")
+        commitments.adoptable(approval.message_id, adopt)
         challenged = bool((approval.reason or {}).get("challenges"))
         if rationale is None and (decision == "reject" or challenged):
             raise ValueError("a reason is required to reject, or to approve a decision a "
@@ -116,6 +126,13 @@ def resolve(approval_id: int, *, approver: str, decision: str,
         approver=approver, decision=decision, rationale=rationale, approval_id=approval_id,
         run_id=run_id, agent=sender, evidence=evidence)
     result["decision_record"] = record["id"]
+    if decision == "approve":
+        owed = commitments.from_gate(message_id, creditor=approver, by=approver,
+                                     decision_id=record["id"], approval_id=approval_id)
+        owed += commitments.from_approval(message_id, approver=approver, approval_id=approval_id,
+                                          decision_id=record["id"], conditions=conditions,
+                                          adopt=adopt)
+        result["commitments"] = [c["id"] for c in owed]
     emit_later([approval_resolved_event(result)])
     run_status = _continue_run(run_id, decision, approver)
     return {**result, "run_status": run_status} if run_status else result
