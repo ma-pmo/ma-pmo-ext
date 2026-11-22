@@ -152,8 +152,9 @@ def measure(events: list[int]) -> dict[str, int]:
         with_message = list(s.scalars(select(DecisionRecord.id).where(
             DecisionRecord.message_id.is_not(None))))
         rows = s.scalar(select(func.count()).select_from(Communication)) or 0
-        by_status = dict(s.execute(select(Communication.status, func.count())
-                                   .group_by(Communication.status)).all())
+        by_status: dict[str, int] = {
+            status: count for status, count in s.execute(
+                select(Communication.status, func.count()).group_by(Communication.status))}
     traced = [_traced(r) for r in with_message]
     return {
         "agent_decisions": len(outcome),
