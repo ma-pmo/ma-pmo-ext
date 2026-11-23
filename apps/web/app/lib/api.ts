@@ -125,6 +125,24 @@ export const api = {
   // the rendered report, fetched with the workspace and key headers a plain link would not send
   reportExport: async (id: string, format: string) =>
     raw(`/reports/${encodeURIComponent(id)}/export?format=${format}`),
+  // commitments, questions and roles (roadmap 9)
+  commitments: (f: { state?: string; debtor?: string; project?: string; decision?: string } = {}) => {
+    const q = new URLSearchParams(Object.entries(f).filter(([, v]) => v).map(([k, v]) => [k, String(v)]));
+    return req(`/commitments${q.size ? `?${q}` : ""}`);
+  },
+  commitmentOp: (id: string, op: string, body: { by: string; note?: string; to?: string; reference?: string }) =>
+    req(`/commitments/${encodeURIComponent(id)}/${op}`, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+    }),
+  questions: () => req(`/questions`),
+  answerQuestion: (id: string, by: string, value: unknown) =>
+    req(`/questions/${encodeURIComponent(id)}/answer`, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ by, value }),
+    }),
+  roles: () => req(`/roles`),
+  assignRole: (body: { kind: string; role: string; person: string; project?: string }) =>
+    req(`/roles`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }),
+  removeRole: (id: number) => req(`/roles/${id}`, { method: "DELETE" }),
   // decision log, communication log and threads (roadmap 8)
   decisions: (f: { kind?: string; status?: string; subject?: string; limit?: number } = {}) => {
     const q = new URLSearchParams(Object.entries(f).filter(([, v]) => v !== undefined && v !== "")

@@ -187,7 +187,7 @@ def get(commitment_id: str) -> dict[str, Any] | None:
 
 def list_open(*, state: str | None = None, debtor: str | None = None,
               project: str | None = None, source_message: str | None = None,
-              limit: int = 200) -> list[dict[str, Any]]:
+              decision: str | None = None, limit: int = 200) -> list[dict[str, Any]]:
     with get_session() as s:
         q = select(Commitment).order_by(Commitment.due, Commitment.created_at)
         if state:
@@ -198,6 +198,8 @@ def list_open(*, state: str | None = None, debtor: str | None = None,
             q = q.where(Commitment.project_id == project)
         if source_message:
             q = q.where(Commitment.source_message == source_message)
+        if decision:
+            q = q.where(Commitment.source_decision == decision)
         return [as_dict(r) for r in s.scalars(q.limit(limit)).all()]
 
 

@@ -13,7 +13,7 @@ const LANGS: { code: Lang; label: string }[] = [
   { code: "ko", label: "한국어" },
 ];
 
-type Item = { href: string; key: "dashboard" | "scenarios" | "workflows" | "approvals" | "decisions" | "reports" | "evaluation" | "costs" | "integrations"; icon: () => JSX.Element };
+type Item = { href: string; key: "dashboard" | "scenarios" | "workflows" | "approvals" | "inbox" | "decisions" | "reports" | "evaluation" | "costs" | "integrations" | "roles"; icon: () => JSX.Element };
 const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items: Item[] }[] = [
   { key: "overview", items: [{ href: "/", key: "dashboard", icon: Icon.dashboard }] },
   {
@@ -22,6 +22,7 @@ const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items:
       { href: "/scenarios", key: "scenarios", icon: Icon.scenarios },
       { href: "/workflows", key: "workflows", icon: Icon.workflows },
       { href: "/approvals", key: "approvals", icon: Icon.approvals },
+      { href: "/inbox", key: "inbox", icon: Icon.inbox },
       { href: "/decisions", key: "decisions", icon: Icon.decisions },
     ],
   },
@@ -33,7 +34,10 @@ const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items:
       { href: "/costs", key: "costs", icon: Icon.costs },
     ],
   },
-  { key: "settings", items: [{ href: "/integrations", key: "integrations", icon: Icon.integrations }] },
+  { key: "settings", items: [
+    { href: "/integrations", key: "integrations", icon: Icon.integrations },
+    { href: "/roles", key: "roles", icon: Icon.roles },
+  ] },
 ];
 
 export function Shell({ children }: { children: ReactNode }) {

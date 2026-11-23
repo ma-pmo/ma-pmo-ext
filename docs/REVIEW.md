@@ -83,6 +83,20 @@ A reason is required to reject, and to approve a decision a reviewer challenged 
 EU AI Act Art. 14(4)(d)). Without one `POST /approvals/{id}` returns 400; the approvals page asks
 for it.
 
+## In the dashboard (roadmap 9)
+
+- **Inbox** lists the questions agents asked and the open commitments. You can answer a
+  question in the form it asks for (date, choice, yes/no, value), mark a commitment done with a
+  reference, hand it over, or release it. Filter by your name to see only what you owe or hold.
+- **Roles** is the role map: who is R, A, C and I for each kind of decision and project. Admins
+  can assign and remove people there.
+- **Decision log** shows, under each record, the commitments it created and their history:
+  created, missed, escalated, done.
+- **Approvals** shows who is accountable for each item, and marks items reopened because an
+  obligation was missed.
+- **Workflows** shows a run waiting for an answer as "Awaiting input", with a link to the
+  inbox.
+
 ## Roles (RACI)
 
 For each kind of decision (`gate`, `budget`, `allocation`, `risk`, `report`, `question`, ...,

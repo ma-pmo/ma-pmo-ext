@@ -50,6 +50,8 @@ async function pages() {
     { name: "workflow-editor", path: "/workflows?id=risk_escalation", open: "editor" },
     { name: "approvals", path: "/approvals" },
     { name: "decisions", path: "/decisions" },
+    { name: "inbox", path: "/inbox" },
+    { name: "roles", path: "/roles" },
     { name: "reports", path: "/reports" },
     { name: "evaluation", path: "/evaluation" },
     { name: "costs", path: "/costs" },
