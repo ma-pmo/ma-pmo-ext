@@ -120,6 +120,27 @@ owes what to whom, by when (`GET /commitments`, filter by `state`, `debtor`, `pr
   it. A second sweep changes nothing, and a sweep after downtime takes every step that is due.
   A4 counts a project's violated commitments as a risk signal and rates the project high.
 
+## Questions
+
+An agent that lacks a fact it needs asks a person instead of guessing (A2A's input-required;
+Horvitz's mixed-initiative principles). It may ask only for the facts on its reviewed list
+(`core/questions.py`). For now that is A2 asking for a project's start date, since the critical
+path is dated from it.
+
+- **Only that step waits.** The asking step, and the steps that need it, wait; the others go on.
+  The run ends as `input_required` and lists its questions.
+- **Each question is a `question.v1` message and a commitment of the person asked** (kind
+  `question`), so it is in the same list and follows the same due dates.
+  `GET /questions` lists the open ones.
+- **An answer resumes the run.** `POST /questions/{id}/answer` with `value` checks the answer
+  against the question's type (`date`, `choice`, `yes_no`, `value`). The step runs again with it
+  once no other question of the run is open.
+- **No answer by the due date** (`MA_PMO_QUESTION_DUE_DAYS`, 3) **means the step uses the
+  question's conservative default.** A2 plans from the as-of date, the latest start it can
+  assume. That output is marked `unconfirmed`, and its message carries a confidence of 0.5 so a
+  person sees it. The person asked, then the accountable person, are told; there is no decision
+  to reopen.
+
 ## Builder review
 
 When a workflow lets them read, two agents review their own output:

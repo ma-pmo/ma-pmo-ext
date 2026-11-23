@@ -8,6 +8,7 @@ from ma_pmo.core.schemas.payloads.allocation_v1 import AllocationV1
 from ma_pmo.core.schemas.payloads.commitment_v1 import CommitmentV1
 from ma_pmo.core.schemas.payloads.gate_review_v1 import GateReviewV1
 from ma_pmo.core.schemas.payloads.knowledge_v1 import KnowledgeV1
+from ma_pmo.core.schemas.payloads.question_v1 import QuestionV1
 from ma_pmo.core.schemas.payloads.report_v1 import ReportV1
 from ma_pmo.core.schemas.payloads.report_v2 import ReportV2
 from ma_pmo.core.schemas.payloads.review_v1 import ReviewV1
@@ -27,6 +28,7 @@ PAYLOAD_REGISTRY: dict[str, type[BaseModel]] = {
     "routing.v1": RoutingV1,
     "review.v1": ReviewV1,
     "commitment.v1": CommitmentV1,
+    "question.v1": QuestionV1,
 }
 
 __all__ = [
@@ -39,6 +41,7 @@ __all__ = [
     "ScheduleV1",
     "GateReviewV1",
     "KnowledgeV1",
+    "QuestionV1",
     "RoutingV1",
     "PAYLOAD_REGISTRY",
 ]

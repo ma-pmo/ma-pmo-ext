@@ -304,6 +304,8 @@ def finish_scenario(run_id: str, scope: str) -> dict:
             "budget_fallback": runs.get_state(run_id).get("budget"),
         }
 
+    if outcome.waiting_input:  # a step asked a person; an answer resumes the run
+        return {**trace(runs.INPUT_REQUIRED), "questions": outcome.questions}
     if outcome.paused:
         return {**trace(runs.WAITING), "pending_approvals": runs.pending_approvals(run_id)}
 
