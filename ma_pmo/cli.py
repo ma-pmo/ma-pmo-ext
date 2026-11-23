@@ -10,6 +10,7 @@ Examples:
     ma-pmo eval --retrieval                 # A7 retrieval quality: lexical vs. vector search
     ma-pmo eval --review                    # what each part of the review stack adds (ablation)
     ma-pmo eval --records                   # every decision recorded, reasoned, traceable, told
+    ma-pmo eval --commitments               # missed obligations noticed, kept ones left alone
     ma-pmo commitments sweep                # overdue commitments: violate and escalate (cron)
     ma-pmo template data ./my-org           # write the evaluation data template
     ma-pmo template validate ./my-org       # check the filled-in data
@@ -532,6 +533,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="A7 retrieval quality (recall@k, MRR): lexical vs. vector search")
     ev.add_argument("--review", action="store_true",
                     help="review ablation on labelled conflict cases, and the demo workload")
+    ev.add_argument("--commitments", action="store_true",
+                    help="commitments and questions with simulated on-time, late and absent people")
     ev.add_argument("--records", action="store_true",
                     help="record completeness: decisions, reasons, provenance, notifications")
 
@@ -628,6 +631,11 @@ def main(argv: list[str] | None = None) -> int:
         uvicorn.run("ma_pmo.api.main:app", host=ns.host, port=ns.port, reload=ns.reload)
     elif ns.command == "eval" and ns.retrieval:
         return _cmd_retrieval()
+    elif ns.command == "eval" and ns.commitments:
+        from ma_pmo.eval import commitments as commitment_eval
+
+        print(commitment_eval.to_markdown(commitment_eval.evaluate()))
+        return 0
     elif ns.command == "eval" and ns.records:
         from ma_pmo.eval import records
 

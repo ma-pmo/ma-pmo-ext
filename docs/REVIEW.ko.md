@@ -246,7 +246,8 @@ A8은 자기 작업이 없고 아무것도 결정하지 않습니다. 게시판�
   재개 가능한 워크플로로 남고, 중요한 결정이 시간 초과로 확정되는 일이 없습니다.
 
 각 부분의 평가와 그에 따른 결정은 [REVIEW-EVAL.ko.md](REVIEW-EVAL.ko.md)에 있습니다.
-모든 결정이 빠짐없이 기록되는지는 [RECORDS-EVAL.ko.md](RECORDS-EVAL.ko.md)에서 측정합니다.
+모든 결정이 빠짐없이 기록되는지는 [RECORDS-EVAL.ko.md](RECORDS-EVAL.ko.md)에서, 놓친 의무를 알아차리는지는
+[COMMITMENTS-EVAL.ko.md](COMMITMENTS-EVAL.ko.md)에서 측정합니다.
 
 ## 참고 연구
 

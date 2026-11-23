@@ -40,3 +40,40 @@ per run) and the time from creation to resolution.
   stakeholder acts if it is their day, then the tracker is checked and the due-date sweep runs.
 
 Every case runs in a throwaway workspace on the deterministic path (no LLM).
+
+## Results
+
+| criterion | count | target |
+|---|---:|---:|
+| missed and unnoticed | 0 | 0 |
+| kept but marked missed | 0 | 0 |
+| missed and not escalated | 0 | 0 |
+| missed and decision not reopened | 0 | 0 |
+| needless questions | 0 | 0 |
+| unmarked defaults | 0 | 0 |
+
+All six criteria hold.
+
+- **Conditions.** 36 commitments (2 gates × gate and approval condition × 3 due dates × 3
+  stakeholders): 12 kept on time, 24 missed. Every missed one became `violated` and its debtor
+  was told, with the notification logged. It reached the accountable person, and its decision was
+  back in the approval queue. No kept one was marked missed.
+- **Questions.** Of 9 questions asked, 3 on-time answers were used. The 6 late or absent ones
+  ran on the default, marked unconfirmed, and the 3 late answers were refused because the
+  default was already in use. The 3 controls asked nothing.
+- **Added work for people.** 9 questions and 72 escalation messages over 21 runs. An unanswered
+  condition costs three messages: to the debtor, to the accountable person, and the reopened
+  decision.
+- **Time.** Kept obligations closed on day 7 on average, the day the stakeholder acted. A missed
+  one reached the accountable person on day 11 on average: the day after its due date plus one
+  escalation interval (`MA_PMO_COMMITMENT_ESCALATE_DAYS`, 2).
+
+**Changes to the harness after the first run (criteria unchanged).** The first run passed every
+criterion but had two harness bugs:
+- The resolution time for kept obligations was read from the wall clock instead of the simulated
+  day.
+- With a 1-day due date, the on-time answer fell on day 0, which the loop skipped. That question
+  ran on the default although the person was "on time".
+
+Both are fixed. "Kept but marked missed" now also counts on-time answers replaced by a default,
+so the second bug would have failed the criterion.
