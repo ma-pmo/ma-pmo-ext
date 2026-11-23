@@ -35,6 +35,8 @@ def resolve_approval(approval_id: int, body: ApprovalDecision, principal: Curren
         return hitl.resolve(approval_id, approver=approver, decision=body.decision,
                              rationale=body.rationale, conditions=body.conditions,
                              adopt=body.adopt)
+    except PermissionError as e:  # someone else is Accountable for this decision
+        raise HTTPException(status_code=403, detail=str(e)) from e
     except KeyError as e:  # also an approval in another workspace
         raise HTTPException(status_code=404, detail=str(e.args[0])) from e
     except ValueError as e:

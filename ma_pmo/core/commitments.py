@@ -203,6 +203,38 @@ def list_open(*, state: str | None = None, debtor: str | None = None,
 
 # ── where commitments come from ───────────────────────────────────────────────────────
 
+def roles_who(kind: str, role: str, project: str | None) -> list[str]:
+    from ma_pmo.core import roles
+
+    return roles.who(kind, role, project)
+
+
+def _owed_by(kind: str, project: str | None) -> str:
+    """Who owes it: the Responsible for this kind of decision (roadmap 9), else the project."""
+    responsible = roles_who(kind, "R", project)
+    return ", ".join(responsible) if responsible else (project or "PMO")
+
+
+def _decision_kind(message: AgentMessageRow | None) -> str | None:
+    from ma_pmo.core import decisions
+
+    if message is None:
+        return None
+    payload = message.payload or {}
+    return decisions.describe(payload.get("schema"), payload.get("data") or {},
+                              message.task_ref)[0]
+
+
+def _accountable(row: Commitment) -> str:
+    """Who escalation goes to: the Accountable for the decision behind it, else its creditor."""
+    from ma_pmo.core import decisions
+
+    kind = "question" if row.kind == "question" else (
+        (decisions.get(row.source_decision) or {}).get("kind") if row.source_decision else None)
+    found = roles_who(kind or "*", "A", row.project_id)
+    return ", ".join(found) if found else row.creditor
+
+
 def from_gate(message_id: str, *, creditor: str, by: str,
               decision_id: str | None = None, approval_id: int | None = None) -> list[dict]:
     """A conditional gate's conditions, owed by the project team, once the gate is in force.
@@ -218,13 +250,16 @@ def from_gate(message_id: str, *, creditor: str, by: str,
     if payload.get("schema") != "gate_review.v1" or data.get("decision") != "conditional":
         return []
     checklist = data.get("checklist") or []
+    pid = data["project_id"]
+    debtor, accountable = _owed_by("gate", pid), roles_who("gate", "A", pid)
     made = []
     for condition in data.get("conditions") or []:
         index = next((i for i, c in enumerate(checklist)
                       if not c.get("passed") and condition.startswith(c.get("criterion", ""))),
                      None)
         made.append(create(
-            kind="gate_condition", debtor=data["project_id"], creditor=creditor,
+            kind="gate_condition", debtor=debtor, creditor=accountable[0] if accountable
+            else creditor,
             consequent=condition, by=by, project_id=data["project_id"],
             source_message=message_id, source_decision=decision_id, source_approval=approval_id,
             check=None if index is None else {
@@ -256,17 +291,20 @@ def from_approval(message_id: str, *, approver: str, approval_id: int,
         row = s.get(AgentMessageRow, message_id)
         data = ((row.payload or {}).get("data") or {}) if row is not None else {}
         sender = row.sender if row is not None else approver
+        kind = _decision_kind(row) or "*"
     project = data.get("project_id")
     made = []
     for c in conditions or []:
         made.append(create(
-            kind="approval_condition", debtor=(c.get("debtor") or project or sender),
+            kind="approval_condition",
+            debtor=(c.get("debtor") or (_owed_by(kind, project) if project else sender)),
             creditor=approver, consequent=c["text"], due=c.get("due"), by=approver,
             project_id=project, source_message=message_id, source_decision=decision_id,
             source_approval=approval_id))
     for offer in adoptable(message_id, adopt):
         made.append(create(
-            kind="alternative", debtor=project or sender, creditor=approver,
+            kind="alternative", debtor=_owed_by(kind, project) if project else sender,
+            creditor=approver,
             consequent=offer.get("summary") or offer.get("rationale") or "",
             due=offer.get("until"), by=approver, project_id=project,
             source_message=message_id, source_decision=decision_id,
@@ -370,7 +408,7 @@ def _escalate(cid: str, step: str) -> str:
         row = s.scalars(select(Commitment).where(Commitment.id == cid)).one()
         row.escalation += 1
         level = row.escalation
-        who = {"debtor": row.debtor, "accountable": row.creditor}.get(step)
+        who = {"debtor": row.debtor, "accountable": _accountable(row)}.get(step)
         note = (tr(f"step {level}: reopened the decision", f"{level}단계: 결정 재검토")
                 if step == "reopen"
                 else tr(f"step {level}: told {who}", f"{level}단계: {who}에게 알림"))

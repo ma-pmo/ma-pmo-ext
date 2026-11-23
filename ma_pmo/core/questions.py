@@ -76,7 +76,7 @@ def ask(agent: str, run_id: str | None, step_seq: int | None, q: Question) -> di
     from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
 
     due = commitments._today() + timedelta(days=get_settings().question_due_days)
-    asked = q.project_id or "PMO"
+    asked = commitments._owed_by("question", q.project_id)  # its Responsible, else the project
     question_id = commitments.new_id()
     msg = protocol.publish(AgentMessage(
         sender=agent, receiver=asked, intent=Intent.REQUEST,

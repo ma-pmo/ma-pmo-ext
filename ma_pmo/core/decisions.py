@@ -58,8 +58,22 @@ def describe(schema: str | None, data: dict[str, Any], task_ref: str = "") -> tu
     return kind, task_ref or kind, f"{kind} · {task_ref}"
 
 
-def record(kind: str, subject: str, title: str, status: str, **fields: Any) -> dict[str, Any]:
+def _named(kind: str, project: str | None, fields: dict[str, Any]) -> dict[str, Any]:
+    """Add the people roles name for this kind of decision (roadmap 9): A among the decision
+    makers, C among the consulted, I among the informed."""
+    from ma_pmo.core import roles
+
+    people = roles.raci(kind, project)
+    extra = {"decision_makers": [{"who": p, "role": "accountable"} for p in people["A"]],
+             "consulted": [{"who": p, "role": "consulted"} for p in people["C"]],
+             "informed": [{"who": p, "role": "informed"} for p in people["I"]]}
+    return {**fields, **{k: [*(fields.get(k) or []), *v] for k, v in extra.items() if v}}
+
+
+def record(kind: str, subject: str, title: str, status: str, project: str | None = None,
+           **fields: Any) -> dict[str, Any]:
     """Store a decision; an earlier live one of the same kind and subject becomes superseded."""
+    fields = _named(kind, project or _project_of(kind, subject), fields)
     now = _now()
     with get_session() as s:
         earlier = s.scalars(select(DecisionRecord)
@@ -75,6 +89,12 @@ def record(kind: str, subject: str, title: str, status: str, **fields: Any) -> d
         s.add(row)
         s.flush()
         return as_dict(row)
+
+
+def _project_of(kind: str, subject: str) -> str | None:
+    """Agent decisions are about a project: PROJ-31/G3-execution, PROJ-31/risk, ..."""
+    head = subject.split("/")[0]
+    return head if "/" in subject and kind not in {"report", "workflow_publish"} else None
 
 
 def for_message(message_id: str) -> dict[str, Any] | None:

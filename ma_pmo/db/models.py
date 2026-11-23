@@ -444,3 +444,19 @@ class Commitment(Scoped, Base):
     escalation: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class RoleAssignment(Scoped, Base):
+    """Who is Responsible, Accountable, Consulted and Informed for a kind of decision, in one
+    project or (project "") all of them (core/roles.py)."""
+
+    __tablename__ = "role_assignment"
+    __table_args__ = (UniqueConstraint("workspace_id", "kind", "project_id", "role", "person",
+                                       name="uq_role_assignment"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    kind: Mapped[str] = mapped_column(String)  # gate, budget, question, ..., or * for every kind
+    project_id: Mapped[str] = mapped_column(String, default="")  # "" = every project
+    role: Mapped[str] = mapped_column(String)  # R | A | C | I
+    person: Mapped[str] = mapped_column(String)
+    created_by: Mapped[str] = mapped_column(String, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

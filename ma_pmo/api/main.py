@@ -43,6 +43,7 @@ from ma_pmo.api.routers import (  # noqa: E402
     recommendations,
     reports,
     risks,
+    roles,
     runs,
     scenarios,
     webhooks,
@@ -119,6 +120,7 @@ app.include_router(reports.router)
 app.include_router(decisions.router)
 app.include_router(commitments.router)
 app.include_router(questions.router)
+app.include_router(roles.router)
 
 
 @app.get("/health")
