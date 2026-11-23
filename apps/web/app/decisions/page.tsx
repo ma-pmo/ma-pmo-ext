@@ -10,7 +10,9 @@ import { Card, PageHeader, ErrorCard } from "../components/shell";
 import { Icon } from "../components/icons";
 
 type Who = { who: string; role: string; constraint?: string; verdict?: string };
-type Told = { channel: string; event: string; status: string; error?: string | null; at: string };
+// a notification attempt (communication log), or a person the roles say to inform (roadmap 9)
+type Told = { channel?: string; event?: string; status?: string; error?: string | null; at?: string;
+  who?: string; role?: string };
 type Rec = {
   id: string; kind: string; subject: string; title: string; status: string; context: string | null;
   drivers: { kind: string; ref: string; field?: string }[];
@@ -20,6 +22,9 @@ type Rec = {
   supersedes: string | null; run_id: string | null; message_id: string | null;
   approval_id: number | null; created_at: string; updated_at: string;
 };
+
+type Owed = { id: string; consequent: string; state: string; debtor: string; creditor: string;
+  due: string | null; history: { op: string; by: string; at: string; note: string }[] };
 
 const KINDS = ["gate", "report", "risk", "allocation", "schedule", "workflow_publish",
   "model_recommendation", "budget"];
@@ -37,6 +42,7 @@ export default function Decisions() {
   const [rows, setRows] = useState<Rec[] | null>(null);
   const [picked, setPicked] = useState("");
   const [rec, setRec] = useState<Rec | null>(null);
+  const [owed, setOwed] = useState<Owed[]>([]);
   const [err, setErr] = useState("");
 
   const load = async () => {
@@ -52,6 +58,7 @@ export default function Decisions() {
   useEffect(() => {
     if (!picked) { setRec(null); return; }
     api.decision(picked).then(setRec).catch((e) => setErr(errorText(e)));
+    api.commitments({ decision: picked }).then(setOwed).catch(() => setOwed([]));
   }, [picked, lang]);
 
   const downloadProv = async () => {
@@ -155,9 +162,11 @@ export default function Decisions() {
                 <dt>{d.consulted}</dt><dd>{people(rec.consulted)}</dd>
                 <dt>{d.informed}</dt>
                 <dd>{rec.informed.length === 0 ? <span className="muted">{d.nobodyTold}</span> : (
-                  <ul className="dlog-list">{rec.informed.map((i, n) => (
+                  <ul className="dlog-list">{rec.informed.map((i, n) => i.who ? (
+                    <li key={n}><b>{i.who}</b> <span className="muted">{t.rv.role[i.role ?? ""] ?? i.role}</span></li>
+                  ) : (
                     <li key={n}><code>{i.event}</code> → <b>{i.channel}</b>{" "}
-                      <span className={`badge ${SENT[i.status] ?? ""}`}>{d[i.status as "sent" | "failed" | "skipped"] ?? i.status}</span>
+                      <span className={`badge ${SENT[i.status ?? ""] ?? ""}`}>{d[i.status as "sent" | "failed" | "skipped"] ?? i.status}</span>
                       {i.error && <span className="muted"> {i.error}</span>}</li>
                   ))}</ul>
                 )}</dd>
@@ -170,6 +179,24 @@ export default function Decisions() {
                   </dd>
                 </>}
               </dl>
+              <h3 className="dlog-sub">{t.timeline.title}</h3>
+              {owed.length === 0 ? <p className="muted">{t.timeline.none}</p> : owed.map((c) => (
+                <div key={c.id} className="dlog-owed">
+                  <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
+                    <b>{c.consequent}</b>
+                    <span className="badge">{t.inbox.states[c.state] ?? c.state}</span>
+                    <span className="muted">{t.inbox.owes(c.debtor, c.creditor)}{c.due ? ` · ${t.inbox.due} ${c.due.slice(0, 10)}` : ""}</span>
+                  </div>
+                  <ol className="timeline">
+                    {c.history.map((h, i) => (
+                      <li key={i} className={`tl-${h.op}`}>
+                        <b>{t.timeline.ops[h.op] ?? h.op}</b> <span className="muted">{h.by} · {when(h.at, lang)}</span>
+                        {h.note && <div className="muted small">{h.note}</div>}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
             </Card>
           ) : <Card><p className="muted">{d.pick}</p></Card>}
         </div>

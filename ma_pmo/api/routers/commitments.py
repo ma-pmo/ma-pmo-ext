@@ -1,6 +1,6 @@
 """Commitments (roadmap 9): what decisions oblige whom to do, by when, and the operations on them.
 
-GET  /commitments                  : filter by state, debtor, project
+GET  /commitments                  : filter by state, debtor, project, decision
 GET  /commitments/{id}             : one, with its history
 POST /commitments/{id}/{op}        : detach | discharge | cancel | release | delegate | assign
 POST /commitments/check            : discharge the gate conditions the tracker shows are met
@@ -28,9 +28,10 @@ class Operation(BaseModel):
 
 @router.get("/commitments")
 def list_commitments(state: str | None = None, debtor: str | None = None,
-                     project: str | None = None,
+                     project: str | None = None, decision: str | None = None,
                      limit: int = Query(200, ge=1, le=1000)) -> list[dict]:
-    return commitments.list_open(state=state, debtor=debtor, project=project, limit=limit)
+    return commitments.list_open(state=state, debtor=debtor, project=project,
+                                 decision=decision, limit=limit)
 
 
 @router.post("/commitments/check")

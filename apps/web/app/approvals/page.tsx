@@ -115,9 +115,12 @@ export default function Approvals() {
                           </button>
                         </td>
                         <td>
-                          {it.review
+                          {it.reopened
+                            ? <span className="badge red">{a.reopened(it.reopened.consequent)}</span>
+                            : it.review
                             ? <span className="badge amber tip" data-tip={t.rv.pendingTip}>{t.rv.pending}</span>
                             : <span className={`badge ${it.confidence < 0.6 ? "amber" : "purple"}`}>{reason(it)}</span>}
+                          {it.accountable?.length > 0 && <div className="muted">{a.accountable(it.accountable.join(", "))}</div>}
                           <div className="muted">{it.task_ref}</div>
                         </td>
                         <td className="num">{it.confidence}</td>

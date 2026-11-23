@@ -214,6 +214,7 @@ export default function Workflows() {
                   <span className={`badge ${w.badge[overlay.run.status] ?? ""}`}>{w.status[overlay.run.status] ?? overlay.run.status}</span>
                   <span className="muted">{overlay.run.scope} · {when(overlay.run.started_at, lang)} · <code>{overlay.run.run_id}</code></span>
                   {overlay.run.status === "waiting_approval" && <a href="/approvals">{w.toApprovals}</a>}
+                  {overlay.run.status === "input_required" && <a href="/inbox">{w.toInbox}</a>}
                   {overlay.run.budget_fallback && (
                     <a className="badge amber" href="/costs">{w.budgetFallback(overlay.run.budget_fallback.agent)}</a>
                   )}
@@ -225,7 +226,7 @@ export default function Workflows() {
               <Graph steps={shown.steps} active={active} setActive={setActive} runStatus={runStatus} />
               {overlay && (
                 <div className="wf-legend">
-                  {["succeeded", "running", "waiting_approval", "failed", "not_started"].map((k) => (
+                  {["succeeded", "running", "waiting_approval", "input_required", "failed", "not_started"].map((k) => (
                     <span key={k} className={`st-${k}`}><i />{w.status[k]}</span>
                   ))}
                 </div>
