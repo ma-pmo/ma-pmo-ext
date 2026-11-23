@@ -38,6 +38,8 @@ from ma_pmo.db.session import get_session
 
 RUNNING, SUCCEEDED, FAILED = "running", "succeeded", "failed"
 WAITING, INTERRUPTED, CANCELLED = "waiting_approval", "interrupted", "cancelled"
+# a step asked a person for a fact (core/questions.py); its row stays unfinished until answered
+INPUT_REQUIRED = "input_required"
 _MAX_ERROR = 500
 _OWNER = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex[:8]}"
 
@@ -135,6 +137,7 @@ class StepHandle:
     output_schemas: list = field(default_factory=list)
     result: dict | None = None  # saved so a resumed run can reuse this step
     written: dict[str, int] = field(default_factory=dict)
+    waiting_input: bool = False  # the step asked a question: it runs again once answered
 
 
 @contextmanager
@@ -169,7 +172,7 @@ def step(agent: str, seq: int | None = None) -> Iterator[StepHandle]:
         _finish_step(step_id, FAILED, handle, str(e)[:_MAX_ERROR])
         raise
     else:
-        _finish_step(step_id, SUCCEEDED, handle)
+        _finish_step(step_id, INPUT_REQUIRED if handle.waiting_input else SUCCEEDED, handle)
     finally:
         _current_step.reset(token)
 
@@ -195,6 +198,13 @@ def mark_waiting(run_id: str) -> None:
     with get_session() as s:
         s.execute(update(Run).where(Run.id == run_id, Run.status == RUNNING).values(
             status=WAITING, lease_owner=None, lease_until=None))
+
+
+def mark_input_required(run_id: str) -> None:
+    """A step is waiting for an answer: the run stops here and resumes when it comes."""
+    with get_session() as s:
+        s.execute(update(Run).where(Run.id == run_id, Run.status == RUNNING).values(
+            status=INPUT_REQUIRED, lease_owner=None, lease_until=None))
 
 
 def cancel(run_id: str, reason: str) -> None:
@@ -237,13 +247,16 @@ def claim(run_id: str) -> dict:
             raise KeyError(run_id)
         if not (run.state or {}).get("spec"):
             raise NotResumable("this run stopped before its workflow was saved: start it again")
-    if pending_approvals(run_id):
+        # a run waiting for an answer goes on when it comes; its approvals gate it only if it
+        # pauses on them
+        gated = run.status != INPUT_REQUIRED or (run.state or {}).get("pause_on_gate")
+    if gated and pending_approvals(run_id):
         raise NotResumable("approvals are still pending for this run")
     now = _now()
     with get_session() as s:
         claimed = s.execute(update(Run).where(
             Run.id == run_id,
-            or_(Run.status.in_((WAITING, INTERRUPTED)),
+            or_(Run.status.in_((WAITING, INTERRUPTED, INPUT_REQUIRED)),
                 (Run.status == RUNNING) & (Run.lease_until < now)),
         ).values(status=RUNNING, lease_owner=_OWNER, lease_until=_lease_until(), error=None,
                  finished_at=None))

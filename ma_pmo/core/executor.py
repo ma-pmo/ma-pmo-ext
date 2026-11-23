@@ -9,6 +9,11 @@ step already finished is skipped, and its saved outputs are read back in workflo
 `pause_on_gate`, once a step has queued an approval the steps after it do nothing, and the run
 is left `waiting_approval`; steps already running in parallel finish first.
 
+A step that needs a fact from a person raises `questions.NeedsInput`: its questions are posted,
+it and the steps that need it wait, the others go on, and the run is left `input_required`. An
+answer (or a question's default, when nobody answered in time) resumes the run, and the step
+runs again with the answers in its state (`answers`, and `unconfirmed` for defaults).
+
 A step reads only what its `reads` mode allows (core/board.py): an isolated step gets no `board`
 in its state at all, the others get the posts of steps that finished before it could start.
 """
@@ -24,7 +29,7 @@ from langgraph.graph import END, START, StateGraph
 from ma_pmo.agents import registry
 from ma_pmo.agents.orchestrator_rules import _headline
 from ma_pmo.agents.registry import WORKERS
-from ma_pmo.core import board, llm, runs, tracing
+from ma_pmo.core import board, llm, questions, runs, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -43,6 +48,8 @@ class Outcome:
     outputs: list[dict]  # in workflow order
     phases: list[dict]  # one execute phase per finished step, in workflow order
     paused: bool
+    waiting_input: bool = False  # a step asked a person and waits for the answer
+    questions: list[dict] | None = None
 
 
 def _phase(agent_id: str, elapsed_ms: float, outputs: list[dict]) -> dict:
@@ -61,9 +68,13 @@ def _phase(agent_id: str, elapsed_ms: float, outputs: list[dict]) -> dict:
 
 
 def _run_step(spec: WorkflowSpec, step: WorkflowStep, seq: int, run_id: str, scope: str,
-              goal: str) -> None:
+              goal: str) -> bool:
+    """Run one step; False when it stopped to ask a person (it runs again once answered)."""
     agent_id, workflow = step.agent, spec.id
-    state = cast(PortfolioState, {"task_ref": scope, "goal": goal, **step.params})
+    saved = runs.get_state(run_id)
+    state = cast(PortfolioState, {"task_ref": scope, "goal": goal, **step.params,
+                                  "answers": saved.get("answers") or {},
+                                  "unconfirmed": saved.get("unconfirmed") or []})
     posts = board.view(run_id, spec, step.id)
     if posts is not None:  # isolated steps get no board at all
         state["board"] = posts
@@ -74,22 +85,36 @@ def _run_step(spec: WorkflowSpec, step: WorkflowStep, seq: int, run_id: str, sco
         tracing.OPERATION: "invoke_agent", tracing.AGENT_ID: agent_id,
         tracing.AGENT_NAME: registry.title(agent_id), tracing.SCENARIO: workflow,
     }), runs.step(agent_id, seq) as handle, llm.use_tier(step.model_tier):
-        outputs = WORKERS[agent_id].run(state).get("outputs", [])
+        try:
+            outputs = WORKERS[agent_id].run(state).get("outputs", [])
+        except questions.NeedsInput as asked:
+            handle.waiting_input = True
+            for q in asked.questions:
+                questions.ask(agent_id, run_id, seq, q)
+            _log.info("execute_needs_input", agent=agent_id,
+                      questions=[q.key for q in asked.questions])
+            return False
         schemas = [o.get("schema") for o in outputs]
         tracing.set_attributes({tracing.OUTPUT_SCHEMAS: schemas})
         elapsed_ms = round((time.perf_counter() - started) * 1000, 1)
         handle.output_schemas = schemas
         handle.result = {"outputs": outputs, "phase": _phase(agent_id, elapsed_ms, outputs)}
     _log.info("execute_done", agent=agent_id, elapsed_ms=elapsed_ms, outputs=schemas)
+    return True
 
 
 def _compile(spec: WorkflowSpec, run_id: str, scope: str, goal: str, finished: set[int],
-             pause_on_gate: bool, checkpointer: Any) -> Any:
+             pause_on_gate: bool, checkpointer: Any, held: set[str]) -> Any:
+    deps = spec.dependencies()
+
     def node(step: WorkflowStep, seq: int) -> Any:
         def run(_state: _GraphState) -> dict:
             waiting = pause_on_gate and bool(runs.pending_approvals(run_id))
-            if seq not in finished and not waiting:
-                _run_step(spec, step, seq, run_id, scope, goal)
+            if any(need in held for need in deps.get(step.id, [])):
+                held.add(step.id)  # it needs a step that is waiting for an answer
+            elif seq not in finished and not waiting:
+                if not _run_step(spec, step, seq, run_id, scope, goal):
+                    held.add(step.id)
             return {"visited": [step.id]}
 
         return run
@@ -97,7 +122,6 @@ def _compile(spec: WorkflowSpec, run_id: str, scope: str, goal: str, finished: s
     graph: Any = StateGraph(_GraphState)
     for seq, step in enumerate(spec.steps, start=1):
         graph.add_node(step.id, node(step, seq))
-    deps = spec.dependencies()
     needed = {need for needs in deps.values() for need in needs}
     for step_id, needs in deps.items():
         if needs:
@@ -115,8 +139,9 @@ def execute(run_id: str, spec: WorkflowSpec, scope: str, goal: str, *,
     if not spec.steps:  # an ablation can remove every agent of a workflow
         return Outcome([], [], False)
     finished = set(runs.finished_steps(run_id))
+    held: set[str] = set()
     graph = _compile(spec, run_id, scope, goal, finished, pause_on_gate,
-                     shared_checkpointer() if thread_id else None)
+                     shared_checkpointer() if thread_id else None, held)
     config: dict[str, Any] = {"recursion_limit": len(spec.steps) + 10}
     if thread_id:
         config["configurable"] = {"thread_id": thread_id}
@@ -128,6 +153,10 @@ def execute(run_id: str, spec: WorkflowSpec, scope: str, goal: str, *,
     for seq in sorted(results):
         outputs += results[seq].get("outputs", [])
         phases.append(results[seq]["phase"])
+    if held:
+        runs.mark_input_required(run_id)
+        _log.info("run_input_required", workflow=spec.id, run_id=run_id, steps=sorted(held))
+        return Outcome(outputs, phases, False, True, questions.list_open(run_id))
     paused = pause_on_gate and bool(runs.pending_approvals(run_id))
     if paused:
         runs.mark_waiting(run_id)

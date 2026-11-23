@@ -95,7 +95,12 @@ def _post(c: dict[str, Any], op: str, by: str, note: str = "") -> str:
         conversation_id=c["conversation_id"], in_reply_to=c["source_message"])).message_id
 
 
+def new_id() -> str:
+    return f"COM-{uuid.uuid4().hex[:10]}"
+
+
 def create(*, kind: str, debtor: str, creditor: str, consequent: str, by: str,
+           id: str | None = None,
            antecedent: str | None = None, due: str | datetime | None = None,
            detach_by: str | datetime | None = None, project_id: str | None = None,
            source_message: str | None = None, source_decision: str | None = None,
@@ -113,7 +118,7 @@ def create(*, kind: str, debtor: str, creditor: str, consequent: str, by: str,
             msg = s.get(AgentMessageRow, source_message)
             conversation = msg.conversation_id if msg is not None else None
         row = Commitment(
-            id=f"COM-{uuid.uuid4().hex[:10]}", kind=kind, debtor=debtor, creditor=creditor,
+            id=id or new_id(), kind=kind, debtor=debtor, creditor=creditor,
             antecedent=antecedent, consequent=consequent, detach_by=_date(detach_by),
             due=_date(due) or _today() + timedelta(days=get_settings().commitment_due_days),
             state=CONDITIONAL if antecedent else ACTIVE, project_id=project_id,
@@ -302,8 +307,10 @@ def check_tracker(tracker: Any = None) -> list[dict]:
 # ── due dates and escalation ──────────────────────────────────────────────────────────
 
 ENGINE = "due-dates"
-# what each step of the chain does, in order, after the violation itself
+# what each step of the chain does, in order, after the violation itself; an unanswered
+# question has no decision to reopen: its step goes on with the default instead
 CHAIN = ("debtor", "accountable", "reopen")
+CHAINS = {"question": ("debtor", "accountable")}
 
 
 def sweep(now: datetime | None = None) -> dict[str, list[str]]:
@@ -316,21 +323,30 @@ def sweep(now: datetime | None = None) -> dict[str, list[str]]:
         overdue = [r.id for r in rows if r.state == ACTIVE and r.due and r.due < now]
         lapsed = [r.id for r in rows
                   if r.state == CONDITIONAL and r.detach_by and r.detach_by < now]
-        steps = {r.id: (r.escalation, r.violated_at) for r in rows if r.state == VIOLATED}
+        steps = {r.id: (r.escalation, r.violated_at, r.kind) for r in rows
+                 if r.state == VIOLATED}
+        kinds = {r.id: r.kind for r in rows}
     out: dict[str, list[str]] = {"violated": [], "expired": [], "escalated": [], "reopened": []}
     for cid in lapsed:
         _transition(cid, EXPIRED, "expire", tr("antecedent did not hold in time",
                                                "전제 조건이 기한 안에 충족되지 않음"))
         out["expired"].append(cid)
     for cid in overdue:
-        _transition(cid, VIOLATED, "violate", tr("due date passed", "기한이 지남"), when=now)
+        question = kinds[cid] == "question"
+        _transition(cid, VIOLATED, "violate",
+                    tr("no answer in time: the default is used", "기한 내 답 없음: 기본값 사용")
+                    if question else tr("due date passed", "기한이 지남"), when=now)
         out["violated"].append(cid)
-        steps[cid] = (0, now)
-    for cid, (done, since) in steps.items():
-        since = since or now
-        while done < len(CHAIN) and since + every * done <= now:
-            kind = _escalate(cid, CHAIN[done])
-            out["reopened" if kind == "reopen" else "escalated"].append(cid)
+        steps[cid] = (0, now, kinds[cid])
+        if question:
+            from ma_pmo.core import questions
+
+            questions.use_default(get(cid) or {})
+    for cid, (done, since, kind) in steps.items():
+        since, chain = since or now, CHAINS.get(kind, CHAIN)
+        while done < len(chain) and since + every * done <= now:
+            step = _escalate(cid, chain[done])
+            out["reopened" if step == "reopen" else "escalated"].append(cid)
             done += 1
     return out
 

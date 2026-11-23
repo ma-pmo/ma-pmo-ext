@@ -48,6 +48,9 @@ def finish_goal(run_id: str, scope: str) -> dict:
                                pause_on_gate=saved.get("pause_on_gate", False))
     result = {"run_id": run_id, "thread_id": thread_id, "routing": saved["routing"],
               "outputs": outcome.outputs}
+    if outcome.waiting_input:  # a step asked a person; an answer resumes the run
+        return {**result, "status": runs.INPUT_REQUIRED, "synthesis": None,
+                "questions": outcome.questions}
     if outcome.paused:
         return {**result, "status": runs.WAITING, "synthesis": None,
                 "pending_approvals": runs.pending_approvals(run_id)}
