@@ -200,6 +200,10 @@ def test_killed_goal_resumes_without_duplicates():
     stuck = next(r for r in runs.list_runs("running", 5) if r["thread_id"] == "crash-test")
     run_id = stuck["run_id"]
     assert run_id in runs.recover_interrupted()
+    # A4 may have queued an approval before the crash (it depends on how it rates the demo
+    # projects against what earlier tests left); resuming waits for it, so decide it first
+    for approval_id in runs.pending_approvals(run_id):
+        hitl.resolve(approval_id, approver="pm", decision="approve", rationale="resume test")
 
     result = client.post(f"/runs/{run_id}/resume").json()
     assert result["status"] == "succeeded" and result["synthesis"]["summary"]

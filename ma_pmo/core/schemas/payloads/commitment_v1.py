@@ -5,7 +5,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-Op = Literal["create", "detach", "discharge", "cancel", "release", "delegate", "assign"]
+Op = Literal["create", "detach", "discharge", "cancel", "release", "delegate", "assign",
+             "violate", "expire", "escalate"]
 
 
 class CommitmentV1(BaseModel):

@@ -44,6 +44,9 @@ curl -X POST localhost:8000/integrations/slack/test   # sends a test message
 | `risk.detected` | A4 rates a risk `high` or `critical` |
 | `gate.failed` | A6 fails a stage gate |
 | `report.generated` | A5 produces an executive report |
+| `commitment.violated` | a commitment's due date passed: its debtor is told ([REVIEW.md](REVIEW.md#commitments)) |
+| `commitment.escalated` | still missed: the accountable person is told |
+| `decision.reopened` | still missed: the decision is back in the approval queue |
 | `budget.warning` | LLM spend passes a budget's warning ([docs/COSTS.md](COSTS.md#budgets)) |
 | `integration.test` | `POST /integrations/{name}/test` |
 

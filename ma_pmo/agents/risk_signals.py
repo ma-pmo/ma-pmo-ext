@@ -35,6 +35,8 @@ class ProjectSignals:
     completion_gap_pct: float
     stalled_tasks: list[str] = field(default_factory=list)
     blocked_tasks: list[str] = field(default_factory=list)
+    # commitments the project missed (roadmap 9), e.g. a gate's conditions; set by A4
+    missed_commitments: list[str] = field(default_factory=list)
 
     @property
     def has_signal(self) -> bool:
@@ -44,10 +46,14 @@ class ProjectSignals:
             or (self.schedule_slack_days is not None and self.schedule_slack_days < 0)
             or bool(self.stalled_tasks)
             or bool(self.blocked_tasks)
+            or bool(self.missed_commitments)
         )
 
     def as_dict(self) -> dict:
-        return asdict(self)
+        d = asdict(self)
+        if not d["missed_commitments"]:  # only where there are some, so prompts stay the same
+            del d["missed_commitments"]
+        return d
 
 
 def compute_signals(project: dict) -> ProjectSignals:
@@ -85,7 +91,7 @@ def baseline_severity(sig: ProjectSignals) -> str:
     """Rule-based severity (H3 comparison group); the baseline checked against the LLM."""
     if sig.status == "red" or (
         sig.schedule_slack_days is not None and sig.schedule_slack_days < 0
-    ):
+    ) or sig.missed_commitments:  # an obligation the project already missed
         return "high"
     if sig.status == "amber" or sig.stalled_tasks or sig.blocked_tasks:
         return "medium"

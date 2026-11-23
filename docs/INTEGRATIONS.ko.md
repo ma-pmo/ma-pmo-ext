@@ -46,6 +46,9 @@ curl -X POST localhost:8000/integrations/slack/test   # 테스트 메시지 전�
 | `risk.detected` | A4가 리스크를 `high`/`critical`로 판정했을 때 |
 | `gate.failed` | A6 스테이지 게이트 심사가 fail일 때 |
 | `report.generated` | A5가 경영 보고서를 만들었을 때 |
+| `commitment.violated` | 약속의 기한이 지남: 채무자에게 알림([REVIEW.ko.md](REVIEW.ko.md#약속commitment)) |
+| `commitment.escalated` | 계속 미이행: 책임자에게 알림 |
+| `decision.reopened` | 계속 미이행: 결정이 승인 큐로 돌아감 |
 | `budget.warning` | LLM 비용이 예산의 경고 금액을 넘었을 때([docs/COSTS.ko.md](COSTS.ko.md#예산)) |
 | `integration.test` | `POST /integrations/{name}/test` 호출 시 |
 

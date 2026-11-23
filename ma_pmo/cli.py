@@ -10,6 +10,7 @@ Examples:
     ma-pmo eval --retrieval                 # A7 retrieval quality: lexical vs. vector search
     ma-pmo eval --review                    # what each part of the review stack adds (ablation)
     ma-pmo eval --records                   # every decision recorded, reasoned, traceable, told
+    ma-pmo commitments sweep                # overdue commitments: violate and escalate (cron)
     ma-pmo template data ./my-org           # write the evaluation data template
     ma-pmo template validate ./my-org       # check the filled-in data
     ma-pmo eval --data ./my-org             # evaluate H1–H5 on your own data
@@ -157,6 +158,26 @@ def _cmd_agents() -> int:
     for problem in problems:
         print(tr(f"✗ not loaded: {problem}", f"✗ 불러오지 못함: {problem}"))
     return 1 if problems else 0
+
+
+def _cmd_commitments(ns: argparse.Namespace) -> int:
+    from ma_pmo.core import commitments
+    from ma_pmo.core.i18n import tr
+
+    if ns.action == "sweep":
+        commitments.check_tracker()
+        done = commitments.sweep()
+        print(", ".join(f"{k} {len(v)}" for k, v in done.items()))
+        return 0
+    rows = commitments.list_open(state=ns.state)
+    if not ns.state:
+        rows = [r for r in rows if r["state"] in commitments.OPEN | {commitments.VIOLATED}]
+    for r in rows:
+        print(f"{r['id']}  {r['state']:<11} due {(r['due'] or '')[:10]}  {r['debtor']} -> "
+              f"{r['creditor']}  {r['consequent']}")
+    if not rows:
+        print(tr("no commitments", "약속이 없습니다"))
+    return 0
 
 
 def _cmd_retrieval() -> int:
@@ -488,6 +509,12 @@ def main(argv: list[str] | None = None) -> int:
         r.add_argument("--scope", help="only this portfolio scope")
         r.add_argument("--kind", choices=["status", "executive", "exception", "gate", "closure"])
 
+    com = sub.add_parser("commitments", help="commitments: list | sweep (run sweep from cron)")
+    comsub = com.add_subparsers(dest="action", required=True)
+    c_list = comsub.add_parser("list", help="open and violated commitments, soonest due first")
+    c_list.add_argument("--state", help="only this state (e.g. violated)")
+    comsub.add_parser("sweep", help="violate what is overdue, take the escalation steps due")
+
     rec = sub.add_parser("recommendation", help="replay recommendations: list | approve | reject")
     recsub = rec.add_subparsers(dest="action", required=True)
     recsub.add_parser("list")
@@ -591,6 +618,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_replay(ns)
     elif ns.command == "report":
         return _cmd_report(ns)
+    elif ns.command == "commitments":
+        return _cmd_commitments(ns)
     elif ns.command == "recommendation":
         return _cmd_recommendation(ns)
     elif ns.command == "serve":

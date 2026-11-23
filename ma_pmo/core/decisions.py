@@ -7,7 +7,8 @@ budgets. Each now also leaves a `decision_record`:
 - `kind`, `subject`, `title`: gate (project/gate), report, risk, allocation, schedule,
   workflow_publish, model_recommendation, budget
 - `status`: `proposed` (held for a person), `committed` (the commit gate let it through),
-  `accepted` / `rejected` (a person decided), `superseded` (a newer one for the same subject)
+  `accepted` / `rejected` (a person decided), `superseded` (a newer one for the same subject),
+  `reopened` (an obligation it created was missed; back in the approval queue)
 - `drivers`: the evidence the message cites
 - `options`: the decision and the alternatives review offered
 - `outcome`: what was chosen, and the person's reason (`rationale`)
@@ -109,6 +110,17 @@ def by_person(kind: str, subject: str, title: str, who: str, chosen: str,
     return record(kind, subject, title, "accepted",
                   outcome={"chosen": chosen, "justification": rationale},
                   decision_makers=[{"who": who, "role": "decider"}], **fields)
+
+
+def reopen(record_id: str, why: str) -> dict[str, Any] | None:
+    """Put a decision back under review (an obligation it created was not met)."""
+    with get_session() as s:
+        row = s.scalars(select(DecisionRecord).where(DecisionRecord.id == record_id)).first()
+        if row is None:
+            return None
+        row.status, row.updated_at = "reopened", _now()
+        row.consequences = [*(row.consequences or []), why]
+        return as_dict(row)
 
 
 def as_dict(row: DecisionRecord) -> dict[str, Any]:

@@ -439,5 +439,8 @@ class Commitment(Scoped, Base):
     check: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     evidence: Mapped[list | None] = mapped_column(JSON, nullable=True)  # what discharged it
     history: Mapped[list | None] = mapped_column(JSON, nullable=True)  # {op, by, at, note}
+    violated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # escalation steps taken since the violation: 1 debtor told, 2 accountable told, 3 reopened
+    escalation: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

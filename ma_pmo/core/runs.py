@@ -105,6 +105,9 @@ def track(kind: str, workflow: str, scope: str, *, thread_id: str | None = None,
     if active is not None:
         yield active
         return
+    from ma_pmo.core import commitments
+
+    commitments.sweep_quietly()  # due dates first, so the run sees what was missed
     run_id = uuid.uuid4().hex
     with get_session() as s:
         s.add(Run(id=run_id, kind=kind, workflow=workflow[:500], scope=scope, status=RUNNING,
