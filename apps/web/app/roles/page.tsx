@@ -87,8 +87,8 @@ export default function Roles() {
                         {(l.byRole[x] ?? []).map((row) => (
                           <span key={row.id} className="badge" style={{ marginRight: 4 }}>
                             {row.person}
-                            <button className="ghost sm" aria-label={`${r.remove} ${row.person}`} disabled={busy}
-                              onClick={() => run(() => api.removeRole(row.id))} style={{ marginLeft: 4, padding: "0 4px" }}>×</button>
+                            <button className="ghost sm remove-x" aria-label={`${r.remove} ${row.person}`} disabled={busy}
+                              onClick={() => run(() => api.removeRole(row.id))}>×</button>
                           </span>
                         ))}
                       </td>

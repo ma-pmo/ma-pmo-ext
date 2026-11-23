@@ -84,7 +84,7 @@ export default function Inbox() {
             <span className="muted">{x.me}</span>
             <input className="input" value={me} placeholder={x.mePlaceholder} onChange={(e) => remember(e.target.value)} />
           </label>
-          <label className="row" style={{ gap: 6 }}>
+          <label className="row check-target" style={{ gap: 6 }}>
             <input type="checkbox" checked={closed} onChange={(e) => setClosed(e.target.checked)} />
             <span>{x.showClosed}</span>
           </label>
