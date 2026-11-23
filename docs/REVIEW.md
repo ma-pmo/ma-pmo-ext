@@ -83,6 +83,27 @@ A reason is required to reject, and to approve a decision a reviewer challenged 
 EU AI Act Art. 14(4)(d)). Without one `POST /approvals/{id}` returns 400; the approvals page asks
 for it.
 
+## Roles (RACI)
+
+For each kind of decision (`gate`, `budget`, `allocation`, `risk`, `report`, `question`, ...,
+or `*` for every kind) and each project (or all of them), people are **R**esponsible,
+**A**ccountable, **C**onsulted or **I**nformed. Admins set them with `POST /roles`
+`{kind, role, person, project}`. They are listed with `GET /roles`, resolved for one decision
+with `GET /roles/who?kind=&project=`, and removed with `DELETE /roles/{id}`. The most specific
+assignment wins: this kind in this project, then this kind everywhere, then `*` in this
+project, then `*` everywhere.
+
+- **Approvals go to A.** Once someone is Accountable for a decision, only they can approve or
+  reject it; anyone else gets 403. Each queued item lists its `accountable`. With nobody
+  assigned, anyone with the approver role decides, as before.
+- **Notifications say who they are for.** `approval.requested` carries `recipients.decide` (A)
+  and `recipients.consult` (C); `approval.resolved` carries `recipients.inform` (I).
+- **Decision records name the people:** A among the decision makers, C among the consulted, I
+  among the informed.
+- **Commitments are owed by R to A.** A gate's conditions are owed by the Responsible and held
+  by the Accountable, and a question is asked of the Responsible for `question`. Escalation's
+  second step goes to the Accountable.
+
 ## Commitments
 
 A decision can oblige someone to do something. Those obligations are kept as commitments: who

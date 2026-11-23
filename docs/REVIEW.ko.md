@@ -72,6 +72,22 @@ Multi-Agent Research*, [arXiv:2609.01870](https://arxiv.org/abs/2609.01870))을 
 거절할 때, 그리고 검토자가 이의를 제기한 결정을 승인할 때(재정의, EU AI Act 14조 4항 d호)는 사유가 필요합니다.
 사유가 없으면 `POST /approvals/{id}`가 400을 돌려주고, 승인 화면은 사유를 묻습니다.
 
+## 역할(RACI)
+
+결정 종류(`gate`, `budget`, `allocation`, `risk`, `report`, `question` 등, 모든 종류는 `*`)와 프로젝트(또는 전체)마다
+실행(**R**), 책임(**A**), 자문(**C**), 통보(**I**)를 맡을 사람을 정합니다. 관리자가 `POST /roles`
+`{kind, role, person, project}`로 지정합니다. `GET /roles`로 목록을 보고, `GET /roles/who?kind=&project=`로 한 결정에
+누가 해당하는지 확인하고, `DELETE /roles/{id}`로 지웁니다. 가장 구체적인 지정이 이깁니다. 이 프로젝트의 이 종류,
+전체 프로젝트의 이 종류, 이 프로젝트의 `*`, 전체의 `*` 순입니다.
+
+- **승인은 책임자(A)에게.** 결정에 책임자가 지정되면 그 사람만 승인하거나 거절할 수 있고, 다른 사람은 403을 받습니다.
+  승인 큐의 항목마다 `accountable`이 나옵니다. 아무도 지정하지 않으면 지금처럼 승인 역할이 있는 누구나 결정합니다.
+- **알림에 받는 사람이 담깁니다.** `approval.requested`에는 `recipients.decide`(A)와 `recipients.consult`(C)가,
+  `approval.resolved`에는 `recipients.inform`(I)이 들어갑니다.
+- **결정 기록에 사람 이름이 남습니다.** A는 결정자, C는 자문, I는 알림 대상에 들어갑니다.
+- **약속은 R이 A에게 집니다.** 게이트 조건은 실행 담당이 지고 책임자가 받습니다. 질문은 `question`의 실행 담당에게
+  갑니다. 보고 단계의 두 번째 단계는 책임자에게 갑니다.
+
 ## 약속(commitment)
 
 결정은 누군가에게 할 일을 남길 수 있습니다. 그 의무를 약속으로 관리합니다. 누가 누구에게 무엇을 언제까지 해야 하는지를

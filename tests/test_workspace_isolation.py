@@ -34,6 +34,7 @@ from ma_pmo.db.models import (
     Report,
     Resource,
     Risk,
+    RoleAssignment,
     Run,
     RunStep,
     Scoped,
@@ -48,7 +49,8 @@ MARK = "zzleak"
 EVERY = {workspace.ALL_WORKSPACES: True}
 
 # required query parameters of GET routes
-QUERY = {"/knowledge/search": {"q": "lesson risk schedule"}}
+QUERY = {"/knowledge/search": {"q": "lesson risk schedule"},
+         "/roles/who": {"kind": "gate", "project": MARK}}
 # GET routes with path parameters: the other workspace's id, and what `default` must answer
 PATH = {
     "/runs/{run_id}": (f"/runs/run-{MARK}", lambda r: r.status_code == 404),
@@ -119,6 +121,7 @@ def _marked_rows() -> list[Base]:
         Commitment(id=f"COM-{MARK}", kind="gate_condition", debtor=MARK, creditor=MARK,
                    consequent=MARK, state="active", created_at=datetime(2026, 1, 1),
                    updated_at=datetime(2026, 1, 1)),
+        RoleAssignment(kind="gate", project_id=MARK, role="A", person=MARK),
         Communication(event="risk.detected", channel=MARK, target=MARK, title=MARK,
                       status="sent", message_id=f"msg-{MARK}", run_id=f"run-{MARK}"),
     ]
@@ -146,7 +149,7 @@ def other():
         for model in (Approval, KpiEvent, AgentMessageRow, RunStep, Run, Risk, Allocation,
                       Task, Project, Resource, Portfolio, Report, KnowledgeDoc, WorkflowVersion,
                       LlmCall, Budget, Recommendation, DecisionRecord, Communication,
-                      Commitment):
+                      Commitment, RoleAssignment):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Workspace).where(Workspace.id == OTHER))

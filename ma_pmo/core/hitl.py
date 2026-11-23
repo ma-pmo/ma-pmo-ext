@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
-from ma_pmo.core import commitments, decisions, kpi, runs
+from ma_pmo.core import commitments, decisions, kpi, roles, runs
 from ma_pmo.core.obs import get_logger
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
@@ -51,9 +51,18 @@ def list_pending() -> list[dict]:
                 "review": _review(a),
                 # reopened because an obligation the decision created was missed (roadmap 9)
                 "reopened": a.reason if (a.reason or {}).get("kind") == "reopened" else None,
+                "accountable": _accountable(m),
             }
             for a, m in rows
         ]
+
+
+def _accountable(message: AgentMessageRow) -> list[str]:
+    """Who may decide this item (roadmap 9 roles); empty when anyone with the role may."""
+    kind, subject, _ = decisions.describe((message.payload or {}).get("schema"),
+                                          (message.payload or {}).get("data") or {},
+                                          message.task_ref)
+    return roles.who(kind, "A", decisions._project_of(kind, subject))
 
 
 def _review(approval: Approval) -> dict | None:
@@ -91,6 +100,12 @@ def resolve(approval_id: int, *, approver: str, decision: str,
         if any(not (c.get("text") or "").strip() for c in conditions or []):
             raise ValueError("every condition needs a text")
         commitments.adoptable(approval.message_id, adopt)
+        target = s.get(AgentMessageRow, approval.message_id)
+        if target is not None:  # once someone is Accountable, only they decide (roadmap 9)
+            kind, subject, _ = decisions.describe((target.payload or {}).get("schema"),
+                                                  (target.payload or {}).get("data") or {},
+                                                  target.task_ref)
+            roles.check_accountable(kind, decisions._project_of(kind, subject), approver)
         challenged = bool((approval.reason or {}).get("challenges"))
         if rationale is None and (decision == "reject" or challenged):
             raise ValueError("a reason is required to reject, or to approve a decision a "
@@ -135,7 +150,10 @@ def resolve(approval_id: int, *, approver: str, decision: str,
                                           decision_id=record["id"], conditions=conditions,
                                           adopt=adopt)
         result["commitments"] = [c["id"] for c in owed]
-    emit_later([approval_resolved_event(result)])
+    project = decisions._project_of(described[0], described[1])
+    informed = roles.who(described[0], "I", project)
+    emit_later([approval_resolved_event(result, {"recipients": {"inform": informed}}
+                                        if informed else None)])
     run_status = _continue_run(run_id, decision, approver)
     return {**result, "run_status": run_status} if run_status else result
 

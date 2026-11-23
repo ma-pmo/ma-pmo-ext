@@ -88,13 +88,24 @@ def events_from_message(message: AgentMessage, gated: bool) -> list[Event]:
                 severity="warning",
                 url=_link("/approvals"),
                 task_ref=ref,
-                data=edata,
+                # roadmap 9: the Accountable decide, the Consulted are asked
+                data={**edata, **_recipients(schema, data, ref, decide="A", consult="C")},
             )
         )
     return events
 
 
-def approval_resolved_event(result: dict) -> Event:
+def _recipients(schema: str | None, data: dict, task_ref: str, **roles_by_key: str) -> dict:
+    """Who an event is for, from the roles of its decision; nothing when none are assigned."""
+    from ma_pmo.core import decisions, roles
+
+    kind, subject, _ = decisions.describe(schema, data, task_ref)
+    project = decisions._project_of(kind, subject)
+    found = {key: roles.who(kind, role, project) for key, role in roles_by_key.items()}
+    return {"recipients": found} if any(found.values()) else {}
+
+
+def approval_resolved_event(result: dict, recipients: dict | None = None) -> Event:
     approved = result.get("decision") == "approve"
     return Event(
         type=EventType.APPROVAL_RESOLVED,
@@ -105,7 +116,7 @@ def approval_resolved_event(result: dict) -> Event:
         summary=tr(f"by {result.get('approver')}", f"처리자 {result.get('approver')}"),
         severity="info",
         url=_link("/approvals"),
-        data=dict(result),
+        data={**dict(result), **(recipients or {})},
     )
 
 
