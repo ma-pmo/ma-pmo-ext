@@ -13,7 +13,8 @@ def _link(path: str) -> str:
     return get_settings().public_url.rstrip("/") + path
 
 
-def events_from_message(message: AgentMessage, gated: bool) -> list[Event]:
+def events_from_message(message: AgentMessage, gated: bool,
+                        exception: dict | None = None) -> list[Event]:
     """Events worth notifying about for one published message (may be empty)."""
     schema = message.payload.schema_
     data: dict[str, Any] = message.payload.data
@@ -89,7 +90,8 @@ def events_from_message(message: AgentMessage, gated: bool) -> list[Event]:
                 url=_link("/approvals"),
                 task_ref=ref,
                 # roadmap 9: the Accountable decide, the Consulted are asked
-                data={**edata, **_recipients(schema, data, ref, decide="A", consult="C")},
+                data={**edata, **_recipients(schema, data, ref, decide="A", consult="C"),
+                      **({"exception": exception} if exception else {})},
             )
         )
     return events

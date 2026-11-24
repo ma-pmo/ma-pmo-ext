@@ -68,6 +68,19 @@ def _register() -> None:
 _register()
 
 
+def _exception(message: AgentMessage) -> dict | None:
+    """A tolerance breach the output forecasts (roadmap 10): the approval's reason, or None."""
+    from ma_pmo.core import guardrails, tolerances
+
+    if message.payload.schema_ not in tolerances.CHECKED:
+        return None
+    result = guardrails.run("tolerance", {"message": message}, message_id=message.message_id)
+    if result.decision != guardrails.ASK:
+        return None
+    return {"kind": "exception", "breaches": result.detail.get("breaches", []),
+            "reason": result.reason}
+
+
 def publish(message: AgentMessage) -> AgentMessage:
     """Validate the message and append it to the immutable log; queue it for approval if gated.
 
@@ -77,6 +90,7 @@ def publish(message: AgentMessage) -> AgentMessage:
     if message.conversation_id is None:  # a run is one conversation; outside one, a new one
         message = message.model_copy(update={
             "conversation_id": current_run_id() or f"conv-{uuid.uuid4().hex[:12]}"})
+    exception = _exception(message)
     key = dedupe_key("message")
     with get_session() as s:
         stored = s.scalar(select(AgentMessageRow.message_id).where(
@@ -103,10 +117,12 @@ def publish(message: AgentMessage) -> AgentMessage:
             )
         )
         gated = message.needs_human_gate(
-            risk_control.threshold_for(message.sender, _settings.hitl_confidence_threshold))
+            risk_control.threshold_for(message.sender, _settings.hitl_confidence_threshold)
+        ) or exception is not None
         if gated:
+            # no reason at all (SQL NULL) unless there is one: JSON null would read as a reason
             s.add(Approval(message_id=message.message_id, decision="pending",
-                           run_id=current_run_id()))
+                           run_id=current_run_id(), **({"reason": exception} if exception else {})))
     # behavior log: structured message published (§4 audit trail)
     _log.info(
         "message",
@@ -120,7 +136,7 @@ def publish(message: AgentMessage) -> AgentMessage:
     )
     # notify integrations (Slack, webhooks, ...) in the background: best effort, never raises,
     # and a slow webhook does not hold the run
-    emit_later(events_from_message(message, gated))
+    emit_later(events_from_message(message, gated, exception))
     return message
 
 

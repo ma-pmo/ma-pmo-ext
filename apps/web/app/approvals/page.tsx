@@ -115,7 +115,10 @@ export default function Approvals() {
                           </button>
                         </td>
                         <td>
-                          {it.reopened
+                          {it.exception
+                            ? <span className="badge red">{a.exception(it.exception.breaches.map((b: any) =>
+                                `${b.project} ${a.dims[b.dimension] ?? b.dimension} ${b.forecast} / ${b.tolerance}`).join("; "))}</span>
+                            : it.reopened
                             ? <span className="badge red">{a.reopened(it.reopened.consequent)}</span>
                             : it.review
                             ? <span className="badge amber tip" data-tip={t.rv.pendingTip}>{t.rv.pending}</span>
