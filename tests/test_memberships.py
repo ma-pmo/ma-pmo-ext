@@ -19,8 +19,10 @@ from ma_pmo.db.models import (
     Commitment,
     Communication,
     DecisionRecord,
+    GuardrailCheck,
     KpiEvent,
     Membership,
+    Policy,
     Workspace,
 )
 from ma_pmo.db.session import get_session
@@ -56,7 +58,7 @@ def acme():
     yield ACME
     with workspace.use(ACME), get_session() as s:  # approving also records a KPI
         for model in (Approval, KpiEvent, AgentMessageRow, DecisionRecord, Communication,
-                      Commitment):
+                      Commitment, GuardrailCheck, Policy):
             s.execute(delete(model))
     with get_session() as s:
         s.execute(delete(Membership).where(Membership.workspace_id == ACME))

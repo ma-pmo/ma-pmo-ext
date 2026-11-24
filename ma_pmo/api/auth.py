@@ -172,6 +172,10 @@ def required_role(method: str, path: str) -> str | None:
         return "admin"  # what the workspace may spend
     if path.startswith("/roles"):
         return "admin"  # who decides what (roadmap 9)
+    if path.startswith("/policy"):
+        return "admin"  # what the guardrails enforce (roadmap 10)
+    if path.startswith("/policy"):
+        return "admin"  # what the guardrails enforce (roadmap 10)
     if path.startswith("/recommendations/") and path.endswith(("/approve", "/reject")):
         return "approver"  # deciding a model change, as publishing a workflow
     if path.startswith("/workflows/") and path.endswith("/publish"):

@@ -114,25 +114,42 @@ def status() -> dict:
 
 
 def check(agent: str = "?") -> None:
-    """Before an LLM call: warn past a warning, raise BudgetExceeded past a hard limit."""
-    found = _budgets()
-    if not found:
-        return
+    """Before an LLM call: warn past a warning, raise BudgetExceeded past a hard limit.
+
+    The limit is the `budget` guardrail (core/guardrails.py, point `spend`), enforced by default:
+    in observe mode a call past the limit goes ahead and the guardrail log shows it.
+    """
+    from ma_pmo.core import guardrails
+
+    result = guardrails.run("budget", {"agent": agent})
     run_id = runs.current_run_id()
-    month = found.get(MONTH)
-    if month is not None:
-        _against(month, spent_this_month(), run_id, agent)
-    run = found.get(RUN)
-    if run is not None and run_id is not None:
-        _against(run, spent_in_run(run_id), run_id, agent)
-
-
-def _against(budget: Budget, spent: float, run_id: str | None, agent: str) -> None:
-    if budget.limit_usd is not None and spent >= budget.limit_usd:
-        _note_fallback(budget, spent, run_id, agent)
-        raise BudgetExceeded(budget.kind, budget.limit_usd, spent)
-    if budget.warn_usd is not None and spent >= budget.warn_usd:
+    for budget, spent in result.detail.get("_warn", []):
         _warn_once(budget, spent, run_id)
+    if result.decision == guardrails.BLOCK:
+        budget, spent = result.detail["_limit"]
+        _note_fallback(budget, spent, run_id, agent)
+        raise BudgetExceeded(budget.kind, budget.limit_usd, spent)  # type: ignore[arg-type]
+
+
+def _assess(context: dict[str, Any], params: dict[str, Any]) -> Any:
+    """The `budget` guardrail: block past a hard limit; note what is past its warning."""
+    from ma_pmo.core.guardrails import ALLOW, BLOCK, Result
+
+    found = _budgets()
+    run_id = runs.current_run_id()
+    spent = [(b, spent_this_month()) for k, b in found.items() if k == MONTH] + [
+        (b, spent_in_run(run_id)) for k, b in found.items() if k == RUN and run_id is not None]
+    over = [(b, s) for b, s in spent if b.limit_usd is not None and s >= b.limit_usd]
+    warn = [(b, s) for b, s in spent if b.warn_usd is not None and s >= b.warn_usd]
+    if over:
+        budget, used = over[0]
+        return Result(BLOCK, f"{budget.kind} budget reached: ${used:.4f} of "
+                             f"${budget.limit_usd:.2f}",
+                      detail={"_limit": (budget, used), "_warn": warn,
+                              "kind": budget.kind, "spent_usd": round(used, 6),
+                              "limit_usd": budget.limit_usd})
+    return Result(ALLOW, "within budget" if spent else "no budget set",
+                  detail={"_warn": warn} if warn else {})
 
 
 def _note_fallback(budget: Budget, spent: float, run_id: str | None, agent: str) -> None:
@@ -182,3 +199,13 @@ def fallback_of(run_id: str) -> dict[str, Any] | None:
     """Why a run stopped calling the LLM, if a budget stopped it."""
     budget: dict[str, Any] | None = runs.get_state(run_id).get("budget")
     return budget
+
+
+def _register() -> None:
+    from ma_pmo.core.guardrails import ENFORCE, register
+
+    register("budget", "spend", ENFORCE,
+             "Stop LLM calls past a hard budget; agents fall back to their rules")(_assess)
+
+
+_register()

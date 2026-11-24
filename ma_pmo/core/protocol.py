@@ -6,6 +6,7 @@ reproducibility. Payloads are validated against the schema registry to curb erro
 from __future__ import annotations
 
 import uuid
+from typing import Any
 
 from sqlalchemy import select
 
@@ -26,11 +27,45 @@ _log = get_logger("protocol")
 
 
 def validate_payload(message: AgentMessage) -> None:
-    """Validate with the registered Pydantic model if payload.schema is in the registry."""
+    """Validate with the registered Pydantic model if payload.schema is in the registry.
+
+    This is the `schema` guardrail (core/guardrails.py, point `output`), enforced by default:
+    an invalid payload raises ValidationError. In observe mode it is logged and let through.
+    """
+    from ma_pmo.core import guardrails
+
+    result = guardrails.run("schema", {"message": message}, message_id=message.message_id)
+    if result.decision == guardrails.BLOCK and result.error is not None:
+        raise result.error
+
+
+def _check_schema(context: dict[str, Any], params: dict[str, Any]) -> Any:
+    from pydantic import ValidationError
+
+    from ma_pmo.core.guardrails import ALLOW, BLOCK, Result
+
+    message = context["message"]
     schema = message.payload.schema_
     model = PAYLOAD_REGISTRY.get(schema)
-    if model is not None:
-        model.model_validate(message.payload.data)  # raises ValidationError on violation
+    if model is None:
+        return Result(ALLOW, f"{schema}: no registered schema", detail={"schema": schema})
+    try:
+        model.model_validate(message.payload.data)
+    except ValidationError as e:
+        return Result(BLOCK, f"{schema}: {e.error_count()} invalid field(s)", error=e,
+                      detail={"schema": schema, "errors": [
+                          {"loc": list(err["loc"]), "msg": err["msg"]} for err in e.errors()]})
+    return Result(ALLOW, f"{schema}: valid", detail={"schema": schema})
+
+
+def _register() -> None:
+    from ma_pmo.core.guardrails import ENFORCE, register
+
+    register("schema", "output", ENFORCE,
+             "Reject agent payloads that do not match their registered schema")(_check_schema)
+
+
+_register()
 
 
 def publish(message: AgentMessage) -> AgentMessage:
