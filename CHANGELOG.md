@@ -20,6 +20,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - **Inbox, role map and escalation timeline** (roadmap 9, step 5): an Inbox page for agents' questions and open commitments (answer by type, mark done with a reference, hand over, release), a Roles page (RACI map, assign and remove), each decision record's commitments with their history, the accountable people and reopened items on Approvals, and "Awaiting input" on workflow runs. `GET /commitments?decision=`.
 - **Commitment evaluation** (roadmap 9, step 6): `ma-pmo eval --commitments` runs conditional gates and questions against simulated on-time, late and absent stakeholders, with six criteria fixed before the first run (missed and unnoticed, kept but marked missed, not escalated, decision not reopened, needless questions, unmarked defaults). All are 0. See docs/COMMITMENTS-EVAL.md.
 - **Guardrail engine and policy** (roadmap 10, step 1; [docs/GUARDRAILS.md](docs/GUARDRAILS.md)): checks at control points answer allow, modify, ask or block, in a mode set by a versioned workspace policy (`off`, `observe`, `enforce`). Every result is a `guardrail.v1` entry (`GET /guardrails`). The LLM budget and payload schema checks now run as the `budget` and `schema` guardrails, enforced as before. `GET/PUT /policy`, `GET /policy/versions` (admin to change; each change a decision record); runs keep their policy version. Migration `0020_policy_guardrails`.
+- **Tolerances and exceptions** (roadmap 10, step 2): per workspace, portfolio and project, limits on time (slip days), quality (SPI), risk (severity) and scope (unstaffed share); cost and benefits are declared but not measured, as the tracker has no such data. A lower level can only narrow. The `tolerance` guardrail (observe by default) raises an exception when an output forecasts a breach: the message goes to the approval queue with the forecast and the limit. `GET/PUT /tolerances`.
 
 ## [0.9.0] - 2026-11-21
 
@@ -252,6 +253,7 @@ First public release.
 - 추가: **받은편지함, 역할 지도, 보고 단계 타임라인**(로드맵 9, 5단계). 에이전트 질문과 열린 약속을 다루는 받은편지함(형식에 맞춰 답하기, 근거와 함께 완료, 넘기기, 놓아주기), 역할 화면(RACI 지도, 지정과 삭제), 결정 기록별 약속과 이력, 승인 큐의 결정권자와 재검토 표시, 워크플로 실행의 "답 대기". `GET /commitments?decision=`.
 - 추가: **약속 평가**(로드맵 9, 6단계). `ma-pmo eval --commitments`가 조건부 게이트와 질문을 제때·늦게·응답 없음으로 움직이는 이해관계자 시뮬레이션에 돌리고, 첫 실행 전에 정한 기준 여섯 가지(놓쳤는데 모름, 지켰는데 미이행 처리, 보고 안 됨, 재검토 안 됨, 불필요한 질문, 표시 없는 기본값)를 잽니다. 모두 0입니다. docs/COMMITMENTS-EVAL.ko.md 참고.
 - 추가: **가드레일 엔진과 정책**(로드맵 10, 1단계, [docs/GUARDRAILS.ko.md](docs/GUARDRAILS.ko.md)). 통제 지점의 점검이 허용·수정·물음·차단으로 답하고, 모드(`off`, `observe`, `enforce`)는 버전이 붙는 워크스페이스 정책이 정합니다. 결과는 모두 `guardrail.v1` 기록으로 남습니다(`GET /guardrails`). LLM 예산과 결과 스키마 점검이 `budget`, `schema` 가드레일이 되었고 예전처럼 적용됩니다. `GET/PUT /policy`, `GET /policy/versions`(변경은 관리자, 변경마다 결정 기록). 실행마다 정책 버전이 남습니다. 마이그레이션 `0020_policy_guardrails`.
+- 추가: **허용 범위와 예외**(로드맵 10, 2단계). 워크스페이스·포트폴리오·프로젝트마다 일정(지연 일수), 품질(SPI), 리스크(심각도), 범위(미배정 비율)의 한도를 둡니다. 비용과 편익은 트래커에 데이터가 없어 선언만 하고 측정하지 않습니다. 하위 단계는 좁히기만 할 수 있습니다. `tolerance` 가드레일(기본 observe)은 결과가 한도를 넘을 것으로 예상되면 예외를 띄워 예측값·한도와 함께 승인 큐로 보냅니다. `GET/PUT /tolerances`.
 
 ### [0.9.0] - 2026-11-21
 

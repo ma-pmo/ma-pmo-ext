@@ -418,6 +418,8 @@ const en = {
     reasonPlaceholder: "Why?",
     accountable: (who: string) => `Decided by ${who}`,
     reopened: (what: string) => `Reopened: missed "${what}"`,
+    exception: (what: string) => `Outside tolerance: ${what}`,
+    dims: { time: "slip days", quality: "SPI", risk: "risk", scope: "unstaffed %", cost: "cost", benefits: "benefits" } as Record<string, string>,
     recentTitle: "Recent agent messages (audit log · §4)",
     recentDesc: "All communication is stored append-only. Full log:",
     sum: {
@@ -853,6 +855,8 @@ const ko: Messages = {
     reasonPlaceholder: "사유",
     accountable: (who: string) => `결정권자: ${who}`,
     reopened: (what: string) => `재검토: "${what}" 미이행`,
+    exception: (what: string) => `허용 범위 밖: ${what}`,
+    dims: { time: "지연 일수", quality: "SPI", risk: "리스크", scope: "미배정 %", cost: "비용", benefits: "편익" } as Record<string, string>,
     recentTitle: "최근 에이전트 메시지 (감사 로그 · §4)",
     recentDesc: "모든 통신은 append-only 로 저장됩니다. 전체:",
     sum: {

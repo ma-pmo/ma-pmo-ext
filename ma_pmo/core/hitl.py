@@ -52,6 +52,8 @@ def list_pending() -> list[dict]:
                 # reopened because an obligation the decision created was missed (roadmap 9)
                 "reopened": a.reason if (a.reason or {}).get("kind") == "reopened" else None,
                 "accountable": _accountable(m),
+                # outside a tolerance (roadmap 10): the breaches it forecasts
+                "exception": a.reason if (a.reason or {}).get("kind") == "exception" else None,
             }
             for a, m in rows
         ]

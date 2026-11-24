@@ -32,6 +32,7 @@ policy:
 |---|---|---|---|
 | `schema` | output | enforce | rejects an agent payload that does not match its registered schema |
 | `budget` | spend | enforce | stops LLM calls past a hard budget ([COSTS.md](COSTS.md#budgets)); agents fall back to their rules |
+| `tolerance` | decision | observe | raises an exception when an output forecasts a tolerance breach (below) |
 
 Both existed before roadmap 10 and behave as they did. Guardrails added later start in
 `observe`.
@@ -47,6 +48,35 @@ The policy is data, versioned per workspace: `{"guardrails": {name: {"mode", "pa
 
 Each change is also a decision record (kind `policy`). Every run stores the version it ran
 under (`policy_version` in its state).
+
+## Tolerances
+
+Tolerances say how far agents may go on their own (PRINCE2's manage by exception). Inside
+them, agents decide and the decision is recorded. When an agent's output **forecasts** a breach,
+the `tolerance` guardrail raises an exception before it happens: the message goes to the
+approval queue with the forecast, the limit and where the limit was set. It goes to the
+Accountable for that decision ([roles](REVIEW.md#roles-raci)), and the approval notification
+carries the exception.
+
+| dimension | limit | measured from |
+|---|---|---|
+| time | `max_slip_days` | `schedule.v1`: forecast finish against the project deadline |
+| quality | `min_spi` | `schedule.v1`: the project's SPI at the as-of date |
+| risk | `max_severity` | `risk_alert.v1`: the rated severity |
+| scope | `max_unstaffed_pct` | `allocation.v1`: unstaffed hours as a share of the work left |
+| cost | `max_cost_overrun_pct` | not measured yet: the tracker has no cost data |
+| benefits | `min_benefit_pct` | not measured yet: the tracker has no benefit data |
+
+Limits are set per workspace, portfolio and project with `PUT /tolerances`
+`{tolerances: {workspace, portfolios, projects}, note}`. This needs the admin role and is a
+policy version like any other. A lower level can only narrow the level above: a project's
+`max_slip_days` larger than the workspace's is refused. `GET /tolerances?project=&portfolio=`
+shows the limits in force and the level each comes from.
+
+The guardrail starts in `observe`. Turn it on with `PUT /policy`
+`{"guardrails": {"tolerance": {"mode": "enforce"}}}`. On the demo data (as of 2026-02-16), with
+PROJ-31 allowed 0 slip days, A2's forecast of 7 days late raises an exception while the other
+projects stay within tolerance.
 
 ## The guardrail log
 

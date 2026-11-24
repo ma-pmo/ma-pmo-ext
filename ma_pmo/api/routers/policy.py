@@ -4,6 +4,8 @@ GET /policy              : the policy in force, every guardrail with its point, 
 GET /policy/versions     : every version, newest first
 PUT /policy              : a new version {guardrails: {name: {mode, params}}, note}
 GET /guardrails          : recorded results (?name=, ?point=, ?decision=, ?outcome=, ?run=)
+GET /tolerances          : the limits per level, and in force for ?project= (in ?portfolio=)
+PUT /tolerances          : replace them {tolerances: {workspace, portfolios, projects}, note}
 """
 from __future__ import annotations
 
@@ -13,7 +15,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
 from ma_pmo.api.auth import ANONYMOUS, CurrentPrincipal
-from ma_pmo.core import guardrails, policy
+from ma_pmo.core import guardrails, policy, tolerances
 
 router = APIRouter(tags=["policy"])
 
@@ -38,6 +40,27 @@ def change_policy(body: PolicyChange, principal: CurrentPrincipal) -> dict:
     by = principal.subject if principal is not ANONYMOUS else "anonymous"
     try:
         return policy.change(body.guardrails, by=by, note=body.note)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+class ToleranceChange(BaseModel):
+    tolerances: dict[str, Any]
+    note: str = ""
+
+
+@router.get("/tolerances")
+def get_tolerances(project: str | None = None, portfolio: str | None = None) -> dict:
+    return {"levels": tolerances.document(), "limits": list(tolerances.LIMITS),
+            "effective": tolerances.effective(project, portfolio) if project or portfolio
+            else None}
+
+
+@router.put("/tolerances")
+def change_tolerances(body: ToleranceChange, principal: CurrentPrincipal) -> dict:
+    by = principal.subject if principal is not ANONYMOUS else "anonymous"
+    try:
+        return policy.change({}, by=by, note=body.note, tolerances=body.tolerances)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 

@@ -49,6 +49,7 @@ def current() -> dict[str, Any]:
         "created_by": row.created_by if row else None,
         "created_at": iso(row.created_at) if row else None,
         "note": row.note if row else "",
+        "tolerances": (row.document if row else {}).get("tolerances") or {},
         "guardrails": [{**g, "mode": (chosen.get(g["name"]) or {}).get("mode", g["default_mode"]),
                         "params": {**g["params"],
                                    **((chosen.get(g["name"]) or {}).get("params") or {})}}
@@ -63,9 +64,15 @@ def versions() -> list[dict[str, Any]]:
                 for r in s.scalars(select(Policy).order_by(Policy.version.desc())).all()]
 
 
-def change(settings: dict[str, dict[str, Any]], *, by: str, note: str = "") -> dict[str, Any]:
-    """A new version with these guardrails changed ({name: {mode, params}}); the rest carry
-    over. ValueError for an unknown guardrail or mode."""
+def change(settings: dict[str, dict[str, Any]], *, by: str, note: str = "",
+           tolerances: dict[str, Any] | None = None) -> dict[str, Any]:
+    """A new version with these guardrails changed ({name: {mode, params}}) and, if given, the
+    tolerances replaced; the rest carry over. ValueError for an unknown guardrail or mode, or
+    tolerances that are unknown or widen a level above."""
+    from ma_pmo.core import tolerances as tol
+
+    if tolerances is not None:
+        tol.validate(tolerances)
     guardrails.catalog()  # every guardrail registered
     for name, value in settings.items():
         if name not in guardrails.REGISTRY:
@@ -79,7 +86,12 @@ def change(settings: dict[str, dict[str, Any]], *, by: str, note: str = "") -> d
         merged[name] = {**merged.get(name, {}), **value}
     with get_session() as s:
         number = (s.scalar(select(func.max(Policy.version))) or 0) + 1
-        s.add(Policy(version=number, document={"guardrails": merged}, note=note, created_by=by))
+        document: dict[str, Any] = {"guardrails": merged}
+        kept = tolerances if tolerances is not None else (row.document if row else {}).get(
+            "tolerances")
+        if kept:
+            document["tolerances"] = kept
+        s.add(Policy(version=number, document=document, note=note, created_by=by))
         try:
             s.flush()
         except IntegrityError:  # changed at the same moment by someone else
@@ -87,7 +99,8 @@ def change(settings: dict[str, dict[str, Any]], *, by: str, note: str = "") -> d
                                 "정책이 방금 바뀌었습니다. 다시 시도하세요")) from None
     from ma_pmo.core import decisions
 
-    summary = ", ".join(f"{n}: {v.get('mode', '')}".rstrip(": ") for n, v in settings.items())
+    summary = ", ".join([f"{n}: {v.get('mode', '')}".rstrip(": ") for n, v in settings.items()]
+                        + (["tolerances"] if tolerances is not None else []))
     decisions.by_person("policy", "policy", tr(f"policy v{number}: {summary}",
                                                f"정책 v{number}: {summary}"),
                         by, f"v{number}", rationale=note or None)
