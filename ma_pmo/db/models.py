@@ -460,3 +460,36 @@ class RoleAssignment(Scoped, Base):
     person: Mapped[str] = mapped_column(String)
     created_by: Mapped[str] = mapped_column(String, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class Policy(Scoped, Base):
+    """One version of a workspace's policy: each guardrail's mode and parameters (roadmap 10).
+    The highest version is in force; with none, the built-in defaults apply (version 0)."""
+
+    __tablename__ = "policy"
+    __table_args__ = (UniqueConstraint("workspace_id", "version", name="uq_policy_version"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    version: Mapped[int] = mapped_column(Integer)
+    document: Mapped[dict] = mapped_column(JSON)  # {"guardrails": {name: {mode, params}}}
+    note: Mapped[str] = mapped_column(Text, default="")
+    created_by: Mapped[str] = mapped_column(String, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class GuardrailCheck(Scoped, Base):
+    """One guardrail result (guardrail.v1): what was checked where, under which policy version,
+    what the check found (`outcome`) and what took effect (`decision`; allow in observe mode)."""
+
+    __tablename__ = "guardrail_check"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String, index=True)
+    point: Mapped[str] = mapped_column(String, index=True)  # input|retrieval|execution|output|...
+    mode: Mapped[str] = mapped_column(String)  # observe | enforce
+    decision: Mapped[str] = mapped_column(String, index=True)  # allow|modify|ask|block
+    outcome: Mapped[str] = mapped_column(String)
+    reason: Mapped[str] = mapped_column(Text, default="")
+    detail: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    policy_version: Mapped[int] = mapped_column(Integer, default=0)
+    run_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    message_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

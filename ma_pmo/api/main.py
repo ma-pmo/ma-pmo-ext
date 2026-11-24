@@ -39,6 +39,7 @@ from ma_pmo.api.routers import (  # noqa: E402
     messages,
     orchestrate,
     planning,
+    policy,
     questions,
     recommendations,
     reports,
@@ -121,6 +122,7 @@ app.include_router(decisions.router)
 app.include_router(commitments.router)
 app.include_router(questions.router)
 app.include_router(roles.router)
+app.include_router(policy.router)
 
 
 @app.get("/health")
