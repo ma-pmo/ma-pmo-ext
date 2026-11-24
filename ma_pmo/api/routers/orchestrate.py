@@ -19,5 +19,13 @@ class OrchestrateRequest(BaseModel):
 
 @router.post("/orchestrate")
 def orchestrate(req: OrchestrateRequest) -> dict:
+    from fastapi import HTTPException
+
+    from ma_pmo.core import safety
+
+    try:  # a goal that carries instructions to the model (roadmap 10)
+        safety.guard_input(req.goal, "goal")
+    except safety.InputBlocked as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
     return run_goal(req.goal, req.task_ref, thread_id=req.thread_id,
                     pause_on_gate=req.pause_on_gate)

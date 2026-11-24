@@ -172,7 +172,7 @@ def required_role(method: str, path: str) -> str | None:
         return "admin"  # what the workspace may spend
     if path.startswith("/roles"):
         return "admin"  # who decides what (roadmap 9)
-    if path.startswith(("/policy", "/tolerances")):
+    if path.startswith(("/policy", "/tolerances", "/stop")):
         return "admin"  # what the guardrails enforce, how far agents may go (roadmap 10)
     if path.startswith("/policy"):
         return "admin"  # what the guardrails enforce (roadmap 10)

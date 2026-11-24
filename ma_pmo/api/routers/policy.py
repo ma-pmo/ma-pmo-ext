@@ -6,6 +6,8 @@ PUT /policy              : a new version {guardrails: {name: {mode, params}}, no
 GET /guardrails          : recorded results (?name=, ?point=, ?decision=, ?outcome=, ?run=)
 GET /tolerances          : the limits per level, and in force for ?project= (in ?portfolio=)
 PUT /tolerances          : replace them {tolerances: {workspace, portfolios, projects}, note}
+GET /stop                : the stop switch
+PUT /stop                : set it {all, agents, notifiers, note}
 """
 from __future__ import annotations
 
@@ -63,6 +65,27 @@ def change_tolerances(body: ToleranceChange, principal: CurrentPrincipal) -> dic
         return policy.change({}, by=by, note=body.note, tolerances=body.tolerances)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+class StopSwitch(BaseModel):
+    all: bool = False  # pause notifications and commits; reads and dry runs go on
+    agents: list[str] = []  # skip these agents' steps
+    notifiers: list[str] = []  # do not use these notifiers
+    note: str = ""
+
+
+@router.get("/stop")
+def get_stop() -> dict:
+    from ma_pmo.core import safety
+
+    return {"all": False, "agents": [], "notifiers": [], **safety.stop()}
+
+
+@router.put("/stop")
+def set_stop(body: StopSwitch, principal: CurrentPrincipal) -> dict:
+    by = principal.subject if principal is not ANONYMOUS else "anonymous"
+    switch = {"all": body.all, "agents": body.agents, "notifiers": body.notifiers}
+    return policy.change({}, by=by, note=body.note, stop=switch)["stop"]
 
 
 @router.get("/guardrails")

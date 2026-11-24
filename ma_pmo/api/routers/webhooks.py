@@ -26,7 +26,16 @@ class IssueEvent(BaseModel):
 
 @router.post("/webhooks/issue")
 def issue_webhook(event: IssueEvent) -> dict:
-    from ma_pmo.core import commitments
+    import json
+
+    from fastapi import HTTPException
+
+    from ma_pmo.core import commitments, safety
+
+    try:  # tracker text that carries instructions to the model (roadmap 10)
+        safety.guard_input(json.dumps(event.payload, ensure_ascii=False), "webhook")
+    except safety.InputBlocked as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
     commitments.check_tracker()  # what the tracker now shows done, then what is overdue
     commitments.sweep_quietly()

@@ -67,6 +67,12 @@ def emit(events: Iterable[Event], *, notifiers: Sequence[Notifier] | None = None
             attempts.append((event, "-", SKIPPED, "not subscribed (MA_PMO_NOTIFY_EVENTS)"))
             continue
         for notifier in targets:
+            held = _held(notifier, event)
+            if held:  # stopped, or not on the execution allowlist (roadmap 10)
+                results.append({"integration": notifier.name, "event": event.type.value,
+                                "ok": False, "error": f"skipped: {held}"})
+                attempts.append((event, notifier.name, SKIPPED, held))
+                continue
             if _open(notifier.name):
                 results.append({"integration": notifier.name, "event": event.type.value,
                                 "ok": False, "error": "skipped: failing repeatedly"})
@@ -92,6 +98,20 @@ def emit(events: Iterable[Event], *, notifiers: Sequence[Notifier] | None = None
 
 
 SENT, FAILED, SKIPPED = "sent", "failed", "skipped"
+
+
+def _held(notifier: Notifier, event: Event) -> str | None:
+    """Why this notification must not go out: the stop switch or the execution allowlist."""
+    try:
+        from ma_pmo.core import guardrails, safety
+
+        if safety.stopped(notifier=notifier.name):
+            return "stopped (stop switch)"
+        checked = guardrails.run("execution_allowlist", {"notifier": notifier, "event": event})
+        return f"blocked: {checked.reason}" if checked.decision == guardrails.BLOCK else None
+    except Exception as e:  # a policy that cannot be read must not stop delivery
+        _log.warning("execution_check_failed", error=str(e)[:200])
+        return None
 
 
 def _log_attempts(attempts: Sequence[tuple[Event, str, str, str | None]],

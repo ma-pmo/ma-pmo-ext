@@ -63,8 +63,11 @@ def check(run_id: str, spec: WorkflowSpec) -> list[dict[str, Any]]:
     for p in posts:
         if p["schema"] == "review.v1":
             reviews.setdefault(p["data"]["target"], []).append(p)
+    from ma_pmo.core import safety
+
     ran = {s.agent for s in spec.steps}
     audited = AUDITOR in ran
+    halted = safety.stopped()  # the stop switch: nothing commits, a person decides each
     outcome = []
     for post in (p for p in posts if p["schema"] in CANDIDATES):
         mine = reviews.get(post["message_id"], [])
@@ -77,6 +80,8 @@ def check(run_id: str, spec: WorkflowSpec) -> list[dict[str, Any]]:
         missing = [c for c in applies if c not in judged] if audited else ["review.dedicated"]
         if challenges and not offered and get_settings().review_alternatives:
             missing.append("alternative")
+        if halted:
+            missing.append("stopped")
         status = COMMITTED if not challenges and not missing else REVIEW_PENDING
         outcome.append({
             "message_id": post["message_id"], "schema": post["schema"], "step": post["step"],

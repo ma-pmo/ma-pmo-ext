@@ -116,11 +116,16 @@ def complete(
 ) -> str:
     """Free-form completion. Usage is recorded on the KPI cost axis and in the cost ledger.
 
-    Raises budgets.BudgetExceeded, before calling, once a hard budget is reached; callers fall
-    back to their deterministic answer as for any other failed call.
+    Raises budgets.BudgetExceeded, before calling, once a hard budget is reached, and
+    safety.InputBlocked when the input guardrails refuse the prompt; callers fall back to their
+    deterministic answer as for any other failed call. Personal data in the prompt is masked
+    when the `pii_mask` guardrail is enforced.
     """
+    from ma_pmo.core import safety
+
     model = model or model_for()
     budgets.check(agent)
+    user = safety.guard_input(user, f"LLM call by {agent}")
     language = "Korean" if get_lang() == "ko" else "English"
     system = f"{system}\n\nWrite all natural-language text in {language}."
     t0 = time.monotonic()
