@@ -29,7 +29,7 @@ from langgraph.graph import END, START, StateGraph
 from ma_pmo.agents import registry
 from ma_pmo.agents.orchestrator_rules import _headline
 from ma_pmo.agents.registry import WORKERS
-from ma_pmo.core import board, llm, questions, runs, tracing
+from ma_pmo.core import board, llm, questions, runs, safety, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.obs import get_logger
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -85,6 +85,11 @@ def _run_step(spec: WorkflowSpec, step: WorkflowStep, seq: int, run_id: str, sco
         tracing.OPERATION: "invoke_agent", tracing.AGENT_ID: agent_id,
         tracing.AGENT_NAME: registry.title(agent_id), tracing.SCENARIO: workflow,
     }), runs.step(agent_id, seq) as handle, llm.use_tier(step.model_tier):
+        if safety.stopped(agent=agent_id):  # switched off (roadmap 10): the step does nothing
+            handle.result = {"outputs": [], "phase": {**_phase(agent_id, 0.0, []),
+                                                      "stopped": True}}
+            _log.info("execute_stopped", agent=agent_id)
+            return True
         try:
             outputs = WORKERS[agent_id].run(state).get("outputs", [])
         except questions.NeedsInput as asked:

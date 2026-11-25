@@ -50,6 +50,7 @@ def current() -> dict[str, Any]:
         "created_at": iso(row.created_at) if row else None,
         "note": row.note if row else "",
         "tolerances": (row.document if row else {}).get("tolerances") or {},
+        "stop": (row.document if row else {}).get("stop") or {},
         "guardrails": [{**g, "mode": (chosen.get(g["name"]) or {}).get("mode", g["default_mode"]),
                         "params": {**g["params"],
                                    **((chosen.get(g["name"]) or {}).get("params") or {})}}
@@ -65,7 +66,8 @@ def versions() -> list[dict[str, Any]]:
 
 
 def change(settings: dict[str, dict[str, Any]], *, by: str, note: str = "",
-           tolerances: dict[str, Any] | None = None) -> dict[str, Any]:
+           tolerances: dict[str, Any] | None = None,
+           stop: dict[str, Any] | None = None) -> dict[str, Any]:
     """A new version with these guardrails changed ({name: {mode, params}}) and, if given, the
     tolerances replaced; the rest carry over. ValueError for an unknown guardrail or mode, or
     tolerances that are unknown or widen a level above."""
@@ -91,6 +93,9 @@ def change(settings: dict[str, dict[str, Any]], *, by: str, note: str = "",
             "tolerances")
         if kept:
             document["tolerances"] = kept
+        switch = stop if stop is not None else (row.document if row else {}).get("stop")
+        if switch:
+            document["stop"] = switch
         s.add(Policy(version=number, document=document, note=note, created_by=by))
         try:
             s.flush()
@@ -100,8 +105,16 @@ def change(settings: dict[str, dict[str, Any]], *, by: str, note: str = "",
     from ma_pmo.core import decisions
 
     summary = ", ".join([f"{n}: {v.get('mode', '')}".rstrip(": ") for n, v in settings.items()]
-                        + (["tolerances"] if tolerances is not None else []))
+                        + (["tolerances"] if tolerances is not None else [])
+                        + ([_stop_summary(stop)] if stop is not None else []))
     decisions.by_person("policy", "policy", tr(f"policy v{number}: {summary}",
                                                f"정책 v{number}: {summary}"),
                         by, f"v{number}", rationale=note or None)
     return current()
+
+
+def _stop_summary(stop: dict[str, Any]) -> str:
+    if stop.get("all"):
+        return "stop switch ON"
+    parts = [f"stopped {k}: {', '.join(stop[k])}" for k in ("agents", "notifiers") if stop.get(k)]
+    return "; ".join(parts) or "stop switch off"
