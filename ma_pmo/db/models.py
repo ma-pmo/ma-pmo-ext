@@ -319,6 +319,8 @@ class Approval(Scoped, Base):
     # why a person is asked beyond the message's own gate, e.g. a commit gate holding a decision
     # its reviews challenged: {"kind": "review_pending", "challenges": [...], "missing": [...]}
     reason: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # first approvals of a decision two people must approve: [{who, at, rationale}]
+    signoffs: Mapped[list | None] = mapped_column(JSON, nullable=True)
     # the person's reason; required to reject and to approve a decision review challenged
     rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
 

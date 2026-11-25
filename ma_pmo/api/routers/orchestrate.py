@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from ma_pmo.api.auth import ANONYMOUS, CurrentPrincipal
 from ma_pmo.core.goals import run_goal
 from ma_pmo.core.scope import DEFAULT_SCOPE
 
@@ -18,7 +19,7 @@ class OrchestrateRequest(BaseModel):
 
 
 @router.post("/orchestrate")
-def orchestrate(req: OrchestrateRequest) -> dict:
+def orchestrate(req: OrchestrateRequest, principal: CurrentPrincipal) -> dict:
     from fastapi import HTTPException
 
     from ma_pmo.core import safety
@@ -27,5 +28,8 @@ def orchestrate(req: OrchestrateRequest) -> dict:
         safety.guard_input(req.goal, "goal")
     except safety.InputBlocked as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
-    return run_goal(req.goal, req.task_ref, thread_id=req.thread_id,
-                    pause_on_gate=req.pause_on_gate)
+    from ma_pmo.core import duties
+
+    with duties.requested_by(None if principal is ANONYMOUS else principal.subject):
+        return run_goal(req.goal, req.task_ref, thread_id=req.thread_id,
+                        pause_on_gate=req.pause_on_gate)

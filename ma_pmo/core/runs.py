@@ -110,10 +110,12 @@ def track(kind: str, workflow: str, scope: str, *, thread_id: str | None = None,
     from ma_pmo.core import commitments
 
     commitments.sweep_quietly()  # due dates first, so the run sees what was missed
-    from ma_pmo.core import policy
-
     # the rules it ran under (roadmap 10): a replay can use the same version
-    state = {**(state or {}), "policy_version": policy.version()}
+    from ma_pmo.core import duties, policy
+
+    state = {**(state or {}), "policy_version": policy.version(),
+             # who asked for it (roadmap 10): they may not decide its outputs
+             "requested_by": duties.requester()}
     run_id = uuid.uuid4().hex
     with get_session() as s:
         s.add(Run(id=run_id, kind=kind, workflow=workflow[:500], scope=scope, status=RUNNING,

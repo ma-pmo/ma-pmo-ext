@@ -140,4 +140,4 @@ def catalog() -> list[dict[str, Any]]:
 
 def _load() -> None:
     """The modules that declare guardrails (imported for their `register` calls)."""
-    from ma_pmo.core import budgets, protocol, safety, tolerances  # noqa: F401
+    from ma_pmo.core import budgets, duties, protocol, safety, tolerances  # noqa: F401

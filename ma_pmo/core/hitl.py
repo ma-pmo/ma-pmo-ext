@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
-from ma_pmo.core import commitments, decisions, kpi, roles, runs
+from ma_pmo.core import commitments, decisions, duties, guardrails, kpi, roles, runs
 from ma_pmo.core.obs import get_logger
 from ma_pmo.db.models import AgentMessageRow, Approval
 from ma_pmo.db.session import get_session
@@ -54,6 +54,7 @@ def list_pending() -> list[dict]:
                 "accountable": _accountable(m),
                 # outside a tolerance (roadmap 10): the breaches it forecasts
                 "exception": a.reason if (a.reason or {}).get("kind") == "exception" else None,
+                "signoffs": a.signoffs or [],  # first approvals, when two people must approve
             }
             for a, m in rows
         ]
@@ -103,6 +104,7 @@ def resolve(approval_id: int, *, approver: str, decision: str,
             raise ValueError("every condition needs a text")
         commitments.adoptable(approval.message_id, adopt)
         target = s.get(AgentMessageRow, approval.message_id)
+        kind = None
         if target is not None:  # once someone is Accountable, only they decide (roadmap 9)
             kind, subject, _ = decisions.describe((target.payload or {}).get("schema"),
                                                   (target.payload or {}).get("data") or {},
@@ -112,6 +114,24 @@ def resolve(approval_id: int, *, approver: str, decision: str,
         if rationale is None and (decision == "reject" or challenged):
             raise ValueError("a reason is required to reject, or to approve a decision a "
                              "reviewer challenged")
+        # segregation of duties (roadmap 10): not your own request, not an agent, two people
+        # above a threshold
+        duty = guardrails.run("segregation", {
+            "approver": approver, "decision": decision, "kind": kind,
+            "severity": (((target.payload or {}).get("data") or {}).get("severity")
+                         if target is not None else None),
+            "exception": (approval.reason or {}).get("kind") == "exception",
+            "requested_by": (runs.get_state(approval.run_id).get("requested_by")
+                             if approval.run_id else None),
+            "signoffs": approval.signoffs}, message_id=approval.message_id)
+        if duty.decision == guardrails.BLOCK:
+            raise duties.NotSeparated(duty.reason)
+        if duty.decision == guardrails.ASK:  # the first of two approvals: keep it, stay pending
+            approval.signoffs = [*(approval.signoffs or []), {
+                "who": approver, "at": datetime.now(UTC).isoformat(), "rationale": rationale}]
+            return {"approval_id": approval_id, "message_id": approval.message_id,
+                    "decision": "pending", "approver": approver,
+                    "status": "awaiting a second approver", "signoffs": approval.signoffs}
 
         msg = s.get(AgentMessageRow, approval.message_id)
         now = datetime.now(UTC)
