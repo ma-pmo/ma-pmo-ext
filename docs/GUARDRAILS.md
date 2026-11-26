@@ -36,6 +36,7 @@ policy:
 | `injection_check` | input | observe | blocks LLM calls, goals and webhooks whose text carries instructions to the model |
 | `pii_mask` | input | observe | masks e-mail addresses, phone numbers, Korean resident and card numbers before LLM calls |
 | `execution_allowlist` | execution | observe | sends notifications only through allowed notifiers and hosts; records what leaves |
+| `segregation` | decision | observe | no self-approval, agents never approve, two approvers above a threshold |
 
 Both existed before roadmap 10 and behave as they did. Guardrails added later start in
 `observe`.
@@ -68,6 +69,27 @@ under (`policy_version` in its state).
   each one before it is sent and records the event, the notifier and the host, never the rest
   of the URL. A notification refused here is logged as skipped in the communication log. Once a
   connector can write back to a tracker, it goes through this guardrail too.
+
+## Segregation of duties
+
+The `segregation` guardrail checks every approval and rejection:
+
+- **Nobody decides their own request.** A run records who asked for it (`requested_by`, the
+  authenticated user who started the scenario or goal), and that person cannot decide its
+  outputs. With authentication off nobody is recorded, so this check has nothing to compare.
+- **Agents never decide.** Agent ids (A1-A8, plugins) and system actors (`due-dates`,
+  `tracker`) cannot be approvers.
+- **Above a threshold, two people approve.** The thresholds are parameters:
+  - `two_person_kinds`: kinds of decision, such as `["gate", "budget"]`;
+  - `two_person_severities`: risk severities, by default `["critical"]`;
+  - `two_person_exceptions`: tolerance exceptions, on by default.
+
+  The first approval is kept as a sign-off and the item stays in the queue, showing who signed.
+  A second, different person completes it; the same person twice is refused. One rejection is
+  enough.
+
+Enforced, a refusal answers 403. The agent that built a decision cannot be its only reviewer
+already, because review needs the dedicated A8 step ([REVIEW.md](REVIEW.md)).
 
 ## Stop switch
 

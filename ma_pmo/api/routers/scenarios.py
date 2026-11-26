@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
+from ma_pmo.api.auth import ANONYMOUS, CurrentPrincipal
+from ma_pmo.core import duties
 from ma_pmo.core.scenarios import list_scenarios, run_scenario, to_paper_markdown
 from ma_pmo.core.scope import DEFAULT_SCOPE
 
@@ -19,12 +21,13 @@ def get_scenarios() -> list[dict]:
 
 
 @router.post("/scenarios/{scenario_id}/run")
-def run(scenario_id: str, scope: str = DEFAULT_SCOPE, format: str = "json",
-        pause_on_gate: bool = False) -> dict:
+def run(scenario_id: str, principal: CurrentPrincipal, scope: str = DEFAULT_SCOPE,
+        format: str = "json", pause_on_gate: bool = False) -> dict:
     """Run a scenario. With format=markdown, also returns paper-ready Markdown.
     With pause_on_gate=true, the run waits at a gate until the approval is resolved."""
     try:
-        trace = run_scenario(scenario_id, scope, pause_on_gate=pause_on_gate)
+        with duties.requested_by(None if principal is ANONYMOUS else principal.subject):
+            trace = run_scenario(scenario_id, scope, pause_on_gate=pause_on_gate)
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     if format == "markdown" and trace["status"] == "succeeded":
