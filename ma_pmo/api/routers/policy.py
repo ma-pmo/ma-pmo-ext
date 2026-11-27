@@ -6,11 +6,13 @@ PUT /policy              : a new version {guardrails: {name: {mode, params}}, no
 GET /guardrails          : recorded results (?name=, ?point=, ?decision=, ?outcome=, ?run=)
 GET /tolerances          : the limits per level, and in force for ?project= (in ?portfolio=)
 PUT /tolerances          : replace them {tolerances: {workspace, portfolios, projects}, note}
+GET /evidence            : the evidence pack (?since=, ?until= as YYYY-MM-DD, ?format=json|md)
 GET /stop                : the stop switch
 PUT /stop                : set it {all, agents, notifiers, note}
 """
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
@@ -72,6 +74,21 @@ class StopSwitch(BaseModel):
     agents: list[str] = []  # skip these agents' steps
     notifiers: list[str] = []  # do not use these notifiers
     note: str = ""
+
+
+@router.get("/evidence")
+def evidence_pack(since: date | None = None, until: date | None = None,
+                  format: str = "json") -> Any:
+    from fastapi.responses import PlainTextResponse
+
+    from ma_pmo.core import evidence
+
+    pack = evidence.build(since, until)
+    if format == "md":
+        name = f"evidence-{pack['period']['from']}-{pack['period']['to']}.md"
+        return PlainTextResponse(evidence.to_markdown(pack), media_type="text/markdown",
+                                 headers={"content-disposition": f'attachment; filename="{name}"'})
+    return pack
 
 
 @router.get("/stop")

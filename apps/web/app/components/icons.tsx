@@ -19,6 +19,8 @@ export const Icon = {
   decisions: () => <Svg><path d="M12 3v18M5 21h14" /><path d="M4 8h16" /><path d="M7 8l-3 6a3 3 0 0 0 6 0L7 8zM17 8l-3 6a3 3 0 0 0 6 0l-3-6z" /></Svg>,
   inbox: () => <Svg><path d="M3 13l3-8h12l3 8" /><path d="M3 13v6h18v-6h-5l-1.5 3h-5L8 13H3z" /></Svg>,
   roles: () => <Svg><circle cx="8" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M2.5 20a5.5 5.5 0 0 1 11 0M14 20a4 4 0 0 1 7.5-2" /></Svg>,
+  policy: () => <Svg><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z" /></Svg>,
+  guardrails: () => <Svg><path d="M4 6h16M4 12h16M4 18h10" /><path d="M18 16l2 2 3-4" /></Svg>,
   evaluation: () => <Svg><path d="M3 3v18h18" /><path d="M7 15l4-4 3 3 5-6" /></Svg>,
   reports: () => <Svg><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6" /><path d="M8 13h8M8 17h5" /></Svg>,
   integrations: () => <Svg><path d="M9 7H6a3 3 0 0 0 0 6h3" /><path d="M15 7h3a3 3 0 0 1 0 6h-3" /><path d="M8 10h8" /><path d="M12 17v4" /></Svg>,

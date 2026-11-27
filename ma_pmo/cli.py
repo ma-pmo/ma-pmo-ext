@@ -12,6 +12,7 @@ Examples:
     ma-pmo eval --records                   # every decision recorded, reasoned, traceable, told
     ma-pmo eval --commitments               # missed obligations noticed, kept ones left alone
     ma-pmo commitments sweep                # overdue commitments: violate and escalate (cron)
+    ma-pmo evidence --since 2026-11-01      # evidence pack for an audit (Markdown or JSON)
     ma-pmo template data ./my-org           # write the evaluation data template
     ma-pmo template validate ./my-org       # check the filled-in data
     ma-pmo eval --data ./my-org             # evaluate H1–H5 on your own data
@@ -510,6 +511,13 @@ def main(argv: list[str] | None = None) -> int:
         r.add_argument("--scope", help="only this portfolio scope")
         r.add_argument("--kind", choices=["status", "executive", "exception", "gate", "closure"])
 
+    evp = sub.add_parser("evidence", help="evidence pack: policy, guardrail results, exceptions, "
+                                          "approvals for a period")
+    evp.add_argument("--since", help="first day, YYYY-MM-DD (default: 31 days ago)")
+    evp.add_argument("--until", help="last day, YYYY-MM-DD (default: today)")
+    evp.add_argument("--format", choices=["md", "json"], default="md")
+    evp.add_argument("--out", help="file to write (default: stdout)")
+
     com = sub.add_parser("commitments", help="commitments: list | sweep (run sweep from cron)")
     comsub = com.add_subparsers(dest="action", required=True)
     c_list = comsub.add_parser("list", help="open and violated commitments, soonest due first")
@@ -621,6 +629,22 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_replay(ns)
     elif ns.command == "report":
         return _cmd_report(ns)
+    elif ns.command == "evidence":
+        import json
+        from datetime import date as day
+
+        from ma_pmo.core import evidence
+
+        pack = evidence.build(day.fromisoformat(ns.since) if ns.since else None,
+                              day.fromisoformat(ns.until) if ns.until else None)
+        text = evidence.to_markdown(pack) if ns.format == "md" else json.dumps(
+            pack, ensure_ascii=False, indent=2)
+        if ns.out:
+            Path(ns.out).write_text(text, encoding="utf-8")
+            print(ns.out)
+        else:
+            print(text)
+        return 0
     elif ns.command == "commitments":
         return _cmd_commitments(ns)
     elif ns.command == "recommendation":

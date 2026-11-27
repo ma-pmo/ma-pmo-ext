@@ -132,6 +132,35 @@ The guardrail starts in `observe`. Turn it on with `PUT /policy`
 PROJ-31 allowed 0 slip days, A2's forecast of 7 days late raises an exception while the other
 projects stay within tolerance.
 
+## Evidence pack
+
+`GET /evidence?since=&until=&format=json|md`, or `ma-pmo evidence --since 2026-11-01 --format
+md --out pack.md`, collects for one workspace and period (default: the last 31 days):
+- the policy in force;
+- the policy versions in the period;
+- the guardrail results, counted per guardrail, mode and outcome, with every result that did
+  not simply allow;
+- the tolerance exceptions and who decided them;
+- the approvals and how many had a written reason.
+
+It lists which guardrails relate to which items of NIST AI RMF 1.0 (Govern, Map, Measure,
+Manage), ISO/IEC 42001 Annex A objective areas (names from secondary summaries) and EU AI Act
+Articles 9, 12 and 14. That mapping is a starting point for your own assessment. **MA-PMO does
+not claim conformity with any of them.**
+
+## In the dashboard
+
+- **Policy** (Settings) has four parts:
+  - the stop switch;
+  - each guardrail with its mode, which an admin can change in place;
+  - the workspace tolerances, with any narrower portfolio or project limits listed below them;
+  - the evidence pack download (Markdown or JSON) and the version history.
+- **Guardrail log** (Settings) lists every result. Filter by guardrail, or to what a guardrail
+  found other than allow. In observe mode that is what it would have done.
+- The **header** has the stop switch for admins. While it is on, a red "Stopped" badge links
+  to Policy; on a phone the switch itself is on the Policy page.
+- **Approvals** shows tolerance exceptions and the first of two sign-offs.
+
 ## The guardrail log
 
 Every result is a `guardrail.v1` entry (`GET /guardrails`, filter by `name`, `point`,

@@ -413,6 +413,9 @@ tr.wf-row-on td { background: var(--accent-soft); }
 .dlog-sub { font-size: 14px; margin: 18px 0 8px; }
 .dlog-owed { margin-bottom: 12px; }
 .dlog-owed .timeline { margin-top: 6px; }
+td.wrap { white-space: normal; min-width: 220px; }
+.stop-btn { white-space: nowrap; }
+@media (max-width: 640px) { .stop-btn { display: none; } }  /* the policy page has it; the badge stays */
 .check-target { min-height: 24px; }
 .remove-x { margin-left: 4px; padding: 0 6px; min-width: 24px; min-height: 24px; }
 .inbox-list { list-style: none; margin: 0; padding: 0; }

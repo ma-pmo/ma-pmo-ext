@@ -52,6 +52,8 @@ async function pages() {
     { name: "decisions", path: "/decisions" },
     { name: "inbox", path: "/inbox" },
     { name: "roles", path: "/roles" },
+    { name: "policy", path: "/policy" },
+    { name: "guardrails", path: "/guardrails" },
     { name: "reports", path: "/reports" },
     { name: "evaluation", path: "/evaluation" },
     { name: "costs", path: "/costs" },
