@@ -125,6 +125,24 @@ export const api = {
   // the rendered report, fetched with the workspace and key headers a plain link would not send
   reportExport: async (id: string, format: string) =>
     raw(`/reports/${encodeURIComponent(id)}/export?format=${format}`),
+  // policy, guardrails, tolerances, stop switch, evidence (roadmap 10)
+  policy: () => req(`/policy`),
+  policyVersions: () => req(`/policy/versions`),
+  changePolicy: (guardrails: Record<string, { mode?: string; params?: unknown }>, note = "") =>
+    req(`/policy`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ guardrails, note }) }),
+  setTolerances: (tolerances: Record<string, unknown>, note = "") =>
+    req(`/tolerances`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ tolerances, note }) }),
+  guardrailLog: (f: { name?: string; point?: string; outcome?: string; decision?: string; run?: string; limit?: number } = {}) => {
+    const q = new URLSearchParams(Object.entries(f).filter(([, v]) => v).map(([k, v]) => [k, String(v)]));
+    return req(`/guardrails${q.size ? `?${q}` : ""}`);
+  },
+  stop: () => req(`/stop`),
+  setStop: (body: { all: boolean; agents?: string[]; notifiers?: string[]; note?: string }) =>
+    req(`/stop`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }),
+  evidence: (format: "md" | "json", since?: string, until?: string) => {
+    const q = new URLSearchParams(Object.entries({ format, since, until }).filter(([, v]) => v) as [string, string][]);
+    return raw(`/evidence?${q}`);
+  },
   // commitments, questions and roles (roadmap 9)
   commitments: (f: { state?: string; debtor?: string; project?: string; decision?: string } = {}) => {
     const q = new URLSearchParams(Object.entries(f).filter(([, v]) => v).map(([k, v]) => [k, String(v)]));

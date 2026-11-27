@@ -13,7 +13,7 @@ const LANGS: { code: Lang; label: string }[] = [
   { code: "ko", label: "한국어" },
 ];
 
-type Item = { href: string; key: "dashboard" | "scenarios" | "workflows" | "approvals" | "inbox" | "decisions" | "reports" | "evaluation" | "costs" | "integrations" | "roles"; icon: () => JSX.Element };
+type Item = { href: string; key: "dashboard" | "scenarios" | "workflows" | "approvals" | "inbox" | "decisions" | "reports" | "evaluation" | "costs" | "integrations" | "roles" | "policy" | "guardrails"; icon: () => JSX.Element };
 const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items: Item[] }[] = [
   { key: "overview", items: [{ href: "/", key: "dashboard", icon: Icon.dashboard }] },
   {
@@ -37,6 +37,8 @@ const GROUPS: { key: "overview" | "operations" | "insights" | "settings"; items:
   { key: "settings", items: [
     { href: "/integrations", key: "integrations", icon: Icon.integrations },
     { href: "/roles", key: "roles", icon: Icon.roles },
+    { href: "/policy", key: "policy", icon: Icon.policy },
+    { href: "/guardrails", key: "guardrails", icon: Icon.guardrails },
   ] },
 ];
 
@@ -47,7 +49,13 @@ export function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [apiUp, setApiUp] = useState<boolean | null>(null);
   const [pending, setPending] = useState(0);
-  const [me, setMe] = useState<{ subject: string; auth_enabled: boolean } | null>(null);
+  const [stopped, setStopped] = useState(false);
+  const [me, setMe] = useState<{ subject: string; auth_enabled: boolean; roles?: string[] } | null>(null);
+  const admin = !!me && (!me.auth_enabled || (me.roles ?? []).includes("admin"));
+  const toggleStop = async () => {
+    if (!stopped && !window.confirm(t.pol.confirmStop)) return;
+    try { const s = await api.setStop({ all: !stopped }); setStopped(!!s.all); } catch { /* shown on the policy page */ }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -56,6 +64,7 @@ export function Shell({ children }: { children: ReactNode }) {
         await api.health();
         const items = await api.approvals();
         if (alive) { setApiUp(true); setPending(items.length); }
+        api.stop().then((s: { all: boolean }) => alive && setStopped(!!s.all)).catch(() => {});
       } catch {
         if (alive) setApiUp(false);
       }
@@ -128,6 +137,13 @@ export function Shell({ children }: { children: ReactNode }) {
           </button>
           <span className="crumb">{current ? t.nav[current.key] : "MA-PMO"}</span>
           <span className="spacer" />
+          {stopped && <a className="badge red tip" data-tip={t.shellStop.tip} href="/policy">{t.shellStop.on}</a>}
+          {admin && (
+            <button className={`sm ${stopped ? "" : "ghost"} stop-btn`} onClick={toggleStop}
+              aria-pressed={stopped} title={t.pol.stopTitle}>
+              {stopped ? t.pol.resume : t.pol.stopTitle}
+            </button>
+          )}
           {me && (me.auth_enabled
             ? <span className="badge accent">{me.subject}</span>
             : <span className="badge amber tip" data-tip={t.shell.authOffTip}>{t.shell.authOff}</span>)}
