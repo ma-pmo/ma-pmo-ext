@@ -548,8 +548,12 @@ def main(argv: list[str] | None = None) -> int:
                     help="record completeness: decisions, reasons, provenance, notifications")
     ev.add_argument("--guardrails", action="store_true",
                     help="guardrails on attacks and controls, and the run time they add")
-    ev.add_argument("--round", type=int, choices=(1, 2),
-                    help="with --guardrails: only the input guardrails, on that round's cases")
+    ev.add_argument("--round", type=int, choices=(1, 2, 3),
+                    help="with --guardrails: only the input guardrails, on that round's cases "
+                         "(3: public data, downloaded)")
+    ev.add_argument("--injection-data", help="with --round 3: where the public data is kept")
+    ev.add_argument("--classifier", help="with --round 3: also a Hugging Face classifier "
+                                         "(needs transformers), for comparison")
 
     tpl = sub.add_parser("template", help="evaluation templates: data | validate | report")
     tsub = tpl.add_subparsers(dest="kind", required=True)
@@ -668,6 +672,12 @@ def main(argv: list[str] | None = None) -> int:
     elif ns.command == "eval" and ns.guardrails:
         from ma_pmo.eval import guardrails as guardrail_eval
 
+        if ns.round == 3:
+            from ma_pmo.eval import injection
+
+            data = Path(ns.injection_data) if ns.injection_data else injection.DEFAULT_DIR
+            print(injection.to_markdown(injection.evaluate(data, ns.classifier)))
+            return 0
         if ns.round:
             print(guardrail_eval.inputs_markdown(guardrail_eval.evaluate_inputs(ns.round)))
             return 0
