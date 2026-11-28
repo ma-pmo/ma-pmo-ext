@@ -25,6 +25,7 @@ from ma_pmo.core.scenarios import run_scenario
 from ma_pmo.db import workspaces
 
 FAST = get_settings().llm_model_fast
+DEMO_AS_OF = "2026-02-16"  # the demo calendar
 APPROVER = "demo-approver@example.com"  # the dashboard's approver (apps/web/app/approvals)
 LABELS = {"PROJ-14": "medium", "PROJ-22": "low", "PROJ-31": "high"}
 fast_mode = {"answer": "good"}  # "good" or "wrong": how the fast model rates risks
@@ -52,7 +53,17 @@ def completion(**kw):
 def governance() -> None:
     """Roadmaps 8-10: RACI roles, a conditional gate approved with a condition that is now
     overdue, a question waiting for an answer, tolerances with an exception, and guardrail
-    results (observe mode: what they would have done)."""
+    results (observe mode: what they would have done). On the demo's own calendar, where
+    PROJ-14 and PROJ-31 pass G3 on condition, whatever MA_PMO_REPORT_AS_OF says."""
+    settings = get_settings()
+    saved, settings.report_as_of = settings.report_as_of, DEMO_AS_OF
+    try:
+        _governance()
+    finally:
+        settings.report_as_of = saved
+
+
+def _governance() -> None:
     for kind, role, person, project in (
             ("gate", "A", APPROVER, None), ("gate", "C", "qa-lead@example.com", None),
             ("gate", "I", "cfo@example.com", None), ("gate", "R", "pm-14@example.com", "PROJ-14"),
