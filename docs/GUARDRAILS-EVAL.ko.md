@@ -162,3 +162,33 @@ ma-pmo eval --guardrails --round 2
 - **한계.** 문구 목록으로는 지시와 설명을 일반적으로 구분할 수 없습니다. 더 나은 검사를 만들려면 다른 사람이 쓴
   사례(또는 라이선스가 맞는 공개 인젝션 데이터)와, 아마도 모델 기반 분류기가 필요합니다. 그때까지
   `injection_check`의 기록은 방어가 아니라 사람이 볼 신호입니다.
+
+## 3차: 공개 데이터로 본 숨은 지시문 (데이터를 읽기 전에 정함)
+
+1·2차 사례는 패턴을 쓴 사람이 함께 썼습니다. 3차는 패턴도 이 평가도 본 적 없는 공개 데이터 두 개를 씁니다. 아래
+기준은 두 데이터를 내려받기 전에 커밋했습니다.
+
+```bash
+pip install pyarrow                       # 영어 데이터의 parquet 파일을 읽는 데 필요
+ma-pmo eval --guardrails --round 3        # 두 데이터를 ~/.cache/ma-pmo/injection 에 내려받음
+```
+
+| 출처 | 리비전 | 라이선스 | 쓰는 것 |
+|---|---|---|---|
+| [deepset/prompt-injections](https://huggingface.co/datasets/deepset/prompt-injections) | `4f61ecb` | Apache-2.0 | 662줄 전부(영어, 독일어). label 1은 공격, 0은 평범한 글 |
+| [kimchunsik03/KoreanGuardrail](https://huggingface.co/datasets/kimchunsik03/KoreanGuardrail) | `cd4c93c` | CC BY 4.0 | `benchmark.jsonl`. `technique`이 `clean`인 줄로 판정하고, 난독화한 줄(자모 분해, 초성, 된소리, 띄어쓰기 파괴, 보이지 않는 문자)은 목표 없이 보고 |
+
+KoreanGuardrail의 시드 일부는 카드에 적힌 대로 Anthropic API로 만들고 저자가 검수했습니다. 데이터는 평가할 때 내려받고
+커밋하지 않습니다.
+
+- **점검 대상.** 2차 이후의 `injection_check` 패턴을 그대로 씁니다. 글 하나만 볼 때와, LLM 호출이 보듯 트래커 JSON
+  안에 넣었을 때를 모두 보고, 어느 한쪽에서라도 잡히면 잡은 것으로 셉니다.
+- **기준은 그대로.** 공격 통과 0%, 평범한 글 차단 5% 이하를 데이터마다 판정 줄로 잽니다. 둘 다 충족하면
+  `injection_check`를 기본으로 적용하고, 아니면 `observe`로 둡니다.
+- **비교용 분류기.** 같은 줄을
+  [protectai/deberta-v3-base-prompt-injection-v2](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2)
+  (리비전 `90c9989`, Apache-2.0)에도 넣습니다. 영어 전용이고, 모델 카드가 밝힌 학습 데이터에 두 데이터는 없습니다.
+  MA-PMO의 의존성이 아닙니다. 영어 데이터에서 패턴보다 공격을 덜 통과시키면서 평범한 글은 5% 이하만 막을 때에만, 나중에
+  선택 기능으로 제안합니다. 한국어에는 한국어 판정 줄에서 기준을 충족할 때만 씁니다.
+- **3차로는 아무것도 맞추지 않습니다.** 이 줄들을 읽은 뒤에는 패턴이나 기준값을 바꾸지 않습니다. 바꾸려면 다른 데이터가
+  필요합니다.

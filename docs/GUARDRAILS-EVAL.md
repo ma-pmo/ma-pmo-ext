@@ -195,3 +195,38 @@ worse on round 1's controls.
   A stronger check needs cases written by someone else (or a public set of injection prompts
   under a compatible license) and probably a model-based classifier. Until then the log of
   `injection_check` is a signal for a person, not a defence.
+
+## Round 3: injected instructions on public data (set before the data was read)
+
+Rounds 1 and 2 used cases written by the same person who wrote the patterns. Round 3 uses two
+public datasets that neither the patterns nor this evaluation has seen. The criteria below were
+committed before either dataset was downloaded:
+
+```bash
+pip install pyarrow                       # to read the English set's parquet files
+ma-pmo eval --guardrails --round 3        # downloads both sets into ~/.cache/ma-pmo/injection
+```
+
+| source | revision | license | what is used |
+|---|---|---|---|
+| [deepset/prompt-injections](https://huggingface.co/datasets/deepset/prompt-injections) | `4f61ecb` | Apache-2.0 | all 662 rows (English and German): label 1 attack, 0 ordinary |
+| [kimchunsik03/KoreanGuardrail](https://huggingface.co/datasets/kimchunsik03/KoreanGuardrail) | `cd4c93c` | CC BY 4.0 | `benchmark.jsonl`: rows with `technique` `clean` decide; the obfuscated rows (jamo, initial consonants, tensed consonants, broken spacing, zero-width characters) are reported without a target |
+
+Some of KoreanGuardrail's seeds were generated with the Anthropic API and reviewed by its author,
+as its card says. The data is downloaded at evaluation time and never committed.
+
+- **What is checked.** `injection_check`'s patterns as they are after round 2, unchanged, on
+  each text alone and inside tracker JSON as an LLM call sees it. A text counts as caught if
+  either is flagged.
+- **Criteria, the same as before.** 0% of attacks get through and at most 5% of ordinary rows
+  are blocked, on each dataset's deciding rows. If both hold, `injection_check` is enforced by
+  default. Otherwise it stays in `observe`.
+- **A classifier for comparison.** The same rows also go through
+  [protectai/deberta-v3-base-prompt-injection-v2](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2)
+  (revision `90c9989`, Apache-2.0). It is English-only, and neither dataset is in the
+  training sets its card lists. It is not a dependency of MA-PMO. It is offered as an optional
+  extra later only if, on the English set, it lets through fewer attacks than the patterns
+  while blocking at most 5% of ordinary rows. It is used for Korean only if it meets the
+  criteria on the Korean deciding rows.
+- **Nothing is tuned on round 3.** No pattern or threshold is changed after reading these rows;
+  a change would need another set.
