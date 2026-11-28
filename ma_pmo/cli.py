@@ -344,6 +344,16 @@ def _cmd_benchmark(ns: argparse.Namespace) -> int:
                 f.write(text + "\n")
         print(text)
         return 0
+    if ns.action == "trust":
+        from ma_pmo.benchmark import trust
+        from ma_pmo.benchmark.replay import ReplayTracker
+
+        result = trust.evaluate(ReplayTracker.load(ns.data))
+        if ns.out:
+            with open(ns.out, "w", encoding="utf-8") as f:
+                json.dump(result, f, indent=1, default=str)
+        print(trust.to_markdown(result))
+        return 0
     if ns.action == "replay":
         from ma_pmo.benchmark.replay import ReplayTracker
 
@@ -577,7 +587,7 @@ def main(argv: list[str] | None = None) -> int:
 
     bench = sub.add_parser(
         "benchmark", help='benchmark on public Jira history: coverage | prepare | replay | run | '
-                          'calibrate '
+                          'calibrate | trust '
                           '(needs "ma-pmo[benchmark]")'
     )
     bsub = bench.add_subparsers(dest="action", required=True)
@@ -605,6 +615,10 @@ def main(argv: list[str] | None = None) -> int:
     b_cal.add_argument("data", help="a folder written by prepare")
     b_cal.add_argument("--k", type=int, default=14, help="as-of days before release")
     b_cal.add_argument("--out", help="write the table here (MA_PMO_A4_CALIBRATION reads it)")
+    b_tr = bsub.add_parser("trust", help="A4's confidence learnt per organisation vs fixed "
+                                         "(docs/TRUST-EVAL.md)")
+    b_tr.add_argument("data", help="a folder written by prepare")
+    b_tr.add_argument("--out", help="also write the JSON to this file")
     b_rep = bsub.add_parser("replay", help="show what the tracker showed for a release at T")
     b_rep.add_argument("data", help="a folder written by prepare")
     b_rep.add_argument("release", nargs="?",

@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **Dynamic trust evaluation** ([docs/TRUST-EVAL.md](docs/TRUST-EVAL.md)): `ma-pmo benchmark trust` compares A4's fixed confidence table with one that learns from each organisation's own outcomes as they become known, without leakage. Criteria were set before the run. Brier and overall ECE improve, but the per-organisation ECE does not (0.1231 to 0.1268), so the fixed table stays.
+
 ### Changed
 - **Decisions cite their evidence** ([docs/RECORDS-EVAL.md](docs/RECORDS-EVAL.md)): gate reviews (A6), reports (A5), risk alerts (A4) and allocations (A3) now cite the tracker fields, messages and lessons they rest on. Traceable to evidence goes from 64% to 100% on the scenarios and from 76% to 100% on the review cases. A new measure checks that every cited item exists, and all 4,239 do. The targets were committed before the change.
 
@@ -263,6 +266,7 @@ First public release.
 
 ### [Unreleased]
 
+- 추가: **동적 신뢰도 평가**([docs/TRUST-EVAL.ko.md](docs/TRUST-EVAL.ko.md)). `ma-pmo benchmark trust`가 A4의 고정 확신도 표와, 조직마다 알려지는 결과로 배우는 표를 누수 없이 비교합니다. 기준은 실행 전에 정했습니다. Brier와 전체 ECE는 좋아졌지만 조직별 ECE는 나아지지 않아(0.1231에서 0.1268로) 고정 표를 그대로 둡니다.
 - 변경: **결정이 근거를 인용**([docs/RECORDS-EVAL.ko.md](docs/RECORDS-EVAL.ko.md)). 게이트 심사(A6), 보고서(A5), 위험 경보(A4), 인력 배정(A3)이 기대는 트래커 필드, 메시지, 교훈을 인용합니다. 근거까지 추적이 시나리오에서 64%에서 100%로, 리뷰 사례에서 76%에서 100%로 올랐습니다. 인용한 근거가 실제로 있는지 새로 재며, 4,239개 모두 있습니다. 목표는 바꾸기 전에 커밋했습니다.
 
 ### [0.10.1] - 2026-11-28
