@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- **Input guardrails, round 2** ([docs/GUARDRAILS-EVAL.md](docs/GUARDRAILS-EVAL.md)): new cases were committed before the checks changed. `pii_mask` now finds international phone numbers without the leading 0 and resident registration numbers with a space or no separator (birth date checked). It met the criteria on the new cases and is enforced by default. `injection_check` now also looks for text addressed to the model and orders that override the task, and reads each JSON string on its own. It passed the new cases but blocked more ordinary text on the first round's controls, and three first-round paraphrases still get through, so it stays in observe. `ma-pmo eval --guardrails --round 1|2`.
+
 ## [0.10.0] - 2026-11-28
 
 Governance a PMO can audit (roadmaps 8, 9 and 10). Every decision leaves a record with its reasons, evidence, people and notifications. The obligations decisions create are tracked, escalated when missed, and agents ask instead of guessing. Guardrails, tolerances and segregation of duties are set as a versioned policy, with a stop switch and an evidence pack. Each part was evaluated against criteria set before the first run. The three guardrails that met them are enforced by default; injection checks and personal-data masking stay in observe.
@@ -250,6 +253,8 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+- 변경: **입력 가드레일 2차**([docs/GUARDRAILS-EVAL.ko.md](docs/GUARDRAILS-EVAL.ko.md)). 검사를 바꾸기 전에 새 사례를 커밋했습니다. `pii_mask`는 앞자리 0이 없는 국제 형식 전화번호와 띄어쓰기·구분자 없는 주민등록번호(생년월일 확인)도 찾고, 새 사례에서 기준을 충족해 기본으로 적용합니다. `injection_check`는 모델에게 하는 말과 작업을 뒤집는 지시도 찾고 JSON 문자열을 하나씩 읽습니다. 새 사례는 통과했지만 1차 대조 사례에서 평범한 글을 더 막았고, 1차의 바꿔 말한 지시 세 개는 여전히 통과해서 관찰 모드로 남습니다. `ma-pmo eval --guardrails --round 1|2`.
 
 ### [0.10.0] - 2026-11-28
 
