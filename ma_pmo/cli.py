@@ -548,6 +548,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="record completeness: decisions, reasons, provenance, notifications")
     ev.add_argument("--guardrails", action="store_true",
                     help="guardrails on attacks and controls, and the run time they add")
+    ev.add_argument("--round", type=int, choices=(1, 2),
+                    help="with --guardrails: only the input guardrails, on that round's cases")
 
     tpl = sub.add_parser("template", help="evaluation templates: data | validate | report")
     tsub = tpl.add_subparsers(dest="kind", required=True)
@@ -666,6 +668,9 @@ def main(argv: list[str] | None = None) -> int:
     elif ns.command == "eval" and ns.guardrails:
         from ma_pmo.eval import guardrails as guardrail_eval
 
+        if ns.round:
+            print(guardrail_eval.inputs_markdown(guardrail_eval.evaluate_inputs(ns.round)))
+            return 0
         print(guardrail_eval.to_markdown(guardrail_eval.evaluate()))
         return 0
     elif ns.command == "eval" and ns.records:
