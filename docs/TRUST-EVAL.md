@@ -59,3 +59,41 @@ person, and how many of those were wrong.
 **Decision.** If all four hold, a runtime version follows in a separate change: MA-PMO records an
 outcome when the tracker shows a task done or past due, and A4 uses these counts per workspace.
 If they do not hold, the fixed table stays and the result is reported as it is.
+
+## Results
+
+10 organisations, 711 test releases, 41,648 test issues.
+
+| as of | w | Brier static | Brier dynamic | difference, 95% | ECE static | ECE dynamic | ECE per organisation, static | ECE per organisation, dynamic | leaks |
+|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|
+| **14 days** | **20** | 0.1333 | 0.1281 | −0.0074 to −0.0028 | 0.070 | 0.044 | 0.1231 | **0.1268** | 0 |
+| 14 days | 5 | 0.1333 | 0.1283 | −0.0073 to −0.0025 | 0.070 | 0.043 | 0.1231 | 0.1336 | 0 |
+| 14 days | 50 | 0.1333 | 0.1279 | −0.0075 to −0.0031 | 0.070 | 0.043 | 0.1231 | 0.1167 | 0 |
+| 28 days | 20 | 0.1614 | 0.1569 | −0.0067 to −0.0023 | 0.060 | 0.035 | 0.1440 | 0.1069 | 0 |
+
+The deciding row is the first: 14 days before release, `w` = 20.
+
+| criterion | result |
+|---|---|
+| Brier score | pass: lower, and the interval is below 0 |
+| ECE, all test issues | pass: 0.070 to 0.044 |
+| ECE per organisation | **fail**: 0.1231 to 0.1268 |
+| leakage | pass: none |
+
+**Decision.** One criterion failed, so the fixed table stays and no runtime version is built.
+
+What the numbers mean:
+
+- **Learning per organisation helps on the whole.** Brier and the overall ECE improve at every
+  setting, and the improvement is larger than the resampling noise.
+- **It does not make each organisation better calibrated at the deciding setting.** With the
+  prior worth 20 issues, the mean per-organisation ECE rises slightly (0.1231 to 0.1268). With
+  a prior worth 5 issues it rises more, so updating too eagerly hurts. A prior worth 50 issues,
+  and the 28-day horizon, lower it (0.1167 and 0.1069). Those settings were reported, not chosen,
+  before the run. Adopting one now would be choosing it because it won, so it is left for an
+  evaluation on other data, with that setting fixed beforehand.
+- **The review threshold commits more alerts.** At α = 0.2, the static confidence lets 31,887
+  test alerts through without a person, 10.7% of them wrong. The dynamic one lets 41,277
+  through, 16.6% wrong. Both are within α, and the dynamic one needs fewer people's reviews.
+- **Ten organisations is a small number for a per-organisation mean.** One or two organisations
+  can move it.
