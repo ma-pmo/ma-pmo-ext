@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-28
+
+Governance a PMO can audit (roadmaps 8, 9 and 10). Every decision leaves a record with its reasons, evidence, people and notifications. The obligations decisions create are tracked, escalated when missed, and agents ask instead of guessing. Guardrails, tolerances and segregation of duties are set as a versioned policy, with a stop switch and an evidence pack. Each part was evaluated against criteria set before the first run. The three guardrails that met them are enforced by default; injection checks and personal-data masking stay in observe.
+
 ### Added
 - **Conversation envelope** (roadmap 8, step 1): messages carry `conversation_id` (the run, or a new id outside one), `in_reply_to` and `reply_by` (FIPA ACL); review verdicts reply to the decision they judge. `GET /messages?conversation=` and `GET /messages/{id}/thread` (a conversation with its replies). Migration `0014_message_envelope`.
 - **Decision records** (roadmap 8, step 2): every decision leaves a MADR-style record (drivers, options, outcome, decision makers, consulted): commit-gate decisions, approvals, workflow publishing, budgets and replay recommendations; a newer one on the same subject supersedes the earlier. `GET /decisions` and `GET /decisions/{id}`. Approvals take a `rationale`, required to reject and to approve a challenged decision (400 without one); the approvals page asks for it. Migration `0015_decision_records`.
@@ -228,7 +232,10 @@ First public release.
 ### Fixed
 - Progress bars on the dashboard did not render their fill.
 
-[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.5.0...v0.6.0
@@ -243,6 +250,10 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+### [0.10.0] - 2026-11-28
+
+감사할 수 있는 거버넌스(로드맵 8, 9, 10). 모든 결정이 이유, 근거, 사람, 알림과 함께 기록으로 남습니다. 결정이 만든 의무는 추적되고, 놓치면 보고 단계를 밟으며, 에이전트는 추측하지 않고 묻습니다. 가드레일, 허용 범위, 직무 분리는 버전이 붙는 정책으로 정하고, 정지 스위치와 증거 묶음이 있습니다. 각 부분을 첫 실행 전에 정한 기준으로 평가했습니다. 기준을 충족한 가드레일 세 가지는 기본으로 적용하고, 숨은 지시문 검사와 개인정보 가림은 관찰 모드로 남습니다.
 
 - 추가: **대화 봉투**(로드맵 8, 1단계). 메시지에 `conversation_id`(실행, 실행 밖이면 새 id), `in_reply_to`, `reply_by`(FIPA ACL)가 붙고, 검토 판정은 판정 대상 결정에 답합니다. `GET /messages?conversation=`과 `GET /messages/{id}/thread`(답 관계가 있는 대화). 마이그레이션 `0014_message_envelope`.
 - 추가: **결정 기록**(로드맵 8, 2단계). 커밋 게이트 결정, 승인, 워크플로 게시, 예산, 재생 추천이 모두 MADR 형식 기록(근거, 대안, 결과, 결정자, 자문)을 남기고, 같은 대상의 새 결정은 이전 결정을 대체합니다. `GET /decisions`, `GET /decisions/{id}`. 승인에 `rationale`이 붙고, 거절하거나 이의가 제기된 결정을 승인할 때는 필수입니다(없으면 400). 승인 화면이 사유를 묻습니다. 마이그레이션 `0015_decision_records`.
