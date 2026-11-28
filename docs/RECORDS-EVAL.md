@@ -44,3 +44,19 @@ paused after three failures in a row, so later attempts to it are recorded as sk
   (10 of 46 on the scenarios: 6 gate and 4 report decisions), and their reviews cite none
   either. The record shows the gap; closing it means the agents should cite the
   signals they used. This is left for later work.
+
+## Closing the evidence gap (target set before the change)
+
+Gate decisions (A6) and reports (A5) are the decisions that cite nothing. A gate rests on tracker
+fields (start date, deadline, tasks, planned finish, progress), and a report rests on the
+messages it summarises (risks, gate reviews, lessons) and on each project's figures. The change
+makes both agents cite those. The targets were committed before the change:
+
+| measure | target |
+|---|---:|
+| traceable to evidence | 100% on the scenarios and on the review cases |
+| cited evidence that resolves | 100%: every cited message is in the log, every cited tracker field exists on that project in the tracker, every cited lesson exists |
+| every other measure above | still 100% |
+
+A citation that points nowhere would raise the first measure without meaning anything, so the
+second one is checked on every piece of evidence every record rests on.
