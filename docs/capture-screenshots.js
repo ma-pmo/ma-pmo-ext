@@ -52,7 +52,7 @@ fs.mkdirSync(outDir, { recursive: true });
     await page.waitForSelector(lang === "ko" ? "text=인사이트 —" : "text=Insight —");
     await page.waitForTimeout(900); await shot(`scenario-trace-${lang}.png`);
     await go("/approvals", lang); await shot(`approvals-${lang}.png`);
-    await top(page.locator("tr:has(+ tr.rv-row)")); await shot(`review-${lang}.png`);
+    await top(page.locator("tr:has(+ tr + tr.rv-row)"));  // the item, its reason row, the review await shot(`review-${lang}.png`);
     // the seed's third weekly status report in this language: it has changes to show
     const weekly = (await (await fetch(`${API}/reports?kind=status&limit=100`)).json())
       .find((r) => r.language === lang && r.as_of === "2026-02-16");
@@ -71,6 +71,14 @@ fs.mkdirSync(outDir, { recursive: true });
     await go("/costs", lang); await shot(`costs-${lang}.png`);
     await top(page.locator(".card", { hasText: lang === "ko" ? "모델 추천" : "Model recommendations" }));
     await shot(`recommendations-${lang}.png`);
+    // decisions, commitments and roles (roadmaps 8, 9), policy and guardrails (roadmap 10)
+    for (const page_ of ["decisions", "inbox", "roles", "policy", "guardrails"]) {
+      await go(`/${page_}`, lang);
+      if (page_ === "guardrails") {  // what the guardrails found, not every allow
+        await page.locator(".check-target input").check(); await page.waitForTimeout(800);
+      }
+      await shot(`${page_}-${lang}.png`);
+    }
   }
   await ctx.close();
 
