@@ -17,7 +17,7 @@ from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, protocol
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.kpi import Axis
-from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
+from ma_pmo.core.schemas.message import AgentMessage, EvidenceRef, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.gate_review_v1 import ChecklistItem, GateReviewV1
 from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -25,6 +25,14 @@ from ma_pmo.integrations.registry import get_tracker
 
 _ROLE = """You are the PMO governance agent. Review deliverables against gate criteria
 and checklists."""
+
+def _read(project: dict, criteria: list) -> list[EvidenceRef]:
+    """The tracker fields the gate's criteria read, each once, where the project has them."""
+    fields: list[str] = []
+    for c in criteria:
+        fields += [f for f in c.fields if f in project and f not in fields]
+    return [EvidenceRef(kind="tracker", ref=project["project_id"], field=f) for f in fields]
+
 
 # decision -> delivery-axis KPI value (pass=1, conditional=0.5, fail=0)
 _SCORE = {"pass": 1.0, "conditional": 0.5, "fail": 0.0}
@@ -102,6 +110,7 @@ class GovernanceAgent(BaseAgent[GateReviewV1]):
             payload=MessagePayload(schema_="gate_review.v1", data=review.model_dump()),
             confidence=0.95,  # deterministic
             human_gate_required=gate_required,
-            evidence=lessons.evidence(found or []),
+            # the tracker fields the criteria read, then the lessons considered
+            evidence=_read(proj, criteria) + lessons.evidence(found or []),
         )
         return review, protocol.publish(msg)

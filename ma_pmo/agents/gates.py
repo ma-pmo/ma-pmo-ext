@@ -44,6 +44,7 @@ class Criterion:
     passed: bool
     critical: bool
     note: str = ""
+    fields: tuple[str, ...] = ()  # the tracker fields it reads: what the decision cites
 
 
 def _has_cycle(tasks: list[dict]) -> bool:
@@ -64,10 +65,13 @@ def _criteria(project: dict, gate: str) -> list[Criterion]:
     if gate == "G1-initiation":
         return [
             Criterion(
-                tr("Start date set", "착수일 설정"), bool(project.get("planned_start")), True
+                tr("Start date set", "착수일 설정"), bool(project.get("planned_start")), True,
+                fields=("planned_start",)
             ),
-            Criterion(tr("Deadline set", "마감일 설정"), bool(project.get("deadline")), True),
-            Criterion(tr("Tasks defined", "태스크 정의됨"), len(tasks) > 0, True),
+            Criterion(tr("Deadline set", "마감일 설정"), bool(project.get("deadline")), True,
+                      fields=("deadline",)),
+            Criterion(tr("Tasks defined", "태스크 정의됨"), len(tasks) > 0, True,
+                      fields=("tasks",)),
         ]
     if gate == "G2-planning":
         all_wbs = all(t.get("wbs") for t in tasks) and bool(tasks)
@@ -84,14 +88,17 @@ def _criteria(project: dict, gate: str) -> list[Criterion]:
             except ValueError:
                 slack = None
         return [
-            Criterion(tr("WBS assigned to all tasks", "모든 태스크 WBS 부여"), all_wbs, True),
+            Criterion(tr("WBS assigned to all tasks", "모든 태스크 WBS 부여"), all_wbs, True,
+                      fields=("tasks",)),
             Criterion(
                 tr("No dependency cycles (DAG)", "의존성 순환 없음(DAG)"),
                 not _has_cycle(tasks),
                 True,
+                fields=("tasks",),
             ),
             Criterion(
-                tr("Critical path computable", "임계경로 산출 가능"), len(tasks) > 0, True
+                tr("Critical path computable", "임계경로 산출 가능"), len(tasks) > 0, True,
+                fields=("tasks",)
             ),
             Criterion(
                 tr("Schedule slack ≥ 0", "일정 여유 ≥ 0"),
@@ -102,6 +109,7 @@ def _criteria(project: dict, gate: str) -> list[Criterion]:
                     if slack is not None
                     else tr("not computed", "미산정")
                 ),
+                fields=("planned_finish", "deadline"),
             ),
         ]
     if gate == "G3-execution":
@@ -109,7 +117,8 @@ def _criteria(project: dict, gate: str) -> list[Criterion]:
         sig = compute_signals(project)
         return [
             Criterion(
-                "SPI ≥ 0.8", spi is not None and spi >= 0.8, True, note=f"SPI={spi}"
+                "SPI ≥ 0.8", spi is not None and spi >= 0.8, True, note=f"SPI={spi}",
+                fields=("planned_start", "planned_finish", "tasks"),
             ),
             Criterion(
                 tr("No blocked tasks", "차단 태스크 없음"),
@@ -120,6 +129,7 @@ def _criteria(project: dict, gate: str) -> list[Criterion]:
                     if sig.blocked_tasks
                     else ""
                 ),
+                fields=("tasks",),
             ),
         ]
     if gate == "G4-closure":
@@ -129,6 +139,7 @@ def _criteria(project: dict, gate: str) -> list[Criterion]:
                 project.get("percent_complete", 0.0) >= 100.0,
                 True,
                 note=f"{project.get('percent_complete', 0.0)}%",
+                fields=("percent_complete", "tasks"),
             )
         ]
     raise ValueError(f"unknown gate: {gate}")

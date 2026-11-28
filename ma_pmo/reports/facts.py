@@ -78,6 +78,30 @@ def _board_facts(board: list[dict], in_scope: set[str] | None) -> dict[str, Any]
     return {"risks": risks, "gates": gates, "lessons": lessons}
 
 
+# the tracker fields a project's line is computed from (status, progress, SPI, forecast, slack)
+PROJECT_FIELDS = ("status", "percent_complete", "planned_start", "planned_finish", "deadline",
+                  "tasks")
+
+
+def evidence(facts: ReportFacts, status: dict) -> list[Any]:
+    """What a report rests on: the messages it summarises (risks, gate reviews, lessons), the
+    lessons themselves, and the tracker fields of each project line, each once."""
+    from ma_pmo.core.schemas.message import EvidenceRef
+
+    messages = ([r.message_id for r in facts.risks] + [g.message_id for g in facts.gates]
+                + [n.message_id for n in facts.lessons])
+    messages = [m for m in messages if m]
+    refs = [EvidenceRef(kind="message", ref=m) for m in dict.fromkeys(messages)]
+    refs += [EvidenceRef(kind="knowledge", ref=lid)
+             for lid in dict.fromkeys(f.source_id for f in facts.lessons)]
+    rows = {p["project_id"]: p for p in status.get("projects", [])}
+    for line in facts.projects:
+        row = rows.get(line.project_id) or {}
+        refs += [EvidenceRef(kind="tracker", ref=line.project_id, field=f)
+                 for f in PROJECT_FIELDS if f in row]
+    return refs
+
+
 def earlier_reports(scope: str, kind: str = "status", projects: list[str] | None = None,
                     n: int = 6) -> list[tuple[str, str, dict[str, Any]]]:
     """(id, as-of date, content) of up to `n` stored reports of the same scope, kind and

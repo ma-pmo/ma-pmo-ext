@@ -119,6 +119,7 @@ class ReportingAgent(BaseAgent[ReportV1]):
         kind_spec = kinds.spec(kind)
         projects = state.get("projects")
         status = self.tracker.get_portfolio_status(scope)
+        everything = status  # the facts' source, before a project report narrows `status`
         as_of = report_facts.as_of_date(state.get("as_of"))
         # compare only with reports as of this date or before (a report can be written for a past
         # date after later ones)
@@ -191,6 +192,7 @@ class ReportingAgent(BaseAgent[ReportV1]):
             task_ref=scope,
             payload=MessagePayload(schema_="report.v1", data=report.model_dump()),
             confidence=0.9,
+            evidence=report_facts.evidence(facts, everything),  # what the figures come from
         )
         msg = protocol.publish(msg)
         outputs = [common.entry(self.agent_id, "report.v1", report)]
