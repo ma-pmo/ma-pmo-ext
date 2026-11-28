@@ -31,15 +31,17 @@ def test_the_pack_holds_policy_checks_exceptions_and_approvals():
     policy.change({"tolerance": {"mode": "enforce"}}, by="pmo", note="exceptions on")
     ours = {m["message_id"] for m in run_scenario("schedule_recovery")["communications"]}
     raised = next(p for p in hitl.list_pending() if p["message_id"] in ours and p["exception"])
-    hitl.resolve(raised["approval_id"], approver="sponsor", decision="approve",
-                 rationale="accepted for Q1")
+    for who in ("sponsor", "director"):  # an exception takes two people (segregation)
+        hitl.resolve(raised["approval_id"], approver=who, decision="approve",
+                     rationale="accepted for Q1")
     pack = evidence.build(date.today() - timedelta(days=1), date.today())
     assert [v["note"] for v in pack["policy_versions"]] == ["Q1 limits", "exceptions on"]
     assert pack["policy_in_force"]["guardrails"]["tolerance"] == "enforce"
     assert any(c["guardrail"] == "tolerance" and c["outcome"] == "ask" for c in
                pack["guardrail_counts"])
     (exc,) = [e for e in pack["exceptions"] if e["approval_id"] == raised["approval_id"]]
-    assert exc["approver"] == "sponsor" and exc["breaches"][0]["project"] == "PROJ-31"
+    assert exc["approver"] == "director" and [s["who"] for s in exc["signoffs"]] == ["sponsor"]
+    assert exc["breaches"][0]["project"] == "PROJ-31"
     assert any(a["rationale"] == "accepted for Q1" for a in pack["approvals"])
     names = {m.get("guardrail") for m in pack["mapping"]}
     assert {"schema", "budget", "tolerance", "segregation"} <= names

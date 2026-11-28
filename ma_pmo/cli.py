@@ -11,6 +11,7 @@ Examples:
     ma-pmo eval --review                    # what each part of the review stack adds (ablation)
     ma-pmo eval --records                   # every decision recorded, reasoned, traceable, told
     ma-pmo eval --commitments               # missed obligations noticed, kept ones left alone
+    ma-pmo eval --guardrails                # guardrails catch what they are for, nothing else
     ma-pmo commitments sweep                # overdue commitments: violate and escalate (cron)
     ma-pmo evidence --since 2026-11-01      # evidence pack for an audit (Markdown or JSON)
     ma-pmo template data ./my-org           # write the evaluation data template
@@ -545,6 +546,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="commitments and questions with simulated on-time, late and absent people")
     ev.add_argument("--records", action="store_true",
                     help="record completeness: decisions, reasons, provenance, notifications")
+    ev.add_argument("--guardrails", action="store_true",
+                    help="guardrails on attacks and controls, and the run time they add")
 
     tpl = sub.add_parser("template", help="evaluation templates: data | validate | report")
     tsub = tpl.add_subparsers(dest="kind", required=True)
@@ -659,6 +662,11 @@ def main(argv: list[str] | None = None) -> int:
         from ma_pmo.eval import commitments as commitment_eval
 
         print(commitment_eval.to_markdown(commitment_eval.evaluate()))
+        return 0
+    elif ns.command == "eval" and ns.guardrails:
+        from ma_pmo.eval import guardrails as guardrail_eval
+
+        print(guardrail_eval.to_markdown(guardrail_eval.evaluate()))
         return 0
     elif ns.command == "eval" and ns.records:
         from ma_pmo.eval import records

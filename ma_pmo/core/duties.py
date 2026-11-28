@@ -1,6 +1,7 @@
 """Segregation of duties (roadmap 10, step 4; NIST AI RMF GOVERN, ISO/IEC 42001 Annex A).
 
-The `segregation` guardrail (point `decision`, `observe` by default) checks each approval:
+The `segregation` guardrail (point `decision`; `enforce` by default since the evaluation in
+docs/GUARDRAILS-EVAL.md) checks each approval:
 
 - nobody approves or rejects their own request: a run records who asked for it
   (`requested_by`, the authenticated user who started the scenario or goal), and that person
@@ -21,7 +22,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import Any
 
-from ma_pmo.core.guardrails import ALLOW, ASK, BLOCK, OBSERVE, Result, register
+from ma_pmo.core.guardrails import ALLOW, ASK, BLOCK, ENFORCE, Result, register
 
 SYSTEM_ACTORS = {"due-dates", "tracker", "scheduler", "system"}
 _requester: ContextVar[str | None] = ContextVar("ma_pmo_requester", default=None)
@@ -56,7 +57,7 @@ def two_people(context: dict[str, Any], params: dict[str, Any]) -> bool:
     return bool(params.get("two_person_exceptions")) and bool(context.get("exception"))
 
 
-@register("segregation", "decision", OBSERVE,
+@register("segregation", "decision", ENFORCE,
           "No self-approval, agents never approve, two approvers above a threshold",
           two_person_kinds=[], two_person_severities=["critical"], two_person_exceptions=True)
 def _check(context: dict[str, Any], params: dict[str, Any]) -> Result:

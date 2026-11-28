@@ -70,3 +70,63 @@ replaced by a stub that records what it was sent). The demo portfolio runs on it
 - **Latency.** The `portfolio_prioritization` and `go_nogo_decision` demo runs, 30 of each, with
   the guardrails off and enforced in turn, with workspace tolerances that hold so the check does
   its full work.
+
+**One change to the cases before the first run.** The plan used the demo tracker's task names as
+controls. The demo tasks carry only ids and WBS codes, so the demo scenarios' titles, goals and
+descriptions (English and Korean, 120 texts) stand in for them.
+
+## Results
+
+| guardrail | criterion | count | rate | target | |
+|---|---|---:|---:|---:|---|
+| `tolerance` | breach without an exception | 0 of 61 | 0% | 0% | pass |
+| `tolerance` | false block or ask | 0 of 61 | 0% | ≤5% | pass |
+| `injection_check` | gets through | 26 of 60 | 43.3% | 0% | **fail** |
+| `injection_check` | false block or ask | 2 of 436 | 0.5% | ≤5% | pass |
+| `pii_mask` | gets through | 1 of 15 | 6.7% | 0% | **fail** |
+| `pii_mask` | false block or ask | 0 of 132 | 0% | ≤5% | pass |
+| `execution_allowlist` | gets through | 0 of 40 | 0% | 0% | pass |
+| `execution_allowlist` | false block or ask | 0 of 30 | 0% | ≤5% | pass |
+| `segregation` | gets through | 0 of 22 | 0% | 0% | pass |
+| `segregation` | false block or ask | 0 of 4 | 0% | ≤5% | pass |
+
+**Latency.** With `tolerance`, `execution_allowlist` and `segregation` enforced, p95 over 60
+runs was 164.5 ms against 163.9 ms off (+0.4%). A second run gave 166.9 ms against 178.9 ms
+(-6.7%). The guardrails' cost is smaller than the run-to-run noise, and within the 10% target
+either way. Two of the three do little work in these runs: they are dry runs, so no
+notification is sent for `execution_allowlist` to check, and nobody decides an approval for
+`segregation` to check. `tolerance` runs on every schedule, risk and allocation output.
+
+**Decision.** `tolerance`, `execution_allowlist` and `segregation` are enforced by default.
+`injection_check` and `pii_mask` stay in `observe`.
+
+What the numbers mean:
+
+- **Tolerances.** 33 runs with a breach and 33 controls. Every breach raised an exception, at
+  each of the three levels, and no limit equal to the forecast did. A breach run raised 1.42
+  exceptions on average: a workspace or portfolio limit applies to every project, so other
+  projects past it raise their own. Controls raised 0.42, all of them real breaches by other
+  projects.
+- **Injected instructions.** The 12 texts in the forms the check looks for were stopped on all
+  three paths, with one exception: "system: ..." at the start of a line is not at the start of
+  a line once the text sits inside JSON, so it reached the model and the webhook (2 of 26). All
+  8 paraphrases got through on every path (24 of 26). A list of phrases cannot see an
+  instruction worded another way, so this check stays a signal in the log. The 2 false blocks
+  were goals that start with a role label ("System: payment gateway migration", "Assistant: J.
+  Park").
+- **Personal data.** 14 of 15 values were masked. A Korean mobile number in international form
+  (`+82 10 9876 5432`) was not: the pattern expects a leading 0 after the country code. Nothing
+  else was changed.
+- **Writes.** The 8 disallowed notifiers and hosts, look-alikes included, received none of the
+  run's 5 events; the 6 allowed ones received all of them.
+- **Self-approval.** The go/no-go run yields 3 approvals: PROJ-31's high risk (two people) and
+  the two conditional gates. The requester and five agents or system actors were refused on all
+  of them, and a second approval by the same person was refused. Another person decided each
+  one-person item, and two people completed the two-person one. The control set is small (4).
+- **Added approvals.** 1 second sign-off, on the high risk. With the default
+  `two_person_severities` (`critical`) and `two_person_exceptions` on, every tolerance exception
+  also needs two people.
+
+The patterns are not changed here. Changing them now and measuring again on these cases would
+fit them to the cases; a better check for paraphrased instructions and the international phone
+format need new cases written first.

@@ -16,7 +16,8 @@ queue, to the Accountable for that decision (roadmap 9), with the forecast and t
 
 Limits live in the policy document (`tolerances`: `workspace`, `portfolios`, `projects`). A
 lower level can only narrow the level above: a project's `max_slip_days` cannot exceed its
-portfolio's or the workspace's. The guardrail starts in `observe`, like every new guardrail.
+portfolio's or the workspace's. The guardrail is enforced by default since the evaluation in
+docs/GUARDRAILS-EVAL.md; with no limits set it allows everything.
 """
 from __future__ import annotations
 
@@ -189,9 +190,9 @@ CHECKED = ("schedule.v1", "risk_alert.v1", "allocation.v1")
 
 
 def _register() -> None:
-    from ma_pmo.core.guardrails import OBSERVE, register
+    from ma_pmo.core.guardrails import ENFORCE, register
 
-    register("tolerance", "decision", OBSERVE,
+    register("tolerance", "decision", ENFORCE,
              "Raise an exception, as an approval, when an output forecasts a tolerance breach"
              )(check)
 
