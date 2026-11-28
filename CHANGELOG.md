@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-11-28
+
+Personal-data masking is enforced by default, and the injection check is measured on public data it has never seen. It misses most attacks there, so it stays a signal in the log, not a defence.
+
 ### Changed
 - **Input guardrails, round 2** ([docs/GUARDRAILS-EVAL.md](docs/GUARDRAILS-EVAL.md)): new cases were committed before the checks changed. `pii_mask` now finds international phone numbers without the leading 0 and resident registration numbers with a space or no separator (birth date checked). It met the criteria on the new cases and is enforced by default. `injection_check` now also looks for text addressed to the model and orders that override the task, and reads each JSON string on its own. It passed the new cases but blocked more ordinary text on the first round's controls, and three first-round paraphrases still get through, so it stays in observe. `ma-pmo eval --guardrails --round 1|2`.
 - **Injected instructions, round 3**: `ma-pmo eval --guardrails --round 3 [--classifier MODEL]` checks `injection_check` on two public datasets it has never seen, deepset/prompt-injections (Apache-2.0) and kimchunsik03/KoreanGuardrail (CC BY 4.0). Both are downloaded at pinned revisions and never committed. The patterns let 97.7% (English and German) and 93.0% (Korean) of the attacks through, and block no ordinary text. protectai's English classifier lets 58.6% through on English and blocks 68.1% of ordinary Korean sentences. `injection_check` stays in observe.
@@ -236,7 +240,8 @@ First public release.
 ### Fixed
 - Progress bars on the dashboard did not render their fill.
 
-[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.10.1...HEAD
+[0.10.1]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/ma-pmo/ma-pmo-ext/compare/v0.7.1...v0.8.0
@@ -254,6 +259,10 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+### [0.10.1] - 2026-11-28
+
+개인정보 가림을 기본으로 적용하고, 숨은 지시문 검사를 본 적 없는 공개 데이터로 쟀습니다. 거기서는 공격 대부분을 놓쳐서, 방어가 아니라 기록에 남는 신호로 둡니다.
 
 - 변경: **입력 가드레일 2차**([docs/GUARDRAILS-EVAL.ko.md](docs/GUARDRAILS-EVAL.ko.md)). 검사를 바꾸기 전에 새 사례를 커밋했습니다. `pii_mask`는 앞자리 0이 없는 국제 형식 전화번호와 띄어쓰기·구분자 없는 주민등록번호(생년월일 확인)도 찾고, 새 사례에서 기준을 충족해 기본으로 적용합니다. `injection_check`는 모델에게 하는 말과 작업을 뒤집는 지시도 찾고 JSON 문자열을 하나씩 읽습니다. 새 사례는 통과했지만 1차 대조 사례에서 평범한 글을 더 막았고, 1차의 바꿔 말한 지시 세 개는 여전히 통과해서 관찰 모드로 남습니다. `ma-pmo eval --guardrails --round 1|2`.
 - 추가: **숨은 지시문 3차**. `ma-pmo eval --guardrails --round 3 [--classifier MODEL]`이 `injection_check`를 본 적 없는 공개 데이터 두 개로 잽니다. deepset/prompt-injections(Apache-2.0)와 kimchunsik03/KoreanGuardrail(CC BY 4.0)이고, 고정 리비전으로 내려받으며 커밋하지 않습니다. 패턴은 공격의 97.7%(영어·독일어), 93.0%(한국어)를 통과시켰고 평범한 글은 막지 않았습니다. protectai의 영어 분류기는 영어에서 58.6%를 통과시켰고, 한국어 평범한 문장은 68.1%를 막았습니다. `injection_check`는 관찰 모드로 남습니다.
