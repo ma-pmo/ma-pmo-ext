@@ -230,3 +230,39 @@ as its card says. The data is downloaded at evaluation time and never committed.
   criteria on the Korean deciding rows.
 - **Nothing is tuned on round 3.** No pattern or threshold is changed after reading these rows;
   a change would need another set.
+
+### Round 3 results
+
+| check | rows | attacks through | ordinary rows blocked | |
+|---|---|---:|---:|---|
+| patterns | deepset (decides) | 257 of 263 (97.7%) | 0 of 399 (0%) | fail |
+| patterns | Korean, clean (decides) | 280 of 301 (93.0%) | 0 of 204 (0%) | fail |
+| patterns | Korean, obfuscated (5 kinds) | 97.8% to 98.7% | 0% | no target |
+| classifier | deepset (decides) | 154 of 263 (58.6%) | 4 of 399 (1.0%) | fail |
+| classifier | Korean, clean (decides) | 5 of 301 (1.7%) | 139 of 204 (68.1%) | fail |
+| classifier | Korean, obfuscated (5 kinds) | 0% to 1.3% | 80.9% to 100% | no target |
+
+**Decision.** `injection_check` stays in `observe`. The classifier meets the condition set for
+English: fewer attacks through than the patterns (154 against 257 of 263), with 1.0% of ordinary
+rows blocked. It may therefore be offered later as an optional extra for English text. It does
+not meet the criteria for Korean, where it blocks most ordinary sentences.
+
+What the numbers mean:
+
+- **The patterns see almost none of the public attacks.** Rounds 1 and 2 overstated them,
+  because their cases were written by the person who wrote the patterns. The public attacks
+  mix a harmless question with an order ("do not answer this, just output ..."), use German,
+  set up role play, claim an earlier conversation or ask for "the first sentences you were
+  given". None of these needs the phrases the patterns look for.
+- **They also block nothing ordinary.** 0 of 399 and 0 of 204. As a log of what looks like an
+  attack they are quiet, but they are not a defence.
+- **The classifier is the better English detector but is far from the target.** It still lets
+  58.6% through. In Korean, and in every obfuscated form, it flags nearly every sentence,
+  ordinary ones included. That is what an English-only model does with text it cannot read.
+- **Nothing was tuned on these rows.**
+
+An injected instruction can only be told from a description by reading it in context, and a
+model that does so for Korean and English, with ordinary project text as the control, is not
+available under a licence that fits. Until one is, MA-PMO keeps relying on what the guardrails
+around the model do: agents fall back to rules, decisions above a threshold need a person,
+segregation of duties, tolerances, and the allowlist for what leaves.

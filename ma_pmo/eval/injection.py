@@ -1,6 +1,6 @@
 """Round 3 of the guardrail evaluation: injected instructions on public data.
 
-    ma-pmo eval --guardrails --round 3 [--data DIR] [--classifier MODEL]
+    ma-pmo eval --guardrails --round 3 [--injection-data DIR] [--classifier MODEL]
 
 Two public datasets that neither `injection_check`'s patterns nor rounds 1 and 2 have seen
 (docs/GUARDRAILS-EVAL.md, criteria set before the data was read):
@@ -9,10 +9,10 @@ Two public datasets that neither `injection_check`'s patterns nor rounds 1 and 2
 - kimchunsik03/KoreanGuardrail (CC BY 4.0): Korean attacks and ordinary sentences with the same
   trigger words; `technique` `clean` decides, the obfuscated rows are reported without a target.
 
-Both are downloaded at a pinned revision into `--data` (default ~/.cache/ma-pmo/injection) and
-never committed. The English set is parquet, so this needs `pyarrow`. With `--classifier` the
-same rows also go through a Hugging Face text classifier (needs `transformers` and `torch`),
-for comparison only.
+Both are downloaded at a pinned revision into `--injection-data` (default
+~/.cache/ma-pmo/injection) and never committed. The English set is parquet, so this needs
+`pyarrow`. With `--classifier` the same rows also go through a Hugging Face text classifier
+(needs `transformers` and `torch`), for comparison only.
 """
 from __future__ import annotations
 
