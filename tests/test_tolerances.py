@@ -69,7 +69,8 @@ def test_each_measured_dimension_finds_its_breach():
 
 
 def test_observe_records_and_enforce_raises_an_exception():
-    policy.change({}, by="pmo", tolerances={"workspace": {"max_severity": "medium"}})
+    policy.change({"tolerance": {"mode": "observe"}}, by="pmo",  # enforced by default
+                  tolerances={"workspace": {"max_severity": "medium"}})
     ours = {m["message_id"] for m in run_scenario("risk_escalation")["communications"]}
     asked = [e for e in guardrails.log(name="tolerance", outcome="ask", limit=50)
              if e["message_id"] in ours]

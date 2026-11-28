@@ -15,7 +15,9 @@ mode, what it found, what took effect, the reason, evidence and the policy versi
 sit next to the communication log rather than in it, so notification counts stay what they are.
 
 Step 1 puts the existing checks behind the engine, in `enforce` so nothing changes: the LLM
-budget (`spend`) and payload schemas (`output`). New guardrails start in `observe`.
+budget (`spend`) and payload schemas (`output`). New guardrails start in `observe` and are
+enforced by default only once an evaluation with criteria set beforehand shows they work
+(docs/GUARDRAILS-EVAL.md).
 """
 from __future__ import annotations
 

@@ -32,14 +32,17 @@ policy:
 |---|---|---|---|
 | `schema` | output | enforce | rejects an agent payload that does not match its registered schema |
 | `budget` | spend | enforce | stops LLM calls past a hard budget ([COSTS.md](COSTS.md#budgets)); agents fall back to their rules |
-| `tolerance` | decision | observe | raises an exception when an output forecasts a tolerance breach (below) |
+| `tolerance` | decision | enforce | raises an exception when an output forecasts a tolerance breach (below) |
 | `injection_check` | input | observe | blocks LLM calls, goals and webhooks whose text carries instructions to the model |
 | `pii_mask` | input | observe | masks e-mail addresses, phone numbers, Korean resident and card numbers before LLM calls |
-| `execution_allowlist` | execution | observe | sends notifications only through allowed notifiers and hosts; records what leaves |
-| `segregation` | decision | observe | no self-approval, agents never approve, two approvers above a threshold |
+| `execution_allowlist` | execution | enforce | sends notifications only through allowed notifiers and hosts; records what leaves |
+| `segregation` | decision | enforce | no self-approval, agents never approve, two approvers above a threshold |
 
-Both existed before roadmap 10 and behave as they did. Guardrails added later start in
-`observe`.
+`schema` and `budget` existed before roadmap 10 and behave as they did. Guardrails added later
+start in `observe` and are enforced by default only once an evaluation with criteria set
+beforehand shows they work: `tolerance`, `execution_allowlist` and `segregation` met them;
+`injection_check` and `pii_mask` did not and stay in `observe`
+([GUARDRAILS-EVAL.md](GUARDRAILS-EVAL.md)).
 
 ## Policy
 
@@ -127,10 +130,9 @@ policy version like any other. A lower level can only narrow the level above: a 
 `max_slip_days` larger than the workspace's is refused. `GET /tolerances?project=&portfolio=`
 shows the limits in force and the level each comes from.
 
-The guardrail starts in `observe`. Turn it on with `PUT /policy`
-`{"guardrails": {"tolerance": {"mode": "enforce"}}}`. On the demo data (as of 2026-02-16), with
-PROJ-31 allowed 0 slip days, A2's forecast of 7 days late raises an exception while the other
-projects stay within tolerance.
+The guardrail is enforced by default; with no limits set it allows everything. On the demo data
+(as of 2026-02-16), with PROJ-31 allowed 0 slip days, A2's forecast of 7 days late raises an
+exception while the other projects stay within tolerance.
 
 ## Evidence pack
 

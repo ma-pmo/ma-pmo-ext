@@ -34,6 +34,7 @@ def _risk_approval(asker: str | None = None) -> dict:
 
 
 def test_observe_records_what_it_would_refuse():
+    policy.change({"segregation": {"mode": "observe"}}, by="admin")  # enforced by default
     item = _risk_approval()
     done = hitl.resolve(item["approval_id"], approver="A4", decision="approve")
     assert done["decision"] == "approve"  # observe: let through

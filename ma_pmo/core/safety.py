@@ -1,6 +1,7 @@
 """Input and execution guardrails, and the stop switch (roadmap 10, step 3).
 
-Input (what reaches an LLM call, a goal, a webhook), both `observe` by default:
+Input (what reaches an LLM call, a goal, a webhook), both `observe` by default: neither met
+the evaluation's criteria (docs/GUARDRAILS-EVAL.md).
 
 - `injection_check` looks for instructions hidden in data, such as tracker text that says
   "ignore the previous instructions" (OWASP Agentic Top 10: goal hijack). Enforced, it blocks the
@@ -9,7 +10,8 @@ Input (what reaches an LLM call, a goal, a webhook), both `observe` by default:
   resident registration numbers, card numbers (Luhn-checked). The log keeps only how many of
   each kind, never the values.
 
-Execution (what leaves MA-PMO), `observe` by default:
+Execution (what leaves MA-PMO), `enforce` by default since the evaluation
+(docs/GUARDRAILS-EVAL.md); with the default lists (`["*"]`) it only records:
 
 - `execution_allowlist` checks each notification against the notifiers and hosts the policy
   allows (`["*"]`: any) and records what is sent: event, notifier and host, never the URL's
@@ -26,7 +28,7 @@ import re
 from typing import Any
 from urllib.parse import urlparse
 
-from ma_pmo.core.guardrails import ALLOW, BLOCK, MODIFY, OBSERVE, Result, register
+from ma_pmo.core.guardrails import ALLOW, BLOCK, ENFORCE, MODIFY, OBSERVE, Result, register
 
 # phrases that address the model rather than describe the project (EN, KO)
 _INJECTION = [
@@ -107,7 +109,7 @@ def _pii(context: dict[str, Any], params: dict[str, Any]) -> Result:
                   detail={"source": context.get("source"), "masked": counts}, value=masked)
 
 
-@register("execution_allowlist", "execution", OBSERVE,
+@register("execution_allowlist", "execution", ENFORCE,
           "Send notifications only through allowed notifiers and hosts; record what leaves",
           notifiers=["*"], hosts=["*"])
 def _allowlist(context: dict[str, Any], params: dict[str, Any]) -> Result:

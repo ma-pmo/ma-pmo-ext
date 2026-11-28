@@ -29,13 +29,16 @@
 |---|---|---|---|
 | `schema` | output | enforce | 등록된 스키마에 맞지 않는 에이전트 결과를 거부합니다 |
 | `budget` | spend | enforce | 한도를 넘은 LLM 호출을 막습니다([COSTS.ko.md](COSTS.ko.md)). 에이전트는 규칙 기반으로 대체합니다 |
-| `tolerance` | decision | observe | 결과가 허용 범위를 넘을 것으로 예상되면 예외를 띄웁니다(아래) |
+| `tolerance` | decision | enforce | 결과가 허용 범위를 넘을 것으로 예상되면 예외를 띄웁니다(아래) |
 | `injection_check` | input | observe | 모델에게 지시하는 문장이 든 LLM 호출, 목표, 웹훅을 막습니다 |
 | `pii_mask` | input | observe | LLM 호출 전에 이메일, 전화번호, 주민등록번호, 카드번호를 가립니다 |
-| `execution_allowlist` | execution | observe | 허용된 알림 채널과 호스트로만 알림을 보내고, 나가는 것을 기록합니다 |
-| `segregation` | decision | observe | 자기 요청 승인 금지, 에이전트 승인 금지, 기준 이상은 두 사람 승인 |
+| `execution_allowlist` | execution | enforce | 허용된 알림 채널과 호스트로만 알림을 보내고, 나가는 것을 기록합니다 |
+| `segregation` | decision | enforce | 자기 요청 승인 금지, 에이전트 승인 금지, 기준 이상은 두 사람 승인 |
 
-둘 다 로드맵 10 전부터 있던 점검이고, 동작도 그대로입니다. 나중에 추가하는 가드레일은 `observe`로 시작합니다.
+`schema`와 `budget`은 로드맵 10 전부터 있던 점검이고, 동작도 그대로입니다. 나중에 추가하는 가드레일은 `observe`로
+시작하고, 미리 정한 기준으로 평가해 통과해야 기본으로 적용합니다. `tolerance`, `execution_allowlist`, `segregation`은
+기준을 충족했고, `injection_check`와 `pii_mask`는 충족하지 못해 `observe`로 남습니다
+([GUARDRAILS-EVAL.ko.md](GUARDRAILS-EVAL.ko.md)).
 
 ## 정책
 
@@ -112,8 +115,7 @@
 있습니다. 프로젝트의 `max_slip_days`를 워크스페이스보다 크게 두면 거부됩니다. `GET /tolerances?project=&portfolio=`는
 적용 중인 한도와 각 한도가 어느 단계에서 왔는지 보여줍니다.
 
-이 가드레일은 `observe`로 시작합니다. 켜려면 `PUT /policy` `{"guardrails": {"tolerance": {"mode": "enforce"}}}`를
-보냅니다. 데모 데이터(2026-02-16 기준)에서 PROJ-31의 지연 허용을 0일로 두면, A2가 7일 지연을 예측해 예외가 뜨고
+이 가드레일은 기본으로 적용되고, 한도를 정하지 않으면 모두 허용합니다. 데모 데이터(2026-02-16 기준)에서 PROJ-31의 지연 허용을 0일로 두면, A2가 7일 지연을 예측해 예외가 뜨고
 다른 프로젝트는 범위 안에 머뭅니다.
 
 ## 증거 묶음
