@@ -56,6 +56,10 @@ class ProjectSignals:
         return d
 
 
+# the tracker fields the signals are computed from: what a risk alert cites
+SIGNAL_FIELDS = ("status", "percent_complete", "planned_finish", "deadline", "tasks")
+
+
 def compute_signals(project: dict) -> ProjectSignals:
     """Single project status dict -> signals."""
     tasks = project.get("tasks", [])

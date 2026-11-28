@@ -19,9 +19,8 @@ Measured, with a target of 100% each:
 | refused without a reason | of those, how many were refused when first sent without one |
 | traceable to a step | records whose PROV export derives them from a step's message |
 | notification attempts recorded | events x notifiers, against rows in the communication log |
-
-Also reported, without a target: how many decisions rest on evidence a message cites
-(`traceable to evidence`), which depends on what each agent cites rather than on the record.
+| traceable to evidence | records whose message or reviews cite evidence |
+| cited evidence that resolves | cited messages, tracker fields, lessons and steps that exist |
 """
 from __future__ import annotations
 
@@ -33,7 +32,14 @@ from sqlalchemy import func, select
 
 from ma_pmo.core import decisions, hitl, llm, provenance, runs
 from ma_pmo.core.config import get_settings
-from ma_pmo.db.models import Approval, Communication, DecisionRecord, Run
+from ma_pmo.db.models import (
+    AgentMessageRow,
+    Approval,
+    Communication,
+    DecisionRecord,
+    KnowledgeDoc,
+    Run,
+)
 from ma_pmo.db.session import get_session
 from ma_pmo.integrations import dispatch, registry
 from ma_pmo.integrations.base import Event, EventType
@@ -136,6 +142,51 @@ def _traced(record_id: str) -> tuple[bool, bool]:
     return to_step, to_evidence
 
 
+def _steps(run_id: str | None) -> set[str]:
+    """The step ids of a run's workflow."""
+    if not run_id:
+        return set()
+    spec = runs.get_state(run_id).get("spec") or {}
+    return {step.get("id") for step in spec.get("steps", []) if step.get("id")}
+
+
+def _resolving() -> tuple[int, int]:
+    """(evidence cited by any message, of it what exists): the cited message is in the log, the
+    tracker field is on that project in the sender's tracker, the lesson is stored, the step is
+    in the run's workflow."""
+    from ma_pmo.agents import registry as agents
+    from ma_pmo.integrations.registry import get_tracker
+
+    projects: dict[str, dict[str, dict]] = {}
+
+    def project(sender: str, scope: str, pid: str) -> dict:
+        if sender not in projects:
+            tracker = getattr(agents._instances.get(sender), "tracker", None) or get_tracker()
+            projects[sender] = {p["project_id"]: p for p in
+                                tracker.get_portfolio_status(scope).get("projects", [])}
+        return projects[sender].get(pid) or {}
+
+    cited = found = 0
+    with get_session() as s:
+        ids = set(s.scalars(select(AgentMessageRow.message_id)))
+        lessons = set(s.scalars(select(KnowledgeDoc.id)))
+        rows = [(r.sender, r.task_ref, r.run_id, r.evidence or [])
+                for r in s.scalars(select(AgentMessageRow))]
+    for sender, task_ref, run_id, evidence in rows:
+        for ev in evidence:
+            cited += 1
+            kind, ref, field = ev.get("kind"), ev.get("ref"), ev.get("field")
+            if kind == "message":
+                found += ref in ids
+            elif kind == "tracker":
+                found += bool(field) and field in project(sender, task_ref.split("/")[0], ref)
+            elif kind == "knowledge":
+                found += ref in lessons
+            elif kind == "step":
+                found += ref in _steps(run_id)
+    return cited, found
+
+
 def measure(events: list[int]) -> dict[str, int]:
     """Counts for the workspace in use, after its runs: call inside the throwaway workspace."""
     acted = _decide_everything()
@@ -156,13 +207,14 @@ def measure(events: list[int]) -> dict[str, int]:
             status: count for status, count in s.execute(
                 select(Communication.status, func.count()).group_by(Communication.status))}
     traced = [_traced(r) for r in with_message]
+    cited, resolved = _resolving()
     return {
         "agent_decisions": len(outcome),
         "agent_recorded": sum(1 for o in outcome if o["message_id"] in recorded),
         "person_decisions": len(people), "person_recorded": person_ok,
         "reason_needed": acted["needed"], "reason_kept": kept, "refused": acted["refused"],
         "records": len(with_message), "to_step": sum(t[0] for t in traced),
-        "to_evidence": sum(t[1] for t in traced),
+        "to_evidence": sum(t[1] for t in traced), "cited": cited, "resolved": resolved,
         "events": events[0], "attempts": events[1], "notified": rows,
         "sent": by_status.get("sent", 0), "failed": by_status.get("failed", 0),
         "skipped": by_status.get("skipped", 0),
@@ -229,7 +281,8 @@ def summary(rows: list[dict[str, Any]]) -> dict[str, float | None]:
             "refused": share("refused", "reason_needed"),
             "to_step": share("to_step", "records"),
             "notified": share("notified", "attempts"),
-            "to_evidence": share("to_evidence", "records")}
+            "to_evidence": share("to_evidence", "records"),
+            "resolved": share("resolved", "cited")}
 
 
 def evaluate() -> dict[str, Any]:
@@ -249,7 +302,8 @@ LABELS = {"agent_recorded": ("agent decisions recorded", "agent_decisions"),
           "refused": ("refused without a reason", "reason_needed"),
           "to_step": ("traceable to a step", "records"),
           "notified": ("notification attempts recorded", "attempts"),
-          "to_evidence": ("traceable to evidence (no target)", "records")}
+          "to_evidence": ("traceable to evidence", "records"),
+          "resolved": ("cited evidence that resolves", "cited")}
 
 
 def to_markdown(result: dict[str, Any]) -> str:

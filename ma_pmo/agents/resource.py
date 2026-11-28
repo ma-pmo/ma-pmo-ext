@@ -17,7 +17,7 @@ from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.connectors.calendar import CalendarConnector, get_calendar
 from ma_pmo.core import kpi, protocol
 from ma_pmo.core.kpi import Axis
-from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
+from ma_pmo.core.schemas.message import AgentMessage, EvidenceRef, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.allocation_v1 import AllocationLine, AllocationV1
 from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -132,6 +132,10 @@ class ResourceAgent(BaseAgent[AllocationV1]):
             payload=MessagePayload(schema_="allocation.v1", data=alloc.model_dump()),
             confidence=0.9,
             human_gate_required=gate,
+            # each project's skill and work, as the tracker gave them (people come from the
+            # resource table, which has no evidence kind of its own)
+            evidence=[EvidenceRef(kind="tracker", ref=p["project_id"], field=f)
+                      for p in projects for f in ("skill", "tasks") if f in p],
         )
         protocol.publish(msg)
         return alloc, msg

@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- **Decisions cite their evidence** ([docs/RECORDS-EVAL.md](docs/RECORDS-EVAL.md)): gate reviews (A6), reports (A5), risk alerts (A4) and allocations (A3) now cite the tracker fields, messages and lessons they rest on. Traceable to evidence goes from 64% to 100% on the scenarios and from 76% to 100% on the review cases. A new measure checks that every cited item exists, and all 4,239 do. The targets were committed before the change.
+
 ## [0.10.1] - 2026-11-28
 
 Personal-data masking is enforced by default, and the injection check is measured on public data it has never seen. It misses most attacks there, so it stays a signal in the log, not a defence.
@@ -259,6 +262,8 @@ First public release.
 ## 변경 내역 (한국어)
 
 ### [Unreleased]
+
+- 변경: **결정이 근거를 인용**([docs/RECORDS-EVAL.ko.md](docs/RECORDS-EVAL.ko.md)). 게이트 심사(A6), 보고서(A5), 위험 경보(A4), 인력 배정(A3)이 기대는 트래커 필드, 메시지, 교훈을 인용합니다. 근거까지 추적이 시나리오에서 64%에서 100%로, 리뷰 사례에서 76%에서 100%로 올랐습니다. 인용한 근거가 실제로 있는지 새로 재며, 4,239개 모두 있습니다. 목표는 바꾸기 전에 커밋했습니다.
 
 ### [0.10.1] - 2026-11-28
 

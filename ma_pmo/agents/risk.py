@@ -14,13 +14,18 @@ from datetime import UTC, datetime
 
 from ma_pmo.agents import common, risk_calibration
 from ma_pmo.agents.base import BaseAgent
-from ma_pmo.agents.risk_signals import ProjectSignals, baseline_severity, compute_signals
+from ma_pmo.agents.risk_signals import (
+    SIGNAL_FIELDS,
+    ProjectSignals,
+    baseline_severity,
+    compute_signals,
+)
 from ma_pmo.connectors.base import IssueTrackerConnector
 from ma_pmo.core import kpi, llm, protocol, tracing
 from ma_pmo.core.i18n import tr
 from ma_pmo.core.kpi import Axis
 from ma_pmo.core.obs import get_logger
-from ma_pmo.core.schemas.message import AgentMessage, Intent, MessagePayload
+from ma_pmo.core.schemas.message import AgentMessage, EvidenceRef, Intent, MessagePayload
 from ma_pmo.core.schemas.payloads.risk_alert_v1 import RiskAlertV1
 from ma_pmo.core.scope import DEFAULT_SCOPE
 from ma_pmo.core.state.blackboard import PortfolioState
@@ -208,6 +213,8 @@ class RiskAgent(BaseAgent[RiskAlertV1]):
             # the calibrated chance that the tasks this alert points at slip (risk_calibration.py)
             confidence=risk_calibration.alert_confidence(sig, project or {}),
             human_gate_required=gate,  # high severity goes through the human approval gate
+            evidence=[EvidenceRef(kind="tracker", ref=sig.project_id, field=f)
+                      for f in SIGNAL_FIELDS if f in (project or {})],  # what the signals read
         )
         protocol.publish(msg)
         return alert, msg
